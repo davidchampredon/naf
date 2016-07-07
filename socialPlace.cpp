@@ -19,6 +19,8 @@ string SPtype2string(SPtype x){
 	if(x == SP_hospital)	res = "Hospital";
 	if(x == SP_workplace)	res = "Workplace";
 	if(x == SP_other)		res = "Other public space";
+	if(x == SP_pubTransp)	res = "Public transport";
+	if(x == SP_random)		res = "RANDOM";
 	return res;
 }
 

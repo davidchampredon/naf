@@ -25,7 +25,15 @@ protected:
 	
 	world	_world;
 	double	_horizon;
-	double	_timestep;
+	double	_current_time;
+	
+	unsigned int	_current_incidence;
+	
+	
+	// time series
+	vector<double>			_ts_times;
+	vector<unsigned int>	_ts_incidence;
+	
 	
 	
 public:
@@ -37,9 +45,21 @@ public:
 	Simulation();
 	Simulation(world w, double h) {_world = w; _horizon = h;}
 	
+	// Simulate
+	void run();
+	
+	
+	// Set functions
+	
+	void set_current_time(double t) {_current_time = t;}
+	
 	// Get functions
 	
-	world get_world() {return _world;}
+	world	get_world() {return _world;}
+	
+	double					get_current_time()	{return _current_time;}
+	vector<double>			get_ts_times()		{return _ts_times;}
+	vector<unsigned int>	get_ts_incidence()	{return _ts_incidence;}
 	
 	
 	// Migration
@@ -52,9 +72,8 @@ public:
 	
 	// Epidemic
 	
-
 	unsigned int transmission_oneSP(unsigned int k, double contact_rate, double dt);
-	
+	void transmission_world(double timeslice);
 	unsigned int prevalence();
 	
 	// Miscelleanous

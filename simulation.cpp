@@ -11,11 +11,49 @@
 
 void Simulation::test(){
 	double p = _modelParam.get_prm_double("proba_move");
-	double cr = _modelParam.get_prm_double("contact_rate");
-	move_individuals(SP_household, p);
-	transmission_oneSP(1, cr, 1.0);
+//	double cr = _modelParam.get_prm_double("contact_rate");
+	//move_individuals(SP_household, p);
+	//transmission_oneSP(1, cr, 1.0);
+	move_individuals_sched(2, p);
 }
 
+
+void Simulation::run(){
+	/// Run the simulated epidemic
+	
+	_current_time = 0.0;
+	
+	// CHANGE THAT, IT's UGLY AND DANGEROUS
+	vector<double> timeslice = _world[0].get_indiv()[0].get_schedule().get_timeslice();
+	// - - - - - - - - -
+	unsigned long nts = timeslice.size();
+	unsigned int k = 0;
+	
+	// Retrieve all model parameters:
+	double p = _modelParam.get_prm_double("proba_move");
+	
+	
+	// MAIN LOOP FOR TIME
+	
+	for (_current_time=0.0; _current_time < _horizon; ) {
+		
+		unsigned int idx_timeslice = k % nts;
+		cout << "k = " << k << " ; time slice = " << idx_timeslice << " ; currTime = " << _current_time <<endl;
+		
+		// Actions:
+		move_individuals_sched(idx_timeslice, p);
+		transmission_world(timeslice[idx_timeslice]);
+
+		// Record for time series:
+		_ts_times.push_back(_current_time);
+		_ts_incidence.push_back(_current_incidence);
+		
+		// Advance time:
+		_current_time += timeslice[idx_timeslice];
+		k++;
+	}
+	cout << endl << endl << " DEBUG::simulation completed."<< endl;
+}
 
 
 
@@ -38,6 +76,8 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 				// to go for this timeslice, according to its schedule
 				SPtype sptype = tmp.get_schedule().get_sp_type()[idx_timeslice];
 				
+//				cout << " DEBUG: sptype: " << SPtype2string(sptype) <<endl;
+				
 				// Retrieve the actual destination:
 				
 				ID id_dest = __UNDEFINED_ID;
@@ -47,6 +87,8 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 				if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
 				if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
 				if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
+				
+//				cout << " DEBUG: SP ID: " << id_dest <<endl;
 				
 				// if destination not defined or
 				// if indiv is already here, do nothing
@@ -139,18 +181,24 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	
 	stopif(k >= _world.size(), "asking for an inexistent social place");
 	
+	// number of infected
+	// TO DO: distinguish INFECTED vs INFECTIOUS
 	unsigned int n = _world[k].get_prevalence();
+	// number of susceptible in this social place:
+	unsigned int allpop = (unsigned int)(_world[k].get_size());
+	stopif(allpop < n, "BOOK KEEPING PROBLEM!");
+	unsigned int nS = allpop - n;
+	
 	unsigned int inc = 0;
 	
-	if (n > 0){
+	if (n > 0 && nS > 0){
 		
 		// Calculate total number of contacts:
 		unsigned int nContacts = (unsigned int)(contact_rate * n * dt);
 		
 		cout << " DEBUG TRANSMISSION: nContacts: " << nContacts << endl;
 		
-		// number of susceptible in this social place:
-		//unsigned int nS = _world[k].get_size() - n;
+		
 		
 		// Susceptible candidates for transmission:
 		vector<unsigned int> susc = _world[k].pick_rnd_susceptibles(nContacts);
@@ -184,6 +232,18 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	
 }
 
+
+void Simulation::transmission_world(double timeslice){
+	/// Simulates disease transmissions in the whole world (all social places)
+	
+	unsigned int incidence = 0;
+	double cr = _modelParam.get_prm_double("contact_rate");
+	
+	for(unsigned int k=0; k < _world.size(); k++){
+		incidence += transmission_oneSP(k, cr, timeslice);
+	}
+	_current_incidence = incidence;
+}
 
 
 unsigned int Simulation::census_total_alive(){

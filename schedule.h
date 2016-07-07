@@ -52,6 +52,7 @@ public:
 	// Get functions:
 	vector<SPtype>	get_sp_type() {return _sp_type;}
 	string			get_name() {return _name;}
+	vector<double>	get_timeslice(){return _timeslice;}
 };
 
 

@@ -14,8 +14,6 @@
 
 #include <random>
 
-
-
 #include "individual.h"
 #include "socialPlace.h"
 #include "simulation.h"
@@ -27,6 +25,10 @@ using namespace std;
 
 
 /*
+ TO DO:
+ - create large number of individuals, with age distribution
+ - create large number of social places, associate individuals
+ -
  
  */
 
@@ -57,22 +59,23 @@ int main(int argc, const char * argv[]) {
 	socialPlace sp1(A1,0, SP_school);
 	socialPlace sp2(A2,1, SP_household);
 	socialPlace sp3(A3,2, SP_workplace);
-	socialPlace sp4(A3,2, SP_pubTransp);
+	socialPlace sp4(A3,3, SP_pubTransp);
 	
 	sp1.displayInfo();
 	sp2.displayInfo();
 	sp3.displayInfo();
+	sp4.displayInfo();
 	
 	vector<socialPlace> spvec;
 	spvec.push_back(sp1);
 	spvec.push_back(sp2);
 	spvec.push_back(sp3);
-	
+	spvec.push_back(sp4);
 	
 	// Schedule
 	vector<double> timeslice {0.3, 0.5, 0.2};
 	vector<SPtype> worker_sed {SP_pubTransp, SP_workplace, SP_household};
-	vector<SPtype> worker_trav {SP_pubTransp, SP_other, SP_household};
+	vector<SPtype> worker_trav {SP_pubTransp, SP_household, SP_school};
 	
 	schedule sched_worker_sed(worker_sed, timeslice, "woker_sed");
 	schedule sched_worker_trav(worker_trav, timeslice, "worker_trav");
@@ -90,6 +93,7 @@ int main(int argc, const char * argv[]) {
 		tmp.set_id_sp_school(sp1);
 		tmp.set_id_sp_household(sp2);
 		tmp.set_id_sp_workplace(sp3);
+		tmp.set_id_sp_pubTransp(sp4);
 		
 		tmp.set_immunity(0.0);
 		tmp.set_frailty(1.0);
@@ -116,26 +120,28 @@ int main(int argc, const char * argv[]) {
 	spvec[2].displayInfo();
 	
 	
-	cout << " - - - MOVE - - - "<<endl;
+	cout << endl <<  " - - - MOVE - - - "<<endl;
 	
+	double horizon = 10;
+	Simulation sim(spvec, horizon);
 	
-	Simulation sim(spvec, 0.1234);
-	
-	sim._modelParam.add_prm_double("proba_move", 0.987);
-	sim._modelParam.add_prm_double("contact_rate", 2.3);
+	sim._modelParam.add_prm_double("proba_move", 0.90);
+	sim._modelParam.add_prm_double("contact_rate", 1.0);
 	
 	cout <<"total prev0 = "<< sim.prevalence()<<endl;
 	
 	sim.test();
+	
 	sim.get_world()[0].displayInfo();
 	sim.get_world()[1].displayInfo();
 	sim.get_world()[2].displayInfo();
+	sim.get_world()[3].displayInfo();
 	
 	cout <<"total pop = "<< sim.census_total_alive()<<endl;
 	cout <<"total prev = "<< sim.prevalence()<<endl;
 	
 	
-	
+	sim.run();
 	
 	
 	//	// Locations
