@@ -16,7 +16,7 @@ void stopif(bool condition, string error_msg,
 	if (condition)
 	{
 		cerr << endl << " *=*=*=*=*=*=* ERROR *=*=*=*=*=*=* " << endl<<endl;
-		cerr<<"In function: "<<string(ff)<<endl<<endl;
+		cerr <<" In function: "<<string(ff)<<endl<<endl;
 		cerr << error_msg <<endl;
 		cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* " << endl;
 		exit(error_code);

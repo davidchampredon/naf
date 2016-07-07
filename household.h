@@ -15,27 +15,27 @@
 #include "individual.h"
 
 
-class household{
-	
-public:
-	
-	ID                 _id;
-	unsigned long      _size;
-	vector<ID>         _id_indiv;
-	location           _location;
-	
-	household();
-	household(ID id, location loc);
-	
-	
-	location get_location(){return _location;}
-	
-	
-	void populate_household(vector<individual>& indiv, vector<ID> idvec);
-	
-	void displayInfo();
-	
-};
+//class household{
+//	
+//public:
+//	
+//	ID                 _id;
+//	unsigned long      _size;
+//	vector<ID>         _id_indiv;
+//	location           _location;
+//	
+//	household();
+//	household(ID id, location loc);
+//	
+//	
+//	location get_location(){return _location;}
+//	
+//	
+//	void populate_household(vector<individual>& indiv, vector<ID> idvec);
+//	
+//	void displayInfo();
+//	
+//};
 
 
 
