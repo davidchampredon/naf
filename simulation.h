@@ -13,22 +13,63 @@
 
 #include "individual.h"
 #include "socialPlace.h"
+#include "modelParam.h"
 
 
 using world = vector<socialPlace>;
 
 
+class Simulation{
+
+protected:
+	
+	world	_world;
+	double	_horizon;
+	double	_timestep;
+	
+	
+public:
+	
+	modelParam _modelParam;
+	
+	// Constructors
+	
+	Simulation();
+	Simulation(world w, double h) {_world = w; _horizon = h;}
+	
+	// Get functions
+	
+	world get_world() {return _world;}
+	
+	
+	// Migration
+
+	void move_individuals_sched(unsigned int idx_timeslice, double proba);
+	void move_individuals(const SPtype sptype, double proba);
+	void move_one_individual(unsigned int k,unsigned int i, const SPtype sptype);
+	
+	
+	
+	// Epidemic
+	
+
+	unsigned int transmission_oneSP(unsigned int k, double contact_rate, double dt);
+	
+	unsigned int prevalence();
+	
+	// Miscelleanous
+
+	unsigned int census_total_alive();
+	void test();
+	
+	
+	
+};
+
 // DELETE??
 inline void acquireDisease(individual& x){
 	x.acquireDisease();
 }
-
-
-void move_indiv(const SPtype sptype, world& spvec, double proba);
-
-
-
-unsigned int transmission(socialPlace& sp, double contact_rate, double dt);
 
 
 #endif /* defined(__naf__simulation__) */

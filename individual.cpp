@@ -10,7 +10,7 @@
 #include "socialPlace.h"
 
 void individual::base_constructor(){
-	_isalive = true;
+	_is_alive = true;
 	_id = __UNDEFINED_ID;
 	_age = 0.0;
 	_immunity = 0.0;
@@ -78,7 +78,7 @@ void individual::displayInfo(){
 	
 	cout << endl << "-- " << endl;
 	cout << "individual ID: " << _id << endl;
-	cout << "individual alive: " << _isalive << endl;
+	cout << "individual alive: " << _is_alive << endl;
 	cout << "individual age: " << _age << endl;
 	cout << "individual infected: " << _is_infected << endl;
 	cout << "individual DOI: " << _doi << endl;
@@ -89,5 +89,6 @@ void individual::displayInfo(){
 	cout << "individual's other pub. space SP id: " << _id_sp_other << endl;
 	cout << "individual's hospital SP id: " << _id_sp_hospital << endl;
 	cout << "individual's pubTransp SP id: " << _id_sp_pubTransp << endl;
+	cout << "individual's schedule name: " << _schedule.get_name() << endl;
 	cout << "-- " << endl;
 }

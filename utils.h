@@ -19,6 +19,18 @@ using namespace std;
 
 using ID = unsigned int;
 
+// Warning: order matters!
+// social places ('SP') types 
+enum SPtype {
+	SP_household,
+	SP_workplace,
+	SP_school,
+	SP_other,
+	SP_hospital,
+	SP_pubTransp, // public transportations
+	SP_random // any of the above
+};
+
 
 // Global constants
 

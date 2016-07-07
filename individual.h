@@ -11,7 +11,9 @@
 
 #include <stdio.h>
 #include <iostream>
+
 #include "utils.h"
+#include "schedule.h"
 
 
 enum scheduleType {
@@ -28,7 +30,7 @@ protected:
 
 	ID		_id;
 	double	_age;
-	bool	_isalive;
+	bool	_is_alive;
 	
 	// Medical
 	double	_immunity;   // between 0 and 1.0 (1=completely immune)
@@ -47,6 +49,9 @@ protected:
 	ID	_id_sp_hospital;
 	ID	_id_sp_pubTransp;
 	
+	// Schedule
+	schedule _schedule;
+	
 	
 public:
 	
@@ -56,6 +61,7 @@ public:
 	individual();
 	individual(ID id, double age);
 	individual(ID id, double age, ID id_household);
+	
 	
 	// Set functions
 	
@@ -71,8 +77,10 @@ public:
 	void set_immunity(double x)	{_immunity = x;}
 	void set_frailty(double x)	{_frailty = x;}
 	
+	void set_schedule(schedule s) {_schedule = s;}
 	
 	void forget_id_sp_household(){_id_sp_household = __UNDEFINED_ID;}
+	
 	
 	// Get functions
 	
@@ -81,13 +89,17 @@ public:
 	ID get_id_sp_workplace()	{return _id_sp_workplace;}
 	ID get_id_sp_school()		{return _id_sp_school;}
 	ID get_id_sp_other()		{return _id_sp_other;}
-	ID get_id_sp_hospital()	{return _id_sp_hospital;}
+	ID get_id_sp_hospital()		{return _id_sp_hospital;}
 	ID get_id_sp_pubTransp()	{return _id_sp_pubTransp;}
 	
 	double	get_immunity()		{return _immunity;}
 	double	get_frailty()		{return _frailty;}
 	
 	bool is_infected()		{return _is_infected;}
+	bool is_alive()			{return _is_alive;}
+	
+	schedule get_schedule() {return _schedule;}
+	
 	
 	// Epidemiology
 	void acquireDisease() {_is_infected = true; _doi= SUPERTINY;}

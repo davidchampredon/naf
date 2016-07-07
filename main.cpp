@@ -19,8 +19,9 @@
 #include "individual.h"
 #include "socialPlace.h"
 #include "simulation.h"
+#include "utils.h"
 
-
+//#include "schedule.h"
 
 using namespace std;
 
@@ -34,13 +35,12 @@ using namespace std;
 int main(int argc, const char * argv[]) {
 	
 	
-//	vector<int> x {5,8,9,12};
-//	
-//	auto pos = distance(x.begin(), find(x.begin(),x.end(),8));
-//	cout<<"TEST="<<pos<<endl;
-//	
-//	x.erase(x.begin()+ pos);
-//	
+//
+//	vector<double> y {0.2, 0.5, 0.3};
+//	vector<SPtype> w {SP_school, SP_household, SP_hospital};
+//	schedule sched(y);
+//	sched.set_sp_type(w);
+//
 //	exit(99);
 	
 	string region1 = "Halton";
@@ -57,6 +57,7 @@ int main(int argc, const char * argv[]) {
 	socialPlace sp1(A1,0, SP_school);
 	socialPlace sp2(A2,1, SP_household);
 	socialPlace sp3(A3,2, SP_workplace);
+	socialPlace sp4(A3,2, SP_pubTransp);
 	
 	sp1.displayInfo();
 	sp2.displayInfo();
@@ -66,6 +67,16 @@ int main(int argc, const char * argv[]) {
 	spvec.push_back(sp1);
 	spvec.push_back(sp2);
 	spvec.push_back(sp3);
+	
+	
+	// Schedule
+	vector<double> timeslice {0.3, 0.5, 0.2};
+	vector<SPtype> worker_sed {SP_pubTransp, SP_workplace, SP_household};
+	vector<SPtype> worker_trav {SP_pubTransp, SP_other, SP_household};
+	
+	schedule sched_worker_sed(worker_sed, timeslice, "woker_sed");
+	schedule sched_worker_trav(worker_trav, timeslice, "worker_trav");
+	
 	
 	
 	// Individuals
@@ -82,6 +93,9 @@ int main(int argc, const char * argv[]) {
 		
 		tmp.set_immunity(0.0);
 		tmp.set_frailty(1.0);
+		
+		tmp.set_schedule(sched_worker_sed);
+		if(i>10) tmp.set_schedule(sched_worker_trav);
 		
 		indivvec.push_back(tmp);
 		tmp.displayInfo();
@@ -101,58 +115,26 @@ int main(int argc, const char * argv[]) {
 	spvec[1].displayInfo();
 	spvec[2].displayInfo();
 	
+	
 	cout << " - - - MOVE - - - "<<endl;
 	
-	move_indiv(SP_workplace, spvec, 0.90);
 	
-	spvec[0].displayInfo();
-	spvec[1].displayInfo();
-	spvec[2].displayInfo();
+	Simulation sim(spvec, 0.1234);
 	
-	unsigned int inc = transmission(spvec[2], 2.5 , 1.0);
+	sim._modelParam.add_prm_double("proba_move", 0.987);
+	sim._modelParam.add_prm_double("contact_rate", 2.3);
 	
-	cout << " INCIDENCE: " << inc << endl;
+	cout <<"total prev0 = "<< sim.prevalence()<<endl;
 	
-	spvec[2].displayInfo();
+	sim.test();
+	sim.get_world()[0].displayInfo();
+	sim.get_world()[1].displayInfo();
+	sim.get_world()[2].displayInfo();
 	
-	exit(99);
-	
-	
-	vector<individual> sel_indiv;
-	sel_indiv.push_back(indivvec[2]);
-	sel_indiv.push_back(indivvec[4]);
-	sel_indiv.push_back(indivvec[6]);
-	
-	sp1.add_indiv(sel_indiv);
-	
-	indivvec[5].acquireDisease();
-	sp1.add_indiv(indivvec[5]);
-	sp1.displayInfo();
-//	indiv[4].displayInfo();
-//	sp1.get_indiv()[1].displayInfo();
-	indivvec[5].displayInfo();
-	
-	cout << "REMOVE" <<endl;
-	sp1.remove_indiv(indivvec[4]);
-	sp1.displayInfo();
-	
-	sp1.get_indiv()[0].acquireDisease();
-	sp1.displayInfo();
-	
-	acquireDisease(sp1.get_indiv()[0]);
-	sp1.displayInfo();
+	cout <<"total pop = "<< sim.census_total_alive()<<endl;
+	cout <<"total prev = "<< sim.prevalence()<<endl;
 	
 	
-	sp2.add_indiv(indivvec[20]);
-	sp2.add_indiv(indivvec[21]);
-	sp2.displayInfo();
-
-	cout << " TEST VECTOR"<<endl;
-	
-	
-	
-	spvec[0].displayInfo();
-	spvec[1].displayInfo();
 	
 	
 	

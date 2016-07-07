@@ -14,14 +14,9 @@
 
 #include "areaUnit.h"
 #include "individual.h"
+#include "utils.h"
 
-// Warning: order matters!
-enum SPtype {
-	SP_household,
-	SP_workplace, SP_school,
-	SP_other, SP_hospital,
-	SP_pubTransp // public transportations
-};
+
 
 string SPtype2string(SPtype x);
 
@@ -75,6 +70,7 @@ public:
 	
 	// Miscellenaous:
 	void displayInfo();
+	unsigned int	census_alive();
 	
 };
 

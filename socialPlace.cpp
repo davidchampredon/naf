@@ -192,3 +192,14 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 	
 	return pos;	
 }
+
+
+unsigned int socialPlace::census_alive(){
+	/// Counts all individuals alive
+	
+	unsigned int cnt = 0;
+	for(int i=0; i<_indiv.size(); i++){
+		if(_indiv[i].is_alive()) cnt++;
+	}
+	return cnt;
+}
