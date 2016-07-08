@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <limits.h>
+#include <ctime>
 
 #include <random>
 
@@ -36,6 +37,7 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 	
+	auto t0 = std::chrono::system_clock::now();
 	
 //
 //	vector<double> y {0.2, 0.5, 0.3};
@@ -52,8 +54,6 @@ int main(int argc, const char * argv[]) {
 	areaUnit A2(2, "Burlington", id_region1, region1);
 	areaUnit A3(3, "Hamilton", id_region1, region1);
 	
-	A1.displayInfo();
-	
 	vector<areaUnit> A {A1,A2,A3};
 	
 	// Schedule
@@ -67,25 +67,30 @@ int main(int argc, const char * argv[]) {
 	
 	
 	double horiz = 20;
-	unsigned int N_sp		= 100;
-	unsigned int N_indiv	= 5000;
+	unsigned int N_sp		= 7000;
+	unsigned int N_indiv	= 100000;
 	
+	cout <<endl<<  " Generating population ..." << endl;
 	world W = build_random(N_sp, A);
 	populate_random_with_indiv(W, N_indiv, sched);
-	displayPopulationSize(W);
+	cout << " done."<<endl;
+	if(N_sp<1000) displayPopulationSize(W);
 	
 
 	Simulation sim(W, horiz);
 	
 	sim.seed_infection({0,1}, {2,1});
 	
-	sim.displayPopulationSplit();
+	if(N_sp<1000) sim.displayPopulationSplit();
 	
 	sim._modelParam.add_prm_double("proba_move", 0.90);
 	sim._modelParam.add_prm_double("contact_rate", 3.0);
 
 	sim.run();
 	
+	auto t1 = std::chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = t1-t0;
+	cout << "TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
 	return 0;
 	/*
 	// Define social places:

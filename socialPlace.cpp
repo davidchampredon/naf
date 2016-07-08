@@ -301,7 +301,7 @@ vector<socialPlace> build_random(unsigned int N, vector<areaUnit> auvec){
 		v.push_back(tmp);
 		
 		//DEBUG
-		cout<<"DEBUG sptype = "<<SPtype2string(sptype)<< " ; area unit ID: " << A.get_id_au()<<endl;
+		//cout<<"DEBUG sptype = "<<SPtype2string(sptype)<< " ; area unit ID: " << A.get_id_au()<<endl;
 	}
 	
 	return v;
