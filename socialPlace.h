@@ -26,7 +26,7 @@ class socialPlace: public areaUnit{
 protected:
 	
 	SPtype			_type;
-	ID				_id_sp;
+	ID				_id_sp;  
 	unsigned long	_size;
 	
 	vector<individual> _indiv;
@@ -47,7 +47,7 @@ public:
 	
 	// Movements of individuals:
 	ID find_dest(unsigned int pos, unsigned int idx_timeslice);
-	void add_indiv(individual indiv);
+	void add_indiv(individual& indiv);
 	void add_indiv(vector<individual>& indiv);
 	void remove_indiv(individual& indiv);
 	void remove_indiv(unsigned int pos);
@@ -60,10 +60,10 @@ public:
 	
 	
 	// Get functions:
-	SPtype	get_type() const {return _type;}
-	ID		get_id_sp() const {return _id_sp;}
-	unsigned long			get_size(){return _size;}
-	unsigned int			get_prevalence(){return _prevalence;}
+	SPtype			get_type() const {return _type;}
+	ID				get_id_sp() const {return _id_sp;}
+	unsigned long	get_size() const {return _size;}
+	unsigned int	get_prevalence() const {return _prevalence;}
 	vector<individual>	get_indiv() {return _indiv;}
 	
 	
@@ -77,5 +77,18 @@ public:
 	void displayInfo();
 	unsigned int	census_alive();
 };
+
+
+vector<socialPlace> build_random(unsigned int n_sp, vector<areaUnit> auvec);
+void populate_random_with_indiv(vector<socialPlace>& v, unsigned int total_indiv, vector<schedule> sched);
+
+unsigned int  choose_SPtype_random(const vector<socialPlace>& sp, SPtype x);
+
+
+void displayPopulationSize(const vector<socialPlace>& sp);
+
+
+
+
 
 #endif /* defined(__naf__socialPlace__) */

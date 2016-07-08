@@ -28,7 +28,8 @@ enum SPtype {
 	SP_other,
 	SP_hospital,
 	SP_pubTransp, // public transportations
-	SP_random // any of the above
+	SP_RANDOM,	// any of the above, used for random movements
+	SP_MAX = 6	// count how many above (except SP_RANDOM)
 };
 
 

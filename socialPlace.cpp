@@ -20,7 +20,7 @@ string SPtype2string(SPtype x){
 	if(x == SP_workplace)	res = "Workplace";
 	if(x == SP_other)		res = "Other public space";
 	if(x == SP_pubTransp)	res = "Public transport";
-	if(x == SP_random)		res = "RANDOM";
+	if(x == SP_RANDOM)		res = "RANDOM";
 	return res;
 }
 
@@ -77,7 +77,7 @@ void socialPlace::displayInfo(){
 	cout << "SP id: " << _id_sp << endl;
 	cout << " Associated AU:";
 	displayInfo_AU();
-
+	
 	cout << "Num. of indiv: " << _indiv.size() << " (check: " << _size << ")" << endl;
 	cout << "indiv ids: ";
 	for(int i=0; i<_indiv.size(); i++) cout << " [" <<_indiv[i].get_id() << "]";
@@ -95,7 +95,7 @@ void socialPlace::displayInfo(){
 
 
 
-void socialPlace::add_indiv(individual newindiv){
+void socialPlace::add_indiv(individual & newindiv){
 	/// Add a new individual to _existing_ ones
 	
 	// update ID of this SP for new individual:
@@ -110,16 +110,16 @@ void socialPlace::add_indiv(individual newindiv){
 
 void socialPlace::add_indiv(vector<individual>& newindiv){
 	/// Add individuals to _existing_ ones
-
+	
 	for(int i=0; i<newindiv.size(); i++)
 		add_indiv(newindiv[i]);
 	
-//	// set ID of this SP for all new individuals:
-//	for(int i=0; i<newindiv.size(); i++) newindiv[i].set_id_sp_current(_id_sp);
-//	
-//	_indiv.insert(_indiv.end(), newindiv.begin(), newindiv.end());
+	//	// set ID of this SP for all new individuals:
+	//	for(int i=0; i<newindiv.size(); i++) newindiv[i].set_id_sp_current(_id_sp);
+	//
+	//	_indiv.insert(_indiv.end(), newindiv.begin(), newindiv.end());
 	// update size:
-//	_size = _indiv.size();
+	//	_size = _indiv.size();
 }
 
 
@@ -129,9 +129,9 @@ void socialPlace::remove_indiv(individual& x){
 	// find the position of individual 'x' in the vector:
 	auto pos = distance(_indiv.begin(), find(_indiv.begin(),_indiv.end(),x));
 	stopif(pos>=_indiv.size(), "Try to remove ABSENT individual from social place!");
-
+	
 	_indiv.erase(_indiv.begin()+pos);
-
+	
 	// update ID (function 'add_individual' will specify ID)
 	x.set_id_sp_current(__UNDEFINED_ID);
 	
@@ -160,14 +160,14 @@ void socialPlace::remove_indiv(unsigned int pos){
 
 void socialPlace::remove_indiv(vector<unsigned int> posvec){
 	/// Remove SEVERAL individuals given their INITIAL POSITION in vector '_indiv' in this social place.
-
-//	stopif(posvec[max_element(posvec.begin(),posvec.end())]>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
-
+	
+	//	stopif(posvec[max_element(posvec.begin(),posvec.end())]>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
+	
 	// posvec must be sorted
 	sort(posvec.begin(), posvec.end());
 	
 	for(int i=0; i<posvec.size(); i++){
-
+		
 		unsigned int idx = posvec[i]-i; // '-i' to take into account the shrinking vector
 		
 		cout << "DEBUG: removing indiv ID_"<<_indiv[idx].get_id();
@@ -198,7 +198,7 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 	
 	// WARNING: BRUTE FORCE => SLOW!
 	// TO DO: OPTIMIZE
-
+	
 	vector<unsigned int> pos;
 	
 	for (unsigned int i=0; i<_indiv.size() ; i++){
@@ -208,25 +208,25 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 	// Shuffle elements (guarantees random pick)
 	random_shuffle(pos.begin(), pos.end());
 	pos.resize(num);
-
+	
 	return pos;
 	
 	/* TRY TO OPTIMIZE BUT DOES NOT WORK!!!
 	 
-	// Shuffle elements (guarantees random pick)
-	vector<individual> tmp = _indiv;
-	random_shuffle(tmp.begin(), tmp.end());
-	// Find the first 'num' susceptibles
-	vector<unsigned int> pos;
-	unsigned int cnt = 0;
-	for (unsigned int i=0; cnt < num && i<tmp.size() ; i++){
+	 // Shuffle elements (guarantees random pick)
+	 vector<individual> tmp = _indiv;
+	 random_shuffle(tmp.begin(), tmp.end());
+	 // Find the first 'num' susceptibles
+	 vector<unsigned int> pos;
+	 unsigned int cnt = 0;
+	 for (unsigned int i=0; cnt < num && i<tmp.size() ; i++){
 		bool is_susceptible = !(tmp[i].is_infected());
 		if (is_susceptible) {
-			pos.push_back(i);
-			cnt++;
+	 pos.push_back(i);
+	 cnt++;
 		}
-	}
-	return pos;	
+	 }
+	 return pos;
 	 */
 }
 
@@ -279,6 +279,126 @@ void socialPlace::acquireDisease(unsigned int pos){
 	/// Individual at position 'pos' in '_indiv' acquires the disease
 	
 	_indiv[pos].acquireDisease();
-	_prevalence++;	
+	_prevalence++;
 }
+
+
+
+vector<socialPlace> build_random(unsigned int N, vector<areaUnit> auvec){
+	/// Build randomly 'N' social places using provided area units
+	
+	unsigned long n_au = auvec.size();
+	
+	unsigned int nSPtype = SP_MAX;
+	
+	vector<socialPlace> v;
+	
+	for (int i=0; i<N; i++) {
+		
+		areaUnit A = auvec[rand()%n_au];				// choose randomly an AU
+		SPtype sptype = (SPtype)(rand()%SP_MAX);	// choose randomly the type of SP
+		socialPlace tmp(A,i,sptype);
+		v.push_back(tmp);
+		
+		//DEBUG
+		cout<<"DEBUG sptype = "<<SPtype2string(sptype)<< " ; area unit ID: " << A.get_id_au()<<endl;
+	}
+	
+	return v;
+}
+
+void populate_random_with_indiv(vector<socialPlace> & sp,
+								ID n_indiv,
+								vector<schedule> sched){
+	/// Create and distribute N individuals among all SP in 'sp'.
+	/// Individuals have schedule randomly allocated.
+	
+	
+	// STEP 1 - create individuals
+	
+	vector<individual> indivvec;
+	
+	for(int i=0; i<n_indiv; i++){
+		double age = rand() % 90 + 1;
+		
+		individual tmp(i, age);
+		
+		unsigned int id_rnd;
+
+		id_rnd = choose_SPtype_random(sp, SP_school);
+		tmp.set_id_sp_school(sp[id_rnd]);
+		
+		id_rnd = choose_SPtype_random(sp, SP_hospital);
+		tmp.set_id_sp_hospital(sp[id_rnd]);
+		
+		id_rnd = choose_SPtype_random(sp, SP_household);
+		tmp.set_id_sp_household(sp[id_rnd]);
+		
+		id_rnd = choose_SPtype_random(sp, SP_workplace);
+		tmp.set_id_sp_workplace(sp[id_rnd]);
+		
+		id_rnd = choose_SPtype_random(sp, SP_pubTransp);
+		tmp.set_id_sp_pubTransp(sp[id_rnd]);
+		
+		id_rnd = choose_SPtype_random(sp, SP_other);
+		tmp.set_id_sp_other(sp[id_rnd]);
+		
+		
+		tmp.set_immunity(0.0);
+		tmp.set_frailty(1.0);
+		
+		tmp.set_schedule(sched[rand() % sched.size()]);
+
+		indivvec.push_back(tmp);
+		// DEBUG
+		// tmp.displayInfo();
+	}
+	
+	// STEP 2 - assign individuals to a random SP
+	
+		for (int i=0; i<indivvec.size(); i++) {
+			int sp_idx = rand() % sp.size();
+			sp[sp_idx].add_indiv(indivvec[i]);
+			//DEBUG
+			// indivvec[i].displayInfo();
+		}
+
+}
+
+unsigned int choose_SPtype_random(const vector<socialPlace>& sp, SPtype x){
+	/// Choose randomly a SP with a given SPtype. Returns the position in the vector 'sp'
+	
+	vector<unsigned int > pos;
+	for(unsigned int  i=0;i<sp.size(); i++){
+		if(sp[i].get_type()==x) pos.push_back(i);
+	}
+	
+	unsigned int choose_rnd = rand() % pos.size();
+	unsigned int  res = pos[choose_rnd];
+	return res;
+}
+
+
+
+void displayPopulationSize(const vector<socialPlace>& sp){
+	
+	cout<<endl<< " WORLD POPULATION "<<endl;
+	ID s = 0;
+	for (int i=0; i<sp.size(); i++) {
+		ID sizei = sp[i].get_size();
+		s+=sizei;
+		cout << "pos= "<< i << " ; id= "<<sp[i].get_id_sp();
+		cout << " ; popsize= "<< sizei;
+		cout << " ; type= " << SPtype2string(sp[i].get_type()) <<endl;
+	}
+	cout << "Total population: "<< s << endl;
+}
+
+
+
+
+
+
+
+
 

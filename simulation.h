@@ -69,9 +69,9 @@ public:
 	void move_one_individual(unsigned int k,unsigned int i, const SPtype sptype);
 	
 	
-	
 	// Epidemic
 	
+	void seed_infection(vector<ID> id_sp, vector<unsigned int> I0);
 	unsigned int transmission_oneSP(unsigned int k, double contact_rate, double dt);
 	void transmission_world(double timeslice);
 	unsigned int prevalence();

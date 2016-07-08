@@ -54,7 +54,40 @@ int main(int argc, const char * argv[]) {
 	
 	A1.displayInfo();
 	
+	vector<areaUnit> A {A1,A2,A3};
 	
+	// Schedule
+	vector<double> timeslice {0.3, 0.5, 0.2};
+	vector<SPtype> worker_sed {SP_pubTransp, SP_workplace, SP_household};
+	vector<SPtype> worker_trav {SP_pubTransp, SP_household, SP_school};
+	
+	schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
+	schedule sched_worker_trav(worker_trav, timeslice, "worker_trav");
+	vector<schedule> sched {sched_worker_sed,sched_worker_trav};
+	
+	
+	double horiz = 20;
+	unsigned int N_sp		= 100;
+	unsigned int N_indiv	= 5000;
+	
+	world W = build_random(N_sp, A);
+	populate_random_with_indiv(W, N_indiv, sched);
+	displayPopulationSize(W);
+	
+
+	Simulation sim(W, horiz);
+	
+	sim.seed_infection({0,1}, {2,1});
+	
+	sim.displayPopulationSplit();
+	
+	sim._modelParam.add_prm_double("proba_move", 0.90);
+	sim._modelParam.add_prm_double("contact_rate", 3.0);
+
+	sim.run();
+	
+	return 0;
+	/*
 	// Define social places:
 	socialPlace sp1(A1,0, SP_school);
 	socialPlace sp2(A2,1, SP_household);
@@ -72,13 +105,6 @@ int main(int argc, const char * argv[]) {
 	spvec.push_back(sp3);
 	spvec.push_back(sp4);
 	
-	// Schedule
-	vector<double> timeslice {0.3, 0.5, 0.2};
-	vector<SPtype> worker_sed {SP_pubTransp, SP_workplace, SP_household};
-	vector<SPtype> worker_trav {SP_pubTransp, SP_household, SP_school};
-	
-	schedule sched_worker_sed(worker_sed, timeslice, "woker_sed");
-	schedule sched_worker_trav(worker_trav, timeslice, "worker_trav");
 	
 	
 	
@@ -229,7 +255,7 @@ int main(int argc, const char * argv[]) {
 	//	P.displayInfo();
 	//
 	//
-	
+	*/
 	
 	return 0;
 }

@@ -299,10 +299,10 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	
 	
 	// DEBUG
-	_world[k].displayInfo();
-	cout << " IDs susceptible picked: ";
-	for	(int m=0; m<pos_s.size(); m++) cout<< _world[k].get_indiv()[pos_s[m]].get_id()<<", ";
-	cout<<endl;
+//	_world[k].displayInfo();
+//	cout << " IDs susceptible picked: ";
+//	for	(int m=0; m<pos_s.size(); m++) cout<< _world[k].get_indiv()[pos_s[m]].get_id()<<", ";
+//	cout<<endl;
 	
 	// Attempt transmission:
 	// TO DO: put that in a member function of socialPlace
@@ -315,18 +315,18 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 			//DEBUG
 //			cout << " BEFORE transmission"<<endl;
 //			_world[k].displayInfo();
-			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" is going to acquire"<<endl;
+//			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" is going to acquire"<<endl;
 			
 			// Transmission!
 			_world[k].acquireDisease(pos_s[j]);
 			
-			cout << "check infected (must=1): " << _world[k].get_indiv()[pos_s[j]].is_infected() <<endl;
+//			cout << "check infected (must=1): " << _world[k].get_indiv()[pos_s[j]].is_infected() <<endl;
 			//_world[k].displayInfo(); // DEBUG
 			
 			inc++;
 			
 			//DEBUG
-			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" acquired!"<<endl;
+//			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" acquired!"<<endl;
 //			cout << " AFTER transmission"<<endl;
 //			_world[k].displayInfo();
 		}
@@ -462,3 +462,17 @@ void Simulation::displayPopulationSplit(){
 	
 }
 
+void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
+	/// Seed infection in specified socialplaces, with specified initial number of infectious indiv
+	
+	stopif(id_sp.size() != I0.size(), "vectors must be same size");
+	
+	ID cnt = 0;
+	for(ID i=0; i<_world.size(); i++){
+		if (_world[i].get_id_sp() == id_sp[cnt]) {
+			stopif(_world[i].get_size()==0, "Cannot seed in SP_ID_" + to_string(i) + " because it is empty!");
+			for(unsigned int k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
+			cnt++;
+		}
+	}
+}

@@ -38,7 +38,11 @@ protected:
 	
 	// Disease
 	bool	_is_infected;
+	bool	_is_infectious;
+	bool	_is_recovered;
+	double	_dol; // duration of latency
 	double	_doi; // duration of infection
+
 	
 	// Social spaces linked to this individual
 	ID	_id_sp_current; // useful?
