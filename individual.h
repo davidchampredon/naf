@@ -80,6 +80,7 @@ public:
 	void set_schedule(schedule s) {_schedule = s;}
 	
 	void forget_id_sp_household(){_id_sp_household = __UNDEFINED_ID;}
+	void set_is_infected(bool x) {_is_infected = x;}
 	
 	
 	// Get functions
@@ -102,7 +103,8 @@ public:
 	
 	
 	// Epidemiology
-	void acquireDisease() {_is_infected = true; _doi= SUPERTINY;}
+	double calc_proba_acquire_disease();
+	void acquireDisease();
 	void recoverDisease() {_is_infected = false; _doi= 0.0;}
 	
 	// Miscellenaous
@@ -113,6 +115,9 @@ public:
 inline bool operator == ( individual a, individual b){
 	return (a.get_id() == b.get_id());
 }
+
+
+inline void acquireDisease(individual& x) {x.set_is_infected(true);}
 
 
 

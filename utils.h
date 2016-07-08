@@ -20,7 +20,7 @@ using namespace std;
 using ID = unsigned int;
 
 // Warning: order matters!
-// social places ('SP') types 
+// social places ('SP') types
 enum SPtype {
 	SP_household,
 	SP_workplace,
@@ -56,6 +56,22 @@ template <class T> T sumElements(vector<T> x)
 		s += x[i];
 	}
 	return s;
+}
+
+
+template <class T> void displayVector(vector<T> v)
+{
+	if(v.size()==0) cout << endl << " empty vector " << endl;
+	if(v.size() > 0){
+		cout << endl<< "(size="<<v.size()<<")"<<endl<<"[";
+		for (int i=0; i<v.size()-1; i++)
+		{
+			cout << v[i] << "; ";
+			if ((i+1)%10==0) cout<<endl;
+		}
+		cout << v[v.size()-1];
+		cout<< "]" << endl;
+	}
 }
 
 #endif

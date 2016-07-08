@@ -92,3 +92,20 @@ void individual::displayInfo(){
 	cout << "individual's schedule name: " << _schedule.get_name() << endl;
 	cout << "-- " << endl;
 }
+
+
+
+
+double individual::calc_proba_acquire_disease(){
+	/// Calculate the probability of aquiring
+	/// the disease, given an infectious contact
+	
+	// TO DO: maybe implement something more sophisticated ? (logistic curves?)
+	
+	return (1-_immunity) * _frailty ;
+}
+
+void individual::acquireDisease(){
+	 _is_infected = true;
+	_doi = SUPERTINY;
+}

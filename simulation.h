@@ -79,6 +79,8 @@ public:
 	// Miscelleanous
 
 	unsigned int census_total_alive();
+	unsigned int population_size();
+	void displayPopulationSplit();
 	void test();
 	
 	
@@ -86,9 +88,9 @@ public:
 };
 
 // DELETE??
-inline void acquireDisease(individual& x){
-	x.acquireDisease();
-}
+//inline void acquireDisease(individual& x){
+//	x.acquireDisease();
+//}
 
 
 #endif /* defined(__naf__simulation__) */

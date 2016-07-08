@@ -45,16 +45,19 @@ public:
 	socialPlace(areaUnit AU, ID id_sp, SPtype type);
 	
 	
-	// Operations on individuals:
-	void add_indiv(individual& indiv);
+	// Movements of individuals:
+	ID find_dest(unsigned int pos, unsigned int idx_timeslice);
+	void add_indiv(individual indiv);
 	void add_indiv(vector<individual>& indiv);
 	void remove_indiv(individual& indiv);
 	void remove_indiv(unsigned int pos);
 	void remove_indiv(vector<unsigned int> posvec);
 	
+	
 	// Set functions
 	void set_prevalence(unsigned int p) {_prevalence = p;}
 	void increase_prevalence() {_prevalence++;}
+	
 	
 	// Get functions:
 	SPtype	get_type() const {return _type;}
@@ -65,14 +68,14 @@ public:
 	
 	
 	// Diseases:
+	void acquireDisease(unsigned int pos);
 	vector<unsigned int> pick_rnd_susceptibles(unsigned int num);
+	vector<ID>	id_infected_bruteforce();
 	
 	
 	// Miscellenaous:
 	void displayInfo();
 	unsigned int	census_alive();
-	
 };
-
 
 #endif /* defined(__naf__socialPlace__) */

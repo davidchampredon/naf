@@ -78,27 +78,31 @@ void socialPlace::displayInfo(){
 	cout << " Associated AU:";
 	displayInfo_AU();
 
-	cout << "Num. of indiv: " << _indiv.size() << endl;
+	cout << "Num. of indiv: " << _indiv.size() << " (check: " << _size << ")" << endl;
 	cout << "indiv ids: ";
-	for(int i=0; i<_indiv.size(); i++) cout << _indiv[i].get_id() << "; ";
+	for(int i=0; i<_indiv.size(); i++) cout << " [" <<_indiv[i].get_id() << "]";
 	cout << endl;
-	cout << "SP prevalence: " << _prevalence <<endl;
+	cout << "SP prevalence: " << _prevalence << " (check: "<< id_infected_bruteforce().size()  <<")";
+	if(_prevalence != id_infected_bruteforce().size()) cout << " CHECK FAILED!";
+	cout << endl;
+	cout << "infected indiv ids: ";
+	for(int i=0; i<_indiv.size(); i++)
+		if(_indiv[i].is_infected()) {cout <<" ["<<_indiv[i].get_id() << "]";}
+	
+	cout << endl;
 	cout << "--- " << endl ;
 }
 
 
 
-void socialPlace::add_indiv(individual& newindiv){
+void socialPlace::add_indiv(individual newindiv){
 	/// Add a new individual to _existing_ ones
 	
 	// update ID of this SP for new individual:
 	newindiv.set_id_sp_current(_id_sp);
 	
 	_indiv.push_back(newindiv);
-	// update size:
 	_size++;
-	
-	// update prevalence:
 	if(newindiv.is_infected()) _prevalence++;
 }
 
@@ -140,22 +144,22 @@ void socialPlace::remove_indiv(individual& x){
 
 void socialPlace::remove_indiv(unsigned int pos){
 	/// Remove an individual given its POSITION in vector '_indiv' in this social place.
+	
 	stopif(pos>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
 	
-	bool is_infected = _indiv[pos].is_infected();
+	bool is_infected = _indiv[pos].is_infected(); // <-- MUST BE BEFORE erasing individual!
 	
 	_indiv.erase(_indiv.begin()+pos);
 	
-	// update size:
+	// Mandatory updates:
 	_size--;
-	// update prevalence:
 	if(is_infected) _prevalence--;
 }
 
 
 
 void socialPlace::remove_indiv(vector<unsigned int> posvec){
-	/// Remove SEVERAL individual given their INITIAL POSITION in vector '_indiv' in this social place.
+	/// Remove SEVERAL individuals given their INITIAL POSITION in vector '_indiv' in this social place.
 
 //	stopif(posvec[max_element(posvec.begin(),posvec.end())]>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
 
@@ -163,12 +167,22 @@ void socialPlace::remove_indiv(vector<unsigned int> posvec){
 	sort(posvec.begin(), posvec.end());
 	
 	for(int i=0; i<posvec.size(); i++){
+
+		unsigned int idx = posvec[i]-i; // '-i' to take into account the shrinking vector
+		
+		cout << "DEBUG: removing indiv ID_"<<_indiv[idx].get_id();
+		cout << " pos_"<<i<<" infected:"<<_indiv[idx].is_infected();
+		
 		// update prevalence (must be before removing, else infection info is gone!):
-		if(_indiv[posvec[i]-i].is_infected()) _prevalence--;
+		if(_indiv[idx].is_infected()) _prevalence--;
 		// remove
-		_indiv.erase(_indiv.begin()+posvec[i]-i); // '-i' to take into account the shrinking vector
+		_indiv.erase(_indiv.begin()+ idx );
 		// update size:
 		_size--;
+		
+		
+		
+		cout << " updated size: "<<_size<<" prev: "<<_prevalence << endl;
 	}
 }
 
@@ -182,17 +196,38 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 	
 	stopif(_indiv.size() < num, "Asking for too many susceptibles!");
 	
+	// WARNING: BRUTE FORCE => SLOW!
+	// TO DO: OPTIMIZE
+
+	vector<unsigned int> pos;
+	
+	for (unsigned int i=0; i<_indiv.size() ; i++){
+		bool is_susceptible = !(_indiv[i].is_infected());
+		if (is_susceptible) pos.push_back(i);
+	}
+	// Shuffle elements (guarantees random pick)
+	random_shuffle(pos.begin(), pos.end());
+	pos.resize(num);
+
+	return pos;
+	
+	/* TRY TO OPTIMIZE BUT DOES NOT WORK!!!
+	 
 	// Shuffle elements (guarantees random pick)
 	vector<individual> tmp = _indiv;
 	random_shuffle(tmp.begin(), tmp.end());
-	
 	// Find the first 'num' susceptibles
 	vector<unsigned int> pos;
-	for (unsigned int i=0; pos.size() < num && i<tmp.size() ; i++) {
-		if (tmp[i].is_infected()) pos.push_back(i);
+	unsigned int cnt = 0;
+	for (unsigned int i=0; cnt < num && i<tmp.size() ; i++){
+		bool is_susceptible = !(tmp[i].is_infected());
+		if (is_susceptible) {
+			pos.push_back(i);
+			cnt++;
+		}
 	}
-	
 	return pos;	
+	 */
 }
 
 
@@ -205,3 +240,45 @@ unsigned int socialPlace::census_alive(){
 	}
 	return cnt;
 }
+
+
+vector<ID>	socialPlace::id_infected_bruteforce(){
+	vector<ID> res;
+	for(int i=0; i<_indiv.size(); i++){
+		if(_indiv[i].is_infected()) res.push_back(_indiv[i].get_id());
+	}
+	return res;
+}
+
+
+
+
+ID socialPlace::find_dest(unsigned int pos, unsigned int idx_timeslice){
+	/// Find the ID of the social place the individual is supposed to move to
+	/// at the timeslice 'idx_timeslice' of the schedule.
+	/// (individual is in position 'pos' in the vector '_indiv')
+	// Retrieve the social place this individual is supposed
+	// to go for this timeslice, according to its schedule
+	SPtype sptype = _indiv[pos].get_schedule().get_sp_type()[idx_timeslice];
+	
+	//			Retrieve the actual destination:
+	
+	ID id_dest = __UNDEFINED_ID;
+	if(sptype == SP_household)	id_dest = _indiv[pos].get_id_sp_household();
+	if(sptype == SP_workplace)	id_dest = _indiv[pos].get_id_sp_workplace();
+	if(sptype == SP_school)		id_dest = _indiv[pos].get_id_sp_school();
+	if(sptype == SP_other)		id_dest = _indiv[pos].get_id_sp_other();
+	if(sptype == SP_hospital)	id_dest = _indiv[pos].get_id_sp_hospital();
+	if(sptype == SP_pubTransp)	id_dest = _indiv[pos].get_id_sp_pubTransp();
+	
+	return id_dest;
+}
+
+
+void socialPlace::acquireDisease(unsigned int pos){
+	/// Individual at position 'pos' in '_indiv' acquires the disease
+	
+	_indiv[pos].acquireDisease();
+	_prevalence++;	
+}
+

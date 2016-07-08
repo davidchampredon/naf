@@ -61,10 +61,10 @@ int main(int argc, const char * argv[]) {
 	socialPlace sp3(A3,2, SP_workplace);
 	socialPlace sp4(A3,3, SP_pubTransp);
 	
-	sp1.displayInfo();
-	sp2.displayInfo();
-	sp3.displayInfo();
-	sp4.displayInfo();
+//	sp1.displayInfo();
+//	sp2.displayInfo();
+//	sp3.displayInfo();
+//	sp4.displayInfo();
 	
 	vector<socialPlace> spvec;
 	spvec.push_back(sp1);
@@ -102,7 +102,7 @@ int main(int argc, const char * argv[]) {
 		if(i>10) tmp.set_schedule(sched_worker_trav);
 		
 		indivvec.push_back(tmp);
-		tmp.displayInfo();
+		//tmp.displayInfo();
 	}
 	
 	indivvec[5].acquireDisease();
@@ -111,37 +111,44 @@ int main(int argc, const char * argv[]) {
 	
 	// assign individuals to SP
 	for (int i=0; i<indivvec.size(); i++) {
-		int sp_idx = rand() % 3;
+		int sp_idx = rand() % spvec.size();
 		spvec[sp_idx].add_indiv(indivvec[i]);
 	}
 	
-	spvec[0].displayInfo();
-	spvec[1].displayInfo();
-	spvec[2].displayInfo();
 	
 	
-	cout << endl <<  " - - - MOVE - - - "<<endl;
-	
-	double horizon = 10;
+	double horizon = 20;
 	Simulation sim(spvec, horizon);
 	
 	sim._modelParam.add_prm_double("proba_move", 0.90);
-	sim._modelParam.add_prm_double("contact_rate", 1.0);
+	sim._modelParam.add_prm_double("contact_rate", 3.0);
 	
-	cout <<"total prev0 = "<< sim.prevalence()<<endl;
+//	cout <<"total prev0 = "<< sim.prevalence()<<endl;
 	
-	sim.test();
+//	sim.displayPopulationSplit();
+//	
+//	sim.test();
+//	
+//	sim.displayPopulationSplit();
 	
 	sim.get_world()[0].displayInfo();
 	sim.get_world()[1].displayInfo();
 	sim.get_world()[2].displayInfo();
 	sim.get_world()[3].displayInfo();
 	
-	cout <<"total pop = "<< sim.census_total_alive()<<endl;
-	cout <<"total prev = "<< sim.prevalence()<<endl;
+//	cout <<"total pop = "<< sim.census_total_alive()<<endl;
+//	cout <<"total prev = "<< sim.prevalence()<<endl;
 	
+//	cout << "BEFORE RUN" <<endl;
+//	sim.displayPopulationSplit();
 	
+	sim.displayPopulationSplit();
 	sim.run();
+	sim.displayPopulationSplit();
+	cout << "prevalence= "<<sim.prevalence()<<endl;
+//	cout << "AFTER RUN" <<endl;
+//	sim.displayPopulationSplit();
+
 	
 	
 	//	// Locations
