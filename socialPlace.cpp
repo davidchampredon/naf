@@ -15,15 +15,29 @@ string SPtype2string(SPtype x){
 	string res = "";
 	
 	if(x == SP_household)	res = "Household";
-	if(x == SP_school)		res = "School";
+	if(x == SP_school)	res = "School";
 	if(x == SP_hospital)	res = "Hospital";
 	if(x == SP_workplace)	res = "Workplace";
 	if(x == SP_other)		res = "Other public space";
 	if(x == SP_pubTransp)	res = "Public transport";
-	if(x == SP_RANDOM)		res = "RANDOM";
+	if(x == SP_RANDOM)	res = "RANDOM";
 	return res;
 }
 
+
+SPtype int2SPtype(unsigned int i){
+	// warning: order matters!
+	SPtype res = SP_MAX;
+	
+	if (i==0) res = SP_household;
+	if (i==1) res = SP_school;
+	if (i==2) res = SP_hospital;
+	if (i==3) res = SP_workplace;
+	if (i==4) res = SP_other;
+	if (i==5) res = SP_pubTransp;
+	
+	return res;
+}
 
 void socialPlace::base_constructor(){
 	_size = 0;
@@ -186,6 +200,15 @@ void socialPlace::remove_indiv(vector<unsigned int> posvec){
 	}
 }
 
+void socialPlace::add_linked_indiv(ID id){
+	/// Add the ID of an individual who is supposed to be linked to this social place
+	_linked_indiv_id.push_back(id);
+}
+
+void socialPlace::remove_linked_indiv(ID id){
+	/// Remove the ID of an individual who is supposed to be linked to this social place
+	_linked_indiv_id.erase(std::remove(_linked_indiv_id.begin(), _linked_indiv_id.end(), id));
+}
 
 
 
@@ -284,13 +307,10 @@ void socialPlace::acquireDisease(unsigned int pos){
 
 
 
-vector<socialPlace> build_random(unsigned int N, vector<areaUnit> auvec){
+vector<socialPlace> build_world_random(unsigned int N, vector<areaUnit> auvec){
 	/// Build randomly 'N' social places using provided area units
 	
 	unsigned long n_au = auvec.size();
-	
-	unsigned int nSPtype = SP_MAX;
-	
 	vector<socialPlace> v;
 	
 	for (int i=0; i<N; i++) {
@@ -374,7 +394,7 @@ unsigned int choose_SPtype_random(const vector<socialPlace>& sp, SPtype x){
 	}
 	
 	unsigned int choose_rnd = rand() % pos.size();
-	unsigned int  res = pos[choose_rnd];
+	unsigned int res = pos[choose_rnd];
 	return res;
 }
 
@@ -393,6 +413,149 @@ void displayPopulationSize(const vector<socialPlace>& sp){
 	}
 	cout << "Total population: "<< s << endl;
 }
+
+
+
+
+vector<socialPlace> build_world_simple(vector<SPtype> spt,
+									   vector<unsigned int> n_sp,
+									   vector< probaDistrib<unsigned int> > p_size,
+									   vector<individual>& indiv,
+									   vector<areaUnit> auvec,
+									   unsigned int seed ){
+	
+	stopif( (spt.size() != n_sp.size()) ||
+			 (spt.size() != p_size.size()),
+		   "vectors must be same size");
+	
+	// number of types of social places
+	unsigned int N_type_sp = spt.size();
+	
+	// Vector of vector of SP:
+	// one vector for each type of SP
+	// (all will be merged at the end)
+	// 'y' : pre-sampled size
+	vector< vector<socialPlace> > sp;
+	vector< vector<unsigned int> > y;
+	sp.resize(N_type_sp);
+	y.resize(N_type_sp);
+	
+	
+	for(unsigned int t=0; t<N_type_sp; t++){
+		sp[t].resize(n_sp[t]);
+		y[t].resize(n_sp[t]);
+		
+		// Create empty (no indiv linked) social place:
+		for (ID i=0; i<n_sp[t]; i++) {
+			areaUnit A = auvec[rand() % auvec.size()];
+			socialPlace x(A, i, spt[t]);
+			sp[t][i] = x;
+		}
+	}
+	
+	
+	// vector that will increment the index when the social place gets full.
+	// one index by type of SP. Initiated at 0 (:first index of vector).
+	vector<ID> cnt_sp(N_type_sp,0);
+	
+	// pre-sample from the size distributions
+	for(unsigned int t=0; t< N_type_sp; t++){
+		unsigned int N = n_sp[t];  // total number of social places of this type
+		probaDistrib<unsigned int> probD = p_size[t];  // distribution of social places' size
+		// sample the sizes of each social places
+		vector<unsigned int> y_t = probD.sample(N, seed+t);
+		y[t] = y_t;
+	}
+
+	
+	for(unsigned int i=0; i< indiv.size(); i++){
+		for(ID t=0; t< N_type_sp; t++)
+		{
+			if(sp[t][cnt_sp[t]].n_linked_indiv() >= y[t][cnt_sp[t]]){
+				// if max size reached,
+				// link this individual to the NEXT social place
+				cnt_sp[t] = cnt_sp[t] + 1;
+			}
+			indiv[i].set_id_sp(spt[t], sp[t][cnt_sp[t]]);
+		}
+	}
+	
+	vector<socialPlace> spfinal = sp[0];
+
+	// merge all vectors into a single one:
+	for(unsigned int i=1; i<sp.size(); i++)
+		spfinal.insert(spfinal.end(), sp[i].begin(), sp[i].end() );
+	
+	return spfinal;
+}
+
+//vector<socialPlace> build_world_simple(vector<SPtype> spt,
+//									   vector<unsigned int> n_sp,
+//									   vector< probaDistrib<unsigned int> > p_size,
+//									   vector<individual>& indiv,
+//									   vector<areaUnit> auvec,
+//									   unsigned int seed ){
+//	
+//	vector<socialPlace> res;
+//	unsigned int cnt = 0;
+//	
+//	for (unsigned int a=0; a<spt.size(); a++) {
+//		
+//		cout << "building "<<SPtype2string(spt[a]) << "..." <<endl;
+//		
+//		unsigned int N = n_sp[a]; // total number of social place of this type
+//		probaDistrib<unsigned int> probD = p_size[a]; // distribution of social places' size
+//		
+//		// sample the sizes of each social places
+//		vector<unsigned int> sample_size = probD.sample(N, seed+a);
+//		
+//		// step 1 - build empty social places
+//		vector<socialPlace> tmp_sp(N);
+//		for(ID i=0; i<N; i++){
+//			areaUnit A = auvec[rand() % auvec.size()];
+//			socialPlace x(A, i, spt[a]);
+//			tmp_sp[i] = x;
+//		}
+//		
+//		// step 2 - populate SP by taking individuals from vector 'indiv'
+//		for(ID i=0; i<N; i++){
+//			while (tmp_sp[i].get_size() < sample_size[i]) {
+//				if (spt[a]==SP_school)		{indiv[cnt].set_id_sp_school(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
+//				if (spt[a]==SP_pubTransp)	{indiv[cnt].set_id_sp_pubTransp(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
+//				if (spt[a]==SP_workplace)	{indiv[cnt].set_id_sp_workplace(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
+//				if (spt[a]==SP_household)	{indiv[cnt].set_id_sp_household(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
+//				if (spt[a]==SP_other)		{indiv[cnt].set_id_sp_other(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
+//				if (spt[a]==SP_hospital)	{indiv[cnt].set_id_sp_hospital(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
+//				
+//				cnt++;
+//				stopif(cnt>indiv.size(), "vector of individuals provided too small!");
+//			}
+//			res.push_back(tmp_sp[i]);
+//		}
+//		
+//	}
+//	
+//	return res;
+//	
+//}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

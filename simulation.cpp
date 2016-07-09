@@ -36,7 +36,7 @@ void Simulation::run(){
 	
 	_current_time = 0.0;
 	
-	// CHANGE THAT, IT's UGLY AND DANGEROUS
+	// TO DO: CHANGE THAT, IT's UGLY AND DANGEROUS
 	vector<double> timeslice = _world[0].get_indiv()[0].get_schedule().get_timeslice();
 	// - - - - - - - - -
 	unsigned long nts = timeslice.size();
@@ -80,7 +80,7 @@ void Simulation::run(){
 //		cout << "DEBUG: census alive: " << census_total_alive() << endl;
 //		cout << "DEBUG: population_size: " << population_size()  << endl;
 	}
-	cout << endl << endl << " DEBUG::simulation completed."<< endl;
+	cout << endl << endl << "Simulation completed."<< endl;
 	displayVector(_ts_incidence);
 	cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
 }
@@ -104,7 +104,7 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 			if ( (id_dest!=k) && (id_dest!=__UNDEFINED_ID) )
 			{
 				// take a copy of the individual
-				individual tmp = _world[k].get_indiv()[i];
+				individual tmp = _world[k].get_indiv(i);
 				
 				// Draw the chance move will actually happen:
 				// TO DO: make this proba individual-dependent
@@ -135,99 +135,6 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 	
 }
 
-//
-//void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba){
-//	
-//	/// Move individuals across social places according to their schedule
-//	
-//	for (int k=0; k<_world.size(); k++)
-//	{
-//		
-////		cout << "DEBUG: sp #"<<k<< " popsize_before_move = "<< _world[k].get_size()<<endl;
-//		
-//		vector<unsigned int> pos2move; // idx position to move (must be done at the end of the loop, bc vector keeps on changing size!)
-//		for (int i=0; i<_world[k].get_size(); i++)
-//		{
-//			// Draw the chance move will actually happen:
-//			double u = (double)(rand()) / RAND_MAX;
-//			if ( u < proba )
-//			{
-//				individual tmp = _world[k].get_indiv()[i];
-//
-//				// Retrieve the social place this individual is supposed
-//				// to go for this timeslice, according to its schedule
-//				SPtype sptype = tmp.get_schedule().get_sp_type()[idx_timeslice];
-//				
-////				cout << " DEBUG: sptype: " << SPtype2string(sptype) <<endl;
-//				
-//				// Retrieve the actual destination:
-//				
-//				ID id_dest = __UNDEFINED_ID;
-//				if(sptype == SP_household)	id_dest = tmp.get_id_sp_household();
-//				if(sptype == SP_workplace)	id_dest = tmp.get_id_sp_workplace();
-//				if(sptype == SP_school)		id_dest = tmp.get_id_sp_school();
-//				if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
-//				if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
-//				if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
-//				
-////				cout << " DEBUG: SP ID: " << id_dest <<endl;
-//				
-//				// if destination not defined or
-//				// if indiv is already here, do nothing
-//				if(id_dest != __UNDEFINED_ID &&
-//				   id_dest != k)
-//				{
-////					cout <<" DEBUG: indiv#"<<tmp.get_id() << " move from sp#" << k << " to sp#" << id_dest <<endl;
-//					
-////					cout <<"  DEBUG: popsize before sp#" << k << " = " << _world[k].get_size() <<endl;
-////					cout <<"  DEBUG: popsize before sp#" << id_dest << " = " << _world[id_dest].get_size() <<endl;
-//					// add indiv to destination
-//					_world[id_dest].add_indiv(tmp);
-//					// record its position for future deletion
-//					pos2move.push_back(i);
-//					
-////					cout <<"  DEBUG: popsize after sp#" << k << " = " << _world[k].get_size() <<endl;
-////					cout <<"  DEBUG: popsize after sp#" << id_dest << " = " << _world[id_dest].get_size() <<endl;
-//					
-//				}
-//			}
-//		}
-//		// remove from this SP the individuals that moved:
-//		if(pos2move.size()>0) {
-//			cout << " DEBUG: sp_"<< k <<endl;
-//			_world[k].remove_indiv(pos2move);
-//		}
-//		
-////		cout << "DEBUG: sp #"<<k<< " popsize_after_move = "<< _world[k].get_size()<<endl;
-//	}
-//}
-
-
-// DELETE?
-void Simulation::move_one_individual(unsigned int k,unsigned int i, const SPtype sptype){
-	/// Move only ONE individual, the i^th in the k^th social place, to its associated social place type
-	
-	individual tmp = _world[k].get_indiv()[i];
-	
-	ID id_dest = __UNDEFINED_ID;
-	
-	if(sptype == SP_household)	id_dest = tmp.get_id_sp_household();
-	if(sptype == SP_workplace)	id_dest = tmp.get_id_sp_workplace();
-	if(sptype == SP_school)		id_dest = tmp.get_id_sp_school();
-	if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
-	if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
-	if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
-	
-	if(id_dest != __UNDEFINED_ID &&
-	   id_dest != k){
-		// add indiv to destination
-		_world[id_dest].add_indiv(tmp);
-		// and remove it from this SP
-		_world[k].remove_indiv(i);
-	}
-}
-// ---- DELETE ?
-
 
 void Simulation::move_individuals(const SPtype sptype, double proba){
 	
@@ -242,7 +149,7 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 			double u = (double)(rand()) / RAND_MAX;
 			if ( u < proba )
 			{
-				individual tmp = _world[k].get_indiv()[i];
+				individual tmp = _world[k].get_indiv(i);
 				
 				ID id_dest = __UNDEFINED_ID;
 				
@@ -308,7 +215,7 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	// TO DO: put that in a member function of socialPlace
 	for (unsigned int j=0; j<pos_s.size(); j++)
 	{
-		double p = _world[k].get_indiv()[pos_s[j]].calc_proba_acquire_disease();
+		double p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
 		double u = (double)(rand())/RAND_MAX;
 		if(u < p) {
 			
@@ -335,79 +242,6 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 }
 
 
-//unsigned int Simulation::transmission_oneSP(unsigned int k,
-//											double contact_rate,
-//											double dt){
-//	/// Performs transmission within the k^th social place. Returns incidence
-//	
-//	stopif(k >= _world.size(), "asking for an inexistent social place");
-//
-//	unsigned int inc = 0;
-//	
-//	// number of infected
-//	// TO DO: distinguish INFECTED vs INFECTIOUS
-//	//(ie, currently SIR, should be at least SEIR)
-//	unsigned int nI = _world[k].get_prevalence();
-//	
-//	// number of susceptible in this social place:
-//	unsigned int allpop = (unsigned int)(_world[k].get_size());
-//	if (allpop==0) return 0;
-//	
-//	stopif(allpop < nI, "BOOK KEEPING PROBLEM!");
-//	unsigned int nS = allpop - nI;
-//	
-//	cout << " - - - - " << endl;
-//	cout << k << " DEBUG TRANSMISSION: allpop: " << allpop << endl;
-//	cout << k << " DEBUG TRANSMISSION: nInf: " << nI ;
-//	displayVector(_world[k].id_infected_bruteforce());
-//	cout << endl;
-//	cout << k << " DEBUG TRANSMISSION: nS: " << nS << endl;
-//	
-//	
-//	if (nI > 0 && nS > 0){
-//		
-//		// Calculate total number of contacts:
-//		unsigned int nContacts = (unsigned int)(contact_rate * nI * dt);
-//		if (nContacts > nS) nContacts = nS;
-//		
-//		cout << k << " DEBUG TRANSMISSION: nContacts: " << nContacts << endl;
-//		
-//		// Susceptible candidates for transmission:
-//		vector<unsigned int> susc ;
-//		if (nContacts < nS) susc = _world[k].pick_rnd_susceptibles(nContacts);
-//		if (nContacts == nS) {for (int j=0;j<nS;j++) susc.push_back(j);}
-//		
-//		cout << k << " DEBUG TRANSMISSION: #susc: " << susc.size();
-//		cout << " ; IDs: ";
-//		for(int i=0; i<susc.size();i++) cout<<_world[k].get_indiv()[susc[i]].get_id()<<"; ";
-//		cout << endl;
-//		
-//		// Calculate transmission based on susceptible features:
-//		
-//		for (unsigned int i=0; i<susc.size(); i++) {
-//			
-//			// Transmission Probability
-//			
-//			double imm = _world[k].get_indiv()[susc[i]].get_immunity();
-//			double fra = _world[k].get_indiv()[susc[i]].get_frailty();
-//			double pt = (1-imm) * fra ;
-//			
-//			//cout << " DEBUG TRANSMISSION: pt: " << pt << endl;
-//			
-//			
-//			// Draw event:
-//			double u = (double)(rand())/RAND_MAX;
-//			if( u < pt) {
-//				_world[k].get_indiv()[susc[i]].acquireDisease();
-//				_world[k].increase_prevalence();
-//				inc ++;
-//			}
-//		}
-//	}
-//	return inc;
-//}
-
-
 void Simulation::transmission_world(double timeslice){
 	/// Simulates disease transmissions in the whole world (all social places)
 	
@@ -428,6 +262,7 @@ unsigned int Simulation::census_total_alive(){
 	return cnt;
 }
 
+
 unsigned int Simulation::prevalence(){
 	/// Prevalence in the whole world
 	
@@ -443,7 +278,6 @@ unsigned int Simulation::population_size(){
 	for(int i=0; i<_world.size(); i++) s+=_world[i].get_size();
 	return s;
 }
-
 
 
 void Simulation::displayPopulationSplit(){

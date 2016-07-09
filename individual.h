@@ -71,12 +71,14 @@ public:
 	
 	void set_id_sp_current(ID id_sp){_id_sp_current = id_sp;}
 	
-	void set_id_sp_household(const socialPlace& sp);
-	void set_id_sp_workplace(const socialPlace& sp);
-	void set_id_sp_school(const socialPlace& sp);
-	void set_id_sp_other(const socialPlace& sp);
-	void set_id_sp_hospital(const socialPlace& sp);
-	void set_id_sp_pubTransp(const socialPlace& sp);
+	void set_id_sp_household(socialPlace& sp);
+	void set_id_sp_workplace(socialPlace& sp);
+	void set_id_sp_school(socialPlace& sp);
+	void set_id_sp_other(socialPlace& sp);
+	void set_id_sp_hospital(socialPlace& sp);
+	void set_id_sp_pubTransp(socialPlace& sp);
+	
+	void set_id_sp(SPtype type, socialPlace& sp);
 
 	void set_immunity(double x)	{_immunity = x;}
 	void set_frailty(double x)	{_frailty = x;}
@@ -123,6 +125,7 @@ inline bool operator == ( individual a, individual b){
 
 inline void acquireDisease(individual& x) {x.set_is_infected(true);}
 
+vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched);
 
 
 #endif /* defined(__naf__individual__) */

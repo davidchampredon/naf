@@ -21,7 +21,7 @@ void individual::base_constructor(){
 	_id_sp_workplace	= __UNDEFINED_ID;
 	_id_sp_school		= __UNDEFINED_ID;
 	_id_sp_other		= __UNDEFINED_ID;
-	_id_sp_hospital		= __UNDEFINED_ID;
+	_id_sp_hospital	= __UNDEFINED_ID;
 	_id_sp_pubTransp	= __UNDEFINED_ID;
 	
 	_is_infected = false;
@@ -42,34 +42,49 @@ individual::individual(ID id, double age){
 
 
 
-void individual::set_id_sp_household(const socialPlace& sp){
+void individual::set_id_sp_household(socialPlace& sp){
 	stopif(sp.get_type() != SP_household, "social space must be a household!");
 	_id_sp_household = sp.get_id_sp();
+	sp.add_linked_indiv(_id);
 }
 
-void individual::set_id_sp_workplace(const socialPlace& sp){
+void individual::set_id_sp_workplace(socialPlace& sp){
 	stopif(sp.get_type() != SP_workplace, "social space must be a workplace!");
 	_id_sp_workplace = sp.get_id_sp();
+	sp.add_linked_indiv(_id);
 }
 
-void individual::set_id_sp_school(const socialPlace& sp){
+void individual::set_id_sp_school(socialPlace& sp){
 	stopif(sp.get_type() != SP_school, "social space must be a school!");
 	_id_sp_school = sp.get_id_sp();
+	sp.add_linked_indiv(_id);
 }
 
-void individual::set_id_sp_other(const socialPlace& sp){
+void individual::set_id_sp_other(socialPlace& sp){
 	stopif(sp.get_type() != SP_other, "social space must be a other public space!");
 	_id_sp_other = sp.get_id_sp();
+	sp.add_linked_indiv(_id);
 }
 
-void individual::set_id_sp_hospital(const socialPlace& sp){
+void individual::set_id_sp_hospital(socialPlace& sp){
 	stopif(sp.get_type() != SP_hospital, "social space must be a hospital!");
 	_id_sp_hospital = sp.get_id_sp();
+	sp.add_linked_indiv(_id);
 }
 
-void individual::set_id_sp_pubTransp(const socialPlace& sp){
+void individual::set_id_sp_pubTransp(socialPlace& sp){
 	stopif(sp.get_type() != SP_pubTransp, "social space must be a public transportation!");
 	_id_sp_pubTransp = sp.get_id_sp();
+	sp.add_linked_indiv(_id);
+}
+
+void individual::set_id_sp(SPtype type, socialPlace& sp){
+	if (type == SP_hospital)  set_id_sp_hospital(sp);
+	if (type == SP_household) set_id_sp_household(sp);
+	if (type == SP_school)    set_id_sp_school(sp);
+	if (type == SP_pubTransp) set_id_sp_pubTransp(sp);
+	if (type == SP_other)     set_id_sp_other(sp);
+	if (type == SP_workplace) set_id_sp_workplace(sp);
 }
 
 
@@ -108,4 +123,27 @@ double individual::calc_proba_acquire_disease(){
 void individual::acquireDisease(){
 	 _is_infected = true;
 	_doi = SUPERTINY;
+}
+
+
+
+vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched){
+	/// Build several individuals
+	/// TO DO: make it more sophisticated!
+	
+	vector<individual> x(n);
+	
+	for (int i=0; i<n; i++) {
+		double age = rand() % 80 + 1;
+		individual tmp(i, age);
+		
+		tmp.set_immunity((double) rand() / (RAND_MAX));
+		tmp.set_frailty((double) rand() / (RAND_MAX));
+		
+		tmp.set_schedule(sched[rand() % sched.size()]);
+		
+		x[i] = tmp;
+	}
+	
+	return x;
 }
