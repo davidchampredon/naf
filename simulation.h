@@ -80,7 +80,8 @@ public:
 
 	unsigned int census_total_alive();
 	unsigned int population_size();
-	void displayPopulationSplit();
+	void display_split_pop_present();
+	void display_split_pop_linked();
 	void test();
 	
 	

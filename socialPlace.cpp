@@ -425,7 +425,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 									   unsigned int seed ){
 	
 	stopif( (spt.size() != n_sp.size()) ||
-			 (spt.size() != p_size.size()),
+			(spt.size() != p_size.size()),
 		   "vectors must be same size");
 	
 	// number of types of social places
@@ -467,16 +467,26 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 		y[t] = y_t;
 	}
 
-	
-	for(unsigned int i=0; i< indiv.size(); i++){
+	bool stoploop = false;
+	for(unsigned int i=0; i< indiv.size() && !stoploop; i++){
 		for(ID t=0; t< N_type_sp; t++)
 		{
+			unsigned int dummy = n_sp[t];
+			
 			if(sp[t][cnt_sp[t]].n_linked_indiv() >= y[t][cnt_sp[t]]){
 				// if max size reached,
 				// link this individual to the NEXT social place
 				cnt_sp[t] = cnt_sp[t] + 1;
 			}
-			indiv[i].set_id_sp(spt[t], sp[t][cnt_sp[t]]);
+			if(cnt_sp[t]< n_sp[t]) indiv[i].set_id_sp(spt[t], sp[t][cnt_sp[t]]);
+			else break;
+			
+			// Test if all social places reached
+			// their respective size of linked indiv:
+			bool tmp = 1;
+			for(int k=0; k<cnt_sp.size(); k++)
+				tmp = tmp * (cnt_sp[t] >= n_sp[t]);
+			if (tmp) stoploop = true;
 		}
 	}
 	

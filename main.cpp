@@ -76,7 +76,7 @@ int main(int argc, const char * argv[]) {
 	vector<individual> many_indiv = build_individuals(10000, sched);
 	
 	vector<SPtype> spt {SP_pubTransp, SP_workplace}; //, SP_other,SP_household, SP_school};
-	vector<unsigned int> num_sp {10,20};
+	vector<unsigned int> num_sp {50,80};
 	
 	probaDistrib<unsigned int> p_pubTransp({20,30,60},{0.6,0.3,0.1});
 	probaDistrib<unsigned int> p_workPlace({5,20,50},{0.5,0.4,0.1});
@@ -84,6 +84,8 @@ int main(int argc, const char * argv[]) {
 	
 	world Z = build_world_simple(spt, num_sp, p_size, many_indiv, A);
 	
+	Simulation toto(Z,20);
+	toto.display_split_pop_linked();
 	
 	exit(99);
 	
@@ -103,7 +105,7 @@ int main(int argc, const char * argv[]) {
 	
 	sim.seed_infection({0,1}, {2,1});
 	
-	if(N_sp<1000) sim.displayPopulationSplit();
+	if(N_sp<1000) sim.display_split_pop_present();
 	
 	sim._modelParam.add_prm_double("proba_move", 0.90);
 	sim._modelParam.add_prm_double("contact_rate", 3.0);

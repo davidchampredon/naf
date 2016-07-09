@@ -14,18 +14,18 @@ void Simulation::test(){
 	//move_individuals(SP_household, p);
 	
 	cout << endl <<  " - - - BEFORE MOVE - - - "<<endl;
-	displayPopulationSplit();
+	display_split_pop_present();
 	
 	move_individuals_sched(1, p);
 	
 	cout << endl <<  " - - - AFTER MOVE - - - "<<endl;
-	displayPopulationSplit();
+	display_split_pop_present();
 
 	double cr = _modelParam.get_prm_double("contact_rate");
 	transmission_oneSP(2, cr, 2.0);
 	
 	cout << endl <<  " - - - AFTER TRANSMISSION - - - "<<endl;
-	displayPopulationSplit();
+	display_split_pop_present();
 }
 
 
@@ -56,17 +56,17 @@ void Simulation::run(){
 		// Actions:
 		
 //		cout << "BEFORE move" << endl;
-//		displayPopulationSplit();
+//		display_split_pop_present();
 		
 		move_individuals_sched(idx_timeslice, p);
 		
 //		cout << "AFTER move, BEFORE transmission" << endl;
-//		displayPopulationSplit();
+//		display_split_pop_present();
 
 		transmission_world(timeslice[idx_timeslice]);
 		
 //		cout << "AFTER transmissiom" << endl;
-//		displayPopulationSplit();
+//		display_split_pop_present();
 
 		// Record for time series:
 		_ts_times.push_back(_current_time);
@@ -280,20 +280,32 @@ unsigned int Simulation::population_size(){
 }
 
 
-void Simulation::displayPopulationSplit(){
+void Simulation::display_split_pop_present(){
 	
 	cout<<endl<<"------------"<<endl;
 	unsigned int s = 0;
 	unsigned int p = 0;
 	for(int i=0;i<_world.size();i++){
-		cout << "sp_"<<i<<" : " << _world[i].get_size()<<" (prev="<<_world[i].get_prevalence()<<")"<<endl;
+		cout << "sp_"<<i<<" : present = " << _world[i].get_size()<<" (prev="<<_world[i].get_prevalence()<<")"<<endl;
 		s += _world[i].get_size();
 		p += _world[i].get_prevalence();
 	}
-	cout<< "total = "<< s << " (prev="<<p<<")"<<endl;
+	cout<< "Total population = "<< s << " (prev="<<p<<")"<<endl;
 	cout<<"------------"<<endl;
 	
 	
+}
+
+void Simulation::display_split_pop_linked(){
+	cout<<endl<<"------------"<<endl;
+	unsigned int s = 0;
+	for(int i=0;i<_world.size();i++){
+		cout << "sp_"<<i<<" : Linked indiv = " << _world[i].n_linked_indiv();
+		cout << "\t ["<< SPtype2string(_world[i].get_type())<<"]" <<endl;
+		s += _world[i].n_linked_indiv();
+	}
+	cout<< "Total linked = "<< s << endl;
+	cout<<"------------"<<endl;
 }
 
 void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
