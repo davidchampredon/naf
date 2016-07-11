@@ -107,12 +107,18 @@ void Simulation::build_test_world(double sizereduction){
 				ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
 				individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
 				
-				// Checks (remove for better speed)
-				ID id_hh = tmp.get_id_sp_household();
-				stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
-				stopif(id_hh != k, "Not consistent linkage!");
+				bool debugcode = false;
+				if(debugcode){
+					// Checks (remove for better speed)
+					ID id_hh = tmp.get_id_sp_household();
+					stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
+					stopif(id_hh != k, "Not consistent linkage!");
+					_world[id_hh].add_indiv(tmp);
+					// -----
+				}
 				
-				_world[id_hh].add_indiv(tmp);
+				// Faster version:
+				if(!debugcode) _world[k].add_indiv(tmp);
 			}
 		}
 	}
