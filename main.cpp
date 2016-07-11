@@ -42,81 +42,71 @@ int main(int argc, const char * argv[]) {
 	
 	
 	// ----------------------------------------------
-//	probaDistrib<double> p(val,pr);
-//	
-//	vector<double> x = p.sample(50,1234);
-//
-//	displayVector(x);
-//	
-//	
-//
-//	
-//	exit(99);
+	//	probaDistrib<double> p(val,pr);
+	//
+	//	vector<double> x = p.sample(50,1234);
+	//
+	//	displayVector(x);
+	//
+	//
+	//
+	//
+	//	exit(99);
 	// ----------------------------------------------
 	
-	string region1 = "Halton";
-	ID id_region1 = 1;
 	
-	areaUnit A1(1, "Oakville", id_region1, region1);
-	areaUnit A2(2, "Burlington", id_region1, region1);
-	areaUnit A3(3, "Hamilton", id_region1, region1);
 	
-	vector<areaUnit> A {A1,A2,A3};
 	
-	// Schedule
-	vector<double> timeslice {2.0/24, 8.0/24, 2.0/24, 12.0/24};
-	vector<SPtype> worker_sed  {SP_pubTransp, SP_workplace, SP_pubTransp,SP_household};
-	vector<SPtype> worker_trav {SP_pubTransp, SP_workplace, SP_other,SP_household};
+//	// Build world (test mode):
+//	cout << "Generating world... "<<endl;
+//	world W = test_world(sizereduction);
+//	cout << "... world generated!"<<endl;
 	
-	schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
-	schedule sched_worker_trav(worker_trav, timeslice, "worker_trav");
-	vector<schedule> sched {sched_worker_sed,sched_worker_trav};
 	
-	// test
-	vector<individual> many_indiv = build_individuals(10000, sched);
+	// Build associated simulation:
+	double horizon = 20;
+	double sizereduction = 0.015; // Scale down world size compared to real world one
 	
-	vector<SPtype> spt {SP_pubTransp, SP_workplace}; //, SP_other,SP_household, SP_school};
-	vector<unsigned int> num_sp {50,80};
+	Simulation sim;
 	
-	probaDistrib<unsigned int> p_pubTransp({20,30,60},{0.6,0.3,0.1});
-	probaDistrib<unsigned int> p_workPlace({5,20,50},{0.5,0.4,0.1});
-	vector<probaDistrib<unsigned int> > p_size {p_pubTransp,p_workPlace};
-	
-	world Z = build_world_simple(spt, num_sp, p_size, many_indiv, A);
-	
-	Simulation toto(Z,20);
-	toto.display_split_pop_linked();
-	
-	exit(99);
-	
-	double horiz = 20;
-	unsigned int N_sp		= 7000;
-	unsigned int N_indiv	= 50000;
-	
-	cout <<endl<<  " Generating population ..." << endl;
-	world W = build_world_random(N_sp, A);
-	populate_random_with_indiv(W, N_indiv, sched);
-	cout << " done."<<endl;
-	if(N_sp<1000) displayPopulationSize(W);
+	sim.build_test_world(sizereduction);
 	
 	auto t1 = std::chrono::system_clock::now();
-
-	Simulation sim(W, horiz);
 	
-	sim.seed_infection({0,1}, {2,1});
+	sim.set_horizon(horizon);
 	
-	if(N_sp<1000) sim.display_split_pop_present();
+	if(sim.get_world().size()<2000) {
+		sim.display_split_pop_linked();
+		sim.display_split_pop_present();
+	}
 	
+	// Seed infection(s) in world:
+	
+	vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
+	
+	
+	vector<ID> sp_initially_infected {id_pres[0], id_pres[1]};
+	vector<unsigned int> I0 {1,1};
+	sim.seed_infection(sp_initially_infected, I0);
+	
+	if(sim.get_world().size()<2000) {
+		sim.display_split_pop_present();
+	}
+	
+	// Define model parameters:
 	sim._modelParam.add_prm_double("proba_move", 0.90);
 	sim._modelParam.add_prm_double("contact_rate", 3.0);
-
+	
+	// Run the simulation:
 	sim.run();
 	
+	// timers:
 	auto t2 = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = t2-t0;
 	std::chrono::duration<double> elapsed_seconds2 = t2-t1;
 	cout.precision(3);
 	cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
-	cout << "Except pop generation: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
+	cout << "Excluding pop generation: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
+	
 	return 0;
-	}
+}

@@ -42,8 +42,12 @@ public:
 	
 	// Constructors
 	
-	Simulation();
+	Simulation(){}
 	Simulation(world w, double h) {_world = w; _horizon = h;}
+
+	// pseudo constructors:
+	void build_test_world(double reduction_size);
+
 	
 	// Simulate
 	void run();
@@ -52,6 +56,9 @@ public:
 	// Set functions
 	
 	void set_current_time(double t) {_current_time = t;}
+	void set_world(world w) {_world = w;}
+	void set_horizon(double h) {_horizon = h;}
+	
 	
 	// Get functions
 	
@@ -79,9 +86,13 @@ public:
 	// Miscelleanous
 
 	unsigned int census_total_alive();
+	
+	
+	
 	unsigned int population_size();
 	void display_split_pop_present();
 	void display_split_pop_linked();
+	
 	void test();
 	
 	

@@ -60,6 +60,7 @@ socialPlace::socialPlace(ID id_au, string name, ID id_region,
 						 ID id_sp, SPtype type){
 	base_constructor();
 	// AU level:
+	_id_sp = id_sp;
 	_id_au = id_au ;
 	_name_au = name;
 	_name_region = regionName;
@@ -127,13 +128,6 @@ void socialPlace::add_indiv(vector<individual>& newindiv){
 	
 	for(int i=0; i<newindiv.size(); i++)
 		add_indiv(newindiv[i]);
-	
-	//	// set ID of this SP for all new individuals:
-	//	for(int i=0; i<newindiv.size(); i++) newindiv[i].set_id_sp_current(_id_sp);
-	//
-	//	_indiv.insert(_indiv.end(), newindiv.begin(), newindiv.end());
-	// update size:
-	//	_size = _indiv.size();
 }
 
 
@@ -280,21 +274,22 @@ ID socialPlace::find_dest(unsigned int pos, unsigned int idx_timeslice){
 	/// Find the ID of the social place the individual is supposed to move to
 	/// at the timeslice 'idx_timeslice' of the schedule.
 	/// (individual is in position 'pos' in the vector '_indiv')
-	// Retrieve the social place this individual is supposed
-	// to go for this timeslice, according to its schedule
-	SPtype sptype = _indiv[pos].get_schedule().get_sp_type()[idx_timeslice];
 	
-	//			Retrieve the actual destination:
+	return _indiv[pos].find_dest(idx_timeslice);
+}
+
+
+
+ID socialPlace::find_dest_linked(unsigned int pos,
+								 unsigned int idx_timeslice,
+								 const vector<individual>& indiv_vec){
+	/// Find the ID of the social place the LINKED individual is supposed to move to
+	/// at the timeslice 'idx_timeslice' of the schedule.
+	/// (individual is in position 'pos' in the vector of LINKED individuals)
 	
-	ID id_dest = __UNDEFINED_ID;
-	if(sptype == SP_household)	id_dest = _indiv[pos].get_id_sp_household();
-	if(sptype == SP_workplace)	id_dest = _indiv[pos].get_id_sp_workplace();
-	if(sptype == SP_school)		id_dest = _indiv[pos].get_id_sp_school();
-	if(sptype == SP_other)		id_dest = _indiv[pos].get_id_sp_other();
-	if(sptype == SP_hospital)	id_dest = _indiv[pos].get_id_sp_hospital();
-	if(sptype == SP_pubTransp)	id_dest = _indiv[pos].get_id_sp_pubTransp();
+	individual tmp = get_indiv_with_ID(_linked_indiv_id[pos], indiv_vec);
 	
-	return id_dest;
+	return tmp.find_dest(idx_timeslice);
 }
 
 
@@ -344,7 +339,7 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 		individual tmp(i, age);
 		
 		unsigned int id_rnd;
-
+		
 		id_rnd = choose_SPtype_random(sp, SP_school);
 		tmp.set_id_sp_school(sp[id_rnd]);
 		
@@ -368,7 +363,7 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 		tmp.set_frailty(1.0);
 		
 		tmp.set_schedule(sched[rand() % sched.size()]);
-
+		
 		indivvec.push_back(tmp);
 		// DEBUG
 		// tmp.displayInfo();
@@ -376,13 +371,13 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 	
 	// STEP 2 - assign individuals to a random SP
 	
-		for (int i=0; i<indivvec.size(); i++) {
-			int sp_idx = rand() % sp.size();
-			sp[sp_idx].add_indiv(indivvec[i]);
-			//DEBUG
-			// indivvec[i].displayInfo();
-		}
-
+	for (int i=0; i<indivvec.size(); i++) {
+		int sp_idx = rand() % sp.size();
+		sp[sp_idx].add_indiv(indivvec[i]);
+		//DEBUG
+		// indivvec[i].displayInfo();
+	}
+	
 }
 
 unsigned int choose_SPtype_random(const vector<socialPlace>& sp, SPtype x){
@@ -424,8 +419,12 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 									   vector<areaUnit> auvec,
 									   unsigned int seed ){
 	
-	stopif( (spt.size() != n_sp.size()) ||
-			(spt.size() != p_size.size()),
+	/// Build a test world with individuals LINKED to social places.
+	/// (use other function to make individuals PRESENT in social places)
+	/// NOTE: this function is for test, it will eventually be useless...
+	
+	stopif( ( spt.size() != n_sp.size() ) ||
+		   ( spt.size() != p_size.size() ),
 		   "vectors must be same size");
 	
 	// number of types of social places
@@ -440,7 +439,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 	sp.resize(N_type_sp);
 	y.resize(N_type_sp);
 	
-	
+	ID cnt_id = 0; // id counterto make sure ID is uniques across all types and SP
 	for(unsigned int t=0; t<N_type_sp; t++){
 		sp[t].resize(n_sp[t]);
 		y[t].resize(n_sp[t]);
@@ -448,11 +447,11 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 		// Create empty (no indiv linked) social place:
 		for (ID i=0; i<n_sp[t]; i++) {
 			areaUnit A = auvec[rand() % auvec.size()];
-			socialPlace x(A, i, spt[t]);
+			socialPlace x(A, cnt_id, spt[t]);
 			sp[t][i] = x;
+			cnt_id++;
 		}
 	}
-	
 	
 	// vector that will increment the index when the social place gets full.
 	// one index by type of SP. Initiated at 0 (:first index of vector).
@@ -466,32 +465,71 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 		vector<unsigned int> y_t = probD.sample(N, seed+t);
 		y[t] = y_t;
 	}
-
+	
 	bool stoploop = false;
-	for(unsigned int i=0; i< indiv.size() && !stoploop; i++){
+	vector<bool> all_sp_this_type_filled(N_type_sp, false);
+	unsigned int i = 0;
+	
+	for(i=0; i< indiv.size() && !stoploop; i++){
+		// DEBUG
+		//cout << endl;
 		for(ID t=0; t< N_type_sp; t++)
 		{
-			unsigned int dummy = n_sp[t];
+			// DEBUG
+			//			unsigned int dummy = n_sp[t];
+			//			cout << "indiv_id: "<< i << "  sp_type: "<<t<< "  count:" << cnt_sp[t]
+			//			<<"  y:"<<y[t][cnt_sp[t]]
+			//			<< "  linked: "<< sp[t][cnt_sp[t]].n_linked_indiv() << endl;
+			//
+			//			if(y[t][cnt_sp[t]]==0){
+			//				cout << "problem" <<endl;
+			//				exit(99);
+			//			}
 			
-			if(sp[t][cnt_sp[t]].n_linked_indiv() >= y[t][cnt_sp[t]]){
-				// if max size reached,
-				// link this individual to the NEXT social place
-				cnt_sp[t] = cnt_sp[t] + 1;
+			// ---------------------
+			
+			// Add link to current social place (which is not full)
+			if(sp[t][cnt_sp[t]].n_linked_indiv() < y[t][cnt_sp[t]])
+				//			   &&  cnt_sp[t] <= n_sp[t] -1)
+			{
+				indiv[i].set_id_sp(spt[t], sp[t][cnt_sp[t]]);
 			}
-			if(cnt_sp[t]< n_sp[t]) indiv[i].set_id_sp(spt[t], sp[t][cnt_sp[t]]);
-			else break;
 			
-			// Test if all social places reached
-			// their respective size of linked indiv:
-			bool tmp = 1;
-			for(int k=0; k<cnt_sp.size(); k++)
-				tmp = tmp * (cnt_sp[t] >= n_sp[t]);
-			if (tmp) stoploop = true;
+			// If max size reached for current social place,
+			// and remains social places (of same type) to be filled,
+			// link this individual to the NEXT social place of the same type.
+			else if(sp[t][cnt_sp[t]].n_linked_indiv() == y[t][cnt_sp[t]] &&
+					cnt_sp[t] < n_sp[t]-1){
+				cnt_sp[t] = cnt_sp[t] + 1;
+				indiv[i].set_id_sp(spt[t], sp[t][cnt_sp[t]]);
+				
+				if(cnt_sp[t] % 500 == 0){
+					cout << SPtype2string(spt[t])<<" : " << cnt_sp[t] <<"/"<<n_sp[t]<<endl;
+				}
+			}
+			
+			// Current social place reached its max capicity
+			// and is the last one of this type.
+			// Do nothing.
+			else if	(sp[t][cnt_sp[t]].n_linked_indiv() == y[t][cnt_sp[t]] &&
+					 cnt_sp[t] == n_sp[t]-1){
+				// recorde this type is saturated:
+				all_sp_this_type_filled[t] = true;
+			}
+			
 		}
+		// Test if all social places of any type reached
+		// their respective size of linked indiv:
+		bool tmp = 1;
+		for(int t=0; t < N_type_sp; t++)
+			tmp = tmp * all_sp_this_type_filled[t];
+		if (tmp) {
+			stoploop = true;}
 	}
+	stopif(i>=indiv.size(),"All individuals exhausted before filling all social places!");
 	
 	vector<socialPlace> spfinal = sp[0];
-
+	
 	// merge all vectors into a single one:
 	for(unsigned int i=1; i<sp.size(); i++)
 		spfinal.insert(spfinal.end(), sp[i].begin(), sp[i].end() );
@@ -499,55 +537,18 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 	return spfinal;
 }
 
-//vector<socialPlace> build_world_simple(vector<SPtype> spt,
-//									   vector<unsigned int> n_sp,
-//									   vector< probaDistrib<unsigned int> > p_size,
-//									   vector<individual>& indiv,
-//									   vector<areaUnit> auvec,
-//									   unsigned int seed ){
-//	
-//	vector<socialPlace> res;
-//	unsigned int cnt = 0;
-//	
-//	for (unsigned int a=0; a<spt.size(); a++) {
-//		
-//		cout << "building "<<SPtype2string(spt[a]) << "..." <<endl;
-//		
-//		unsigned int N = n_sp[a]; // total number of social place of this type
-//		probaDistrib<unsigned int> probD = p_size[a]; // distribution of social places' size
-//		
-//		// sample the sizes of each social places
-//		vector<unsigned int> sample_size = probD.sample(N, seed+a);
-//		
-//		// step 1 - build empty social places
-//		vector<socialPlace> tmp_sp(N);
-//		for(ID i=0; i<N; i++){
-//			areaUnit A = auvec[rand() % auvec.size()];
-//			socialPlace x(A, i, spt[a]);
-//			tmp_sp[i] = x;
-//		}
-//		
-//		// step 2 - populate SP by taking individuals from vector 'indiv'
-//		for(ID i=0; i<N; i++){
-//			while (tmp_sp[i].get_size() < sample_size[i]) {
-//				if (spt[a]==SP_school)		{indiv[cnt].set_id_sp_school(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
-//				if (spt[a]==SP_pubTransp)	{indiv[cnt].set_id_sp_pubTransp(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
-//				if (spt[a]==SP_workplace)	{indiv[cnt].set_id_sp_workplace(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
-//				if (spt[a]==SP_household)	{indiv[cnt].set_id_sp_household(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
-//				if (spt[a]==SP_other)		{indiv[cnt].set_id_sp_other(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
-//				if (spt[a]==SP_hospital)	{indiv[cnt].set_id_sp_hospital(tmp_sp[i]);tmp_sp[i].add_indiv(indiv[cnt]);}
-//				
-//				cnt++;
-//				stopif(cnt>indiv.size(), "vector of individuals provided too small!");
-//			}
-//			res.push_back(tmp_sp[i]);
-//		}
-//		
-//	}
-//	
-//	return res;
-//	
-//}
+
+vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
+	/// Return the IDs of the social places that have
+	/// at least one indivial present
+	
+	vector<ID> res;
+	for (ID k=0; k<x.size(); k++) {
+		if (x[k].get_size()>0) res.push_back(x[k].get_id_sp());
+	}
+	return res;
+}
+
 
 
 

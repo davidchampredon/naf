@@ -50,6 +50,10 @@ public:
 	
 	// Movements of individuals:
 	ID find_dest(unsigned int pos, unsigned int idx_timeslice);
+	ID find_dest_linked(unsigned int pos,
+						unsigned int idx_timeslice,
+						const vector<individual>& indiv_vec);
+	
 	void add_indiv(individual& indiv);
 	void add_indiv(vector<individual>& indiv);
 	void remove_indiv(individual& indiv);
@@ -57,7 +61,7 @@ public:
 	void remove_indiv(vector<unsigned int> posvec);
 	void add_linked_indiv(ID id);
 	void remove_linked_indiv(ID id);
-	ID   n_linked_indiv(){return _linked_indiv_id.size();}
+	ID   n_linked_indiv(){return (ID)(_linked_indiv_id.size());}
 	
 	// Set functions
 	void set_prevalence(unsigned int p) {_prevalence = p;}
@@ -95,10 +99,17 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 									   vector<areaUnit> auvec,
 									   unsigned int seed =12345);
 
-void populate_random_with_indiv(vector<socialPlace>& v, unsigned int total_indiv, vector<schedule> sched);
+void populate_random_with_indiv(vector<socialPlace>& v,
+								unsigned int total_indiv,
+								vector<schedule> sched);
+
+vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x);
+
 
 unsigned int  choose_SPtype_random(const vector<socialPlace>& sp, SPtype x);
 
+
+vector<socialPlace> test_world(double sizereduction = 0.001);
 
 void displayPopulationSize(const vector<socialPlace>& sp);
 

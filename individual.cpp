@@ -147,3 +147,51 @@ vector<individual> build_individuals(unsigned int n, const vector<schedule>& sch
 	
 	return x;
 }
+
+
+individual get_indiv_with_ID(ID id,
+							 const vector<individual>& indiv_vec){
+	/// Retrieve the first individual with ID='id' in a vector of individuals
+	
+	individual res;
+	ID i=0;
+	for (i=0; i<indiv_vec.size(); i++) {
+		if (indiv_vec[i].get_id() == id) {
+			res = indiv_vec[i];
+			break;
+		}
+	}
+	stopif(i>=indiv_vec.size(), "Individual ID " + to_string(id) + " not found in vector");
+	
+	return res;
+}
+
+
+
+ID individual::find_dest(unsigned int idx_timeslice){
+	/// Find the ID of the social place this
+	/// individual is supposed to go at a given times slice.
+	
+	SPtype sptype = get_schedule().get_sp_type()[idx_timeslice];
+	
+	//			Retrieve the actual destination:
+	
+	ID id_dest = __UNDEFINED_ID;
+	if(sptype == SP_household)	id_dest = get_id_sp_household();
+	if(sptype == SP_workplace)	id_dest = get_id_sp_workplace();
+	if(sptype == SP_school)		id_dest = get_id_sp_school();
+	if(sptype == SP_other)		id_dest = get_id_sp_other();
+	if(sptype == SP_hospital)	id_dest = get_id_sp_hospital();
+	if(sptype == SP_pubTransp)	id_dest = get_id_sp_pubTransp();
+	
+	return id_dest;
+}
+
+
+
+
+
+
+
+
+

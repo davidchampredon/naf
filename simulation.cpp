@@ -9,24 +9,121 @@
 #include "simulation.h"
 
 
-void Simulation::test(){
-	double p = _modelParam.get_prm_double("proba_move");
-	//move_individuals(SP_household, p);
-	
-	cout << endl <<  " - - - BEFORE MOVE - - - "<<endl;
-	display_split_pop_present();
-	
-	move_individuals_sched(1, p);
-	
-	cout << endl <<  " - - - AFTER MOVE - - - "<<endl;
-	display_split_pop_present();
 
-	double cr = _modelParam.get_prm_double("contact_rate");
-	transmission_oneSP(2, cr, 2.0);
+
+void Simulation::build_test_world(double sizereduction){
 	
-	cout << endl <<  " - - - AFTER TRANSMISSION - - - "<<endl;
-	display_split_pop_present();
+	/// Build a test world with individuals LINKED and PRESENT to social places.
+	/// NOTE: this function is for test, it will eventually be useless...
+	
+	cout << endl << "Building test world..."<<endl;
+	
+	string region1 = "Halton";
+	ID id_region1 = 1;
+	
+	areaUnit A1(1, "Oakville", id_region1, region1);
+	areaUnit A2(2, "Burlington", id_region1, region1);
+	areaUnit A3(3, "Hamilton", id_region1, region1);
+	
+	vector<areaUnit> A {A1,A2,A3};
+	
+	// Schedule
+	vector<double> timeslice {2.0/24, 8.0/24, 2.0/24, 12.0/24}; // must sum up to 1.0
+	vector<SPtype> worker_sed  {SP_pubTransp, SP_workplace, SP_pubTransp, SP_household};
+	vector<SPtype> student     {SP_pubTransp, SP_school,    SP_pubTransp, SP_household};
+	
+	schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
+	schedule sched_student(student, timeslice, "student");
+	
+	//	vector<SPtype> worker_trav {SP_pubTransp, SP_workplace, SP_other, SP_household};
+	//	schedule sched_worker_trav(worker_trav, timeslice, "worker_trav");
+	
+	vector<schedule> sched {
+		sched_worker_sed,
+		sched_student
+	};
+	
+	// individuals
+	unsigned int num_indiv			= (unsigned int)(1e7 * sizereduction); // <-- make sure it's large enough
+	vector<individual> many_indiv	= build_individuals(num_indiv, sched);
+	
+	// type of social places
+	vector<SPtype> spt {
+		SP_pubTransp,
+		SP_workplace,
+		SP_household,
+		SP_school
+	};
+	
+	// populate social places with individuals (built above)
+	unsigned int num_pubTr   = (unsigned int)(2000 * sizereduction);
+	unsigned int num_biz     = (unsigned int)(180e3 * sizereduction);
+	unsigned int num_hh      = (unsigned int)(1500e3 * sizereduction);
+	unsigned int num_school  = (unsigned int)(2600 * sizereduction);
+	
+	cout << "Number of public transportations places: " << num_pubTr <<endl;
+	cout << "Number of business places: " << num_biz <<endl;
+	cout << "Number of household places: " << num_hh <<endl;
+	cout << "Number of school places: " << num_school <<endl;
+	
+	// W A R N I N G
+	// same order as type of social places definition ('spt')
+	vector<unsigned int> num_sp {
+		num_pubTr,
+		num_biz,
+		num_hh,
+		num_school
+	};
+	
+	// Distribution of the size of each social place type:
+	
+	probaDistrib<unsigned int> p_pubTransp({20,30,60},{0.6,0.3,0.1});
+	probaDistrib<unsigned int> p_workPlace({3,7,15,30,75,200},{0.6,0.15,0.15,0.07,0.02,0.01});
+	probaDistrib<unsigned int> p_hh({1,2,3,4,5,6,7,8},{0.23, 0.34, 0.16, 0.15, 0.06, 0.03, 0.02, 0.01});
+	probaDistrib<unsigned int> p_school({250,500,750,1000,1250,1500},{0.60,0.25,0.10,0.03, 0.01,0.01});
+	
+	vector<probaDistrib<unsigned int> > p_size {
+		p_pubTransp,
+		p_workPlace,
+		p_hh,
+		p_school
+	};
+	
+	// build the world:
+	vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
+	
+	// assign to class members:
+	_world = W;
+	
+	// initial population: Move everyone to its household!
+	unsigned long N = _world.size();
+	for (int k=0; k<N; k++)
+	{
+		if(_world[k].get_type()==SP_household)
+		{
+			unsigned int n_linked_k = _world[k].n_linked_indiv();
+			for (unsigned int i=0; i<n_linked_k; i++)
+			{
+				ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+				individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
+				
+				// Checks (remove for better speed)
+				ID id_hh = tmp.get_id_sp_household();
+				stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
+				stopif(id_hh != k, "Not consistent linkage!");
+				
+				_world[id_hh].add_indiv(tmp);
+			}
+		}
+	}
+	cout << "... test world built."<<endl;
 }
+
+
+
+
+
+void Simulation::test(){}
 
 
 void Simulation::run(){
@@ -37,7 +134,8 @@ void Simulation::run(){
 	_current_time = 0.0;
 	
 	// TO DO: CHANGE THAT, IT's UGLY AND DANGEROUS
-	vector<double> timeslice = _world[0].get_indiv()[0].get_schedule().get_timeslice();
+	ID ii = at_least_one_indiv_present(_world)[0];
+	vector<double> timeslice = _world[ii].get_indiv()[0].get_schedule().get_timeslice();
 	// - - - - - - - - -
 	unsigned long nts = timeslice.size();
 	unsigned int k = 0;
@@ -286,7 +384,8 @@ void Simulation::display_split_pop_present(){
 	unsigned int s = 0;
 	unsigned int p = 0;
 	for(int i=0;i<_world.size();i++){
-		cout << "sp_"<<i<<" : present = " << _world[i].get_size()<<" (prev="<<_world[i].get_prevalence()<<")"<<endl;
+		cout << "sp_"<<i<<" : present = " << _world[i].get_size()<<" (prev="<<_world[i].get_prevalence()<<")";
+		cout << "\t ["<< SPtype2string(_world[i].get_type())<<"]" <<endl;
 		s += _world[i].get_size();
 		p += _world[i].get_prevalence();
 	}
@@ -316,9 +415,11 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
 	ID cnt = 0;
 	for(ID i=0; i<_world.size(); i++){
 		if (_world[i].get_id_sp() == id_sp[cnt]) {
-			stopif(_world[i].get_size()==0, "Cannot seed in SP_ID_" + to_string(i) + " because it is empty!");
+			stopif(_world[i].get_size() < I0[cnt], "Cannot seed in SP_ID_" + to_string(i) + " because it has less individuals than intial infections requested!");
 			for(unsigned int k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
 			cnt++;
 		}
 	}
 }
+
+

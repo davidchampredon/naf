@@ -91,7 +91,7 @@ public:
 	
 	// Get functions
 	
-	ID get_id(){return _id;}
+	ID get_id() const {return _id;}
 	ID get_id_sp_household()	{return _id_sp_household;}
 	ID get_id_sp_workplace()	{return _id_sp_workplace;}
 	ID get_id_sp_school()		{return _id_sp_school;}
@@ -114,6 +114,7 @@ public:
 	void recoverDisease() {_is_infected = false; _doi= 0.0;}
 	
 	// Miscellenaous
+	ID find_dest(unsigned int idx_timeslice);
 	void displayInfo();
 };
 
@@ -126,6 +127,9 @@ inline bool operator == ( individual a, individual b){
 inline void acquireDisease(individual& x) {x.set_is_infected(true);}
 
 vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched);
+
+
+individual get_indiv_with_ID(ID id, const vector<individual>& indiv_vec);
 
 
 #endif /* defined(__naf__individual__) */
