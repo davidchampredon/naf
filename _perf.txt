@@ -1,0 +1,10 @@
+50,000 ->  <1min ; 30MB
+250,000 -> build pop 1.5min ; run 0.2min ; 140MB
+
+- scale down from real size
+- coarse, irregular time steps (reduce movements b/w locations)
+- distribution of contact rate (super-spreading)
+- disease transmission in bulks
+- every individual has a schedule type (worker,student,traveller,...)
+- social place that "pools"
+

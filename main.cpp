@@ -65,7 +65,7 @@ int main(int argc, const char * argv[]) {
 	
 	// Build associated simulation:
 	double horizon = 20;
-	double sizereduction = 0.015; // Scale down world size compared to real world one
+	double sizereduction = 0.001; // Scale down world size compared to real world one
 	
 	Simulation sim;
 	
