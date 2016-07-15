@@ -207,7 +207,17 @@ void Simulation::build_test_world(double sizereduction){
 }
 
 
-
+void Simulation::time_update(double dt){
+	/// Make all relevant updates when time is advanced by 'dt'
+	
+	// Main timer:
+	_current_time += dt;
+	
+	// Update indivulas' clock:
+	for (unsigned int k=0; k<_world.size(); k++) {
+		_world[k].time_update(dt);
+	}
+}
 
 
 void Simulation::test(){}
@@ -240,6 +250,8 @@ void Simulation::run(){
 		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
 		cout << " ; currTime = " << _current_time <<endl;
 		
+		double dt = timeslice[idx_timeslice];
+		
 		// Actions:
 		
 //		cout << "BEFORE move" << endl;
@@ -250,7 +262,7 @@ void Simulation::run(){
 //		cout << "AFTER move, BEFORE transmission" << endl;
 //		display_split_pop_present();
 
-		transmission_world(timeslice[idx_timeslice]);
+		transmission_world(dt);
 		
 //		cout << "AFTER transmissiom" << endl;
 //		display_split_pop_present();
@@ -260,7 +272,7 @@ void Simulation::run(){
 		_ts_incidence.push_back(_current_incidence);
 		
 		// Advance time:
-		_current_time += timeslice[idx_timeslice];
+		time_update(dt);
 		k++;
 		
 //		cout << "DEBUG: total prev: " << prevalence() << endl;
@@ -272,6 +284,13 @@ void Simulation::run(){
 	cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
 }
 
+
+void Simulation::set_disease(const disease &d){
+	/// Set the disease 'd' to all individuals in all social places
+	for (unsigned int k=0; k<_world.size(); k++) {
+		_world[k].set_disease_to_all_indiv(d);
+	}
+}
 
 
 void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba){
@@ -373,19 +392,21 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	
 	unsigned int inc = 0;
 	
-	// Count categories of individuals:
-	
 	// DEBUG
 	//_world[k].displayInfo();
 	// ---
 	
-	unsigned long N = _world[k].get_size();
-	unsigned int nI = _world[k].get_prevalence();
-	stopif(nI > N, " DANGER : book keeping problem!");
-	unsigned int nS = (unsigned int)(N - nI);
+	// Count categories of individuals:
+	unsigned long N		= _world[k].get_size();
+	unsigned int nIa	= _world[k].get_n_Ia();
+	unsigned int nIs	= _world[k].get_n_Is();
+	unsigned int nS		= _world[k].get_n_S();
+
+	stopif( (nIa+nIs >N) || (nS > N),
+		   " DANGER : book keeping problem!");
 	
 	// Calculate number of contacts:
-	unsigned int nContacts = (unsigned int)(nI * contact_rate * dt);
+	unsigned int nContacts = (unsigned int)((nIa + nIs) * contact_rate * dt);
 	if (nContacts>nS) nContacts = nS;
 	
 	// Choose randomly the susceptibles contacted:
@@ -514,3 +535,14 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
 }
 
 
+void Simulation::displayInfo_indiv(){
+	/// Display informations on all individuals, in all social places:
+	
+	for (unsigned int k=0; k<_world.size(); k++) {
+		for (ID i=0; i<_world[k].get_size(); i++) {
+			_world[k].get_indiv(k).displayInfo();
+		}
+	}
+	
+	
+}

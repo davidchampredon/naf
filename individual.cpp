@@ -36,11 +36,15 @@ void individual::base_constructor(){
 	_is_infectious	= false;
 	_is_recovered	= false;
 	_is_symptomatic = false;
+	_was_symptomatic = false;
 	_is_hosp		= false;
 	
 	_doi	= 0.0;
 	_dol	= 0.0;
 	_doh	= 0.0;
+	_doi_drawn	= 0.0;
+	_dol_drawn	= 0.0;
+	_doh_drawn	= 0.0;
 }
 
 
@@ -49,12 +53,64 @@ individual::individual(){
 }
 
 
-individual::individual(ID id, double age){
+individual::individual(ID id, float age){
 	base_constructor();
 	_id = id;
 	_age = age;
 }
 
+
+
+string individual::_disease_status_update(double dt){
+	/// Updates disease-related member variables
+	/// for this individual when time advances by 'dt'
+	/// Returns a string that indicates what
+	/// disease stage change (if any) occured.
+	/// This string will be used at the social place level
+	/// to update the counts of individuals.
+	
+	string res="NO_CHANGE";
+	
+	// Disease-related durations:
+	if (_dol>0 && _dol <= _dol_drawn) _dol += dt;
+	if (_doi>0 && _doi <= _doi_drawn) _doi += dt;
+	if (_doh>0 && _doh <= _doh_drawn) _doh += dt;
+	
+	// Update disease stages
+	
+	// From 'E' to 'I'
+	if (_dol > _dol_drawn && !_is_infectious && !_is_recovered ) {
+		_is_latent		= false;
+		_is_infectious	= true;
+		_doi = SUPERTINY;
+		res = "E_to_I";
+	}
+	// From 'I' to 'R'
+	if (_doi > _doi_drawn && !_is_recovered ) {
+		_is_infectious	= false;
+		_is_infected	= false;
+		_is_symptomatic	= false;
+		_is_recovered	= true;
+		res = "I_to_R";
+	}
+	
+	if (_doh > _doh_drawn) {
+		_is_hosp = false;
+		res = "LEAVE_HOSPITAL";
+	}
+	
+	return res;
+}
+
+
+string individual::time_update(double dt){
+	/// Updates all relevant member variables
+	/// for this individual when time advances by 'dt'
+	
+	_age += dt/365.0;
+	
+	return _disease_status_update(dt);
+}
 
 
 void individual::set_id_sp_household(socialPlace& sp){
@@ -103,7 +159,6 @@ void individual::set_id_sp(SPtype type, socialPlace& sp){
 }
 
 
-
 void individual::displayInfo(){
 	
 	cout << endl << "-- " << endl;
@@ -120,10 +175,12 @@ void individual::displayInfo(){
 	cout << "individual's hospital SP id: " << _id_sp_hospital << endl;
 	cout << "individual's pubTransp SP id: " << _id_sp_pubTransp << endl;
 	cout << "individual's schedule name: " << _schedule.get_name() << endl;
+	cout << "name of the defined disease: " << _disease.get_name() << endl;
+	cout << "dol = " << _dol << endl;
+	cout << "doi = " << _doi << endl;
+	cout << "doh = " << _doh << endl;
 	cout << "-- " << endl;
 }
-
-
 
 
 double individual::calc_proba_acquire_disease(){
@@ -138,12 +195,35 @@ double individual::calc_proba_acquire_disease(){
 void individual::acquireDisease(){
 	/// This individual acquires the disease
 	
-	_is_infected = true;
-	_is_latent = true;
+	_is_infected	= true;
+	_is_latent		= true;
+	_is_infectious	= false;
 	
 	_dol = SUPERTINY;
+	
+	// Draws the durations THIS individual
+	// will experience:
+	
+	// TO DO: implement something more sophisticated!
+	_dol_drawn = _disease.get_dol_mean();
+	_doi_drawn = _disease.get_doi_mean();
+	
+	// TO DO: change that! Make this random...
+	_is_symptomatic = true;
+	_was_symptomatic = true;
 }
 
+
+void individual::recoverDisease() {
+	/// This individual recovers from the disease
+	
+	_is_infected	= false;
+	_is_infectious	= false;
+	_is_recovered	= true;
+	_is_symptomatic	= false;
+
+	_doi= 0.0;
+}
 
 
 vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched){

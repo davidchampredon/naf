@@ -14,6 +14,7 @@
 
 #include "utils.h"
 #include "schedule.h"
+#include "disease.h"
 
 
 enum scheduleType {
@@ -29,26 +30,35 @@ class individual{
 protected:
 
 	ID		_id;
-	double	_age;
+	float	_age;
 	bool	_is_alive;
 	
 	// Medical
-	double	_immunity;   // between 0 and 1.0 (1=completely immune)
-	double	_frailty;	// between 0 and 1.0 (1=extremely weak)
+	float	_immunity;		// between 0 and 1.0 (1=completely immune)
+	float	_frailty;		// between 0 and 1.0 (1=extremely weak)
 	
 	// Disease
+	
+	disease	_disease;
+	
 	bool	_is_latent;
 	
 	bool	_is_infected;
 	bool	_is_infectious;
 	bool	_is_symptomatic;
+	bool	_was_symptomatic;  // records if was symptomatic (when checked after infection).
 
 	bool	_is_recovered;
 	bool	_is_hosp;
 	
-	double	_dol; // duration of latency
-	double	_doi; // duration of infection
-	double	_doh; // duration of hospitalization
+	float	_dol; // duration of latency
+	float	_doi; // duration of infection
+	float	_doh; // duration of hospitalization
+	// When individual is infected,
+	// disease stages durations are randomly drawn:
+	float	_dol_drawn;
+	float	_doi_drawn;
+	float	_doh_drawn;
 
 	// Risk group:
 	// has an underlying condition increasing
@@ -72,6 +82,10 @@ protected:
 	// Schedule
 	schedule _schedule;
 	
+	// other private functions:
+	
+	string	_disease_status_update(double dt);
+	
 	
 public:
 	
@@ -79,8 +93,8 @@ public:
 	
 	void base_constructor();
 	individual();
-	individual(ID id, double age);
-	individual(ID id, double age, ID id_household);
+	individual(ID id, float age);
+	individual(ID id, float age, ID id_household);
 	
 	
 	// Set functions
@@ -93,15 +107,16 @@ public:
 	void set_id_sp_other(socialPlace& sp);
 	void set_id_sp_hospital(socialPlace& sp);
 	void set_id_sp_pubTransp(socialPlace& sp);
-	
 	void set_id_sp(SPtype type, socialPlace& sp);
 
-	void set_immunity(double x)	{_immunity = x;}
-	void set_frailty(double x)	{_frailty = x;}
+	void forget_id_sp_household(){_id_sp_household = __UNDEFINED_ID;}
+	
+	void set_immunity(float x)	{_immunity = x;}
+	void set_frailty(float x)	{_frailty = x;}
 	
 	void set_schedule(schedule s) {_schedule = s;}
 	
-	void forget_id_sp_household(){_id_sp_household = __UNDEFINED_ID;}
+	void set_disease(const disease& d) {_disease = d;}
 	void set_is_infected(bool x) {_is_infected = x;}
 	
 	
@@ -115,12 +130,13 @@ public:
 	ID get_id_sp_hospital()		const {return _id_sp_hospital;}
 	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
 	
-	double	get_immunity()		const {return _immunity;}
-	double	get_frailty()		const {return _frailty;}
+	float	get_immunity()		const {return _immunity;}
+	float	get_frailty()		const {return _frailty;}
 	
 	bool is_infected()			const {return _is_infected;}
 	bool is_infectious()		const {return _is_infectious;}
 	bool is_symptomatic()		const {return _is_symptomatic;}
+	bool was_symptomatic()		const {return _was_symptomatic;}
 	bool is_latent()			const {return _is_latent;}
 	bool is_recovered()			const {return _is_recovered;}
 	bool is_hosp()				const {return _is_hosp;}
@@ -130,10 +146,14 @@ public:
 	schedule get_schedule() {return _schedule;}
 	
 	
+	// Time updates for all relevant members.
+	string	time_update(double dt);
+
+	
 	// Epidemiology
-	double calc_proba_acquire_disease();
-	void acquireDisease();
-	void recoverDisease() {_is_infected = false; _doi= 0.0;}
+	double	calc_proba_acquire_disease();
+	void	acquireDisease();
+	void	recoverDisease();
 	
 	// Miscellenaous
 	ID find_dest(unsigned int idx_timeslice);

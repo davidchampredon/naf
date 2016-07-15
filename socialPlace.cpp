@@ -43,6 +43,7 @@ void socialPlace::base_constructor(){
 	_size = 0;
 	
 	_prevalence = 0;
+	_n_S = _size;
 	_n_E = 0;
 	_n_Ia = 0;
 	_n_Is = 0;
@@ -100,6 +101,10 @@ void socialPlace::update_epidemic_count(const individual& indiv,
 	/// Update epidemic count when a given
 	/// individual is either added or removed
 	
+	
+	// Updates following a movement
+	// from one social place to another
+	
 	short change = 0;
 	
 	if (update_type == "add")		change = +1;
@@ -110,7 +115,9 @@ void socialPlace::update_epidemic_count(const individual& indiv,
 		{
 			_prevalence = _prevalence + change;
 			
-			if( indiv.is_latent()) _n_E = _n_E + change;
+			if( indiv.is_latent()) {
+				_n_E = _n_E + change;
+			}
 			
 			if( indiv.is_infectious() )
 			{
@@ -120,32 +127,21 @@ void socialPlace::update_epidemic_count(const individual& indiv,
 				{ _n_Ia = _n_Ia + change; }
 			}
 		}
+		
+		if (!indiv.is_infected()){
+			if (indiv.is_recovered())	_n_R += change;
+			if (!indiv.is_recovered())	_n_S += change;
+		}
 	}
-}
-
-
-void socialPlace::displayInfo(){
-	cout << "--- " << endl ;
-	cout << "SP type: " << _type << " (" << SPtype2string(_type) << ")" << endl;
-	cout << "SP id: " << _id_sp << endl;
-	cout << " Associated AU:";
-	displayInfo_AU();
 	
-	cout << "Num. of indiv: " << _indiv.size() << " (check: " << _size << ")" << endl;
-	cout << "indiv ids: ";
-	for(int i=0; i<_indiv.size(); i++) cout << " [" <<_indiv[i].get_id() << "]";
-	cout << endl;
-	cout << "SP prevalence: " << _prevalence << " (check: "<< id_infected_bruteforce().size()  <<")";
-	if(_prevalence != id_infected_bruteforce().size()) cout << " CHECK FAILED!";
-	cout << endl;
-	cout << "infected indiv ids: ";
-	for(int i=0; i<_indiv.size(); i++)
-		if(_indiv[i].is_infected()) {cout <<" ["<<_indiv[i].get_id() << "]";}
+	// Updates following new case infected.
+	// This MUST be AFTER the 'if' above:
+	if (update_type == "new_case"){
+		_n_E += 1;
+		_n_S += -1;
+	}
 	
-	cout << endl;
-	cout << "--- " << endl ;
 }
-
 
 
 void socialPlace::add_indiv(individual & newindiv){
@@ -159,7 +155,6 @@ void socialPlace::add_indiv(individual & newindiv){
 	// DELETE WHEN SURE: if(newindiv.is_infected()) _prevalence++;
 	update_epidemic_count(newindiv, "add");
 }
-
 
 
 void socialPlace::add_indiv(vector<individual>& newindiv){
@@ -301,6 +296,18 @@ unsigned int socialPlace::census_alive(){
 }
 
 
+unsigned int socialPlace::census_infectious(){
+	/// Counts all infectious individuals (brute force, hence slow!)
+	
+	unsigned int cnt = 0;
+	for(int i=0; i<_indiv.size(); i++){
+		if(_indiv[i].is_infectious()) cnt++;
+	}
+	return cnt;
+}
+
+
+
 vector<ID>	socialPlace::id_infected_bruteforce(){
 	vector<ID> res;
 	for(int i=0; i<_indiv.size(); i++){
@@ -335,11 +342,21 @@ ID socialPlace::find_dest_linked(unsigned int pos,
 }
 
 
+
+void socialPlace::set_disease_to_all_indiv(const disease & d){
+	/// Set the disease 'd' to all individuals in the social place
+	
+	for (ID i=0; i<_indiv.size(); i++) {
+		_indiv[i].set_disease(d);
+	}
+}
+
+
 void socialPlace::acquireDisease(unsigned int pos){
 	/// Individual at position 'pos' in '_indiv' acquires the disease
 	
 	_indiv[pos].acquireDisease();
-	update_epidemic_count(_indiv[pos], "add");
+	update_epidemic_count(_indiv[pos], "new_case");
 }
 
 
@@ -592,8 +609,53 @@ vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
 }
 
 
+void socialPlace::time_update(double dt){
+	/// Update clock of all individuals in this social place
+	for (unsigned int i=0; i<_indiv.size(); i++) {
+		string event = _indiv[i].time_update(dt);
+
+		if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
+			_n_Is++;
+			_n_E--;
+		}
+		if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
+			_n_Ia++;
+			_n_E--;
+		}
+		
+		if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
+			_n_Is--;
+			_n_R++;
+		}
+		if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
+			_n_Ia--;
+			_n_R++;
+		}
+	}
+}
 
 
+void socialPlace::displayInfo(){
+	cout << "--- " << endl ;
+	cout << "SP type: " << _type << " (" << SPtype2string(_type) << ")" << endl;
+	cout << "SP id: " << _id_sp << endl;
+	cout << " Associated AU:";
+	displayInfo_AU();
+	
+	cout << "Num. of indiv: " << _indiv.size() << " (check: " << _size << ")" << endl;
+	cout << "indiv ids: ";
+	for(int i=0; i<_indiv.size(); i++) cout << " [" <<_indiv[i].get_id() << "]";
+	cout << endl;
+	cout << "SP prevalence: " << _prevalence << " (check: "<< id_infected_bruteforce().size()  <<")";
+	if(_prevalence != id_infected_bruteforce().size()) cout << " CHECK FAILED!";
+	cout << endl;
+	cout << "infected indiv ids: ";
+	for(int i=0; i<_indiv.size(); i++)
+		if(_indiv[i].is_infected()) {cout <<" ["<<_indiv[i].get_id() << "]";}
+	
+	cout << endl;
+	cout << "--- " << endl ;
+}
 
 
 

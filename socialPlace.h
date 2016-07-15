@@ -28,7 +28,7 @@ protected:
 	
 	SPtype			_type;
 	ID				_id_sp;  
-	unsigned long	_size;
+	unsigned int	_size;
 	
 	vector<individual> _indiv;
 	
@@ -36,6 +36,7 @@ protected:
 
 	unsigned int	_prevalence;
 	
+	unsigned int	_n_S;	// number of susceptible
 	unsigned int	_n_E;	// number of individuals in latent stage
 	unsigned int	_n_Is;	// number of infectious, symptomatic individuals
 	unsigned int	_n_Ia;	// number of infectious, asymptomatic individuals
@@ -69,6 +70,7 @@ public:
 	void remove_linked_indiv(ID id);
 	ID   n_linked_indiv(){return (ID)(_linked_indiv_id.size());}
 	
+	
 	// Set functions
 	void set_prevalence(unsigned int p) {_prevalence = p;}
 	void increase_prevalence() {_prevalence++;}
@@ -76,29 +78,47 @@ public:
 	
 	
 	// Get functions:
-	SPtype			get_type() const {return _type;}
-	ID				get_id_sp() const {return _id_sp;}
-	unsigned long	get_size() const {return _size;}
+	SPtype			get_type()		const {return _type;}
+	ID				get_id_sp()		const {return _id_sp;}
+	unsigned long	get_size()		const {return _size;}
+	
+	unsigned int	get_n_S()		const {return _n_S;}
+	unsigned int	get_n_Is()		const {return _n_Is;}
+	unsigned int	get_n_Ia()		const {return _n_Ia;}
+	
 	unsigned int	get_prevalence() const {return _prevalence;}
 	vector<individual>	get_indiv() {return _indiv;}
 	individual		get_indiv(unsigned int pos) {return _indiv[pos];}
 	vector<ID>		get_linked_indiv_id() {return _linked_indiv_id;}
 	
 	
+	// Time
+	
+	void time_update(double dt);
+	
 	// Diseases:
-	void acquireDisease(unsigned int pos);
+	void		set_disease_to_all_indiv(const disease & d);
+	void		acquireDisease(unsigned int pos);
 	vector<unsigned int> pick_rnd_susceptibles(unsigned int num);
 	vector<ID>	id_infected_bruteforce();
 	
-	void update_epidemic_count(const individual& indiv, string move_type);
+	void		update_epidemic_count(const individual& indiv, string move_type);
+	
+	
+	// Census functions:
+	// WARNING: brute force counting, hence slow!
+	unsigned int	census_alive();
+	unsigned int	census_infectious();
+	
 	
 	// Miscellenaous:
-	void displayInfo();
-	unsigned int	census_alive();
+	void	displayInfo();
 };
 
 
-vector<socialPlace> build_world_random(unsigned int n_sp, vector<areaUnit> auvec);
+vector<socialPlace> build_world_random(unsigned int n_sp,
+									   vector<areaUnit> auvec);
+
 vector<socialPlace> build_world_simple(vector<SPtype> spt,
 									   vector<unsigned int> n_sp,
 									   vector< probaDistrib<unsigned int> > p_size,

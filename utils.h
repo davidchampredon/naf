@@ -37,8 +37,8 @@ enum SPtype {
 
 const ID __UNDEFINED_ID = 999999999;
 
-# define TINY		1e-7
-# define SUPERTINY	1e-10
+# define TINY		1e-3
+# define SUPERTINY	1e-4
 
 
 // Useful functions

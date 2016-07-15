@@ -66,6 +66,9 @@ public:
 	vector<double>			get_ts_times()		{return _ts_times;}
 	vector<unsigned int>	get_ts_incidence()	{return _ts_incidence;}
 	
+	// Time updates
+	
+	void	time_update(double dt);
 	
 	// Migration
 
@@ -76,10 +79,11 @@ public:
 	
 	// Epidemic
 	
-	void seed_infection(vector<ID> id_sp, vector<unsigned int> I0);
-	unsigned int transmission_oneSP(unsigned int k, double contact_rate, double dt);
-	void transmission_world(double timeslice);
-	unsigned int prevalence();
+	void			set_disease(const disease& d);
+	void			seed_infection(vector<ID> id_sp, vector<unsigned int> I0);
+	unsigned int	transmission_oneSP(unsigned int k, double contact_rate, double dt);
+	void			transmission_world(double timeslice);
+	unsigned int	prevalence();
 	
 	// Miscelleanous
 
@@ -88,8 +92,10 @@ public:
 	
 	
 	unsigned int population_size();
-	void display_split_pop_present();
-	void display_split_pop_linked();
+	void		display_split_pop_present();
+	void		display_split_pop_linked();
+	
+	void		displayInfo_indiv();
 	
 	void test();
 	

@@ -18,12 +18,21 @@ void test_transmission(){
 	
 	auto t0 = std::chrono::system_clock::now();
 
-	// Build associated simulation:
+	// Define the disease
+	double dol_mean = 2.0;
+	double doi_mean = 3.1;
+	disease flu("Influenza", dol_mean, doi_mean);
+	
+	
+	// Build simulation:
 	
 	double horizon = 50;
 	Simulation sim;
 	sim.build_single_world();
 	sim.set_horizon(horizon);
+	
+	sim.set_disease(flu);
+	sim.displayInfo_indiv();
 	
 	sim.display_split_pop_linked();
 	sim.display_split_pop_present();

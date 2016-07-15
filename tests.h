@@ -14,6 +14,7 @@
 #include "simulation.h"
 #include "utils.h"
 #include "probaDistribution.h"
+#include "disease.h"
 
 void test_transmission();
 void test_move_transmission();
