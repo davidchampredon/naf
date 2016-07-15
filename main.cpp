@@ -38,7 +38,5 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 	
-	test_transmission();
-//	test_move_transmission();
 	return 0;
 }
