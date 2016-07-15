@@ -31,10 +31,10 @@ public:
 		_proba = proba;
 	}
 	
-	vector<T> sample(unsigned int n, unsigned long seed);
+	vector<T> sample(unsigned int n, unsigned int seed);
 };
 
-template <class T> vector<T> probaDistrib<T>::sample(unsigned int n, unsigned long seed){
+template <class T> vector<T> probaDistrib<T>::sample(unsigned int n, unsigned int seed){
 	
 	std::mt19937 gen(seed);
 	std::discrete_distribution<> d(_proba.begin(), _proba.end());

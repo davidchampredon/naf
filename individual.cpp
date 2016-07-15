@@ -10,22 +10,37 @@
 #include "socialPlace.h"
 
 void individual::base_constructor(){
-	_is_alive = true;
-	_id = __UNDEFINED_ID;
-	_age = 0.0;
-	_immunity = 0.0;
-	_frailty = 1.0;
+	/// Base constructor for individuals
+	/// (will be called by all genuine constructors)
+	_is_alive	= true;
+	_id			= __UNDEFINED_ID;
+	_age		= 0.0;
 	
+	_immunity	= 0.0;
+	_frailty	= 1.0;
+	
+	// Social place:
 	_id_sp_current		= __UNDEFINED_ID;
 	_id_sp_household	= __UNDEFINED_ID;
 	_id_sp_workplace	= __UNDEFINED_ID;
 	_id_sp_school		= __UNDEFINED_ID;
 	_id_sp_other		= __UNDEFINED_ID;
-	_id_sp_hospital	= __UNDEFINED_ID;
+	_id_sp_hospital		= __UNDEFINED_ID;
 	_id_sp_pubTransp	= __UNDEFINED_ID;
 	
-	_is_infected = false;
-	_doi = 0.0;
+	// Clinical:
+	_is_at_risk		= false;
+	
+	_is_infected	= false;
+	_is_latent		= false;
+	_is_infectious	= false;
+	_is_recovered	= false;
+	_is_symptomatic = false;
+	_is_hosp		= false;
+	
+	_doi	= 0.0;
+	_dol	= 0.0;
+	_doh	= 0.0;
 }
 
 
@@ -121,8 +136,12 @@ double individual::calc_proba_acquire_disease(){
 }
 
 void individual::acquireDisease(){
-	 _is_infected = true;
-	_doi = SUPERTINY;
+	/// This individual acquires the disease
+	
+	_is_infected = true;
+	_is_latent = true;
+	
+	_dol = SUPERTINY;
 }
 
 

@@ -10,6 +10,87 @@
 
 
 
+void Simulation::build_single_world(){
+	/// Build a very simple world:
+	/// one social place
+	/// USED FOR TEST
+	
+	cout << endl << "Building single world..."<<endl;
+	
+	string region1 = "Halton";
+	ID id_region1 = 1;
+	
+	areaUnit A1(1, "singletown", id_region1, region1);
+	
+	vector<areaUnit> A {A1};
+	
+	// Schedule
+	vector<double> timeslice {1.0}; // must sum up to 1.0
+	vector<SPtype> single_sed  {SP_household};
+	schedule sched_worker_sed(single_sed, timeslice, "worker_sed");
+	
+	vector<schedule> sched {
+		sched_worker_sed
+	};
+	
+	// individuals
+	unsigned int num_indiv			= (unsigned int)(1000); // <-- make sure it's large enough
+	vector<individual> many_indiv	= build_individuals(num_indiv, sched);
+	
+	// type of social places
+	vector<SPtype> spt {SP_household};
+	
+	// populate social places with individuals (built above)
+	unsigned int num_hh      = 1;
+
+	cout << "Number of household places: " << num_hh <<endl;
+
+	
+	// W A R N I N G
+	// same order as type of social places definition ('spt')
+	vector<unsigned int> num_sp {num_hh};
+	
+	// Distribution of the size of each social place type:
+	probaDistrib<unsigned int> p_hh({100},{1.0});
+	
+	vector<probaDistrib<unsigned int> > p_size {p_hh};
+	
+	// build the world:
+	vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
+	
+	// assign to class members:
+	_world = W;
+	
+	// initial population: Move everyone to its household!
+	unsigned long N = _world.size();
+	for (int k=0; k<N; k++)
+	{
+		if(_world[k].get_type()==SP_household)
+		{
+			unsigned int n_linked_k = _world[k].n_linked_indiv();
+			for (unsigned int i=0; i<n_linked_k; i++)
+			{
+				ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+				individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
+				
+				bool debugcode = false;
+				if(debugcode){
+					// Checks (remove for better speed)
+					ID id_hh = tmp.get_id_sp_household();
+					stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
+					stopif(id_hh != k, "Not consistent linkage!");
+					_world[id_hh].add_indiv(tmp);
+					// -----
+				}
+				
+				// Faster version:
+				if(!debugcode) _world[k].add_indiv(tmp);
+			}
+		}
+	}
+	cout << "... test world built." << endl;
+}
+
 
 void Simulation::build_test_world(double sizereduction){
 	
@@ -143,6 +224,7 @@ void Simulation::run(){
 	ID ii = at_least_one_indiv_present(_world)[0];
 	vector<double> timeslice = _world[ii].get_indiv()[0].get_schedule().get_timeslice();
 	// - - - - - - - - -
+	
 	unsigned long nts = timeslice.size();
 	unsigned int k = 0;
 	
@@ -155,7 +237,8 @@ void Simulation::run(){
 	for (_current_time=0.0; _current_time < _horizon; ) {
 		
 		unsigned int idx_timeslice = k % nts;
-		cout << "iter = " << k << " ; time slice = " << idx_timeslice << " ; currTime = " << _current_time <<endl;
+		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
+		cout << " ; currTime = " << _current_time <<endl;
 		
 		// Actions:
 		
@@ -283,7 +366,8 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 unsigned int Simulation::transmission_oneSP(unsigned int k,
 											double contact_rate,
 											double dt){
-	/// Performs transmission within the k^th social place. Returns incidence
+	/// Performs transmission within the k^th social place.
+	/// Returns incidence for THIS social place, during the time step 'dt'
 	
 	stopif(k >= _world.size(), "Asking for an inexistent social place");
 	
@@ -319,6 +403,7 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	// TO DO: put that in a member function of socialPlace
 	for (unsigned int j=0; j<pos_s.size(); j++)
 	{
+		// Probability for THIS susceptible to acquire the disease:
 		double p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
 		double u = (double)(rand())/RAND_MAX;
 		if(u < p) {

@@ -36,6 +36,12 @@ protected:
 
 	unsigned int	_prevalence;
 	
+	unsigned int	_n_E;	// number of individuals in latent stage
+	unsigned int	_n_Is;	// number of infectious, symptomatic individuals
+	unsigned int	_n_Ia;	// number of infectious, asymptomatic individuals
+	unsigned int	_n_R;	// number of individuals who recovered from the disease
+	unsigned int	_n_D;	// number of dead individuals
+	unsigned int	_n_H;	// number of hospitalized individuals
 	
 public:
 	
@@ -84,6 +90,7 @@ public:
 	vector<unsigned int> pick_rnd_susceptibles(unsigned int num);
 	vector<ID>	id_infected_bruteforce();
 	
+	void update_epidemic_count(const individual& indiv, string move_type);
 	
 	// Miscellenaous:
 	void displayInfo();

@@ -37,14 +37,30 @@ protected:
 	double	_frailty;	// between 0 and 1.0 (1=extremely weak)
 	
 	// Disease
+	bool	_is_latent;
+	
 	bool	_is_infected;
 	bool	_is_infectious;
+	bool	_is_symptomatic;
+
 	bool	_is_recovered;
+	bool	_is_hosp;
+	
 	double	_dol; // duration of latency
 	double	_doi; // duration of infection
+	double	_doh; // duration of hospitalization
 
+	// Risk group:
+	// has an underlying condition increasing
+	// the risk of severity if infected by disease
+	// (e.g. HIV, pregnant, etc.)
 	
-	// Social spaces linked to this individual
+	// ???? REDUNDANT WITH FRAILTY ????
+	bool	_is_at_risk;
+	
+	
+	// Social spaces linked
+	// to this individual
 	ID	_id_sp_current; // useful?
 	ID	_id_sp_household;
 	ID	_id_sp_workplace;
@@ -91,19 +107,25 @@ public:
 	
 	// Get functions
 	
-	ID get_id() const {return _id;}
-	ID get_id_sp_household()	{return _id_sp_household;}
-	ID get_id_sp_workplace()	{return _id_sp_workplace;}
-	ID get_id_sp_school()		{return _id_sp_school;}
-	ID get_id_sp_other()		{return _id_sp_other;}
-	ID get_id_sp_hospital()		{return _id_sp_hospital;}
-	ID get_id_sp_pubTransp()	{return _id_sp_pubTransp;}
+	ID get_id()					const {return _id;}
+	ID get_id_sp_household()	const {return _id_sp_household;}
+	ID get_id_sp_workplace()	const {return _id_sp_workplace;}
+	ID get_id_sp_school()		const {return _id_sp_school;}
+	ID get_id_sp_other()		const {return _id_sp_other;}
+	ID get_id_sp_hospital()		const {return _id_sp_hospital;}
+	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
 	
-	double	get_immunity()		{return _immunity;}
-	double	get_frailty()		{return _frailty;}
+	double	get_immunity()		const {return _immunity;}
+	double	get_frailty()		const {return _frailty;}
 	
-	bool is_infected()		{return _is_infected;}
-	bool is_alive()			{return _is_alive;}
+	bool is_infected()			const {return _is_infected;}
+	bool is_infectious()		const {return _is_infectious;}
+	bool is_symptomatic()		const {return _is_symptomatic;}
+	bool is_latent()			const {return _is_latent;}
+	bool is_recovered()			const {return _is_recovered;}
+	bool is_hosp()				const {return _is_hosp;}
+	
+	bool is_alive()				const {return _is_alive;}
 	
 	schedule get_schedule() {return _schedule;}
 	

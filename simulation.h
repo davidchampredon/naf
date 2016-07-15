@@ -29,11 +29,9 @@ protected:
 	
 	unsigned int	_current_incidence;
 	
-	
 	// time series
 	vector<double>			_ts_times;
 	vector<unsigned int>	_ts_incidence;
-	
 	
 	
 public:
@@ -47,7 +45,7 @@ public:
 
 	// pseudo constructors:
 	void build_test_world(double reduction_size);
-
+	void build_single_world();
 	
 	// Simulate
 	void run();

@@ -41,9 +41,18 @@ SPtype int2SPtype(unsigned int i){
 
 void socialPlace::base_constructor(){
 	_size = 0;
+	
 	_prevalence = 0;
+	_n_E = 0;
+	_n_Ia = 0;
+	_n_Is = 0;
+	_n_D = 0;
+	_n_H = 0;
+	_n_R = 0;
+	
 	_id_sp = __UNDEFINED_ID;
 }
+
 
 socialPlace::socialPlace(){
 	base_constructor();
@@ -86,6 +95,35 @@ socialPlace::socialPlace(areaUnit AU, ID id_sp, SPtype type){
 
 
 
+void socialPlace::update_epidemic_count(const individual& indiv,
+										string update_type){
+	/// Update epidemic count when a given
+	/// individual is either added or removed
+	
+	short change = 0;
+	
+	if (update_type == "add")		change = +1;
+	if (update_type == "remove")	change = -1;
+	
+	if (change != 0) {
+		if ( indiv.is_infected() )
+		{
+			_prevalence = _prevalence + change;
+			
+			if( indiv.is_latent()) _n_E = _n_E + change;
+			
+			if( indiv.is_infectious() )
+			{
+				if( indiv.is_symptomatic() )
+				{ _n_Is = _n_Is + change; }
+				else
+				{ _n_Ia = _n_Ia + change; }
+			}
+		}
+	}
+}
+
+
 void socialPlace::displayInfo(){
 	cout << "--- " << endl ;
 	cout << "SP type: " << _type << " (" << SPtype2string(_type) << ")" << endl;
@@ -118,7 +156,8 @@ void socialPlace::add_indiv(individual & newindiv){
 	
 	_indiv.push_back(newindiv);
 	_size++;
-	if(newindiv.is_infected()) _prevalence++;
+	// DELETE WHEN SURE: if(newindiv.is_infected()) _prevalence++;
+	update_epidemic_count(newindiv, "add");
 }
 
 
@@ -146,22 +185,25 @@ void socialPlace::remove_indiv(individual& x){
 	// update size:
 	_size--;
 	// update prevalence:
-	if(x.is_infected()) _prevalence--;
+	// DELETE WHEN SURE: if(x.is_infected()) _prevalence--;
+	update_epidemic_count(x, "remove");
 }
 
 
 void socialPlace::remove_indiv(unsigned int pos){
-	/// Remove an individual given its POSITION in vector '_indiv' in this social place.
+	/// Remove an individual given its POSITION
+	/// in vector '_indiv' in this social place.
 	
 	stopif(pos>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
 	
-	bool is_infected = _indiv[pos].is_infected(); // <-- MUST BE BEFORE erasing individual!
+	// DELETE WHEN SURE: bool is_infected = _indiv[pos].is_infected(); // <-- MUST BE BEFORE erasing individual!
+	update_epidemic_count(_indiv[pos], "remove"); // <-- MUST BE BEFORE erasing individual!
 	
 	_indiv.erase(_indiv.begin()+pos);
 	
 	// Mandatory updates:
 	_size--;
-	if(is_infected) _prevalence--;
+	// DELETE WHEN SURE: if(is_infected) _prevalence--;
 }
 
 
@@ -182,14 +224,14 @@ void socialPlace::remove_indiv(vector<unsigned int> posvec){
 		cout << " pos_"<<i<<" infected:"<<_indiv[idx].is_infected();
 		
 		// update prevalence (must be before removing, else infection info is gone!):
-		if(_indiv[idx].is_infected()) _prevalence--;
+		// DELETE WHEN SURE: if(_indiv[idx].is_infected()) _prevalence--;
+		update_epidemic_count(_indiv[idx], "remove");
+		
 		// remove
 		_indiv.erase(_indiv.begin()+ idx );
 		// update size:
 		_size--;
-		
-		
-		
+
 		cout << " updated size: "<<_size<<" prev: "<<_prevalence << endl;
 	}
 }
@@ -297,7 +339,7 @@ void socialPlace::acquireDisease(unsigned int pos){
 	/// Individual at position 'pos' in '_indiv' acquires the disease
 	
 	_indiv[pos].acquireDisease();
-	_prevalence++;
+	update_epidemic_count(_indiv[pos], "add");
 }
 
 
@@ -400,7 +442,7 @@ void displayPopulationSize(const vector<socialPlace>& sp){
 	cout<<endl<< " WORLD POPULATION "<<endl;
 	ID s = 0;
 	for (int i=0; i<sp.size(); i++) {
-		ID sizei = sp[i].get_size();
+		ID sizei = (ID)(sp[i].get_size());
 		s+=sizei;
 		cout << "pos= "<< i << " ; id= "<<sp[i].get_id_sp();
 		cout << " ; popsize= "<< sizei;
@@ -428,7 +470,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 		   "vectors must be same size");
 	
 	// number of types of social places
-	unsigned int N_type_sp = spt.size();
+	unsigned long N_type_sp = spt.size();
 	
 	// Vector of vector of SP:
 	// one vector for each type of SP
