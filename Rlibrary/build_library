@@ -1,0 +1,10 @@
+rm -rf naf*
+rm -rf ./lib
+Rscript setup_library.R
+cp Makevars naf/src 
+R CMD build naf
+R CMD check naf
+mkdir ./lib
+R CMD INSTALL -l ./lib naf
+echo --------------------------------------------------------
+echo run "Rscript test_naf_library.R" to check all went well
