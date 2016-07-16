@@ -247,8 +247,8 @@ void Simulation::run(){
 	for (_current_time=0.0; _current_time < _horizon; ) {
 		
 		unsigned int idx_timeslice = k % nts;
-		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
-		cout << " ; currTime = " << _current_time <<endl;
+//		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
+//		cout << " ; currTime = " << _current_time <<endl;
 		
 		double dt = timeslice[idx_timeslice];
 		
@@ -279,6 +279,9 @@ void Simulation::run(){
 //		cout << "DEBUG: census alive: " << census_total_alive() << endl;
 //		cout << "DEBUG: population_size: " << population_size()  << endl;
 	}
+	
+
+	
 	cout << endl << endl << "Simulation completed."<< endl;
 	displayVector(_ts_incidence);
 	cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
@@ -300,6 +303,8 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 	
 	unsigned long N = _world.size();
 	
+	std::uniform_real_distribution<double> unif(0.0,1.0);
+	
 	for (int k=0; k<N; k++)
 	{
 		for (unsigned int i=0; i<_world[k].get_size(); i++)
@@ -314,7 +319,7 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 				
 				// Draw the chance move will actually happen:
 				// TO DO: make this proba individual-dependent
-				double u = (double)(rand()) / RAND_MAX;
+				double u = unif(_RANDOM_GENERATOR);
 				if ( u < proba ){
 					
 					//DEBUG
@@ -346,13 +351,15 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 	
 	/// Move individuals across social places
 	
+	std::uniform_real_distribution<double> unif(0.0,1.0);
+	
 	for (int k=0; k<_world.size(); k++)
 	{
 		vector<unsigned int> pos2move; // idx position to move (must be done at the end of the loop, bc vector keeps on changing size!)
 		for (int i=0; i<_world[k].get_size(); i++)
 		{
 			// Draw the chance move will actually happen:
-			double u = (double)(rand()) / RAND_MAX;
+			double u = unif(_RANDOM_GENERATOR);
 			if ( u < proba )
 			{
 				individual tmp = _world[k].get_indiv(i);
@@ -361,7 +368,7 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 				
 				if(sptype == SP_household)	id_dest = tmp.get_id_sp_household();
 				if(sptype == SP_workplace)	id_dest = tmp.get_id_sp_workplace();
-				if(sptype == SP_school)		id_dest = tmp.get_id_sp_school();
+				if(sptype == SP_school)	id_dest = tmp.get_id_sp_school();
 				if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
 				if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
 				if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
@@ -398,8 +405,8 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	
 	// Count categories of individuals:
 	unsigned long N		= _world[k].get_size();
-	unsigned int nIa	= _world[k].get_n_Ia();
-	unsigned int nIs	= _world[k].get_n_Is();
+	unsigned int nIa		= _world[k].get_n_Ia();
+	unsigned int nIs		= _world[k].get_n_Is();
 	unsigned int nS		= _world[k].get_n_S();
 
 	stopif( (nIa+nIs >N) || (nS > N),
@@ -422,11 +429,14 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	
 	// Attempt transmission:
 	// TO DO: put that in a member function of socialPlace
+	
+	std::uniform_real_distribution<double> unif(0.0,1.0);
+	
 	for (unsigned int j=0; j<pos_s.size(); j++)
 	{
 		// Probability for THIS susceptible to acquire the disease:
 		double p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
-		double u = (double)(rand())/RAND_MAX;
+		double u = unif(_RANDOM_GENERATOR);
 		if(u < p) {
 			
 			//DEBUG

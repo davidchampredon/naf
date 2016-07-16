@@ -15,9 +15,15 @@
 #include "utils.h"
 #include "probaDistribution.h"
 #include "disease.h"
+#include "globalvar.h"
 
 vector<unsigned int> test_transmission();
 
 void test_move_transmission();
+
+
+void test_rnd_eng();
+
+void test_random();
 
 #endif

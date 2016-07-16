@@ -8,7 +8,12 @@
 
 #include <stdio.h>
 #include "utils.h"
+#include "globalvar.h"
 
+
+
+
+// ==== Error catch ====
 
 void stopif(bool condition, string error_msg,
 			int error_code, const char ff[])
@@ -21,4 +26,14 @@ void stopif(bool condition, string error_msg,
 		cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* " << endl;
 		exit(error_code);
 	}
+}
+
+
+
+void force_seed_reset(unsigned int manual_seed)
+{
+	// DEBUG
+	// cout << "SEED IS SET TO: "<<manual_seed<<endl;
+	// -----
+	_RANDOM_GENERATOR.seed(manual_seed);
 }

@@ -260,7 +260,10 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 		if (is_susceptible) pos.push_back(i);
 	}
 	// Shuffle elements (guarantees random pick)
-	random_shuffle(pos.begin(), pos.end());
+
+	//	DELETE WHEN SURE : random_shuffle(pos.begin(), pos.end());
+	std::shuffle(std::begin(pos), std::end(pos), _RANDOM_GENERATOR);
+	
 	pos.resize(num);
 	
 	return pos;
@@ -367,10 +370,13 @@ vector<socialPlace> build_world_random(unsigned int N, vector<areaUnit> auvec){
 	unsigned long n_au = auvec.size();
 	vector<socialPlace> v;
 	
+	std::uniform_int_distribution<unsigned long> unif_int(0,n_au-1);
+	std::uniform_int_distribution<unsigned long> unif_int2(0,SP_MAX-1);
+	
 	for (int i=0; i<N; i++) {
 		
-		areaUnit A = auvec[rand()%n_au];				// choose randomly an AU
-		SPtype sptype = (SPtype)(rand()%SP_MAX);	// choose randomly the type of SP
+		areaUnit A = auvec[unif_int(_RANDOM_GENERATOR)];				// choose randomly an AU
+		SPtype sptype = (SPtype)(unif_int2(_RANDOM_GENERATOR));	// choose randomly the type of SP
 		socialPlace tmp(A,i,sptype);
 		v.push_back(tmp);
 		
@@ -392,8 +398,12 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 	
 	vector<individual> indivvec;
 	
+	std::uniform_real_distribution<double> unif(1.0,80.0);
+	std::uniform_int_distribution<unsigned long> unif_int(0,sched.size()-1);
+	std::uniform_int_distribution<unsigned long> unif_int_sp(0,sp.size()-1);
+	
 	for(int i=0; i<n_indiv; i++){
-		double age = rand() % 90 + 1;
+		double age = unif(_RANDOM_GENERATOR);
 		
 		individual tmp(i, age);
 		
@@ -421,7 +431,7 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 		tmp.set_immunity(0.0);
 		tmp.set_frailty(1.0);
 		
-		tmp.set_schedule(sched[rand() % sched.size()]);
+		tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);
 		
 		indivvec.push_back(tmp);
 		// DEBUG
@@ -431,7 +441,7 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 	// STEP 2 - assign individuals to a random SP
 	
 	for (int i=0; i<indivvec.size(); i++) {
-		int sp_idx = rand() % sp.size();
+		unsigned long sp_idx = unif_int_sp(_RANDOM_GENERATOR);
 		sp[sp_idx].add_indiv(indivvec[i]);
 		//DEBUG
 		// indivvec[i].displayInfo();
@@ -447,7 +457,9 @@ unsigned int choose_SPtype_random(const vector<socialPlace>& sp, SPtype x){
 		if(sp[i].get_type()==x) pos.push_back(i);
 	}
 	
-	unsigned int choose_rnd = rand() % pos.size();
+	std::uniform_int_distribution<unsigned long> unif_int(0,pos.size()-1);
+	
+	unsigned long choose_rnd = unif_int(_RANDOM_GENERATOR);
 	unsigned int res = pos[choose_rnd];
 	return res;
 }
@@ -504,8 +516,9 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 		y[t].resize(n_sp[t]);
 		
 		// Create empty (no indiv linked) social place:
+		std::uniform_int_distribution<unsigned long> unif_int(0, auvec.size()-1);
 		for (ID i=0; i<n_sp[t]; i++) {
-			areaUnit A = auvec[rand() % auvec.size()];
+			areaUnit A = auvec[unif_int(_RANDOM_GENERATOR)];
 			socialPlace x(A, cnt_id, spt[t]);
 			sp[t][i] = x;
 			cnt_id++;

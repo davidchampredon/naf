@@ -14,6 +14,7 @@
 #include <random>
 
 #include "utils.h"
+#include "globalvar.h"
 
 using namespace std;
 
@@ -36,11 +37,10 @@ public:
 
 template <class T> vector<T> probaDistrib<T>::sample(unsigned int n, unsigned int seed){
 	
-	std::mt19937 gen(seed);
 	std::discrete_distribution<> d(_proba.begin(), _proba.end());
 	
 	vector<T> s(n);
-	for (int i=0; i<n; i++) s[i] = _value[d(gen)];
+	for (int i=0; i<n; i++) s[i] = _value[d(_RANDOM_GENERATOR)];
 	return s;
 }
 

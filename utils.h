@@ -11,9 +11,11 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
 
 
 using namespace std;
+
 
 // Customized types
 
@@ -46,6 +48,10 @@ const ID __UNDEFINED_ID = 999999999;
 
 void stopif(bool condition, string error_msg,
 			int error_code=1, const char ff[]=__FUNCTION__);
+
+
+void force_seed_reset(unsigned int manual_seed);
+
 
 
 template <class T> T sumElements(vector<T> x)

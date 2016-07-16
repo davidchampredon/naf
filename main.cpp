@@ -38,7 +38,23 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 	
+	_RANDOM_GENERATOR.seed(123);
 	test_transmission();
+	_RANDOM_GENERATOR.seed(123);
+	test_transmission();
+	
+//	_RANDOM_GENERATOR.seed(123);
+//	test_rnd_eng();
+//	_RANDOM_GENERATOR.seed(123);
+//	test_rnd_eng();
+
 	
 	return 0;
 }
+
+
+
+
+
+
+

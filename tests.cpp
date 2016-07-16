@@ -27,10 +27,11 @@ vector<unsigned int> test_transmission(){
 	Simulation sim;
 	sim.build_single_world();
 	sim.set_horizon(horizon);
-	
 	sim.set_disease(flu);
-	//sim.displayInfo_indiv();
 	
+	
+	// Displays
+	//sim.displayInfo_indiv();
 	sim.display_split_pop_linked();
 	sim.display_split_pop_present();
 	
@@ -53,7 +54,7 @@ vector<unsigned int> test_transmission(){
 	
 	// Run the simulation:
 	sim.run();
-
+	
 	// timers:
 	auto t2 = std::chrono::system_clock::now();
 	std::chrono::duration<double> elapsed_seconds = t2-t0;
@@ -115,4 +116,62 @@ void test_move_transmission(){
 	cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
 	cout << "Excluding pop generation: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
 }
+
+
+
+
+void test_rnd_eng(){
+	
+	unsigned long N = 1e1;
+	
+	auto t0 = std::chrono::system_clock::now();
+	
+	auto t1 = std::chrono::system_clock::now();
+	
+	cout << endl;
+	
+
+	std::uniform_real_distribution<double> unif(0.0,1.0);
+	
+	for (int i=0; i<N; i++) {
+		double y = unif(_RANDOM_GENERATOR);
+		cout << "TEST-distrib = " << y <<endl;
+	}
+	cout << endl;
+	
+
+
+	std::uniform_real_distribution<double> unif2(0.0,1.0);
+	
+	for (int i=0; i<N; i++) {
+		double y = unif2(_RANDOM_GENERATOR);
+		cout << "TEST-distrib2 = " << y <<endl;
+	}
+	cout << endl;
+	
+	
+	auto t2 = std::chrono::system_clock::now();
+	
+	
+	
+	std::chrono::duration<double> elapsed_seconds = t1-t0;
+	std::chrono::duration<double> elapsed_seconds2 = t2-t1;
+	cout.precision(3);
+	cout << "TIME 1: "<< elapsed_seconds.count()<< " secs" <<endl;
+	cout << "TIME 2: "<< elapsed_seconds2.count()<< " secs" <<endl;
+}
+
+
+void test_random(){
+	
+	std::uniform_real_distribution<double> unif(0.0,1.0);
+	for (int i=0; i<5; i++) {
+		double y = unif(_RANDOM_GENERATOR);
+		cout << "FCT-TEST-distrib = " << y <<endl;
+	}
+	
+	
+	
+}
+
 

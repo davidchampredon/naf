@@ -14,6 +14,7 @@
 #include "individual.h"
 #include "socialPlace.h"
 #include "modelParam.h"
+#include "globalvar.h"
 
 
 using world = vector<socialPlace>;
@@ -32,7 +33,7 @@ protected:
 	// time series
 	vector<double>			_ts_times;
 	vector<unsigned int>	_ts_incidence;
-	
+
 	
 public:
 	
@@ -56,7 +57,7 @@ public:
 	void set_current_time(double t) {_current_time = t;}
 	void set_world(world w) {_world = w;}
 	void set_horizon(double h) {_horizon = h;}
-	
+
 	
 	// Get functions
 	

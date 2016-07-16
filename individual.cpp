@@ -232,18 +232,21 @@ vector<individual> build_individuals(unsigned int n, const vector<schedule>& sch
 	
 	vector<individual> x(n);
 	
-	for (int i=0; i<n; i++) {
-		double age = rand() % 80 + 1;
+	std::uniform_real_distribution<double> unif(1.0, 80.0);
+	std::uniform_real_distribution<double> unif_01(0.0, 1.0);
+	std::uniform_int_distribution<unsigned long> unif_int(0.0, sched.size()-1);
+	
+	for (int i=0; i<n; i++)
+	{
+		double age = unif(_RANDOM_GENERATOR);
 		individual tmp(i, age);
 		
-		tmp.set_immunity((double) rand() / (RAND_MAX));
-		tmp.set_frailty((double) rand() / (RAND_MAX));
-		
-		tmp.set_schedule(sched[rand() % sched.size()]);
+		tmp.set_immunity(unif_01(_RANDOM_GENERATOR));
+		tmp.set_frailty(unif_01(_RANDOM_GENERATOR));
+		tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);
 		
 		x[i] = tmp;
 	}
-	
 	return x;
 }
 
