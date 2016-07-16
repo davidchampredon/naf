@@ -8,13 +8,10 @@
 
 #include <stdio.h>
 
-
-
-
 #include "tests.h"
 
 
-void test_transmission(){
+vector<unsigned int> test_transmission(){
 	
 	auto t0 = std::chrono::system_clock::now();
 
@@ -32,7 +29,7 @@ void test_transmission(){
 	sim.set_horizon(horizon);
 	
 	sim.set_disease(flu);
-	sim.displayInfo_indiv();
+	//sim.displayInfo_indiv();
 	
 	sim.display_split_pop_linked();
 	sim.display_split_pop_present();
@@ -64,6 +61,8 @@ void test_transmission(){
 	cout.precision(3);
 	cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
 	cout << "Excluding pop generation: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
+	
+	return sim.get_ts_incidence();
 }
 
 

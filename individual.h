@@ -18,10 +18,13 @@
 
 
 enum scheduleType {
-	workerSedentary, workerTravel,
+	workerSedentary,
+	workerTravel,
 	traveler,
-	stayHome, hospitalized,
-	leisure};
+	stayHome,
+	hospitalized,
+	leisure
+};
 
 class socialPlace;
 
@@ -166,7 +169,7 @@ inline bool operator == ( individual a, individual b){
 }
 
 
-inline void acquireDisease(individual& x) {x.set_is_infected(true);}
+//DELETE WHEN SURE: inline void acquireDisease(individual& x) {x.set_is_infected(true);}
 
 vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched);
 
