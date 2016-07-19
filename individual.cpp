@@ -219,14 +219,16 @@ void individual::acquireDisease(){
 	
 	if (_dol_distrib == "dirac") _dol_drawn = _disease.get_dol_mean();
 	if (_dol_distrib == "exp") {
-		std::exponential_distribution<float> d(_disease.get_dol_mean());
+        float dol_mean = _disease.get_dol_mean();
+		std::exponential_distribution<float> d(1.0/dol_mean);
 		_dol_drawn = d(_RANDOM_GENERATOR);
 //		cout << "DEBUG: dol_drawn = " << _dol_drawn <<endl;
 	}
 
 	if (_doi_distrib == "dirac") _doi_drawn = _disease.get_doi_mean();
 	if (_doi_distrib == "exp") {
-		std::exponential_distribution<float> d(_disease.get_doi_mean());
+        float doi_mean = _disease.get_doi_mean();
+        std::exponential_distribution<float> d(1.0/doi_mean);
 		_doi_drawn = d(_RANDOM_GENERATOR);
 	}
 	

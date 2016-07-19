@@ -46,7 +46,7 @@ void Simulation::build_single_world(unsigned int n_indiv){
 	vector<areaUnit> A {A1};
 	
 	// Schedule
-	int nt = 20;
+	int nt = _modelParam.get_prm_uint("nt");
 	vector<double> timeslice(nt, 1.0/nt); // must sum up to 1.0
 	vector<SPtype> single_sed  {SP_household};
 	schedule sched_worker_sed(single_sed, timeslice, "worker_sed");
@@ -260,8 +260,13 @@ void Simulation::test(){}
 
 void Simulation::run(){
 	/// Run the simulated epidemic
-	
-	cout << endl << endl << " ======= START SIMULATION ======" <<endl<<endl;
+    
+    
+    // Retrieve all model parameters:
+    double p_move = _modelParam.get_prm_double("proba_move");
+    bool debug_mode = _modelParam.get_prm_bool("debug_mode");
+    
+	if(debug_mode) cout << endl << endl << " ======= START SIMULATION ======" <<endl<<endl;
 	
 	_current_time = 0.0;
 	
@@ -273,14 +278,10 @@ void Simulation::run(){
 	unsigned long nts = timeslice.size();
 	unsigned int k = 0;
 	
-	// Retrieve all model parameters:
-	double p = _modelParam.get_prm_double("proba_move");
-	bool debug_mode = _modelParam.get_prm_bool("debug_mode");
-	
+
 	// MAIN LOOP FOR TIME
 	
 	for (_current_time=0.0; _current_time < _horizon; ) {
-		
 		
 		if(debug_mode) check_book_keeping();
 		
@@ -295,17 +296,14 @@ void Simulation::run(){
 //		cout << "BEFORE move" << endl;
 //		display_split_pop_present();
 		
-		move_individuals_sched(idx_timeslice, p);
+		if(p_move>0) move_individuals_sched(idx_timeslice, p_move);
 		
 //		cout << "AFTER move, BEFORE transmission" << endl;
 //		display_split_pop_present();
-
 		transmission_world(dt);
-		
 //		cout << "AFTER transmissiom" << endl;
 //		display_split_pop_present();
 
-		
 		// Update counts of population categories
 		// at the 'simulation' level
 		// (social places were updated during transmission):
@@ -327,9 +325,11 @@ void Simulation::run(){
 		k++;
 	}
 
-	cout << endl << endl << "Simulation completed."<< endl;
-	displayVector(_ts_incidence);
-	cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
+    if(debug_mode){
+        cout << endl << endl << "Simulation completed."<< endl;
+        displayVector(_ts_incidence);
+        cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
+    }
 }
 
 
@@ -347,9 +347,7 @@ void Simulation::set_disease(const disease &d){
 
 
 void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba){
-	
 	/// Move individuals across social places according to their schedule
-	
 	
 	unsigned long N = _world.size();
 	
@@ -381,7 +379,6 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
 					_world[id_dest].add_indiv(tmp);
 					// remove this individual (in i^th position in '_indiv' vector) from here
 					_world[k].remove_indiv(i);
-					
 					
 					//DEBUG
 //					cout << endl << "AFTER move" <<endl;
@@ -490,13 +487,20 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 		// makes contact with ALL susceptible
 		// and has a probability to transmit
 		// at each contact.
-		nContactsDrawn = nS;
-		for(unsigned int i=0; i< N; i++) {
-			if (_world[k].get_indiv(i).is_susceptible()){
-				pos_s.push_back(i);
-			}
+        double mean_n_contacts = contact_rate * dt * nS / N ;
+		std::poisson_distribution<> poiss(mean_n_contacts);
+//        cout << "DEBUG: mean contacts = "<< mean_n_contacts << endl;
+		for (unsigned int i=0; i<(nIa+nIs); i++) {
+            unsigned int inc_k =poiss(_RANDOM_GENERATOR);
+			inc += inc_k;
+//            cout << "DEBUG: #contact_"<<k<<" = "<< inc_k << endl;
 		}
-	}
+		pos_s = _world[k].pick_rnd_susceptibles(inc);
+        for (unsigned int j=0; j<pos_s.size(); j++){
+            _world[k].acquireDisease(pos_s[j]);
+            update_pop_count();
+        }
+	} // end-else
 
 	
 	// DEBUG
@@ -508,39 +512,42 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	// Attempt transmission:
 	// TO DO: put that in a member function of socialPlace
 	
-	std::uniform_real_distribution<double> unif(0.0,1.0);
-	double p = -999, u = -999;
-	
-	for (unsigned int j=0; j<pos_s.size(); j++)
+	if(!homog_cont)
 	{
-		// Probability for THIS susceptible to acquire the disease:
-
-		if (homog_cont)  p = contact_rate * dt;
-		if (!homog_cont) p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
+		std::uniform_real_distribution<double> unif(0.0,1.0);
+		double p = -999, u = -999;
 		
-		u = unif(_RANDOM_GENERATOR);
-		if(u < p) {
+		for (unsigned int j=0; j<pos_s.size(); j++)
+		{
+			// Probability for THIS susceptible to acquire the disease:
 			
-			//DEBUG
-//			cout << " BEFORE transmission"<<endl;
-//			_world[k].displayInfo();
-//			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" is going to acquire"<<endl;
+			if (homog_cont)  p = contact_rate * dt;
+			if (!homog_cont) p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
 			
-			// Transmission!
-			_world[k].acquireDisease(pos_s[j]);
-			update_pop_count();
-			
-//			cout << "check infected (must=1): " << _world[k].get_indiv()[pos_s[j]].is_infected() <<endl;
-			//_world[k].displayInfo(); // DEBUG
-			
-			inc++;
-			
-			//DEBUG
-//			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" acquired!"<<endl;
-//			cout << " AFTER transmission"<<endl;
-//			_world[k].displayInfo();
+			u = unif(_RANDOM_GENERATOR);
+			if(u < p) {
+				
+				//DEBUG
+				//			cout << " BEFORE transmission"<<endl;
+				//			_world[k].displayInfo();
+				//			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" is going to acquire"<<endl;
+				
+				// Transmission!
+				_world[k].acquireDisease(pos_s[j]);
+				update_pop_count();
+				
+				//			cout << "check infected (must=1): " << _world[k].get_indiv()[pos_s[j]].is_infected() <<endl;
+				//_world[k].displayInfo(); // DEBUG
+				
+				inc++;
+				
+				//DEBUG
+				//			cout << "indiv ID_" <<_world[k].get_indiv()[pos_s[j]].get_id()<<" acquired!"<<endl;
+				//			cout << " AFTER transmission"<<endl;
+				//			_world[k].displayInfo();
+			}
 		}
-	}
+	} // end-if-homog-cont
 	return inc;
 }
 

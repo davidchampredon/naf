@@ -356,13 +356,12 @@ void socialPlace::set_disease_to_all_indiv(const disease & d){
 void socialPlace::acquireDisease(unsigned int pos){
 	/// Individual at position 'pos' in '_indiv' acquires the disease
 	
-	/* DEBUG */	stopif(_n_E != census_disease_stage("E"), "BOOM");
+	/* DEBUG */ //	stopif(_n_E != census_disease_stage("E"), "BOOM");
 	_indiv[pos].acquireDisease();
-
-	
 	update_epidemic_count(_indiv[pos], "new_case");
-	/* DEBUG */	stopif(_n_E != census_disease_stage("E"), "BOOM_E");
-	stopif(_n_S != census_disease_stage("S"), "BOOM_S");
+	/* DEBUG */
+    //stopif(_n_E != census_disease_stage("E"), "BOOM_E");
+	//stopif(_n_S != census_disease_stage("S"), "BOOM_S");
 }
 
 

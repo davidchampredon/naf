@@ -12,21 +12,21 @@
 
 
 Simulation test_transmission(modelParam MP,
-									   double horizon){
+							 double horizon,
+							 unsigned int n_indiv,
+							 unsigned int i0){
 	
 	auto t0 = std::chrono::system_clock::now();
 
 	// unpack parameters
 	
-	double dol_mean			= MP.get_prm_double("dol_mean");
-	double doi_mean			= MP.get_prm_double("doi_mean");
-	unsigned int n_indiv	= MP.get_prm_uint("n_indiv");
-	
-	
+	double dol_mean = MP.get_prm_double("dol_mean");
+	double doi_mean	= MP.get_prm_double("doi_mean");
+    bool debug_mode = MP.get_prm_bool("debug_mode");
+    
 	// Define the disease
 	disease flu("Influenza", dol_mean, doi_mean);
 	
-
 	// Build simulation:
 	
 	Simulation sim;
@@ -35,10 +35,10 @@ Simulation test_transmission(modelParam MP,
 	sim.set_horizon(horizon);
 	sim.set_disease(flu);
 	
-	// Displays
-	//sim.displayInfo_indiv();
-	sim.display_split_pop_linked();
-	sim.display_split_pop_present();
+    if(debug_mode){
+        sim.display_split_pop_linked();
+        sim.display_split_pop_present();
+    }
 	
 	auto t1 = std::chrono::system_clock::now();
 	
@@ -47,23 +47,16 @@ Simulation test_transmission(modelParam MP,
 	vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
 	
 	
-	vector<ID> sp_initially_infected {id_pres[0], id_pres[1]};
-	vector<unsigned int> I0 {1,1};
+	vector<ID> sp_initially_infected {id_pres[0]};
+	vector<unsigned int> I0 {i0};
 	sim.seed_infection(sp_initially_infected, I0);
 	
-	sim.display_split_pop_present();
+//	sim.display_split_pop_present();
 	
 	
 	// Run the simulation:
 	sim.run();
 	
-	// timers:
-	auto t2 = std::chrono::system_clock::now();
-	std::chrono::duration<double> elapsed_seconds = t2-t0;
-	std::chrono::duration<double> elapsed_seconds2 = t2-t1;
-	cout.precision(3);
-	cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
-	cout << "Excluding pop generation: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
 	
 	return sim;
 }

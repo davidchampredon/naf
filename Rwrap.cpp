@@ -16,7 +16,6 @@ using namespace Rcpp;
 
 List dcDataFrameToRcppList(dcDataFrame df,
 						   bool addRowName){
-	
 	/// Converts a dcDataFrame to a Rccp list
 	/// (helper function)
 	
@@ -44,22 +43,27 @@ List dcDataFrameToRcppList(dcDataFrame df,
 
 
 // [[Rcpp::export]]
-List naf_test(List params){
+List naf_test(List params, List simulParams){
 	
 	vector<unsigned int> res;
 	
-	// Unpack parameters:
+	// Model parameters:
 	
 	bool debug_mode		= params["debug_mode"];
 	double dol_mean		= params["dol_mean"];
 	double doi_mean		= params["doi_mean"];
-	double horizon			= params["horizon"];
-	unsigned int n_indiv	= params["n_indiv"];
-	double proba_move		= params["proba_move"];
-	double contact_rate	= params["contact_rate"];
-	bool homog	           = params["homogeneous_contact"];
+	
+	double proba_move   = params["proba_move"];
+	double contact_rate = params["contact_rate"];
+	bool homog          = params["homogeneous_contact"];
 	
 	unsigned int rnd_seed	= params["rnd_seed"];
+
+	// Simulation parameters:
+	unsigned int n_indiv = simulParams["n_indiv"];
+	unsigned int i0	     = simulParams["initial_latent"];
+	double horizon       = simulParams["horizon"];
+	unsigned int nt	     = simulParams["nt"];
 	
 	// Store parameters in a 'modelParam' class:
 	modelParam MP;
@@ -70,6 +74,7 @@ List naf_test(List params){
 	MP.add_prm_double("contact_rate", contact_rate);
 	MP.add_prm_uint("n_indiv", n_indiv);
 	MP.add_prm_bool("homogeneous_contact", homog);
+	MP.add_prm_uint("nt", nt);
 	
 	cout << "DEBUG: the seed is "<<rnd_seed <<endl;
 	
@@ -77,7 +82,10 @@ List naf_test(List params){
 	_RANDOM_GENERATOR.seed(rnd_seed);
 	
 	// Call C++ function
-	Simulation sim = test_transmission(MP, horizon);
+	Simulation sim = test_transmission(MP,
+									   horizon,
+									   n_indiv,
+									   i0);
 	
 	// Retrieve all results from simulation:
 	

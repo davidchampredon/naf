@@ -18,7 +18,9 @@
 #include "globalvar.h"
 
 Simulation test_transmission(modelParam MP,
-									   double horizon);
+							 double horizon,
+							 unsigned int n_indiv,
+							 unsigned int i0);
 
 void test_move_transmission();
 

@@ -38,21 +38,26 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 	
-
-	double horizon = 30.0;
+    auto t0 = std::chrono::system_clock::now();
+    
+	double horizon = 90.0;
 	
 	modelParam MP;
 
 	MP.add_prm_bool("debug_mode", true);
+    
 	MP.add_prm_double("dol_mean", 2.0);
 	MP.add_prm_double("doi_mean", 3.0);
-	MP.add_prm_double("proba_move", 0.90);
-	MP.add_prm_uint("n_indiv", 1000);
+	MP.add_prm_double("proba_move", 0.0);
 	MP.add_prm_bool("homogeneous_contact", true);
-	MP.add_prm_double("contact_rate", 0.1);
+	MP.add_prm_double("contact_rate", 1);
+    MP.add_prm_uint("nt", 3);
+	
+	unsigned int n_indiv = 1E4;
+	unsigned int i0 = 2;
 	
 	_RANDOM_GENERATOR.seed(123);
-	Simulation sim1 = test_transmission(MP,horizon);
+	Simulation sim1 = test_transmission(MP,horizon,n_indiv,i0);
 	
 	sim1.get_world()[0].export_dcDataFrame().display();
 	sim1.timeseries().display();
@@ -65,7 +70,12 @@ int main(int argc, const char * argv[]) {
 //	_RANDOM_GENERATOR.seed(123);
 //	test_rnd_eng();
 
-	
+    // timers:
+    auto t2 = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = t2-t0;
+    cout.precision(3);
+    cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
+    
 	return 0;
 }
 
