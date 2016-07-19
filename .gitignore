@@ -4,3 +4,5 @@ doxygen/*
 naf
 
 Rlibrary/naf*
+
+*.pdf
