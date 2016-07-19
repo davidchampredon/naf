@@ -105,52 +105,45 @@ void vectorFromFile(vector<double>& res, const char * theFileName)
 {
 	ifstream thefile (theFileName); // declare file stream
 	
-	if (!thefile)
-	{
+	if (!thefile){
 		cout<<endl<<" ERROR [vectorFromFile]: This file is not found: "<<theFileName<<endl;
 		exit(1);
 	}
-	
 	
 	vector<double> x;	
 	double line;
 	
 	x.clear();
 	
-	while (!thefile.eof())   
-	{
+	while (!thefile.eof())   {
 		thefile >> line;
 		if (thefile.eof()) break;
-		x.push_back (line);	
-		//cout<<"DEBUG adding : " << line<<endl;
+		x.push_back (line);
 	}
 	
 	thefile.close();
 	res = x;
 }
 
+
 void vectorFromFile(vector<int>& res, string theFileName)
 {
 	ifstream thefile (theFileName.c_str()); // declare file stream
 	
-	if (!thefile)
-	{
+	if (!thefile){
 		cout<<endl<<" ERROR [vectorFromFile]: This file is not found: "<<theFileName<<endl;
 		exit(1);
 	}
-	
 	
 	vector<int> x;	
 	int line;
 	
 	x.clear();
 	
-	while (!thefile.eof())   
-	{
+	while (!thefile.eof())   {
 		thefile >> line;
 		if (thefile.eof()) break;
-		x.push_back (line);	
-		//cout<<"DEBUG adding : " << line<<endl;
+		x.push_back (line);
 	}
 	
 	thefile.close();
@@ -841,8 +834,7 @@ double standardDeviation(vector<unsigned long int> x)
 vector<double> smoothVector(vector<unsigned long int> x, int lagSmooth)
 {
 	unsigned long N = x.size()-2*lagSmooth;
-	if (N<=1)
-	{
+    if (N<=1){
 		cout<< endl << "CANNOT SMOOTH: VECTOR SIZE TOO SMALL AND LAG TOO LARGE"<<endl;
 		exit(1);
 	}
@@ -850,8 +842,7 @@ vector<double> smoothVector(vector<unsigned long int> x, int lagSmooth)
 	vector<double> s(N);
 	
 	bool debug = false;
-	if(debug) 
-	{
+	if(debug) {
 		cout<<"[in smooth] x size="<<x.size()
 		<<" ; s size="<<N<<" ; lagSmooth="<<lagSmooth <<endl;
 	}
@@ -859,17 +850,13 @@ vector<double> smoothVector(vector<unsigned long int> x, int lagSmooth)
 	for (int i=lagSmooth; i < x.size()-lagSmooth ; i++) 
 	{
 		unsigned long int sum=0;
-		
-		for (int k=-lagSmooth; k<=lagSmooth; k++) 
-		{
+		for (int k=-lagSmooth; k<=lagSmooth; k++) {
 			sum += (double)(x[i+k]);
-			//cout << "sum_"<<i<<"_"<<k<<" = "<<sum<<endl; // DEBUG
 		}
 		
 		s[i-lagSmooth] = sum/(2*lagSmooth+1);
-		if(debug) {cout<<"s["<<i-lagSmooth<<"]="<<s[i-lagSmooth] <<endl;}	// DEBUG
+		if(debug) {cout<<"s["<<i-lagSmooth<<"]="<<s[i-lagSmooth] <<endl;}
 	}
-	
 	return s;
 }
 
@@ -930,7 +917,7 @@ double findAvgMax(vector<unsigned long int> x, vector<double> t, int lagSmooth, 
 	bool debug = false;
 	
 	if (debug){
-		cout<<" --- FindAvgMax --- "<<endl; //DEBUG
+		cout<<" --- FindAvgMax --- "<<endl;
 		cout << " Lag = "<< lagSmooth<<endl;
 		cout<<"-inside x:";displayVector(x);
 		cout<<"-inside t:";displayVector(t);
@@ -995,7 +982,7 @@ double findAvgMax(vector<unsigned long int> x, vector<double> t, int lagSmooth, 
 			arg_maximum.push_back(t[i+1+lagSmooth]);
 			cnt++;
 			
-			if (debug)	cout << "TMP_MAX_"<<i<<" = "<<x[i]<<endl; // DEBUG
+			if (debug)	cout << "TMP_MAX_"<<i<<" = "<<x[i]<<endl;
 		}
 	}
 	
@@ -1025,7 +1012,7 @@ double findAvgMin(vector<unsigned long int> x, vector<double> t, int lagSmooth, 
 	bool debug = false;
 	
 	if (debug){
-		cout<<" --- FindAvgMin --- "<<endl; //DEBUG
+		cout<<" --- FindAvgMin --- "<<endl;
 		cout << " Lag = "<< lagSmooth<<endl;
 		cout<<"-FindAvgMin x:";displayVector(x);
 		cout<<"-FindAvgMin t:";displayVector(t);
@@ -1079,8 +1066,7 @@ double findAvgMin(vector<unsigned long int> x, vector<double> t, int lagSmooth, 
 		if (ds[i]*ds[i+1]<=0 
 			&&	dds[i]>0 
 			&&	abs(ds[i])>= minSlopeAboutMin
-			&&	abs(ds[i+1])>= minSlopeAboutMin) 
-		{
+			&&	abs(ds[i+1])>= minSlopeAboutMin) {
 			// If first derivative changes sign 
 			// and 2nd deriv neg => it's a max
 			// To avoid false positive, option to check 
@@ -1090,8 +1076,8 @@ double findAvgMin(vector<unsigned long int> x, vector<double> t, int lagSmooth, 
 			arg_minimum.push_back(t[i+1+lagSmooth]);
 			cnt++;
 			
-			if (debug)	cout << "TMP_MIN_"<<i<<" = "<<x[i]<<endl; // DEBUG
-		}
+			if (debug)	cout << "TMP_MIN_"<<i<<" = "<<x[i]<<endl;
+        }
 	}
 	
 	if(1) 

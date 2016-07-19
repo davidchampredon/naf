@@ -355,13 +355,8 @@ void socialPlace::set_disease_to_all_indiv(const disease & d){
 
 void socialPlace::acquireDisease(unsigned int pos){
 	/// Individual at position 'pos' in '_indiv' acquires the disease
-	
-	/* DEBUG */ //	stopif(_n_E != census_disease_stage("E"), "BOOM");
 	_indiv[pos].acquireDisease();
 	update_epidemic_count(_indiv[pos], "new_case");
-	/* DEBUG */
-    //stopif(_n_E != census_disease_stage("E"), "BOOM_E");
-	//stopif(_n_S != census_disease_stage("S"), "BOOM_S");
 }
 
 
@@ -457,16 +452,11 @@ vector<socialPlace> build_world_random(unsigned int N, vector<areaUnit> auvec){
 	std::uniform_int_distribution<unsigned long> unif_int2(0,SP_MAX-1);
 	
 	for (int i=0; i<N; i++) {
-		
 		areaUnit A = auvec[unif_int(_RANDOM_GENERATOR)];				// choose randomly an AU
 		SPtype sptype = (SPtype)(unif_int2(_RANDOM_GENERATOR));	// choose randomly the type of SP
 		socialPlace tmp(A,i,sptype);
 		v.push_back(tmp);
-		
-		//DEBUG
-		//cout<<"DEBUG sptype = "<<SPtype2string(sptype)<< " ; area unit ID: " << A.get_id_au()<<endl;
 	}
-	
 	return v;
 }
 
@@ -517,8 +507,6 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 		tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);
 		
 		indivvec.push_back(tmp);
-		// DEBUG
-		// tmp.displayInfo();
 	}
 	
 	// STEP 2 - assign individuals to a random SP
@@ -526,8 +514,6 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
 	for (int i=0; i<indivvec.size(); i++) {
 		unsigned long sp_idx = unif_int_sp(_RANDOM_GENERATOR);
 		sp[sp_idx].add_indiv(indivvec[i]);
-		//DEBUG
-		// indivvec[i].displayInfo();
 	}
 	
 }
@@ -626,24 +612,8 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
 	unsigned int i = 0;
 	
 	for(i=0; i< indiv.size() && !stoploop; i++){
-		// DEBUG
-		//cout << endl;
-		for(ID t=0; t< N_type_sp; t++)
-		{
-			// DEBUG
-			//			unsigned int dummy = n_sp[t];
-			//			cout << "indiv_id: "<< i << "  sp_type: "<<t<< "  count:" << cnt_sp[t]
-			//			<<"  y:"<<y[t][cnt_sp[t]]
-			//			<< "  linked: "<< sp[t][cnt_sp[t]].n_linked_indiv() << endl;
-			//
-			//			if(y[t][cnt_sp[t]]==0){
-			//				cout << "problem" <<endl;
-			//				exit(99);
-			//			}
-			
-			// ---------------------
-			
-			// Add link to current social place (which is not full)
+		for(ID t=0; t< N_type_sp; t++){
+            // Add link to current social place (which is not full)
 			if(sp[t][cnt_sp[t]].n_linked_indiv() < y[t][cnt_sp[t]])
 				//			   &&  cnt_sp[t] <= n_sp[t] -1)
 			{
@@ -710,8 +680,6 @@ void socialPlace::time_update(double dt){
 	for (unsigned int i=0; i<_indiv.size(); i++) {
 
 		string event = _indiv[i].time_update(dt);
-		
-//		cout << "DEBUG: event = " << event << " " << i << endl;
 
 		if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
 			_n_Is++;
