@@ -15,12 +15,12 @@ string SPtype2string(SPtype x){
 	string res = "";
 	
 	if(x == SP_household)	res = "Household";
-	if(x == SP_school)	res = "School";
+	if(x == SP_school)		res = "School";
 	if(x == SP_hospital)	res = "Hospital";
 	if(x == SP_workplace)	res = "Workplace";
 	if(x == SP_other)		res = "Other public space";
 	if(x == SP_pubTransp)	res = "Public transport";
-	if(x == SP_RANDOM)	res = "RANDOM";
+	if(x == SP_RANDOM)		res = "RANDOM";
 	return res;
 }
 
@@ -43,13 +43,13 @@ void socialPlace::base_constructor(){
 	_size = 0;
 	
 	_prevalence = 0;
-	_n_S = _size;
-	_n_E = 0;
+	_n_S  = _size;
+	_n_E  = 0;
 	_n_Ia = 0;
 	_n_Is = 0;
-	_n_D = 0;
-	_n_H = 0;
-	_n_R = 0;
+	_n_D  = 0;
+	_n_H  = 0;
+	_n_R  = 0;
 	
 	_id_sp = __UNDEFINED_ID;
 }
@@ -129,8 +129,9 @@ void socialPlace::update_epidemic_count(const individual& indiv,
 		}
 		
 		if (!indiv.is_infected()){
-			if (indiv.is_recovered())	_n_R += change;
-			if (!indiv.is_recovered())	_n_S += change;
+			if (indiv.is_recovered())
+				_n_R += change;
+			if (indiv.is_susceptible())	_n_S += change;
 		}
 	}
 	
@@ -256,12 +257,10 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 	vector<unsigned int> pos;
 	
 	for (unsigned int i=0; i<_indiv.size() ; i++){
-		bool is_susceptible = !(_indiv[i].is_infected());
+		bool is_susceptible = _indiv[i].is_susceptible();
 		if (is_susceptible) pos.push_back(i);
 	}
 	// Shuffle elements (guarantees random pick)
-
-	//	DELETE WHEN SURE : random_shuffle(pos.begin(), pos.end());
 	std::shuffle(std::begin(pos), std::end(pos), _RANDOM_GENERATOR);
 	
 	pos.resize(num);
@@ -345,7 +344,6 @@ ID socialPlace::find_dest_linked(unsigned int pos,
 }
 
 
-
 void socialPlace::set_disease_to_all_indiv(const disease & d){
 	/// Set the disease 'd' to all individuals in the social place
 	
@@ -358,10 +356,96 @@ void socialPlace::set_disease_to_all_indiv(const disease & d){
 void socialPlace::acquireDisease(unsigned int pos){
 	/// Individual at position 'pos' in '_indiv' acquires the disease
 	
+	/* DEBUG */	stopif(_n_E != census_disease_stage("E"), "BOOM");
 	_indiv[pos].acquireDisease();
+
+	
 	update_epidemic_count(_indiv[pos], "new_case");
+	/* DEBUG */	stopif(_n_E != census_disease_stage("E"), "BOOM_E");
+	stopif(_n_S != census_disease_stage("S"), "BOOM_S");
 }
 
+
+dcDataFrame socialPlace::export_dcDataFrame(){
+	/// Export this social place to a dcDataFrame
+	
+	unsigned long n =_indiv.size();
+	vector<double> id_sp(n,(double)(_id_sp));
+	dcDataFrame df(id_sp,"id_sp");
+	
+	// Individuals info
+	vector<double> id_indiv(n);
+	vector<double> age(n);
+	vector<double> immunity(n);
+	vector<double> frailty(n);
+	vector<double> is_infected(n);
+	vector<double> is_infectious(n);
+	vector<double> is_latent(n);
+	vector<double> is_recovered(n);
+	vector<double> dol_drawn(n);
+	vector<double> doi_drawn(n);
+	
+	for(ID i=0; i<n; i++){
+		id_indiv[i]			= _indiv[i].get_id();
+		age[i]				= _indiv[i].get_age();
+		immunity[i]			= _indiv[i].get_immunity();
+		frailty[i]			= _indiv[i].get_frailty();
+		is_infected[i]		= _indiv[i].is_infected();
+		is_infectious[i]	= _indiv[i].is_infectious();
+		is_latent[i]		= _indiv[i].is_latent();
+		is_recovered[i]		= _indiv[i].is_recovered();
+		dol_drawn[i]        = _indiv[i].get_dol_drawn();
+		doi_drawn[i]        = _indiv[i].get_doi_drawn();
+	}
+	
+	df.addcol("id_indiv", id_indiv);
+	df.addcol("age", age);
+	df.addcol("immunity", immunity);
+	df.addcol("frailty", frailty);
+	df.addcol("is_infected", is_infected);
+	df.addcol("is_infectious", is_infectious);
+	df.addcol("is_latent", is_latent);
+	df.addcol("is_recovered", is_recovered);
+	df.addcol("dol_drawn", dol_drawn);
+	df.addcol("doi_drawn", doi_drawn);
+	return df;
+}
+
+
+unsigned int socialPlace::census_disease_stage(string stage){
+	/// Counts the nuber of individuals in a given disease stage
+	/// Warning: SLOW!
+	unsigned int cnt = 0;
+	for (ID i=0; i<_indiv.size(); i++) {
+		if(stage == "S" && _indiv[i].is_susceptible()) cnt++;
+		if(stage == "E" && _indiv[i].is_latent()) cnt++;
+		if(stage == "R" && _indiv[i].is_recovered()) cnt++;
+		if(stage == "Is" && _indiv[i].is_infectious() && _indiv[i].is_symptomatic()) cnt++;
+		if(stage == "Ia" && _indiv[i].is_infectious() && !_indiv[i].is_symptomatic()) cnt++;
+	}
+	return cnt;
+}
+
+vector<ID> socialPlace::census_disease_stage_ID(string stage){
+	/// Counts the nuber of individuals in a given disease stage
+	/// Warning: SLOW!
+	vector<ID> res;
+	for (ID i=0; i<_indiv.size(); i++) {
+		if(stage == "S" && _indiv[i].is_susceptible()) res.push_back(_indiv[i].get_id());
+		if(stage == "E" && _indiv[i].is_latent()) res.push_back(_indiv[i].get_id());
+		if(stage == "R" && _indiv[i].is_recovered()) res.push_back(_indiv[i].get_id());
+		if(stage == "Is" && _indiv[i].is_infectious() && _indiv[i].is_symptomatic()) res.push_back(_indiv[i].get_id());
+		if(stage == "Ia" && _indiv[i].is_infectious() && !_indiv[i].is_symptomatic()) res.push_back(_indiv[i].get_id());
+	}
+	return res;
+}
+
+
+// ================================================================
+// ================================================================
+// =====   OUTSIDE CLASS
+// ================================================================
+// ================================================================
 
 
 vector<socialPlace> build_world_random(unsigned int N, vector<areaUnit> auvec){
@@ -625,22 +709,29 @@ vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
 void socialPlace::time_update(double dt){
 	/// Update clock of all individuals in this social place
 	for (unsigned int i=0; i<_indiv.size(); i++) {
+
 		string event = _indiv[i].time_update(dt);
+		
+//		cout << "DEBUG: event = " << event << " " << i << endl;
 
 		if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
 			_n_Is++;
+			stopif(_n_E==0, "Book keeping problem!");
 			_n_E--;
 		}
 		if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
 			_n_Ia++;
+			stopif(_n_E==0, "Book keeping problem!");
 			_n_E--;
 		}
 		
 		if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
+			stopif(_n_Is==0, "Book keeping problem!");
 			_n_Is--;
 			_n_R++;
 		}
 		if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
+			stopif(_n_Ia==0, "Book keeping problem!");
 			_n_Ia--;
 			_n_R++;
 		}

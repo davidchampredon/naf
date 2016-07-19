@@ -31,6 +31,7 @@ void individual::base_constructor(){
 	// Clinical:
 	_is_at_risk		= false;
 	
+	_is_susceptible = true;
 	_is_infected	= false;
 	_is_latent		= false;
 	_is_infectious	= false;
@@ -45,6 +46,9 @@ void individual::base_constructor(){
 	_doi_drawn	= 0.0;
 	_dol_drawn	= 0.0;
 	_doh_drawn	= 0.0;
+
+	_dol_distrib = "dirac";
+	_doi_distrib = "dirac";
 }
 
 
@@ -69,7 +73,13 @@ string individual::_disease_status_update(double dt){
 	/// This string will be used at the social place level
 	/// to update the counts of individuals.
 	
-	string res="NO_CHANGE";
+	string res = "NO_CHANGE";
+	
+	// DEBUG
+//	if(_id == 0){
+//		cout << "debug"<<endl;
+//	}
+	// ------
 	
 	// Disease-related durations:
 	if (_dol>0 && _dol <= _dol_drawn) _dol += dt;
@@ -195,6 +205,7 @@ double individual::calc_proba_acquire_disease(){
 void individual::acquireDisease(){
 	/// This individual acquires the disease
 	
+	_is_susceptible = false;
 	_is_infected	= true;
 	_is_latent		= true;
 	_is_infectious	= false;
@@ -205,8 +216,20 @@ void individual::acquireDisease(){
 	// will experience:
 	
 	// TO DO: implement something more sophisticated!
-	_dol_drawn = _disease.get_dol_mean();
-	_doi_drawn = _disease.get_doi_mean();
+	
+	if (_dol_distrib == "dirac") _dol_drawn = _disease.get_dol_mean();
+	if (_dol_distrib == "exp") {
+		std::exponential_distribution<float> d(_disease.get_dol_mean());
+		_dol_drawn = d(_RANDOM_GENERATOR);
+//		cout << "DEBUG: dol_drawn = " << _dol_drawn <<endl;
+	}
+
+	if (_doi_distrib == "dirac") _doi_drawn = _disease.get_doi_mean();
+	if (_doi_distrib == "exp") {
+		std::exponential_distribution<float> d(_disease.get_doi_mean());
+		_doi_drawn = d(_RANDOM_GENERATOR);
+	}
+	
 	
 	// TO DO: change that! Make this random...
 	_is_symptomatic = true;
@@ -217,6 +240,7 @@ void individual::acquireDisease(){
 void individual::recoverDisease() {
 	/// This individual recovers from the disease
 	
+	_is_susceptible = false;
 	_is_infected	= false;
 	_is_infectious	= false;
 	_is_recovered	= true;
@@ -226,7 +250,10 @@ void individual::recoverDisease() {
 }
 
 
-vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched){
+vector<individual> build_individuals(unsigned int n,
+									 const vector<schedule>& sched,
+									 string dol_distrib,
+									 string doi_distrib){
 	/// Build several individuals
 	/// TO DO: make it more sophisticated!
 	
@@ -241,10 +268,11 @@ vector<individual> build_individuals(unsigned int n, const vector<schedule>& sch
 		double age = unif(_RANDOM_GENERATOR);
 		individual tmp(i, age);
 		
-		tmp.set_immunity(unif_01(_RANDOM_GENERATOR));
-		tmp.set_frailty(unif_01(_RANDOM_GENERATOR));
+		tmp.set_immunity(0.0); //unif_01(_RANDOM_GENERATOR));
+		tmp.set_frailty(1.0);  //unif_01(_RANDOM_GENERATOR));
 		tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);
-		
+		tmp.set_dol_distrib(dol_distrib);
+		tmp.set_doi_distrib(doi_distrib);
 		x[i] = tmp;
 	}
 	return x;

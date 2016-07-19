@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <iostream>
 
-#include "utils.h"
+#include "dcTools.h"
 #include "schedule.h"
 #include "disease.h"
 
@@ -44,8 +44,8 @@ protected:
 	
 	disease	_disease;
 	
+	bool	_is_susceptible;
 	bool	_is_latent;
-	
 	bool	_is_infected;
 	bool	_is_infectious;
 	bool	_is_symptomatic;
@@ -62,6 +62,9 @@ protected:
 	float	_dol_drawn;
 	float	_doi_drawn;
 	float	_doh_drawn;
+	
+	string	_dol_distrib;  // distribution of the duration of latency
+	string	_doi_distrib;  // distribution of the duration of infectiousness
 
 	// Risk group:
 	// has an underlying condition increasing
@@ -122,6 +125,8 @@ public:
 	void set_disease(const disease& d) {_disease = d;}
 	void set_is_infected(bool x) {_is_infected = x;}
 	
+	void set_dol_distrib(string d) {_dol_distrib = d;}
+	void set_doi_distrib(string d) {_doi_distrib = d;}
 	
 	// Get functions
 	
@@ -133,9 +138,13 @@ public:
 	ID get_id_sp_hospital()		const {return _id_sp_hospital;}
 	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
 	
+	double	get_age()			const {return _age;}
 	float	get_immunity()		const {return _immunity;}
 	float	get_frailty()		const {return _frailty;}
+	float	get_dol_drawn()		const {return _dol_drawn;}
+	float	get_doi_drawn()		const {return _doi_drawn;}
 	
+	bool is_susceptible()		const {return _is_susceptible;}
 	bool is_infected()			const {return _is_infected;}
 	bool is_infectious()		const {return _is_infectious;}
 	bool is_symptomatic()		const {return _is_symptomatic;}
@@ -171,7 +180,10 @@ inline bool operator == ( individual a, individual b){
 
 //DELETE WHEN SURE: inline void acquireDisease(individual& x) {x.set_is_infected(true);}
 
-vector<individual> build_individuals(unsigned int n, const vector<schedule>& sched);
+vector<individual> build_individuals(unsigned int n,
+									 const vector<schedule>& sched,
+									 string dol_distrib,
+									 string doi_distrib);
 
 
 individual get_indiv_with_ID(ID id, const vector<individual>& indiv_vec);

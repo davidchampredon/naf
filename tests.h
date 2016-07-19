@@ -12,12 +12,13 @@
 #include "individual.h"
 #include "socialPlace.h"
 #include "simulation.h"
-#include "utils.h"
+#include "dcTools.h"
 #include "probaDistribution.h"
 #include "disease.h"
 #include "globalvar.h"
 
-vector<unsigned int> test_transmission();
+Simulation test_transmission(modelParam MP,
+									   double horizon);
 
 void test_move_transmission();
 

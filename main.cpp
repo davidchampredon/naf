@@ -18,7 +18,7 @@
 #include "individual.h"
 #include "socialPlace.h"
 #include "simulation.h"
-#include "utils.h"
+#include "dcTools.h"
 #include "probaDistribution.h"
 
 #include "tests.h"
@@ -38,11 +38,28 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 	
-	_RANDOM_GENERATOR.seed(123);
-	test_transmission();
-	_RANDOM_GENERATOR.seed(123);
-	test_transmission();
+
+	double horizon = 30.0;
 	
+	modelParam MP;
+
+	MP.add_prm_bool("debug_mode", true);
+	MP.add_prm_double("dol_mean", 2.0);
+	MP.add_prm_double("doi_mean", 3.0);
+	MP.add_prm_double("proba_move", 0.90);
+	MP.add_prm_uint("n_indiv", 1000);
+	MP.add_prm_bool("homogeneous_contact", true);
+	MP.add_prm_double("contact_rate", 0.1);
+	
+	_RANDOM_GENERATOR.seed(123);
+	Simulation sim1 = test_transmission(MP,horizon);
+	
+	sim1.get_world()[0].export_dcDataFrame().display();
+	sim1.timeseries().display();
+	
+//	_RANDOM_GENERATOR.seed(123);
+//	Simulation sim2 = test_transmission(MP,horizon);
+//	
 //	_RANDOM_GENERATOR.seed(123);
 //	test_rnd_eng();
 //	_RANDOM_GENERATOR.seed(123);

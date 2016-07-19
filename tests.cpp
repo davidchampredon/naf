@@ -11,24 +11,29 @@
 #include "tests.h"
 
 
-vector<unsigned int> test_transmission(){
+Simulation test_transmission(modelParam MP,
+									   double horizon){
 	
 	auto t0 = std::chrono::system_clock::now();
 
+	// unpack parameters
+	
+	double dol_mean			= MP.get_prm_double("dol_mean");
+	double doi_mean			= MP.get_prm_double("doi_mean");
+	unsigned int n_indiv	= MP.get_prm_uint("n_indiv");
+	
+	
 	// Define the disease
-	double dol_mean = 2.0;
-	double doi_mean = 3.1;
 	disease flu("Influenza", dol_mean, doi_mean);
 	
-	
+
 	// Build simulation:
 	
-	double horizon = 50;
 	Simulation sim;
-	sim.build_single_world();
+	sim.set_modelParam(MP);
+	sim.build_single_world(n_indiv);
 	sim.set_horizon(horizon);
 	sim.set_disease(flu);
-	
 	
 	// Displays
 	//sim.displayInfo_indiv();
@@ -48,9 +53,6 @@ vector<unsigned int> test_transmission(){
 	
 	sim.display_split_pop_present();
 	
-	// Define model parameters:
-	sim._modelParam.add_prm_double("proba_move", 0.90);
-	sim._modelParam.add_prm_double("contact_rate", 1.5);
 	
 	// Run the simulation:
 	sim.run();
@@ -63,7 +65,7 @@ vector<unsigned int> test_transmission(){
 	cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds.count()/60.0 << " minutes" <<endl;
 	cout << "Excluding pop generation: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
 	
-	return sim.get_ts_incidence();
+	return sim;
 }
 
 

@@ -14,9 +14,9 @@
 
 #include "areaUnit.h"
 #include "individual.h"
-#include "utils.h"
+#include "dcTools.h"
 #include "probaDistribution.h"
-
+#include "dcDataFrame.h"
 
 string SPtype2string(SPtype x);
 SPtype int2SPtype(unsigned int i);
@@ -75,7 +75,7 @@ public:
 	void set_prevalence(unsigned int p) {_prevalence = p;}
 	void increase_prevalence() {_prevalence++;}
 	void set_type(SPtype t){_type = t;}
-	
+	void set_n_E(ID n) {_n_E = n;}
 	
 	// Get functions:
 	SPtype			get_type()		const {return _type;}
@@ -83,13 +83,16 @@ public:
 	unsigned long	get_size()		const {return _size;}
 	
 	unsigned int	get_n_S()		const {return _n_S;}
+	unsigned int	get_n_E()		const {return _n_E;}
 	unsigned int	get_n_Is()		const {return _n_Is;}
 	unsigned int	get_n_Ia()		const {return _n_Ia;}
+	unsigned int	get_n_R()		const {return _n_R;}
 	
-	unsigned int	get_prevalence() const {return _prevalence;}
-	vector<individual>	get_indiv() {return _indiv;}
-	individual		get_indiv(unsigned int pos) {return _indiv[pos];}
-	vector<ID>		get_linked_indiv_id() {return _linked_indiv_id;}
+	
+	unsigned int	get_prevalence()		const {return _prevalence;}
+	vector<individual>	get_indiv()	const {return _indiv;}
+	individual		get_indiv(unsigned int pos)	const {return _indiv[pos];}
+	vector<ID>		get_linked_indiv_id()	const {return _linked_indiv_id;}
 	
 	
 	// Time
@@ -109,6 +112,10 @@ public:
 	// WARNING: brute force counting, hence slow!
 	unsigned int	census_alive();
 	unsigned int	census_infectious();
+	unsigned int	census_disease_stage(string stage);
+	vector<ID>		census_disease_stage_ID(string stage);
+	// Exports
+	dcDataFrame		export_dcDataFrame();
 	
 	
 	// Miscellenaous:

@@ -9,10 +9,31 @@
 #include "simulation.h"
 
 
+void Simulation::base_constructor(){
+	
+	_n_E = 0;
+	_n_Ia = 0;
+	_n_Is = 0;
+	_n_R  = 0;
+	_incidence = 0;
+	_horizon = -999;
+	
+	_ts_times.clear();
+	_ts_E.clear();
+	_ts_Ia.clear();
+	_ts_Is.clear();
+	_ts_R.clear();
+	
+}
 
-void Simulation::build_single_world(){
+Simulation::Simulation(){
+	base_constructor();
+}
+
+
+void Simulation::build_single_world(unsigned int n_indiv){
 	/// Build a very simple world:
-	/// one social place
+	/// one social place with 'n_indiv' individuals.
 	/// USED FOR TEST
 	
 	cout << endl << "Building single world..."<<endl;
@@ -25,7 +46,8 @@ void Simulation::build_single_world(){
 	vector<areaUnit> A {A1};
 	
 	// Schedule
-	vector<double> timeslice {1.0}; // must sum up to 1.0
+	int nt = 20;
+	vector<double> timeslice(nt, 1.0/nt); // must sum up to 1.0
 	vector<SPtype> single_sed  {SP_household};
 	schedule sched_worker_sed(single_sed, timeslice, "worker_sed");
 	
@@ -33,9 +55,16 @@ void Simulation::build_single_world(){
 		sched_worker_sed
 	};
 	
+	// Disease stage durations:
+	string dol_distrib = "exp";
+	string doi_distrib = "exp";
+	
 	// individuals
-	unsigned int num_indiv			= (unsigned int)(1000); // <-- make sure it's large enough
-	vector<individual> many_indiv	= build_individuals(num_indiv, sched);
+	unsigned int num_indiv			= (unsigned int)(n_indiv * 3); // <-- make sure it's large enough
+	vector<individual> many_indiv	= build_individuals(num_indiv,
+														sched,
+														dol_distrib,
+														doi_distrib);
 	
 	// type of social places
 	vector<SPtype> spt {SP_household};
@@ -51,15 +80,13 @@ void Simulation::build_single_world(){
 	vector<unsigned int> num_sp {num_hh};
 	
 	// Distribution of the size of each social place type:
-	probaDistrib<unsigned int> p_hh({100},{1.0});
+	probaDistrib<unsigned int> p_hh({n_indiv},{1.0});
 	
 	vector<probaDistrib<unsigned int> > p_size {p_hh};
 	
 	// build the world:
 	vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
-	
-	// assign to class members:
-	_world = W;
+	set_world(W);
 	
 	// initial population: Move everyone to its household!
 	unsigned long N = _world.size();
@@ -124,9 +151,18 @@ void Simulation::build_test_world(double sizereduction){
 		sched_student
 	};
 	
+	// Disease stage durations:
+	string dol_distrib = "exp";
+	string doi_distrib = "exp";
+	
+
+	
 	// individuals
 	unsigned int num_indiv			= (unsigned int)(1e7 * sizereduction); // <-- make sure it's large enough
-	vector<individual> many_indiv	= build_individuals(num_indiv, sched);
+	vector<individual> many_indiv	= build_individuals(num_indiv,
+														sched,
+														dol_distrib,
+														doi_distrib);
 	
 	// type of social places
 	vector<SPtype> spt {
@@ -172,9 +208,7 @@ void Simulation::build_test_world(double sizereduction){
 	
 	// build the world:
 	vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
-	
-	// assign to class members:
-	_world = W;
+	set_world(W);
 	
 	// initial population: Move everyone to its household!
 	unsigned long N = _world.size();
@@ -213,10 +247,11 @@ void Simulation::time_update(double dt){
 	// Main timer:
 	_current_time += dt;
 	
-	// Update indivulas' clock:
+	// Update individuals' clock:
 	for (unsigned int k=0; k<_world.size(); k++) {
 		_world[k].time_update(dt);
 	}
+	update_pop_count();
 }
 
 
@@ -240,11 +275,14 @@ void Simulation::run(){
 	
 	// Retrieve all model parameters:
 	double p = _modelParam.get_prm_double("proba_move");
-	
+	bool debug_mode = _modelParam.get_prm_bool("debug_mode");
 	
 	// MAIN LOOP FOR TIME
 	
 	for (_current_time=0.0; _current_time < _horizon; ) {
+		
+		
+		if(debug_mode) check_book_keeping();
 		
 		unsigned int idx_timeslice = k % nts;
 //		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
@@ -267,26 +305,38 @@ void Simulation::run(){
 //		cout << "AFTER transmissiom" << endl;
 //		display_split_pop_present();
 
+		
+		// Update counts of population categories
+		// at the 'simulation' level
+		// (social places were updated during transmission):
+		update_pop_count();
+		
 		// Record for time series:
 		_ts_times.push_back(_current_time);
-		_ts_incidence.push_back(_current_incidence);
+		_ts_incidence.push_back(_incidence);
+		_ts_prevalence.push_back(_prevalence);
+		_ts_S.push_back(_n_S);
+		_ts_E.push_back(_n_E);
+		_ts_Ia.push_back(_n_Ia);
+		_ts_Is.push_back(_n_Is);
+		_ts_R.push_back(_n_R);
 		
 		// Advance time:
 		time_update(dt);
+		update_pop_count();
 		k++;
-		
-//		cout << "DEBUG: total prev: " << prevalence() << endl;
-//		cout << "DEBUG: census alive: " << census_total_alive() << endl;
-//		cout << "DEBUG: population_size: " << population_size()  << endl;
 	}
-	
 
-	
 	cout << endl << endl << "Simulation completed."<< endl;
 	displayVector(_ts_incidence);
 	cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
 }
 
+
+void Simulation::set_world(world w){
+	_world = w;
+	update_pop_count();
+}
 
 void Simulation::set_disease(const disease &d){
 	/// Set the disease 'd' to all individuals in all social places
@@ -404,22 +454,50 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	// ---
 	
 	// Count categories of individuals:
-	unsigned long N		= _world[k].get_size();
-	unsigned int nIa		= _world[k].get_n_Ia();
-	unsigned int nIs		= _world[k].get_n_Is();
-	unsigned int nS		= _world[k].get_n_S();
+	unsigned long N   = _world[k].get_size();
+	unsigned int nIa  = _world[k].get_n_Ia();
+	unsigned int nIs  = _world[k].get_n_Is();
+	unsigned int nS   = _world[k].get_n_S();
 
-	stopif( (nIa+nIs >N) || (nS > N),
+	unsigned long N2 = _world[k].get_indiv().size();
+	
+	stopif( (nIa+nIs >N) || (nS > N) || (N != N2),
 		   " DANGER : book keeping problem!");
-	
+
 	// Calculate number of contacts:
-	unsigned int nContacts = (unsigned int)((nIa + nIs) * contact_rate * dt);
-	if (nContacts>nS) nContacts = nS;
 	
-	// Choose randomly the susceptibles contacted:
-	// TO DO: optimize when nContact = nS (no need to pick them, take them all!)
-	vector<unsigned int> pos_s = _world[k].pick_rnd_susceptibles(nContacts);
+	bool homog_cont = _modelParam.get_prm_bool("homogeneous_contact");
+	unsigned int nContactsDrawn;
+	vector<unsigned int> pos_s;
 	
+	if(!homog_cont){
+		double nContacts = (double)(nIa + nIs) * contact_rate * dt;
+		std::poisson_distribution<> poiss(nContacts);
+		
+		nContactsDrawn = poiss(_RANDOM_GENERATOR);
+		if (nContactsDrawn>nS) nContactsDrawn = nS;
+		
+		cout << "DEBUG: nContacts = " << nContacts << " ; nContactsDrawn = " <<nContactsDrawn;
+		cout << " ; nS = "<< nS << endl;
+
+		// Choose randomly the susceptibles contacted:
+		// TO DO: optimize when nContactsDrawn = nS (no need to pick them, take them all!)
+		pos_s = _world[k].pick_rnd_susceptibles(nContactsDrawn);
+
+	}
+	else {
+		// Homogeneous contact: an infectious
+		// makes contact with ALL susceptible
+		// and has a probability to transmit
+		// at each contact.
+		nContactsDrawn = nS;
+		for(unsigned int i=0; i< N; i++) {
+			if (_world[k].get_indiv(i).is_susceptible()){
+				pos_s.push_back(i);
+			}
+		}
+	}
+
 	
 	// DEBUG
 //	_world[k].displayInfo();
@@ -431,12 +509,16 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 	// TO DO: put that in a member function of socialPlace
 	
 	std::uniform_real_distribution<double> unif(0.0,1.0);
+	double p = -999, u = -999;
 	
 	for (unsigned int j=0; j<pos_s.size(); j++)
 	{
 		// Probability for THIS susceptible to acquire the disease:
-		double p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
-		double u = unif(_RANDOM_GENERATOR);
+
+		if (homog_cont)  p = contact_rate * dt;
+		if (!homog_cont) p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
+		
+		u = unif(_RANDOM_GENERATOR);
 		if(u < p) {
 			
 			//DEBUG
@@ -446,6 +528,7 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 			
 			// Transmission!
 			_world[k].acquireDisease(pos_s[j]);
+			update_pop_count();
 			
 //			cout << "check infected (must=1): " << _world[k].get_indiv()[pos_s[j]].is_infected() <<endl;
 			//_world[k].displayInfo(); // DEBUG
@@ -471,7 +554,7 @@ void Simulation::transmission_world(double timeslice){
 	for(unsigned int k=0; k < _world.size(); k++){
 		incidence += transmission_oneSP(k, cr, timeslice);
 	}
-	_current_incidence = incidence;
+	_incidence = incidence;
 }
 
 
@@ -537,11 +620,18 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
 	ID cnt = 0;
 	for(ID i=0; i<_world.size(); i++){
 		if (_world[i].get_id_sp() == id_sp[cnt]) {
-			stopif(_world[i].get_size() < I0[cnt], "Cannot seed in SP_ID_" + to_string(i) + " because it has less individuals than intial infections requested!");
+			
+			// check:
+			string errmsg =  "Cannot seed in SP_ID_" + to_string(i) + " because it has less individuals than intial infections requested!";
+			stopif(_world[i].get_size() < I0[cnt], errmsg);
+
+			// seed infection in this social place:
 			for(unsigned int k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
+			_world[i].set_n_E(I0[cnt]);
 			cnt++;
 		}
 	}
+	update_pop_count();
 }
 
 
@@ -556,3 +646,114 @@ void Simulation::displayInfo_indiv(){
 	
 	
 }
+
+
+dcDataFrame Simulation::timeseries(){
+	
+	dcDataFrame df(_ts_times,"time");
+	
+	df.addcol("incidence", to_vector_double(_ts_incidence));
+	df.addcol("prevalence", to_vector_double(_ts_prevalence));
+	df.addcol("nS", to_vector_double(_ts_S));
+	df.addcol("nE", to_vector_double(_ts_E));
+	df.addcol("nIa", to_vector_double(_ts_Ia));
+	df.addcol("nIs", to_vector_double(_ts_Is));
+	df.addcol("nR", to_vector_double(_ts_R));
+	
+	return df;
+}
+
+
+
+void Simulation::update_pop_count(){
+	/// Update the count of individuals in a all
+	/// stages of the disease.
+	
+	unsigned long n = _world.size();
+	_n_S  = 0;
+	_n_E  = 0;
+	_n_Ia = 0;
+	_n_Is = 0;
+	_n_R  = 0;
+	for (ID i=0; i<n; i++) {
+		_n_S  += _world[i].get_n_S();
+		_n_E  += _world[i].get_n_E();
+		_n_Ia += _world[i].get_n_Ia();
+		_n_Is += _world[i].get_n_Is();
+		_n_R  += _world[i].get_n_R();
+	}
+	_prevalence = _n_E + _n_Ia + _n_Is;
+}
+
+
+
+
+void Simulation::check_book_keeping(){
+	/// Check consistency of book keeping.
+	/// WARNING: FOR DEBUG ONLY, SLOWS DOWN EXECUTION!
+	
+	// stage S
+	unsigned int nS=0;
+	unsigned int nS_census=0;
+	for (ID k=0; k<_world.size(); k++) {
+		nS += _world[k].get_n_S();
+		nS_census += _world[k].census_disease_stage("S");
+	}
+	bool check_S = ( (_n_S == nS) && (nS == nS_census) );
+	stopif(!check_S, "Book keeping error with S stage");
+	
+	// stage E
+	unsigned int nE=0;
+	unsigned int nE_census=0;
+	for (ID k=0; k<_world.size(); k++) {
+		nE += _world[k].get_n_E();
+		nE_census += _world[k].census_disease_stage("E");
+	}
+	bool check_E = ( (_n_E == nE) && (nE == nE_census) );
+	
+//	if(0){ // DEBUG
+//		vector<ID> x = _world[0].census_disease_stage_ID("E");
+//		displayVector(x);
+//	}
+	stopif(!check_E, "Book keeping error with E stage");
+	
+	
+	// stage Is
+	unsigned int nIs=0;
+	unsigned int nIs_census=0;
+	for (ID k=0; k<_world.size(); k++) {
+		nIs += _world[k].get_n_Is();
+		nIs_census += _world[k].census_disease_stage("Is");
+	}
+	bool check_Is = ( (_n_Is == nIs) && (nIs == nIs_census) );
+	stopif(!check_Is, "Book keeping error with Is stage");
+
+	// stage Ia
+	unsigned int nIa=0;
+	unsigned int nIa_census=0;
+	for (ID k=0; k<_world.size(); k++) {
+		nIa += _world[k].get_n_Ia();
+		nIa_census += _world[k].census_disease_stage("Ia");
+	}
+	bool check_Ia = ( (_n_Ia == nIa) && (nIa == nIa_census) );
+	stopif(!check_Ia, "Book keeping error with Ia stage");
+	
+	// stage R
+	unsigned int nR=0;
+	unsigned int nR_census=0;
+	for (ID k=0; k<_world.size(); k++) {
+		nR += _world[k].get_n_R();
+		nR_census += _world[k].census_disease_stage("R");
+	}
+	bool check_R = ( (_n_R == nR) && (nR == nR_census) );
+	stopif(!check_R, "Book keeping error with R stage");
+	
+}
+
+
+
+
+
+
+
+
