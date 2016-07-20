@@ -53,7 +53,7 @@ int main(int argc, const char * argv[]) {
 	MP.add_prm_double("contact_rate", 1);
     MP.add_prm_uint("nt", 3);
 	
-	unsigned int n_indiv = 1E4;
+	unsigned int n_indiv = 1E3;
 	unsigned int i0 = 2;
 	
 	_RANDOM_GENERATOR.seed(123);
@@ -61,14 +61,6 @@ int main(int argc, const char * argv[]) {
 	
 	sim1.get_world()[0].export_dcDataFrame().display();
 	sim1.timeseries().display();
-	
-//	_RANDOM_GENERATOR.seed(123);
-//	Simulation sim2 = test_transmission(MP,horizon);
-//	
-//	_RANDOM_GENERATOR.seed(123);
-//	test_rnd_eng();
-//	_RANDOM_GENERATOR.seed(123);
-//	test_rnd_eng();
 
     // timers:
     auto t2 = std::chrono::system_clock::now();

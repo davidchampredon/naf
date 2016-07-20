@@ -32,8 +32,8 @@ protected:
 	unsigned int	_prevalence;
 	unsigned int	_n_S;   // susceptible
 	unsigned int	_n_E;   // latent stage
-	unsigned int	_n_Ia;   // infectious stage, asymptomatic
-	unsigned int	_n_Is;   // infectious stage, symptomatic
+	unsigned int	_n_Ia;  // infectious stage, asymptomatic
+	unsigned int	_n_Is;  // infectious stage, symptomatic
 	unsigned int	_n_R;   // recovered stage
 	
 	// time series
@@ -71,7 +71,6 @@ public:
 	void set_modelParam(modelParam mp) {_modelParam = mp;}
 
 	
-	
 	// Get functions
 	
 	world	get_world() {return _world;}
@@ -91,6 +90,11 @@ public:
 	void move_individuals(const SPtype sptype, double proba);
 	void move_one_individual(unsigned int k,unsigned int i, const SPtype sptype);
 	
+    
+    // Book keeping
+    
+    void			check_book_keeping();
+    void            define_all_id_tables();
 	
 	// Epidemic
 	
@@ -104,12 +108,13 @@ public:
 	// Exports
 	
 	dcDataFrame		timeseries();
-	
+    
+    
 	// Miscelleanous
 
 	unsigned int	census_total_alive();
 	
-	void			check_book_keeping();
+	
 
 	
 	unsigned int	population_size();
@@ -123,11 +128,6 @@ public:
 	
 	
 };
-
-// DELETE??
-//inline void acquireDisease(individual& x){
-//	x.acquireDisease();
-//}
 
 
 #endif /* defined(__naf__simulation__) */

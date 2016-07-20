@@ -290,6 +290,17 @@ template <class T> vector<T> popElementValue(vector<T> x, T valueElementToDelete
 }
 
 
+template <class T> void removeValue(vector<T>& x, T valueToRemove){
+    /// Removes the element of a vector that has a given value.
+    
+    auto position = std::find(x.begin(), x.end(), valueToRemove);
+    
+    stopif(position >= x.end(), "Value to remove not found in vector.");
+    x.erase(position);
+}
+
+
+
 template <class T> vector<double> to_vector_double(vector<T> x){
 	/// Force double conversion.
 	

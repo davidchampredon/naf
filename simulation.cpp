@@ -70,7 +70,7 @@ void Simulation::build_single_world(unsigned int n_indiv){
     vector<SPtype> spt {SP_household};
     
     // populate social places with individuals (built above)
-    unsigned int num_hh      = 1;
+    unsigned int num_hh = 1;
     
     cout << "Number of household places: " << num_hh <<endl;
     
@@ -81,7 +81,7 @@ void Simulation::build_single_world(unsigned int n_indiv){
     // Distribution of the size of each social place type:
     probaDistrib<unsigned int> p_hh({n_indiv},{1.0});
     
-    vector<probaDistrib<unsigned int> > p_size {p_hh};
+    vector< probaDistrib<unsigned int> > p_size {p_hh};
     
     // build the world:
     vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
@@ -94,9 +94,14 @@ void Simulation::build_single_world(unsigned int n_indiv){
         if(_world[k].get_type()==SP_household)
         {
             unsigned int n_linked_k = _world[k].n_linked_indiv();
+            vector<ID> linked_ids   = _world[k].get_linked_indiv_id();
+            
+            stopif(linked_ids.size() != n_linked_k, "Book keeping problem with linked IDs");
+            
             for (unsigned int i=0; i<n_linked_k; i++)
             {
-                ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+                //ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+                ID curr_indiv_ID = linked_ids[i];
                 individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
                 
                 bool debugcode = false;
@@ -668,6 +673,8 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         nS += _world[k].get_n_S();
         nS_census += _world[k].census_disease_stage("S");
+        stopif(_world[k].get_n_S() != _world[k].get_id_S().size(),
+               "Book keeping error with S IDs.");
     }
     bool check_S = ( (_n_S == nS) && (nS == nS_census) );
     stopif(!check_S, "Book keeping error with S stage");
@@ -689,6 +696,8 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         nIs += _world[k].get_n_Is();
         nIs_census += _world[k].census_disease_stage("Is");
+        stopif(_world[k].get_n_Is() != _world[k].get_id_Is().size(),
+               "Book keeping error with Is IDs.");
     }
     bool check_Is = ( (_n_Is == nIs) && (nIs == nIs_census) );
     stopif(!check_Is, "Book keeping error with Is stage");
@@ -699,6 +708,8 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         nIa += _world[k].get_n_Ia();
         nIa_census += _world[k].census_disease_stage("Ia");
+        stopif(_world[k].get_n_Ia() != _world[k].get_id_Ia().size(),
+               "Book keeping error with Ia IDs.");
     }
     bool check_Ia = ( (_n_Ia == nIa) && (nIa == nIa_census) );
     stopif(!check_Ia, "Book keeping error with Ia stage");
@@ -714,6 +725,40 @@ void Simulation::check_book_keeping(){
     stopif(!check_R, "Book keeping error with R stage");
     
 }
+
+
+
+void Simulation::define_all_id_tables(){
+    /// Define all IDs of susceptible
+    /// and infectious individuals
+    /// in all social places
+    /// (define _id_S for all social places)
+    
+    for (unsigned int k=0; k<_world.size(); k++)
+    {
+        vector<individual> indiv = _world[k].get_indiv();
+
+        _world[k].clear_id_S();
+        _world[k].clear_id_Is();
+        _world[k].clear_id_Ia();
+        
+        for (unsigned int i=0; i< indiv.size(); i++)
+        {
+            if (indiv[i].is_susceptible()) {
+                _world[k].add_id_S(indiv[i].get_id());
+            }
+            else if (indiv[i].is_infectious() && indiv[i].is_symptomatic()){
+                _world[k].add_id_Is(indiv[i].get_id());
+            }
+            else if (indiv[i].is_infectious() && !indiv[i].is_symptomatic()){
+                _world[k].add_id_Ia(indiv[i].get_id());
+            }
+        }
+    }
+}
+
+
+
 
 
 

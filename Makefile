@@ -29,9 +29,12 @@ LINK_LIB_GPP :=    #-lgsl -lgslcblas # <--- For Earnservs
 # ==================
 
 SOURCE_LIST := areaUnit.cpp population.cpp\
-simulation.cpp utils.cpp\
+simulation.cpp dcDataFrame.cpp\
+dcMatrix.cpp dcTools.cpp\
+disease.cpp globalvar.cpp\
 individual.cpp modelParam.cpp\
-schedule.cpp socialPlace.cpp
+schedule.cpp socialPlace.cpp\
+tests.cpp
 
 OBJ_LIST2 := main.cpp $(SOURCE_LIST)
 

@@ -19,8 +19,8 @@ Simulation test_transmission(modelParam MP,
 	
 	// unpack parameters
 	
-	double dol_mean = MP.get_prm_double("dol_mean");
-	double doi_mean	= MP.get_prm_double("doi_mean");
+    double dol_mean = MP.get_prm_double("dol_mean");
+    double doi_mean = MP.get_prm_double("doi_mean");
     bool debug_mode = MP.get_prm_bool("debug_mode");
     
 	// Define the disease
@@ -31,7 +31,7 @@ Simulation test_transmission(modelParam MP,
 	Simulation sim;
 	sim.set_modelParam(MP);
 	sim.build_single_world(n_indiv);
-	sim.set_horizon(horizon);
+    sim.set_horizon(horizon);
 	sim.set_disease(flu);
 	
     if(debug_mode){
@@ -47,6 +47,9 @@ Simulation test_transmission(modelParam MP,
 	vector<unsigned int> I0 {i0};
 	sim.seed_infection(sp_initially_infected, I0);
 	
+    sim.define_all_id_tables();
+
+    
 	// Run the simulation:
 	sim.run();
 	
