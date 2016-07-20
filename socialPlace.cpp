@@ -678,7 +678,7 @@ vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
 void socialPlace::time_update(double dt){
 	/// Update clock of all individuals in this social place
 	for (unsigned int i=0; i<_indiv.size(); i++) {
-
+        
 		string event = _indiv[i].time_update(dt);
 
 		if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {

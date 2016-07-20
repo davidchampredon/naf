@@ -17,8 +17,6 @@ Simulation test_transmission(modelParam MP,
 							 unsigned int n_indiv,
 							 unsigned int i0){
 	
-	auto t0 = std::chrono::system_clock::now();
-
 	// unpack parameters
 	
 	double dol_mean = MP.get_prm_double("dol_mean");
@@ -41,23 +39,16 @@ Simulation test_transmission(modelParam MP,
         sim.display_split_pop_present();
     }
 	
-	auto t1 = std::chrono::system_clock::now();
-	
 	// Seed infection(s) in world:
 	
 	vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
-	
 	
 	vector<ID> sp_initially_infected {id_pres[0]};
 	vector<unsigned int> I0 {i0};
 	sim.seed_infection(sp_initially_infected, I0);
 	
-//	sim.display_split_pop_present();
-	
-	
 	// Run the simulation:
 	sim.run();
-	
 	
 	return sim;
 }
@@ -66,7 +57,6 @@ Simulation test_transmission(modelParam MP,
 void test_move_transmission(){
 	
 	auto t0 = std::chrono::system_clock::now();
-	
 	
 	// Build associated simulation:
 	double horizon = 20;
@@ -122,11 +112,6 @@ void test_rnd_eng(){
 	
 	auto t0 = std::chrono::system_clock::now();
 	
-	auto t1 = std::chrono::system_clock::now();
-	
-	cout << endl;
-	
-
 	std::uniform_real_distribution<double> unif(0.0,1.0);
 	
 	for (int i=0; i<N; i++) {
@@ -135,8 +120,6 @@ void test_rnd_eng(){
 	}
 	cout << endl;
 	
-
-
 	std::uniform_real_distribution<double> unif2(0.0,1.0);
 	
 	for (int i=0; i<N; i++) {
@@ -145,16 +128,10 @@ void test_rnd_eng(){
 	}
 	cout << endl;
 	
-	
 	auto t2 = std::chrono::system_clock::now();
-	
-	
-	
-	std::chrono::duration<double> elapsed_seconds = t1-t0;
-	std::chrono::duration<double> elapsed_seconds2 = t2-t1;
+	std::chrono::duration<double> elapsed_seconds = t2-t0;
 	cout.precision(3);
 	cout << "TIME 1: "<< elapsed_seconds.count()<< " secs" <<endl;
-	cout << "TIME 2: "<< elapsed_seconds2.count()<< " secs" <<endl;
 }
 
 
