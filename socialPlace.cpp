@@ -147,7 +147,9 @@ void socialPlace::update_epidemic_count(const individual& indiv,
             
             if (indiv.is_susceptible())	{
                 _n_S += change;
-                if(update_type == "add") add_id_S(id_indiv);
+                if(update_type == "add") {
+                    add_id_S(id_indiv);
+                }
                 else if(update_type == "remove") remove_id_S(id_indiv);
             }
         }
@@ -174,6 +176,10 @@ void socialPlace::add_indiv(individual & newindiv){
     _size++;
     // DELETE WHEN SURE: if(newindiv.is_infected()) _prevalence++;
     update_epidemic_count(newindiv, "add");
+    
+    // update pointer tables:
+    if(_indiv.back().is_susceptible()) _indiv_S.push_back(&_indiv.back());
+    
 }
 
 
@@ -183,7 +189,7 @@ void socialPlace::add_indiv(vector<individual>& newindiv){
     for(int i=0; i<newindiv.size(); i++)
         add_indiv(newindiv[i]);
 }
-
+        
 
 void socialPlace::remove_indiv(individual& x){
     /// Remove an individual from this social place
@@ -212,7 +218,11 @@ void socialPlace::remove_indiv(unsigned int pos){
     stopif(pos>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
     
     // DELETE WHEN SURE: bool is_infected = _indiv[pos].is_infected(); // <-- MUST BE BEFORE erasing individual!
+    
     update_epidemic_count(_indiv[pos], "remove"); // <-- MUST BE BEFORE erasing individual!
+    
+    // update pointer tables:
+    removeValue(_indiv_S, &_indiv[pos]);
     
     _indiv.erase(_indiv.begin()+pos);
     
@@ -240,7 +250,10 @@ void socialPlace::remove_indiv(vector<unsigned int> posvec){
         
         // update prevalence (must be before removing, else infection info is gone!):
         // DELETE WHEN SURE: if(_indiv[idx].is_infected()) _prevalence--;
+        
         update_epidemic_count(_indiv[idx], "remove");
+        
+        // TO DO: removeValue(_indiv_S, &_indiv[posvec[i]]);  ????
         
         // remove
         _indiv.erase(_indiv.begin()+ idx );
@@ -375,7 +388,13 @@ void socialPlace::set_disease_to_all_indiv(const disease & d){
 void socialPlace::acquireDisease(unsigned int pos){
     /// Individual at position 'pos'
     /// in '_indiv' acquires the disease.
+    /// S --> E
     _indiv[pos].acquireDisease();
+    
+    // Book keeping: Update pointer tables:
+    removeValue(_indiv_S, & _indiv[pos]);
+    
+    // Book keeping: Update counters
     update_epidemic_count(_indiv[pos], "new_case");
 }
 
@@ -430,15 +449,17 @@ unsigned int socialPlace::census_disease_stage(string stage){
     /// Counts the nuber of individuals in a given disease stage
     /// Warning: SLOW!
     unsigned int cnt = 0;
+    
     for (ID i=0; i<_indiv.size(); i++) {
         if(stage == "S" && _indiv[i].is_susceptible()) cnt++;
-        if(stage == "E" && _indiv[i].is_latent()) cnt++;
-        if(stage == "R" && _indiv[i].is_recovered()) cnt++;
-        if(stage == "Is" && _indiv[i].is_infectious() && _indiv[i].is_symptomatic()) cnt++;
-        if(stage == "Ia" && _indiv[i].is_infectious() && !_indiv[i].is_symptomatic()) cnt++;
+        else if(stage == "E" && _indiv[i].is_latent()) cnt++;
+        else if(stage == "Is" && _indiv[i].is_infectious() && _indiv[i].is_symptomatic()) cnt++;
+        else if(stage == "Ia" && _indiv[i].is_infectious() && !_indiv[i].is_symptomatic()) cnt++;
+        else if(stage == "R" && _indiv[i].is_recovered()) cnt++;
     }
     return cnt;
 }
+
 
 vector<ID> socialPlace::census_disease_stage_ID(string stage){
     /// Counts the nuber of individuals in a given disease stage
@@ -698,6 +719,7 @@ vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
 
 void socialPlace::time_update(double dt){
     /// Update clock of all individuals in this social place
+    
     for (unsigned int i=0; i<_indiv.size(); i++) {
         
         string event = _indiv[i].time_update(dt);
@@ -705,12 +727,16 @@ void socialPlace::time_update(double dt){
         if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
             _n_Is++;
             add_id_Is(_indiv[i].get_id());
+            _indiv_Is.push_back(get_mem_indiv(i));
+            
             stopif(_n_E==0, "Book keeping problem!");
             _n_E--;
         }
         if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
             _n_Ia++;
             add_id_Ia(_indiv[i].get_id());
+            _indiv_Ia.push_back(get_mem_indiv(i));
+            
             stopif(_n_E==0, "Book keeping problem!");
             _n_E--;
         }
@@ -718,6 +744,7 @@ void socialPlace::time_update(double dt){
         if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
             stopif(_n_Is==0, "Book keeping problem!");
             _n_Is--;
+            removeValue(_indiv_Is, &_indiv[i]);
             remove_id_Is(_indiv[i].get_id());
             _n_R++;
         }
@@ -725,6 +752,7 @@ void socialPlace::time_update(double dt){
         if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
             stopif(_n_Ia==0, "Book keeping problem!");
             _n_Ia--;
+            removeValue(_indiv_Ia, &_indiv[i]);
             remove_id_Ia(_indiv[i].get_id());
             _n_R++;
         }

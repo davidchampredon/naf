@@ -313,6 +313,39 @@ template <class T> vector<double> to_vector_double(vector<T> x){
 }
 
 
+template <class T> vector<T> sort_remove_duplicate(vector<T> x, bool ascending)
+{
+    /// Sort vector and removes duplicates
+    
+    vector<T> vec = x;
+    
+    if(ascending)  sort( vec.begin(), vec.end() );
+    if(!ascending) sort( vec.begin(), vec.end(),std::greater<T>() );
+    
+    vec.erase( unique( vec.begin(), vec.end() ), vec.end() );
+    
+    return vec;
+}
+
+
+template <class T> vector<T>  melt(vector< vector<T> > x)
+{
+    /// Transform a vector of vector into a vector
+    /// by concatenating its sub-vectors
+    
+    vector< vector<T> > vec = x;
+    vector<T> res;
+   
+    for (uint i=0; i<x.size(); i++) {
+        for(uint j=0; j<x[i].size(); j++){
+            res.push_back(x[i][j]);
+        }
+    }
+    return res;
+}
+
+
+
 vector<string> trim(vector<string> x);
 vector<double> vector_seq(double start, double end, unsigned int size);
 vector<double> vector_seq_by(double start, double end, double by);

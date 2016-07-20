@@ -103,8 +103,26 @@ public:
 	unsigned int	transmission_oneSP(unsigned int k, double contact_rate, double dt);
 	void			transmission_world(double timeslice);
 	unsigned int	prevalence();
-	
 
+    double          draw_contact_rate(individual* indiv, SPtype sp_type);
+    vector<uint>    draw_n_contacts(uint k, double dt,
+                                    SPtype sp_type, string infectious_type);
+    
+    vector< vector<uint> > draw_contacted_S(uint k,
+                                            vector<uint> n_contacts,
+                                            string infectious_type);
+    
+    double          calc_proba_transmission(individual* infectious,
+                                            individual* susceptible);
+    
+    vector< vector<uint> > transmission_attempts(uint k,
+                                                 vector< vector<uint> > selected_S);
+
+    uint    transmission_activation(int k,
+                                    vector< vector<uint> > selected_S,
+                                    vector< vector<uint> > transm_success);
+    
+    
 	// Exports
 	
 	dcDataFrame		timeseries();
@@ -128,6 +146,8 @@ public:
 	
 	
 };
+
+
 
 
 #endif /* defined(__naf__simulation__) */

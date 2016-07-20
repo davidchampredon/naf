@@ -257,7 +257,11 @@ void Simulation::time_update(double dt){
 }
 
 
-void Simulation::test(){}
+void Simulation::test(){
+
+    _world[0]._indiv_S[0]->set_immunity(0.12345);
+    
+}
 
 
 void Simulation::run(){
@@ -283,9 +287,9 @@ void Simulation::run(){
     
     // MAIN LOOP FOR TIME
     
+    if(debug_mode) check_book_keeping();
+    
     for (_current_time=0.0; _current_time < _horizon; ) {
-        
-        if(debug_mode) check_book_keeping();
         
         unsigned int idx_timeslice = k % nts;
         //		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
@@ -300,9 +304,12 @@ void Simulation::run(){
         
         if(p_move>0) move_individuals_sched(idx_timeslice, p_move);
         
+        if(debug_mode) check_book_keeping();
+        
         //		cout << "AFTER move, BEFORE transmission" << endl;
         //		display_split_pop_present();
         transmission_world(dt);
+        
         //		cout << "AFTER transmissiom" << endl;
         //		display_split_pop_present();
         
@@ -310,6 +317,7 @@ void Simulation::run(){
         // at the 'simulation' level
         // (social places were updated during transmission):
         update_pop_count();
+        if(debug_mode) check_book_keeping();
         
         // Record for time series:
         _ts_times.push_back(_current_time);
@@ -325,6 +333,8 @@ void Simulation::run(){
         time_update(dt);
         update_pop_count();
         k++;
+        
+        if(debug_mode) check_book_keeping();
     }
     
     if(debug_mode){
@@ -400,7 +410,7 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
     
     /// Move individuals across social places
     
-    std::uniform_real_distribution<double> unif(0.0,1.0);
+    std::uniform_real_distribution<double> unif(0.0, 1.0);
     
     for (int k=0; k<_world.size(); k++)
     {
@@ -438,86 +448,308 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 }
 
 
-unsigned int Simulation::transmission_oneSP(unsigned int k,
-                                            double contact_rate,
-                                            double dt){
-    /// Performs transmission within the k^th social place.
-    /// Returns incidence for THIS social place, during the time step 'dt'
+vector<uint> Simulation::draw_n_contacts(uint k, double dt,
+                                         SPtype sp_type,
+                                         string infectious_type){
+    /// Draw the (random) number of contacts
+    /// for all infectious individuals of a given type.
     
-    stopif(k >= _world.size(), "Asking for an inexistent social place");
+    vector<uint> n_contacts; // number of contacts for each infectious individual
     
-    unsigned int inc = 0;
+    uint n=0;
+    if(infectious_type == "Is") n = (uint)_world[k]._indiv_Is.size();
+    if(infectious_type == "Ia") n = (uint)_world[k]._indiv_Ia.size();
     
-    // Count categories of individuals:
-    unsigned long N   = _world[k].get_size();
-    unsigned int nIa  = _world[k].get_n_Ia();
-    unsigned int nIs  = _world[k].get_n_Is();
-    unsigned int nS   = _world[k].get_n_S();
-    
-    unsigned long N2 = _world[k].get_indiv().size();
-    
-    stopif( (nIa+nIs >N) || (nS > N) || (N != N2),
-           " DANGER : book keeping problem!");
-    
-    // Calculate number of contacts:
-    
-    bool homog_cont = _modelParam.get_prm_bool("homogeneous_contact");
-    unsigned int nContactsDrawn;
-    vector<unsigned int> pos_s;
-    
-    if(!homog_cont){
-        double nContacts = (double)(nIa + nIs) * contact_rate * dt;
-        std::poisson_distribution<> poiss(nContacts);
+    for (unsigned int i=0; i<n; i++) {
+        // draw the contact rate
+        // based on the individual and the current social place:
+        individual* tmp = nullptr;
+        if(infectious_type == "Is") tmp = _world[k]._indiv_Is[i];
+        if(infectious_type == "Ia") tmp = _world[k]._indiv_Ia[i];
         
-        nContactsDrawn = poiss(_RANDOM_GENERATOR);
-        if (nContactsDrawn>nS) nContactsDrawn = nS;
+        double cr = draw_contact_rate(tmp, sp_type);
         
-        // Choose randomly the susceptibles contacted:
-        // TO DO: optimize when nContactsDrawn = nS (no need to pick them, take them all!)
-        pos_s = _world[k].pick_rnd_susceptibles(nContactsDrawn);
-        
+        // Draw the actual number of contacts
+        std::poisson_distribution<> poiss(cr * dt);
+        n_contacts.push_back( poiss(_RANDOM_GENERATOR) );
     }
-    else {
-        // Homogeneous contact: an infectious
-        // makes contact with ALL susceptible
-        // and has a probability to transmit
-        // at each contact.
-        double mean_n_contacts = contact_rate * dt * nS / N ;
-        std::poisson_distribution<> poiss(mean_n_contacts);
-        
-        for (unsigned int i=0; i<(nIa+nIs); i++) {
-            unsigned int inc_k =poiss(_RANDOM_GENERATOR);
-            inc += inc_k;
-        }
-        pos_s = _world[k].pick_rnd_susceptibles(inc);
-        for (unsigned int j=0; j<pos_s.size(); j++){
-            _world[k].acquireDisease(pos_s[j]);
-            update_pop_count();
-        }
-    } // end-else
+    return n_contacts;
+}
+
+
+double Simulation::calc_proba_transmission(individual *infectious,
+                                           individual *susceptible){
+    /// Calculate probability of transmission given contact
+    /// between an infectious and susceptible individuals
     
-    // Attempt transmission:
-    // TO DO: put that in a member function of socialPlace
-    if(!homog_cont)
-    {
-        std::uniform_real_distribution<double> unif(0.0,1.0);
-        double p = -999, u = -999;
-        
-        for (unsigned int j=0; j<pos_s.size(); j++)
+    // TO DO: implement something more elaborate!
+    
+    // Susceptible side:
+    double p_susc = susceptible->get_frailty() * (1 - susceptible->get_immunity());
+    
+    // infectious side:
+    double p_inf = 1.0;
+    if(!infectious->is_symptomatic()) p_inf = _modelParam.get_prm_double("asymptom_infectiousness_ratio");
+    
+    return p_susc * p_inf;
+}
+
+
+vector< vector<uint> > Simulation::draw_contacted_S(uint k,
+                                                    vector<uint> n_contacts,
+                                                    string infectious_type){
+    /// Randomly select the susceptible that will be
+    /// contacted by infectious individuals of a
+    /// given infectious type (e.g. symptomatic or not).
+    
+    uint n_inf = 0;
+    if(infectious_type == "Is") n_inf = (uint)_world[k]._indiv_Is.size();
+    if(infectious_type == "Ia") n_inf = (uint)_world[k]._indiv_Ia.size();
+    
+    uint n_susc = (uint)_world[k]._indiv_S.size();
+    vector< vector<uint> > selected_S(n_inf);
+    
+    // For all infectious indiv,
+    // sample (with replacement)
+    // which susceptibles will be contacted:
+    std::uniform_int_distribution<uint> unif(0,n_susc-1);
+
+    for(uint i=0; i<n_inf; i++){
+        for(uint j=0; j<n_contacts[i]; j++)
         {
-            // Probability for THIS susceptible to acquire the disease:
-            p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
-            u = unif(_RANDOM_GENERATOR);
-            if(u < p) {
-                // Transmission!
-                _world[k].acquireDisease(pos_s[j]);
-                update_pop_count();
-                inc++;
+            uint rnd_idx = unif(_RANDOM_GENERATOR);
+            selected_S[i].push_back(rnd_idx);
+        }
+    }
+    return selected_S;
+}
+
+
+vector< vector<uint> > Simulation::transmission_attempts(uint k,
+                                                         vector< vector<uint> > selected_S){
+    /// Attempts transmission on all selected susceptible individuals
+    
+    uint n_inf = (uint) selected_S.size();
+    vector< vector<uint> > transm_success(n_inf);
+    
+    std::uniform_real_distribution<float> unif01(0.0, 1.0);
+    
+    for (uint i=0; i<n_inf; i++)
+    {
+        transm_success[i].resize(selected_S[i].size(), false);
+        
+        for (uint j=0; j < selected_S[i].size(); j++)
+        {
+            // TO DO: could be optimized:
+            // because sampling with replacement,
+            // we may attempt transmission on a susceptible
+            // who had successful transmission previously
+            
+            double p_ij = calc_proba_transmission(_world[k]._indiv_Is[i],
+                                                  _world[k]._indiv_S[selected_S[i][j]]);
+            if (unif01(_RANDOM_GENERATOR)<p_ij) {
+                transm_success[i][j] = true;
             }
         }
-    } // end-if-homog-cont
-    return inc;
+    }
+    return transm_success;
 }
+
+
+uint Simulation::transmission_activation(int k,
+                                         vector< vector<uint> > selected_S,
+                                         vector< vector<uint> > transm_success){
+    /// Activate the succesful transmission attempts:
+    
+    uint incidence = 0;
+    
+    // Duplicates and not ordered 'selected_S'
+    // messes up the deletion of newly infected.
+    // Hence, need to clean-up this vector
+    // before erasing elements of '_indiv_S':
+    vector<uint> SS_melt_all = melt(selected_S);
+    vector<uint> TS_melt = melt(transm_success);
+    
+    // Pick up only the selected susceptible
+    // where the transmission was successfull:
+    vector<uint> SS_melt;
+    for (uint i=0; i<SS_melt_all.size(); i++) {
+        if(TS_melt[i]) SS_melt.push_back(SS_melt_all[i]);
+    }
+    // clean-up: sort descending and remove duplicates
+    // (important for easy deletions!)
+    vector<uint> SS_melt_success = sort_remove_duplicate(SS_melt, false);
+    
+    for (uint m=0; m<SS_melt_success.size(); m++) {
+        _world[k]._indiv_S[SS_melt_success[m]]->acquireDisease();
+        
+        // Book keeping: Update counters
+        _world[k].update_epidemic_count(*_world[k]._indiv_S[SS_melt_success[m]], "new_case");
+        
+        // Book keeping: Update pointer tables:
+        uint tmp1 = SS_melt_success[m];
+        _world[k]._indiv_S.erase(_world[k]._indiv_S.begin() + tmp1);
+        
+        incidence ++;
+        // TO DO: record infection times, etc.
+    }
+    
+    
+//    for (uint i=0; i<selected_S.size(); i++) {
+//        for (uint j=0; j < selected_S[i].size(); j++){
+//            
+//            if(transm_success[i][j]){
+//                _world[k]._indiv_S[selected_S[i][j]]->acquireDisease();
+//                
+//                // Book keeping: Update counters
+//                _world[k].update_epidemic_count(*_world[k]._indiv_S[selected_S[i][j]], "new_case");
+//
+//                // Book keeping: Update pointer tables:
+//                uint tmp1 = selected_S[i][j];
+//                _world[k]._indiv_S.erase(_world[k]._indiv_S.begin() + selected_S[i][j]);
+//                
+//                
+//                incidence ++;
+//                // TO DO: record infection times, etc.
+//            }
+//        }
+//    }
+
+    return incidence;
+}
+
+
+unsigned int Simulation::transmission_oneSP(unsigned int k,
+											double contact_rate,
+											double dt){
+	/// Performs transmission within the k^th social place.
+	/// Returns incidence for THIS social place, during the time step 'dt'
+	
+    // STOPPED HERE & TO DO:
+    // implement the homogeneous contact case
+    
+	stopif(k >= _world.size(), "Asking for an inexistent social place");
+
+    // If there are no susceptibles
+    // or no infectious individuals,
+    // then no transmission can occur!!!
+    if (_n_S == 0 || (_n_Is+_n_Ia==0) ) {
+        return 0;
+    }
+    
+    // Number of contacts for each infectious individual.
+    // (numbers are stored in the order of vectors _indiv_Is, _indiv_Ia)
+    SPtype sp_type = _world[k].get_type();
+    vector<uint> n_contacts_Is = draw_n_contacts(k, dt, sp_type, "Is");
+    vector<uint> n_contacts_Ia = draw_n_contacts(k, dt, sp_type, "Ia");
+    
+    // Randomly select susceptibles
+    // in this social place that will
+    // be in contact: sampling _with_ replacement
+    // (a S can be in contact with more than one I)
+    
+    vector< vector<uint> > selected_S_Is = draw_contacted_S(k, n_contacts_Is, "Is");
+    vector< vector<uint> > selected_S_Ia = draw_contacted_S(k, n_contacts_Ia, "Ia");
+    
+    // Transmission attempts
+    // (need to do this intermediary step
+    // in order not to mess up pointers vector '_indiv_X')
+    
+    vector< vector<uint> > transm_success_Is = transmission_attempts(k, selected_S_Is);
+    vector< vector<uint> > transm_success_Ia = transmission_attempts(k, selected_S_Is);
+    
+    // Activate disease acquisition:
+    
+    uint inc_Is     = transmission_activation(k, selected_S_Is, transm_success_Is);
+    uint inc_Ia     = transmission_activation(k, selected_S_Ia, transm_success_Ia);
+    uint inc_total  = inc_Is + inc_Ia;
+    
+	return inc_total;
+}
+
+
+
+
+//unsigned int Simulation::transmission_oneSP(unsigned int k,
+//                                            double contact_rate,
+//                                            double dt){
+//    /// Performs transmission within the k^th social place.
+//    /// Returns incidence for THIS social place, during the time step 'dt'
+//    
+//    stopif(k >= _world.size(), "Asking for an inexistent social place");
+//    
+//    unsigned int inc = 0;
+//    
+//    // Count categories of individuals:
+//    unsigned long N   = _world[k].get_size();
+//    unsigned int nIa  = _world[k].get_n_Ia();
+//    unsigned int nIs  = _world[k].get_n_Is();
+//    unsigned int nS   = _world[k].get_n_S();
+//    
+//    unsigned long N2 = _world[k].get_indiv().size();
+//    
+//    stopif( (nIa+nIs >N) || (nS > N) || (N != N2),
+//           " DANGER : book keeping problem!");
+//    
+//    // Calculate number of contacts:
+//    
+//    bool homog_cont = _modelParam.get_prm_bool("homogeneous_contact");
+//    unsigned int nContactsDrawn;
+//    vector<unsigned int> pos_s;
+//    
+//    if(!homog_cont){
+//        double nContacts = (double)(nIa + nIs) * contact_rate * dt;
+//        std::poisson_distribution<> poiss(nContacts);
+//        
+//        nContactsDrawn = poiss(_RANDOM_GENERATOR);
+//        if (nContactsDrawn>nS) nContactsDrawn = nS;
+//        
+//        // Choose randomly the susceptibles contacted:
+//        // TO DO: optimize when nContactsDrawn = nS (no need to pick them, take them all!)
+//        pos_s = _world[k].pick_rnd_susceptibles(nContactsDrawn);
+//        
+//    }
+//    else {
+//        // Homogeneous contact: an infectious
+//        // makes contact with ALL susceptible
+//        // and has a probability to transmit
+//        // at each contact.
+//        double mean_n_contacts = contact_rate * dt * nS / N ;
+//        std::poisson_distribution<> poiss(mean_n_contacts);
+//        
+//        for (unsigned int i=0; i<(nIa+nIs); i++) {
+//            unsigned int inc_k =poiss(_RANDOM_GENERATOR);
+//            inc += inc_k;
+//        }
+//        pos_s = _world[k].pick_rnd_susceptibles(inc);
+//        for (unsigned int j=0; j<pos_s.size(); j++){
+//            _world[k].acquireDisease(pos_s[j]);
+//            update_pop_count();
+//        }
+//    } // end-else
+//    
+//    // Attempt transmission:
+//    // TO DO: put that in a member function of socialPlace
+//    if(!homog_cont)
+//    {
+//        std::uniform_real_distribution<double> unif(0.0,1.0);
+//        double p = -999, u = -999;
+//        
+//        for (unsigned int j=0; j<pos_s.size(); j++)
+//        {
+//            // Probability for THIS susceptible to acquire the disease:
+//            p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
+//            u = unif(_RANDOM_GENERATOR);
+//            if(u < p) {
+//                // Transmission!
+//                _world[k].acquireDisease(pos_s[j]);
+//                update_pop_count();
+//                inc++;
+//            }
+//        }
+//    } // end-if-homog-cont
+//    return inc;
+//}
 
 
 void Simulation::transmission_world(double timeslice){
@@ -650,6 +882,7 @@ void Simulation::update_pop_count(){
     _n_Ia = 0;
     _n_Is = 0;
     _n_R  = 0;
+    
     for (ID i=0; i<n; i++) {
         _n_S  += _world[i].get_n_S();
         _n_E  += _world[i].get_n_E();
@@ -673,7 +906,8 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         nS += _world[k].get_n_S();
         nS_census += _world[k].census_disease_stage("S");
-        stopif(_world[k].get_n_S() != _world[k].get_id_S().size(),
+        stopif(_world[k].get_n_S() != _world[k].get_id_S().size() ||
+               _world[k].get_n_S() != _world[k]._indiv_S.size(),
                "Book keeping error with S IDs.");
     }
     bool check_S = ( (_n_S == nS) && (nS == nS_census) );
@@ -696,7 +930,8 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         nIs += _world[k].get_n_Is();
         nIs_census += _world[k].census_disease_stage("Is");
-        stopif(_world[k].get_n_Is() != _world[k].get_id_Is().size(),
+        stopif(_world[k].get_n_Is() != _world[k].get_id_Is().size() ||
+               _world[k].get_n_Is() != _world[k]._indiv_Is.size(),
                "Book keeping error with Is IDs.");
     }
     bool check_Is = ( (_n_Is == nIs) && (nIs == nIs_census) );
@@ -708,7 +943,8 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         nIa += _world[k].get_n_Ia();
         nIa_census += _world[k].census_disease_stage("Ia");
-        stopif(_world[k].get_n_Ia() != _world[k].get_id_Ia().size(),
+        stopif(_world[k].get_n_Ia() != _world[k].get_id_Ia().size() ||
+               _world[k].get_n_Ia() != _world[k]._indiv_Ia.size(),
                "Book keeping error with Ia IDs.");
     }
     bool check_Ia = ( (_n_Ia == nIa) && (nIa == nIa_census) );
@@ -741,22 +977,48 @@ void Simulation::define_all_id_tables(){
         _world[k].clear_id_S();
         _world[k].clear_id_Is();
         _world[k].clear_id_Ia();
+        _world[k]._indiv_S.clear();
+        _world[k]._indiv_Is.clear();
+        _world[k]._indiv_Ia.clear();
         
         for (unsigned int i=0; i< indiv.size(); i++)
         {
             if (indiv[i].is_susceptible()) {
                 _world[k].add_id_S(indiv[i].get_id());
+                _world[k]._indiv_S.push_back(_world[k].get_mem_indiv(i));
             }
             else if (indiv[i].is_infectious() && indiv[i].is_symptomatic()){
                 _world[k].add_id_Is(indiv[i].get_id());
+                _world[k]._indiv_Is.push_back(_world[k].get_mem_indiv(i));
             }
             else if (indiv[i].is_infectious() && !indiv[i].is_symptomatic()){
                 _world[k].add_id_Ia(indiv[i].get_id());
+                _world[k]._indiv_Ia.push_back(_world[k].get_mem_indiv(i));
             }
         }
     }
 }
 
+
+
+//double  Simulation::draw_contact_rate(const individual& indiv, SPtype sp_type){
+double  Simulation::draw_contact_rate(individual* indiv, SPtype sp_type){
+    /// Draw the contact rate for an individual
+    /// in a given social place.
+    
+    
+    // TO DO: implement something better. Test for now...
+    
+    double mult_indiv = 1.0;
+    double mult_sp = 1.0;
+    
+    double age = indiv->get_age();
+    if (age <30.0) mult_indiv = 2.0;
+    if (sp_type == SP_household) mult_sp = 1.9;
+    if (sp_type == SP_pubTransp) mult_sp = 1.5;
+    
+    return mult_indiv * mult_sp * _modelParam.get_prm_double("contact_rate");
+}
 
 
 

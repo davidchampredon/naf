@@ -45,14 +45,18 @@ Simulation test_transmission(modelParam MP,
 	
 	vector<ID> sp_initially_infected {id_pres[0]};
 	vector<unsigned int> I0 {i0};
+    
+    sim.define_all_id_tables();
 	sim.seed_infection(sp_initially_infected, I0);
 	
-    sim.define_all_id_tables();
+    
 
     
 	// Run the simulation:
 	sim.run();
 	
+    sim.test();
+    
 	return sim;
 }
 
