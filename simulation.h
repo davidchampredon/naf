@@ -45,6 +45,8 @@ protected:
 	vector<unsigned int>	_ts_Ia;
 	vector<unsigned int>	_ts_Is;
 	vector<unsigned int>	_ts_R;
+    
+    dcDataFrame             _ts_census_by_SP;
 
 	
 public:
@@ -57,6 +59,7 @@ public:
 
 	// pseudo constructors:
 	void build_test_world(double reduction_size);
+    void build_test_2_sp(uint n_indiv);
 	void build_single_world(unsigned int n_indiv);
 	
 	// Simulate
@@ -75,9 +78,10 @@ public:
 	
 	world	get_world() {return _world;}
 	
-	double					get_current_time()	{return _current_time;}
-	vector<double>			get_ts_times()		{return _ts_times;}
-	vector<unsigned int>	get_ts_incidence()	{return _ts_incidence;}
+	double					get_current_time()   const {return _current_time;}
+	vector<double>			get_ts_times()       const {return _ts_times;}
+	vector<unsigned int>	get_ts_incidence()   const {return _ts_incidence;}
+    dcDataFrame             get_ts_census_by_SP()const {return _ts_census_by_SP;}
 	
 	// Time updates
 	
@@ -129,13 +133,14 @@ public:
 	dcDataFrame		timeseries();
     
     
-	// Miscelleanous
+    // Census
+    
+   	unsigned int	census_total_alive();
+    void            update_ts_census_by_SP();
+    
+    
+    // Miscelleanous
 
-	unsigned int	census_total_alive();
-	
-	
-
-	
 	unsigned int	population_size();
 	void			display_split_pop_present();
 	void			display_split_pop_linked();

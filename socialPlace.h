@@ -44,16 +44,13 @@ protected:
     unsigned int	_n_D;	// number of dead individuals
     unsigned int	_n_H;	// number of hospitalized individuals
     
-    // DELETE WHEN _indiv_S etc set up
+    // DELETE WHEN _indiv_S etc set up (?)
     vector<ID>      _id_S;   // IDs of all susceptible in this social place
     vector<ID>      _id_Is;  // IDs of all sympt. indiv in this social place
     vector<ID>      _id_Ia;  // IDs of all asympt. indiv in this social place
     // -----
     
 
-   
-    
-    
 public:
     
     vector<individual*>     _indiv_S;

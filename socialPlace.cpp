@@ -117,6 +117,9 @@ void socialPlace::update_epidemic_count(const individual& indiv,
     if (change != 0) {
         if ( indiv.is_infected() )
         {
+            stopif(_prevalence==0 && change == -1,
+                   "Book keeping problem with _prevalence!");
+            
             _prevalence = _prevalence + change;
             
             if( indiv.is_latent()) {
@@ -161,6 +164,7 @@ void socialPlace::update_epidemic_count(const individual& indiv,
         _n_E += 1;
         _n_S += -1;
         remove_id_S(id_indiv);
+        _prevalence++;
     }
     
 }
@@ -222,8 +226,9 @@ void socialPlace::remove_indiv(unsigned int pos){
     update_epidemic_count(_indiv[pos], "remove"); // <-- MUST BE BEFORE erasing individual!
     
     // update pointer tables:
-    removeValue(_indiv_S, &_indiv[pos]);
-    
+    // DELETE WHEN SURE: removeValue(_indiv_S, &_indiv[pos]);
+    if(_indiv[pos].is_susceptible()) removeValue(_indiv_S, &_indiv[pos]);
+       
     _indiv.erase(_indiv.begin()+pos);
     
     // Mandatory updates:
@@ -476,6 +481,73 @@ vector<ID> socialPlace::census_disease_stage_ID(string stage){
 }
 
 
+
+void socialPlace::time_update(double dt){
+    /// Update clock of all individuals in this social place
+    
+    for (unsigned int i=0; i<_indiv.size(); i++) {
+        
+        string event = _indiv[i].time_update(dt);
+        
+        if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
+            _n_Is++;
+            add_id_Is(_indiv[i].get_id());
+            _indiv_Is.push_back(get_mem_indiv(i));
+            
+            stopif(_n_E==0, "Book keeping problem!");
+            _n_E--;
+        }
+        if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
+            _n_Ia++;
+            add_id_Ia(_indiv[i].get_id());
+            _indiv_Ia.push_back(get_mem_indiv(i));
+            
+            stopif(_n_E==0, "Book keeping problem!");
+            _n_E--;
+        }
+        
+        if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
+            stopif(_n_Is==0, "Book keeping problem!");
+            _n_Is--;
+            removeValue(_indiv_Is, &_indiv[i]);
+            remove_id_Is(_indiv[i].get_id());
+            _n_R++;
+        }
+        
+        if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
+            stopif(_n_Ia==0, "Book keeping problem!");
+            _n_Ia--;
+            removeValue(_indiv_Ia, &_indiv[i]);
+            remove_id_Ia(_indiv[i].get_id());
+            _n_R++;
+        }
+    }
+}
+
+
+void socialPlace::displayInfo(){
+    cout << "--- " << endl ;
+    cout << "SP type: " << _type << " (" << SPtype2string(_type) << ")" << endl;
+    cout << "SP id: " << _id_sp << endl;
+    cout << " Associated AU:";
+    displayInfo_AU();
+    
+    cout << "Num. of indiv: " << _indiv.size() << " (check: " << _size << ")" << endl;
+    cout << "indiv ids: ";
+    for(int i=0; i<_indiv.size(); i++) cout << " [" <<_indiv[i].get_id() << "]";
+    cout << endl;
+    cout << "SP prevalence: " << _prevalence << " (check: "<< id_infected_bruteforce().size()  <<")";
+    if(_prevalence != id_infected_bruteforce().size()) cout << " CHECK FAILED!";
+    cout << endl;
+    cout << "infected indiv ids: ";
+    for(int i=0; i<_indiv.size(); i++)
+        if(_indiv[i].is_infected()) {cout <<" ["<<_indiv[i].get_id() << "]";}
+    
+    cout << endl;
+    cout << "--- " << endl ;
+}
+
+
 // ================================================================
 // ================================================================
 // =====   OUTSIDE CLASS
@@ -714,72 +786,6 @@ vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
         if (x[k].get_size()>0) res.push_back(x[k].get_id_sp());
     }
     return res;
-}
-
-
-void socialPlace::time_update(double dt){
-    /// Update clock of all individuals in this social place
-    
-    for (unsigned int i=0; i<_indiv.size(); i++) {
-        
-        string event = _indiv[i].time_update(dt);
-        
-        if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
-            _n_Is++;
-            add_id_Is(_indiv[i].get_id());
-            _indiv_Is.push_back(get_mem_indiv(i));
-            
-            stopif(_n_E==0, "Book keeping problem!");
-            _n_E--;
-        }
-        if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
-            _n_Ia++;
-            add_id_Ia(_indiv[i].get_id());
-            _indiv_Ia.push_back(get_mem_indiv(i));
-            
-            stopif(_n_E==0, "Book keeping problem!");
-            _n_E--;
-        }
-        
-        if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
-            stopif(_n_Is==0, "Book keeping problem!");
-            _n_Is--;
-            removeValue(_indiv_Is, &_indiv[i]);
-            remove_id_Is(_indiv[i].get_id());
-            _n_R++;
-        }
-        
-        if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
-            stopif(_n_Ia==0, "Book keeping problem!");
-            _n_Ia--;
-            removeValue(_indiv_Ia, &_indiv[i]);
-            remove_id_Ia(_indiv[i].get_id());
-            _n_R++;
-        }
-    }
-}
-
-
-void socialPlace::displayInfo(){
-    cout << "--- " << endl ;
-    cout << "SP type: " << _type << " (" << SPtype2string(_type) << ")" << endl;
-    cout << "SP id: " << _id_sp << endl;
-    cout << " Associated AU:";
-    displayInfo_AU();
-    
-    cout << "Num. of indiv: " << _indiv.size() << " (check: " << _size << ")" << endl;
-    cout << "indiv ids: ";
-    for(int i=0; i<_indiv.size(); i++) cout << " [" <<_indiv[i].get_id() << "]";
-    cout << endl;
-    cout << "SP prevalence: " << _prevalence << " (check: "<< id_infected_bruteforce().size()  <<")";
-    if(_prevalence != id_infected_bruteforce().size()) cout << " CHECK FAILED!";
-    cout << endl;
-    cout << "infected indiv ids: ";
-    for(int i=0; i<_indiv.size(); i++)
-        if(_indiv[i].is_infected()) {cout <<" ["<<_indiv[i].get_id() << "]";}
-    
-    cout << endl;
-    cout << "--- " << endl ;
 }
 
 

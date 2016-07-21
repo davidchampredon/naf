@@ -30,7 +30,8 @@ List dcDataFrameToRcppList(dcDataFrame df,
 	// set the associated column names:
 	if(!addRowName) rcpplist.attr("names") = df.get_colname();
 	
-	// insert row names (as an additional column, don't know how to do differently)
+	// insert row names (as an additional column,
+	// don't know how to do differently)
 	if(addRowName) {
 		rcpplist.push_back(df.get_rowname());
 		vector<string> cn = df.get_colname();
@@ -43,7 +44,10 @@ List dcDataFrameToRcppList(dcDataFrame df,
 
 
 // [[Rcpp::export]]
-List naf_test(List params, List simulParams){
+List naf_test_SEIR_vs_ODE(List params, List simulParams){
+	/// This runs a SEIR model implemented
+	/// in this agent-based model.
+	/// The goal is to compare its output to an ODE model.
 	
 	vector<unsigned int> res;
 	
@@ -58,7 +62,7 @@ List naf_test(List params, List simulParams){
 	bool homog          = params["homogeneous_contact"];
 	
 	unsigned int rnd_seed	= params["rnd_seed"];
-
+	
 	// Simulation parameters:
 	unsigned int n_indiv = simulParams["n_indiv"];
 	unsigned int i0	     = simulParams["initial_latent"];
@@ -82,23 +86,80 @@ List naf_test(List params, List simulParams){
 	_RANDOM_GENERATOR.seed(rnd_seed);
 	
 	// Call C++ function
-	Simulation sim = test_transmission(MP,
-									   horizon,
-									   n_indiv,
-									   i0);
+	Simulation sim = test_SEIR_vs_ODE(MP,
+									  horizon,
+									  n_indiv,
+									  i0);
 	
 	// Retrieve all results from simulation:
-	
 	// populations:
 	dcDataFrame pop_final = sim.get_world()[0].export_dcDataFrame();
-	
 	// epidemic time series
 	dcDataFrame ts = sim.timeseries();
-	
-	
 	// Return R-formatted result:
 	return List::create( Named("population_final") = dcDataFrameToRcppList(pop_final,false),
 						 Named("time_series") = dcDataFrameToRcppList(ts, false));
+}
+
+
+
+
+// [[Rcpp::export]]
+List naf_test_2_sp(List params, List simulParams){
+	/// Test mvements between 2 social places
+	
+	vector<unsigned int> res;
+	
+	// Model parameters:
+	
+	bool debug_mode		= params["debug_mode"];
+	double dol_mean		= params["dol_mean"];
+	double doi_mean		= params["doi_mean"];
+	
+	double proba_move   = params["proba_move"];
+	double contact_rate = params["contact_rate"];
+	bool homog          = params["homogeneous_contact"];
+	
+	unsigned int rnd_seed	= params["rnd_seed"];
+	
+	// Simulation parameters:
+	unsigned int n_indiv = simulParams["n_indiv"];
+	unsigned int i0	     = simulParams["initial_latent"];
+	double horizon       = simulParams["horizon"];
+	unsigned int nt	     = simulParams["nt"];
+	
+	// Store parameters in a 'modelParam' class:
+	modelParam MP;
+	MP.add_prm_bool("debug_mode", debug_mode);
+	MP.add_prm_double("dol_mean", dol_mean);
+	MP.add_prm_double("doi_mean", doi_mean);
+	MP.add_prm_double("proba_move", proba_move);
+	MP.add_prm_double("contact_rate", contact_rate);
+	MP.add_prm_uint("n_indiv", n_indiv);
+	MP.add_prm_bool("homogeneous_contact", homog);
+	MP.add_prm_uint("nt", nt);
+	
+	cout << "DEBUG: the seed is "<<rnd_seed <<endl;
+	
+	// Set random seed
+	_RANDOM_GENERATOR.seed(rnd_seed);
+	
+	// Call C++ function
+	Simulation sim = test_move_2_sp(MP,
+									horizon,
+									n_indiv,
+									i0);
+	
+	// Retrieve all results from simulation:
+	// populations:
+	dcDataFrame pop_final = sim.get_world()[0].export_dcDataFrame();
+	// epidemic time series
+	dcDataFrame ts = sim.timeseries();
+	dcDataFrame ts_census = sim.get_ts_census_by_SP();
+	// Return R-formatted result:
+	return List::create(Named("population_final") = dcDataFrameToRcppList(pop_final,false),
+						Named("time_series") = dcDataFrameToRcppList(ts, false),
+						Named("time_series_census") = dcDataFrameToRcppList(ts_census, false));
 }
 
 
@@ -112,12 +173,12 @@ List rnd_test(List params){
 	
 	_RANDOM_GENERATOR.seed(rnd_seed);
 	test_random();
-//	std::uniform_real_distribution<double> unif(0.0,1.0);
-//	cout << endl << "SEED IS: "<< rnd_seed << endl;
-//	for (int i=0; i<N; i++) {
-//		double y = unif(_RANDOM_GENERATOR);
-//		cout << "TEST-distrib = " << y <<endl;
-//	}
+	//	std::uniform_real_distribution<double> unif(0.0,1.0);
+	//	cout << endl << "SEED IS: "<< rnd_seed << endl;
+	//	for (int i=0; i<N; i++) {
+	//		double y = unif(_RANDOM_GENERATOR);
+	//		cout << "TEST-distrib = " << y <<endl;
+	//	}
 	cout << endl;
 	
 	

@@ -17,10 +17,27 @@
 #include "disease.h"
 #include "globalvar.h"
 
-Simulation test_transmission(modelParam MP,
-							 double horizon,
-							 unsigned int n_indiv,
-							 unsigned int i0);
+
+// --- One single world, SEIR model -------------------
+
+Simulation test_SEIR_vs_ODE(modelParam MP,
+                            double horizon,
+                            unsigned int n_indiv,
+                            unsigned int i0);
+
+void main_test_SEIR_vs_ODE();
+// ----------------------------------------------------
+
+
+// --- Two SP, test movements -------------------
+Simulation test_move_2_sp(modelParam MP,
+                          double horizon,
+                          uint n_indiv,
+                          unsigned int i0);
+
+void main_test_move_2_sp();
+
+// ----------------------------------------------------
 
 void test_move_transmission();
 

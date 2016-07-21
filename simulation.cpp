@@ -23,6 +23,7 @@ void Simulation::base_constructor(){
     _ts_Ia.clear();
     _ts_Is.clear();
     _ts_R.clear();
+    _ts_census_by_SP.clear();
     
 }
 
@@ -36,7 +37,7 @@ void Simulation::build_single_world(unsigned int n_indiv){
     /// one social place with 'n_indiv' individuals.
     /// USED FOR TEST
     
-    cout << endl << "Building single world..."<<endl;
+    cout << endl << "Building single test world..."<<endl;
     
     string region1 = "Halton";
     ID id_region1 = 1;
@@ -120,6 +121,113 @@ void Simulation::build_single_world(unsigned int n_indiv){
         }
     }
     cout << "... test world built." << endl;
+}
+
+
+void Simulation::build_test_2_sp(uint n_indiv){
+    /// Build a world with only 2 social places
+    /// to test movements
+    
+    cout << endl << "Building test world 2 SP..."<<endl;
+    
+    bool debugcode = _modelParam.get_prm_bool("debug_mode");
+    
+    string region1 = "Halton";
+    ID id_region1 = 1;
+    
+    areaUnit A1(1, "Oakville", id_region1, region1);
+    areaUnit A2(2, "Burlington", id_region1, region1);
+    
+    vector<areaUnit> A {A1,A2};
+    
+    // Schedule
+    vector<double> timeslice {12.0/24, 12.0/24}; // must sum up to 1.0
+    vector<SPtype> worker_sed  {SP_workplace, SP_household};
+
+    schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
+
+    vector<schedule> sched {
+        sched_worker_sed,
+    };
+    
+    // Disease stage durations:
+    string dol_distrib = "exp";
+    string doi_distrib = "exp";
+    
+    // individuals
+    unsigned int num_indiv			= (unsigned int)(n_indiv*2); // <-- make sure it's large enough
+    vector<individual> many_indiv	= build_individuals(num_indiv,
+                                                        sched,
+                                                        dol_distrib,
+                                                        doi_distrib);
+    
+    // type of social places
+    vector<SPtype> spt {
+        SP_workplace,
+        SP_household
+    };
+    
+    // populate social places with individuals (built above)
+    unsigned int num_hh      = (unsigned int)(1 );
+    unsigned int num_biz     = (unsigned int)(1 );
+  
+    cout << "Number of business places:  " << num_biz <<endl;
+    cout << "Number of household places: " << num_hh <<endl;
+
+    // Number of social places, by type.
+    // * *   W A R N I N G   * *
+    // same order as type of social places definition ('spt')
+    vector<unsigned int> num_sp {
+        num_biz,
+        num_hh
+    };
+    
+    // Distribution of the size of each social place type:
+    probaDistrib<unsigned int> p_workPlace({n_indiv/2},  {1.0});
+    probaDistrib<unsigned int> p_hh({n_indiv},  {1.0});
+    
+    vector<probaDistrib<unsigned int> > p_size {
+        p_workPlace,
+        p_hh
+    };
+    
+    // build the world:
+    vector<socialPlace> W = build_world_simple(spt,
+                                               num_sp,
+                                               p_size,
+                                               many_indiv, A);
+    set_world(W);
+    
+    // initial population: Move everyone to its household!
+
+    unsigned long N = _world.size();
+    for (int k=0; k<N; k++)
+    {
+        if(_world[k].get_type()==SP_household)
+        {
+            unsigned int n_linked_k = _world[k].n_linked_indiv();
+            for (unsigned int i=0; i<n_linked_k; i++)
+            {
+                ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+                individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
+                
+                
+                if(debugcode){
+                    // Checks (remove for better speed)
+                    ID id_hh = tmp.get_id_sp_household();
+                    stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
+                    stopif(id_hh != k, "Not consistent linkage!");
+                    _world[id_hh].add_indiv(tmp);
+                    // -----
+                }
+                
+                // Faster version:
+                if(!debugcode) _world[k].add_indiv(tmp);
+            }
+        }
+    }
+    cout << "... test world built."<<endl;
+    
 }
 
 
@@ -259,7 +367,7 @@ void Simulation::time_update(double dt){
 
 void Simulation::test(){
 
-    _world[0]._indiv_S[0]->set_immunity(0.12345);
+//    _world[0]._indiv_S[0]->set_immunity(0.12345);
     
 }
 
@@ -289,34 +397,49 @@ void Simulation::run(){
     
     if(debug_mode) check_book_keeping();
     
+    define_all_id_tables();
+    
     for (_current_time=0.0; _current_time < _horizon; ) {
         
         unsigned int idx_timeslice = k % nts;
-        //		cout << "iter = " << k << " ; time slice = " << idx_timeslice;
-        //		cout << " ; currTime = " << _current_time <<endl;
-        
         double dt = timeslice[idx_timeslice];
         
-        // Actions:
+        if(debug_mode){
+            cout << "iter = " << k;
+            cout << " ; time = " << _current_time;
+            cout << " ; sched idx = " << idx_timeslice;
+            cout << " ; sched length = " << dt;
+            cout <<endl;
+        }
         
-        //		cout << "BEFORE move" << endl;
-        //		display_split_pop_present();
+        update_ts_census_by_SP();
         
-        if(p_move>0) move_individuals_sched(idx_timeslice, p_move);
+        // DEBUG
+//        cout << endl << "BEFORE move" << endl;
+//        display_split_pop_present();
+        
+        if(p_move>0) {
+            move_individuals_sched(idx_timeslice, p_move);
+            define_all_id_tables();
+        }
         
         if(debug_mode) check_book_keeping();
+
+        // DEBUG
+//        cout << "AFTER move, BEFORE transmission" << endl;
+//        display_split_pop_present();
         
-        //		cout << "AFTER move, BEFORE transmission" << endl;
-        //		display_split_pop_present();
         transmission_world(dt);
         
-        //		cout << "AFTER transmissiom" << endl;
-        //		display_split_pop_present();
+        //DEBUG
+//        		cout << "AFTER transmissiom" << endl;
+//        		display_split_pop_present();
         
         // Update counts of population categories
         // at the 'simulation' level
         // (social places were updated during transmission):
         update_pop_count();
+        
         if(debug_mode) check_book_keeping();
         
         // Record for time series:
@@ -358,7 +481,8 @@ void Simulation::set_disease(const disease &d){
 }
 
 
-void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba){
+void Simulation::move_individuals_sched(unsigned int idx_timeslice,
+                                        double proba){
     /// Move individuals across social places according to their schedule
     
     unsigned long N = _world.size();
@@ -367,43 +491,50 @@ void Simulation::move_individuals_sched(unsigned int idx_timeslice, double proba
     
     for (int k=0; k<N; k++)
     {
-        for (unsigned int i=0; i<_world[k].get_size(); i++)
-        {
-            // Retrieve its actual destination
-            ID id_dest = _world[k].find_dest(i, idx_timeslice);
+        uint n = (uint)_world[k].get_size();
+        if(n>0){
             
-            if ( (id_dest!=k) && (id_dest!=__UNDEFINED_ID) )
+            // IMPORTANT to run this loop
+            // in _descending_ order, else
+            // it messes up the pointers vector deletion
+            //
+            for (uint i=n; (i--) > 0; )
             {
-                // take a copy of the individual
-                individual tmp = _world[k].get_indiv(i);
+                // Retrieve its actual destination
+                ID id_dest = _world[k].find_dest(i, idx_timeslice);
                 
-                // Draw the chance move will actually happen:
-                // TO DO: make this proba individual-dependent
-                double u = unif(_RANDOM_GENERATOR);
-                if ( u < proba ){
+                if ( (id_dest!=k) && (id_dest!=__UNDEFINED_ID) )
+                {
+                    // take a copy of the individual
+                    individual tmp = _world[k].get_indiv(i);
                     
-                    //DEBUG
-                    //					cout << endl << "BEFORE move" <<endl;
-                    //					_world[k].displayInfo();
-                    // ------
-                    
-                    // add individual at destination
-                    _world[id_dest].add_indiv(tmp);
-                    // remove this individual (in i^th position in '_indiv' vector) from here
-                    _world[k].remove_indiv(i);
-                    
-                    //DEBUG
-                    //					cout << endl << "AFTER move" <<endl;
-                    //					_world[k].displayInfo();
-                    // ------
-                    
-                    
+                    // Draw the chance move will actually happen:
+                    // TO DO: make this proba individual-dependent
+                    double u = unif(_RANDOM_GENERATOR);
+                    if ( u < proba ){
+                        
+                        //DEBUG
+                        //					cout << endl << "BEFORE move" <<endl;
+                        //					_world[k].displayInfo();
+                        // ------
+                        
+                        // add individual at destination
+                        _world[id_dest].add_indiv(tmp);
+                        // remove this individual (in i^th position in '_indiv' vector) from here
+                        _world[k].remove_indiv(i);
+                        
+                        //DEBUG
+                        //					cout << endl << "AFTER move" <<endl;
+                        //					_world[k].displayInfo();
+                        // ------
+                        
+                        
+                    }
                 }
             }
         }
-    }
-    
-}
+    } // end-for-k-socialPlace
+} // end-function
 
 
 void Simulation::move_individuals(const SPtype sptype, double proba){
@@ -680,90 +811,6 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 }
 
 
-
-
-//unsigned int Simulation::transmission_oneSP(unsigned int k,
-//                                            double contact_rate,
-//                                            double dt){
-//    /// Performs transmission within the k^th social place.
-//    /// Returns incidence for THIS social place, during the time step 'dt'
-//    
-//    stopif(k >= _world.size(), "Asking for an inexistent social place");
-//    
-//    unsigned int inc = 0;
-//    
-//    // Count categories of individuals:
-//    unsigned long N   = _world[k].get_size();
-//    unsigned int nIa  = _world[k].get_n_Ia();
-//    unsigned int nIs  = _world[k].get_n_Is();
-//    unsigned int nS   = _world[k].get_n_S();
-//    
-//    unsigned long N2 = _world[k].get_indiv().size();
-//    
-//    stopif( (nIa+nIs >N) || (nS > N) || (N != N2),
-//           " DANGER : book keeping problem!");
-//    
-//    // Calculate number of contacts:
-//    
-//    bool homog_cont = _modelParam.get_prm_bool("homogeneous_contact");
-//    unsigned int nContactsDrawn;
-//    vector<unsigned int> pos_s;
-//    
-//    if(!homog_cont){
-//        double nContacts = (double)(nIa + nIs) * contact_rate * dt;
-//        std::poisson_distribution<> poiss(nContacts);
-//        
-//        nContactsDrawn = poiss(_RANDOM_GENERATOR);
-//        if (nContactsDrawn>nS) nContactsDrawn = nS;
-//        
-//        // Choose randomly the susceptibles contacted:
-//        // TO DO: optimize when nContactsDrawn = nS (no need to pick them, take them all!)
-//        pos_s = _world[k].pick_rnd_susceptibles(nContactsDrawn);
-//        
-//    }
-//    else {
-//        // Homogeneous contact: an infectious
-//        // makes contact with ALL susceptible
-//        // and has a probability to transmit
-//        // at each contact.
-//        double mean_n_contacts = contact_rate * dt * nS / N ;
-//        std::poisson_distribution<> poiss(mean_n_contacts);
-//        
-//        for (unsigned int i=0; i<(nIa+nIs); i++) {
-//            unsigned int inc_k =poiss(_RANDOM_GENERATOR);
-//            inc += inc_k;
-//        }
-//        pos_s = _world[k].pick_rnd_susceptibles(inc);
-//        for (unsigned int j=0; j<pos_s.size(); j++){
-//            _world[k].acquireDisease(pos_s[j]);
-//            update_pop_count();
-//        }
-//    } // end-else
-//    
-//    // Attempt transmission:
-//    // TO DO: put that in a member function of socialPlace
-//    if(!homog_cont)
-//    {
-//        std::uniform_real_distribution<double> unif(0.0,1.0);
-//        double p = -999, u = -999;
-//        
-//        for (unsigned int j=0; j<pos_s.size(); j++)
-//        {
-//            // Probability for THIS susceptible to acquire the disease:
-//            p = _world[k].get_indiv(pos_s[j]).calc_proba_acquire_disease();
-//            u = unif(_RANDOM_GENERATOR);
-//            if(u < p) {
-//                // Transmission!
-//                _world[k].acquireDisease(pos_s[j]);
-//                update_pop_count();
-//                inc++;
-//            }
-//        }
-//    } // end-if-homog-cont
-//    return inc;
-//}
-
-
 void Simulation::transmission_world(double timeslice){
     /// Simulates disease transmissions in the whole world (all social places)
     
@@ -862,8 +909,6 @@ void Simulation::displayInfo_indiv(){
             _world[k].get_indiv(k).displayInfo();
         }
     }
-    
-    
 }
 
 
@@ -882,6 +927,87 @@ dcDataFrame Simulation::timeseries(){
     return df;
 }
 
+
+
+void Simulation::update_ts_census_by_SP(){
+    /// Update the data frame recording
+    /// the number of individuals in each
+    /// disease stage, for every social places.
+    
+    unsigned long n = _world.size();
+    
+    if (_ts_census_by_SP.get_nrows() == 0)
+    {
+        // Create data frame with time
+        vector<double> t(n, 0.0);
+        dcDataFrame tmp(t,"time");
+        _ts_census_by_SP = tmp;
+        
+        vector<double> id_sp(n);
+        vector<double> pop_present(n);
+        vector<double> nS(n);
+        vector<double> nE(n);
+        vector<double> nIs(n);
+        vector<double> nIa(n);
+        vector<double> nR(n);
+        
+        for (uint k=0; k<n; k++) {
+            id_sp[k]        = _world[k].get_id_sp();
+            pop_present[k]  = _world[k].get_size();
+            nS[k]           = _world[k].get_n_S();
+            nE[k]           = _world[k].get_n_E();
+            nIs[k]          = _world[k].get_n_Is();
+            nIa[k]          = _world[k].get_n_Ia();
+            nR[k]           = _world[k].get_n_R();
+        }
+        
+        _ts_census_by_SP.addcol("id_sp", id_sp);
+        _ts_census_by_SP.addcol("pop_present", pop_present);
+        _ts_census_by_SP.addcol("nS", nS);
+        _ts_census_by_SP.addcol("nE", nE);
+        _ts_census_by_SP.addcol("nIs", nIs);
+        _ts_census_by_SP.addcol("nIa", nIa);
+        _ts_census_by_SP.addcol("nR", nR);
+    }
+    
+    if (_ts_census_by_SP.get_nrows() > 0)
+    {
+        // Create data frame with time
+        vector<double> t(n, _current_time);
+        dcDataFrame tmp(t,"time");
+        
+        vector<double> id_sp(n);
+        vector<double> pop_present(n);
+        vector<double> nS(n);
+        vector<double> nE(n);
+        vector<double> nIs(n);
+        vector<double> nIa(n);
+        vector<double> nR(n);
+        
+        for (uint k=0; k<n; k++) {
+            id_sp[k]        = _world[k].get_id_sp();
+            pop_present[k]  = _world[k].get_size();
+            nS[k]           = _world[k].get_n_S();
+            nE[k]           = _world[k].get_n_E();
+            nIs[k]          = _world[k].get_n_Is();
+            nIa[k]          = _world[k].get_n_Ia();
+            nR[k]           = _world[k].get_n_R();
+        }
+        
+        tmp.addcol("id_sp", id_sp);
+        tmp.addcol("pop_present", pop_present);
+        tmp.addcol("nS", nS);
+        tmp.addcol("nE", nE);
+        tmp.addcol("nIs", nIs);
+        tmp.addcol("nIa", nIa);
+        tmp.addcol("nR", nR);
+        
+        _ts_census_by_SP = rbind(_ts_census_by_SP, tmp);
+    }
+
+    // DEBUG
+//    _ts_census_by_SP.display();
+}
 
 
 void Simulation::update_pop_count(){
@@ -904,8 +1030,6 @@ void Simulation::update_pop_count(){
     }
     _prevalence = _n_E + _n_Ia + _n_Is;
 }
-
-
 
 
 void Simulation::check_book_keeping(){

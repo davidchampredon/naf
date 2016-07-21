@@ -35,7 +35,7 @@ prm[['homogeneous_contact']] <- TRUE
 prm[['contact_rate']] <- cr
 
 simul.prm[['horizon']] <- 70
-simul.prm[['n_indiv']] <- 3E4
+simul.prm[['n_indiv']] <- 3E2
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 4
 
@@ -66,7 +66,7 @@ n.MC <- 10
 
 loop.MC.naf <- function(iMC, prm, simul.prm) {
 	prm[['rnd_seed']] <- 3*iMC
-	return(naf_test(prm, simul.prm))
+	return(naf_test_SEIR_vs_ODE(prm, simul.prm))
 }
 idx.apply <- 1:n.MC
 res <- sfSapply(idx.apply, loop.MC.naf, prm, simul.prm,simplify = FALSE)
