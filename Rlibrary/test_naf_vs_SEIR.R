@@ -35,7 +35,7 @@ prm[['homogeneous_contact']] <- TRUE
 prm[['contact_rate']] <- cr
 
 simul.prm[['horizon']] <- 70
-simul.prm[['n_indiv']] <- 1E5
+simul.prm[['n_indiv']] <- 3E4
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 4
 
@@ -50,7 +50,7 @@ prm2 <-  c(
 	horizon     = simul.prm[['horizon']],
 	nE = 1,
 	nI = 1,
-	init_I1 = 1,
+	init_I1 = simul.prm[['initial_latent']] ,
 	n.time.steps = 500,
 	per.capita = FALSE
 )
@@ -85,7 +85,7 @@ for(k in 1:n.MC){
 	}
 }
 
-CI <- 0.8
+CI <- 0.95
 sim.naf.2 <- ddply(sim.naf,"time",summarize, 
 				   prev = mean(prevalence),
 				   prev.lo = quantile(prevalence,probs = 0.5-CI/2),

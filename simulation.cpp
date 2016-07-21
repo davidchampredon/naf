@@ -448,8 +448,8 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 }
 
 
-vector<uint> Simulation::draw_n_contacts(uint k, double dt,
-                                         SPtype sp_type,
+vector<uint> Simulation::draw_n_contacts(uint k,
+                                         double dt,
                                          string infectious_type){
     /// Draw the (random) number of contacts
     /// for all infectious individuals of a given type.
@@ -467,7 +467,7 @@ vector<uint> Simulation::draw_n_contacts(uint k, double dt,
         if(infectious_type == "Is") tmp = _world[k]._indiv_Is[i];
         if(infectious_type == "Ia") tmp = _world[k]._indiv_Ia[i];
         
-        double cr = draw_contact_rate(tmp, sp_type);
+        double cr = draw_contact_rate(tmp, k);
         
         // Draw the actual number of contacts
         std::poisson_distribution<> poiss(cr * dt);
@@ -532,26 +532,38 @@ vector< vector<uint> > Simulation::transmission_attempts(uint k,
     uint n_inf = (uint) selected_S.size();
     vector< vector<uint> > transm_success(n_inf);
     
-    std::uniform_real_distribution<float> unif01(0.0, 1.0);
+    bool homog = _modelParam.get_prm_bool("homogeneous_contact");
     
-    for (uint i=0; i<n_inf; i++)
-    {
-        transm_success[i].resize(selected_S[i].size(), false);
+    if(homog){
+        // Homogeneous contact: for testing purpose only. (but keep it!)
+        // Always success because the contact rate
+        // is understood as an _effective_ one in the homogeneous case:
+         for (uint i=0; i<n_inf; i++)
+             transm_success[i].resize(selected_S[i].size(), true);
+    }
+    
+    if(!homog){
+        std::uniform_real_distribution<float> unif01(0.0, 1.0);
         
-        for (uint j=0; j < selected_S[i].size(); j++)
+        for (uint i=0; i<n_inf; i++)
         {
-            // TO DO: could be optimized:
-            // because sampling with replacement,
-            // we may attempt transmission on a susceptible
-            // who had successful transmission previously
+            transm_success[i].resize(selected_S[i].size(), false);
             
-            double p_ij = calc_proba_transmission(_world[k]._indiv_Is[i],
-                                                  _world[k]._indiv_S[selected_S[i][j]]);
-            if (unif01(_RANDOM_GENERATOR)<p_ij) {
-                transm_success[i][j] = true;
+            for (uint j=0; j < selected_S[i].size(); j++){
+                // TO DO: could be optimized:
+                // because sampling with replacement,
+                // we may attempt transmission on a susceptible
+                // who had successful transmission previously
+                
+                double p_ij = calc_proba_transmission(_world[k]._indiv_Is[i],
+                                                      _world[k]._indiv_S[selected_S[i][j]]);
+                if (unif01(_RANDOM_GENERATOR)<p_ij) {
+                    transm_success[i][j] = true;
+                }
             }
         }
     }
+
     return transm_success;
 }
 
@@ -623,7 +635,7 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 											double contact_rate,
 											double dt){
 	/// Performs transmission within the k^th social place.
-	/// Returns incidence for THIS social place, during the time step 'dt'
+	/// Returns incidence for _this_ social place, during the time step 'dt'.
 	
     // STOPPED HERE & TO DO:
     // implement the homogeneous contact case
@@ -639,9 +651,9 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
     
     // Number of contacts for each infectious individual.
     // (numbers are stored in the order of vectors _indiv_Is, _indiv_Ia)
-    SPtype sp_type = _world[k].get_type();
-    vector<uint> n_contacts_Is = draw_n_contacts(k, dt, sp_type, "Is");
-    vector<uint> n_contacts_Ia = draw_n_contacts(k, dt, sp_type, "Ia");
+    
+    vector<uint> n_contacts_Is = draw_n_contacts(k, dt, "Is");
+    vector<uint> n_contacts_Ia = draw_n_contacts(k, dt, "Ia");
     
     // Randomly select susceptibles
     // in this social place that will
@@ -1000,24 +1012,36 @@ void Simulation::define_all_id_tables(){
 }
 
 
-
-//double  Simulation::draw_contact_rate(const individual& indiv, SPtype sp_type){
-double  Simulation::draw_contact_rate(individual* indiv, SPtype sp_type){
-    /// Draw the contact rate for an individual
+double  Simulation::draw_contact_rate(individual* indiv, uint k){
+    /// Draw the contact rate for an infectious individual
     /// in a given social place.
     
+    bool homog = _modelParam.get_prm_bool("homogeneous_contact");
     
-    // TO DO: implement something better. Test for now...
+    double cr = -999.99;
     
-    double mult_indiv = 1.0;
-    double mult_sp = 1.0;
+    if(homog){
+        // Homogeneous contacts.
+        // Used for testing purposes (e.g. compare to ODE models).
+        uint ns = _world[k].get_n_S();
+        uint n  = (uint)_world[k].get_size();
+        cr = _modelParam.get_prm_double("contact_rate") * ns / n;
+    }
     
-    double age = indiv->get_age();
-    if (age <30.0) mult_indiv = 2.0;
-    if (sp_type == SP_household) mult_sp = 1.9;
-    if (sp_type == SP_pubTransp) mult_sp = 1.5;
-    
-    return mult_indiv * mult_sp * _modelParam.get_prm_double("contact_rate");
+    if(!homog){
+        // TO DO: implement something better. Test for now...
+        double mult_indiv = 1.0;
+        double mult_sp = 1.0;
+        SPtype sp_type = _world[k].get_type();
+        
+        double age = indiv->get_age();
+        if (age <30.0) mult_indiv = 2.0;
+        if (sp_type == SP_household) mult_sp = 1.9;
+        if (sp_type == SP_pubTransp) mult_sp = 1.5;
+        
+        cr = mult_indiv * mult_sp * _modelParam.get_prm_double("contact_rate");
+    }
+    return cr;
 }
 
 

@@ -104,9 +104,10 @@ public:
 	void			transmission_world(double timeslice);
 	unsigned int	prevalence();
 
-    double          draw_contact_rate(individual* indiv, SPtype sp_type);
-    vector<uint>    draw_n_contacts(uint k, double dt,
-                                    SPtype sp_type, string infectious_type);
+    double          draw_contact_rate(individual* indiv, uint k);
+    vector<uint>    draw_n_contacts(uint k,
+                                    double dt,
+                                    string infectious_type);
     
     vector< vector<uint> > draw_contacted_S(uint k,
                                             vector<uint> n_contacts,
