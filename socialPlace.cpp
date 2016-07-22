@@ -25,7 +25,7 @@ string SPtype2string(SPtype x){
 }
 
 
-SPtype int2SPtype(unsigned int i){
+SPtype int2SPtype(uint i){
     // warning: order matters!
     SPtype res = SP_MAX;
     
@@ -215,7 +215,7 @@ void socialPlace::remove_indiv(individual& x){
 }
 
 
-void socialPlace::remove_indiv(unsigned int pos){
+void socialPlace::remove_indiv(uint pos){
     /// Remove an individual given its POSITION
     /// in vector '_indiv' in this social place.
     
@@ -238,7 +238,7 @@ void socialPlace::remove_indiv(unsigned int pos){
 
 
 
-void socialPlace::remove_indiv(vector<unsigned int> posvec){
+void socialPlace::remove_indiv(vector<uint> posvec){
     /// Remove SEVERAL individuals given their INITIAL POSITION in vector '_indiv' in this social place.
     
     //	stopif(posvec[max_element(posvec.begin(),posvec.end())]>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
@@ -248,7 +248,7 @@ void socialPlace::remove_indiv(vector<unsigned int> posvec){
     
     for(int i=0; i<posvec.size(); i++){
         
-        unsigned int idx = posvec[i]-i; // '-i' to take into account the shrinking vector
+        uint idx = posvec[i]-i; // '-i' to take into account the shrinking vector
         
         cout << "DEBUG: removing indiv ID_"<<_indiv[idx].get_id();
         cout << " pos_"<<i<<" infected:"<<_indiv[idx].is_infected();
@@ -281,7 +281,7 @@ void socialPlace::remove_linked_indiv(ID id){
 
 
 
-vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
+vector<uint> socialPlace::pick_rnd_susceptibles(uint num){
     
     /// Pick randomly 'num' susceptibles from this social place.
     /// Returns the POSITION of susceptibles in '_indiv' vector.
@@ -291,9 +291,9 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
     // WARNING: BRUTE FORCE => SLOW!
     // TO DO: OPTIMIZE
     
-    vector<unsigned int> pos;
+    vector<uint> pos;
     
-    for (unsigned int i=0; i<_indiv.size() ; i++){
+    for (uint i=0; i<_indiv.size() ; i++){
         bool is_susceptible = _indiv[i].is_susceptible();
         if (is_susceptible) pos.push_back(i);
     }
@@ -310,9 +310,9 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
      vector<individual> tmp = _indiv;
      random_shuffle(tmp.begin(), tmp.end());
      // Find the first 'num' susceptibles
-     vector<unsigned int> pos;
-     unsigned int cnt = 0;
-     for (unsigned int i=0; cnt < num && i<tmp.size() ; i++){
+     vector<uint> pos;
+     uint cnt = 0;
+     for (uint i=0; cnt < num && i<tmp.size() ; i++){
      bool is_susceptible = !(tmp[i].is_infected());
      if (is_susceptible) {
      pos.push_back(i);
@@ -324,10 +324,10 @@ vector<unsigned int> socialPlace::pick_rnd_susceptibles(unsigned int num){
 }
 
 
-unsigned int socialPlace::census_alive(){
+uint socialPlace::census_alive(){
     /// Counts all individuals alive
     
-    unsigned int cnt = 0;
+    uint cnt = 0;
     for(int i=0; i<_indiv.size(); i++){
         if(_indiv[i].is_alive()) cnt++;
     }
@@ -335,10 +335,10 @@ unsigned int socialPlace::census_alive(){
 }
 
 
-unsigned int socialPlace::census_infectious(){
+uint socialPlace::census_infectious(){
     /// Counts all infectious individuals (brute force, hence slow!)
     
-    unsigned int cnt = 0;
+    uint cnt = 0;
     for(int i=0; i<_indiv.size(); i++){
         if(_indiv[i].is_infectious()) cnt++;
     }
@@ -358,7 +358,7 @@ vector<ID>	socialPlace::id_infected_bruteforce(){
 
 
 
-ID socialPlace::find_dest(unsigned int pos, unsigned int idx_timeslice){
+ID socialPlace::find_dest(uint pos, uint idx_timeslice){
     /// Find the ID of the social place the individual is supposed to move to
     /// at the timeslice 'idx_timeslice' of the schedule.
     /// (individual is in position 'pos' in the vector '_indiv')
@@ -368,8 +368,8 @@ ID socialPlace::find_dest(unsigned int pos, unsigned int idx_timeslice){
 
 
 
-ID socialPlace::find_dest_linked(unsigned int pos,
-                                 unsigned int idx_timeslice,
+ID socialPlace::find_dest_linked(uint pos,
+                                 uint idx_timeslice,
                                  const vector<individual>& indiv_vec){
     /// Find the ID of the social place the LINKED individual is supposed to move to
     /// at the timeslice 'idx_timeslice' of the schedule.
@@ -390,7 +390,7 @@ void socialPlace::set_disease_to_all_indiv(const disease & d){
 }
 
 
-void socialPlace::acquireDisease(unsigned int pos){
+void socialPlace::acquireDisease(uint pos){
     /// Individual at position 'pos'
     /// in '_indiv' acquires the disease.
     /// S --> E
@@ -450,10 +450,10 @@ dcDataFrame socialPlace::export_dcDataFrame(){
 }
 
 
-unsigned int socialPlace::census_disease_stage(string stage){
+uint socialPlace::census_disease_stage(string stage){
     /// Counts the nuber of individuals in a given disease stage
     /// Warning: SLOW!
-    unsigned int cnt = 0;
+    uint cnt = 0;
     
     for (ID i=0; i<_indiv.size(); i++) {
         if(stage == "S" && _indiv[i].is_susceptible()) cnt++;
@@ -485,7 +485,7 @@ vector<ID> socialPlace::census_disease_stage_ID(string stage){
 void socialPlace::time_update(double dt){
     /// Update clock of all individuals in this social place
     
-    for (unsigned int i=0; i<_indiv.size(); i++) {
+    for (uint i=0; i<_indiv.size(); i++) {
         
         string event = _indiv[i].time_update(dt);
         
@@ -555,7 +555,7 @@ void socialPlace::displayInfo(){
 // ================================================================
 
 
-vector<socialPlace> build_world_random(unsigned int N, vector<areaUnit> auvec){
+vector<socialPlace> build_world_random(uint N, vector<areaUnit> auvec){
     /// Build randomly 'N' social places using provided area units
     
     unsigned long n_au = auvec.size();
@@ -594,7 +594,7 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
         
         individual tmp(i, age);
         
-        unsigned int id_rnd;
+        uint id_rnd;
         
         id_rnd = choose_SPtype_random(sp, SP_school);
         tmp.set_id_sp_school(sp[id_rnd]);
@@ -632,18 +632,18 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
     
 }
 
-unsigned int choose_SPtype_random(const vector<socialPlace>& sp, SPtype x){
+uint choose_SPtype_random(const vector<socialPlace>& sp, SPtype x){
     /// Choose randomly a SP with a given SPtype. Returns the position in the vector 'sp'
     
-    vector<unsigned int > pos;
-    for(unsigned int  i=0;i<sp.size(); i++){
+    vector<uint > pos;
+    for(uint  i=0;i<sp.size(); i++){
         if(sp[i].get_type()==x) pos.push_back(i);
     }
     
     std::uniform_int_distribution<unsigned long> unif_int(0,pos.size()-1);
     
     unsigned long choose_rnd = unif_int(_RANDOM_GENERATOR);
-    unsigned int res = pos[choose_rnd];
+    uint res = pos[choose_rnd];
     return res;
 }
 
@@ -667,11 +667,11 @@ void displayPopulationSize(const vector<socialPlace>& sp){
 
 
 vector<socialPlace> build_world_simple(vector<SPtype> spt,
-                                       vector<unsigned int> n_sp,
-                                       vector< probaDistrib<unsigned int> > p_size,
+                                       vector<uint> n_sp,
+                                       vector< probaDistrib<uint> > p_size,
                                        vector<individual>& indiv,
                                        vector<areaUnit> auvec,
-                                       unsigned int seed ){
+                                       uint seed ){
     
     /// Build a test world with individuals LINKED to social places.
     /// (use other function to make individuals PRESENT in social places)
@@ -689,12 +689,12 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     // (all will be merged at the end)
     // 'y' : pre-sampled size
     vector< vector<socialPlace> > sp;
-    vector< vector<unsigned int> > y;
+    vector< vector<uint> > y;
     sp.resize(N_type_sp);
     y.resize(N_type_sp);
     
     ID cnt_id = 0; // id counterto make sure ID is uniques across all types and SP
-    for(unsigned int t=0; t<N_type_sp; t++){
+    for(uint t=0; t<N_type_sp; t++){
         sp[t].resize(n_sp[t]);
         y[t].resize(n_sp[t]);
         
@@ -713,17 +713,17 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     vector<ID> cnt_sp(N_type_sp,0);
     
     // pre-sample from the size distributions
-    for(unsigned int t=0; t< N_type_sp; t++){
-        unsigned int N = n_sp[t];  // total number of social places of this type
-        probaDistrib<unsigned int> probD = p_size[t];  // distribution of social places' size
+    for(uint t=0; t< N_type_sp; t++){
+        uint N = n_sp[t];  // total number of social places of this type
+        probaDistrib<uint> probD = p_size[t];  // distribution of social places' size
         // sample the sizes of each social places
-        vector<unsigned int> y_t = probD.sample(N, seed+t);
+        vector<uint> y_t = probD.sample(N, seed+t);
         y[t] = y_t;
     }
     
     bool stoploop = false;
     vector<bool> all_sp_this_type_filled(N_type_sp, false);
-    unsigned int i = 0;
+    uint i = 0;
     
     for(i=0; i< indiv.size() && !stoploop; i++){
         for(ID t=0; t< N_type_sp; t++){
@@ -770,7 +770,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     vector<socialPlace> spfinal = sp[0];
     
     // merge all vectors into a single one:
-    for(unsigned int i=1; i<sp.size(); i++)
+    for(uint i=1; i<sp.size(); i++)
         spfinal.insert(spfinal.end(), sp[i].begin(), sp[i].end() );
     
     return spfinal;

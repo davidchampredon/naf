@@ -16,7 +16,7 @@ double modelParam::get_prm_double(string name){
 	return(_prm_double_val[pos]);
 }
 
-unsigned int modelParam::get_prm_uint(string name){
+uint modelParam::get_prm_uint(string name){
 	auto pos = distance(_prm_uint_name.begin(), find(_prm_uint_name.begin(), _prm_uint_name.end(), name));
 	stopif(pos >= _prm_uint_name.size(), "Parameter '" + name + "' not found!");
 	return(_prm_uint_val[pos]);

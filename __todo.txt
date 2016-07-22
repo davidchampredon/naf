@@ -1,0 +1,18 @@
+TO DO LIST: 
+
+
+=== MAJOR ITEMS ===
+
+- Hospitalization
+- Draw contact rate from distributions
+- Treatment class
+- Vaccinated class, several types of concurrent vaccines.
+- Build realistic worlds from size distributions
+- Interventions
+
+
+
+=== MINOR ITEMS ===
+
+- helper function to convert AUTOMATICALLY R input param list to _modelParam 
+

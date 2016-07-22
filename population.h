@@ -33,8 +33,8 @@
 //	}
 //	
 //	void create_indiv(ID totalNumberOfIndiv);
-//	void assign_age(vector<double> age, vector<double> proba, unsigned int seed);
-//	void assign_location(vector<location> loc, vector<double> proba, unsigned int seed);
+//	void assign_age(vector<double> age, vector<double> proba, uint seed);
+//	void assign_location(vector<location> loc, vector<double> proba, uint seed);
 //	void displayInfo();
 //};
 //

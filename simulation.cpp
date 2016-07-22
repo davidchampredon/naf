@@ -32,7 +32,7 @@ Simulation::Simulation(){
 }
 
 
-void Simulation::build_single_world(unsigned int n_indiv){
+void Simulation::build_single_world(uint n_indiv){
     /// Build a very simple world:
     /// one social place with 'n_indiv' individuals.
     /// USED FOR TEST
@@ -61,7 +61,7 @@ void Simulation::build_single_world(unsigned int n_indiv){
     string doi_distrib = "exp";
     
     // individuals
-    unsigned int num_indiv			= (unsigned int)(n_indiv * 3); // <-- make sure it's large enough
+    uint num_indiv			= (uint)(n_indiv * 3); // <-- make sure it's large enough
     vector<individual> many_indiv	= build_individuals(num_indiv,
                                                         sched,
                                                         dol_distrib,
@@ -71,18 +71,18 @@ void Simulation::build_single_world(unsigned int n_indiv){
     vector<SPtype> spt {SP_household};
     
     // populate social places with individuals (built above)
-    unsigned int num_hh = 1;
+    uint num_hh = 1;
     
     cout << "Number of household places: " << num_hh <<endl;
     
     // W A R N I N G
     // same order as type of social places definition ('spt')
-    vector<unsigned int> num_sp {num_hh};
+    vector<uint> num_sp {num_hh};
     
     // Distribution of the size of each social place type:
-    probaDistrib<unsigned int> p_hh({n_indiv},{1.0});
+    probaDistrib<uint> p_hh({n_indiv},{1.0});
     
-    vector< probaDistrib<unsigned int> > p_size {p_hh};
+    vector< probaDistrib<uint> > p_size {p_hh};
     
     // build the world:
     vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
@@ -94,12 +94,12 @@ void Simulation::build_single_world(unsigned int n_indiv){
     {
         if(_world[k].get_type()==SP_household)
         {
-            unsigned int n_linked_k = _world[k].n_linked_indiv();
+            uint n_linked_k = _world[k].n_linked_indiv();
             vector<ID> linked_ids   = _world[k].get_linked_indiv_id();
             
             stopif(linked_ids.size() != n_linked_k, "Book keeping problem with linked IDs");
             
-            for (unsigned int i=0; i<n_linked_k; i++)
+            for (uint i=0; i<n_linked_k; i++)
             {
                 //ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
                 ID curr_indiv_ID = linked_ids[i];
@@ -155,7 +155,7 @@ void Simulation::build_test_2_sp(uint n_indiv){
     string doi_distrib = "exp";
     
     // individuals
-    unsigned int num_indiv			= (unsigned int)(n_indiv*2); // <-- make sure it's large enough
+    uint num_indiv			= (uint)(n_indiv*2); // <-- make sure it's large enough
     vector<individual> many_indiv	= build_individuals(num_indiv,
                                                         sched,
                                                         dol_distrib,
@@ -168,8 +168,8 @@ void Simulation::build_test_2_sp(uint n_indiv){
     };
     
     // populate social places with individuals (built above)
-    unsigned int num_hh      = (unsigned int)(1 );
-    unsigned int num_biz     = (unsigned int)(1 );
+    uint num_hh      = (uint)(1 );
+    uint num_biz     = (uint)(1 );
   
     cout << "Number of business places:  " << num_biz <<endl;
     cout << "Number of household places: " << num_hh <<endl;
@@ -177,16 +177,16 @@ void Simulation::build_test_2_sp(uint n_indiv){
     // Number of social places, by type.
     // * *   W A R N I N G   * *
     // same order as type of social places definition ('spt')
-    vector<unsigned int> num_sp {
+    vector<uint> num_sp {
         num_biz,
         num_hh
     };
     
     // Distribution of the size of each social place type:
-    probaDistrib<unsigned int> p_workPlace({n_indiv/2},  {1.0});
-    probaDistrib<unsigned int> p_hh({n_indiv},  {1.0});
+    probaDistrib<uint> p_workPlace({n_indiv/2},  {1.0});
+    probaDistrib<uint> p_hh({n_indiv},  {1.0});
     
-    vector<probaDistrib<unsigned int> > p_size {
+    vector<probaDistrib<uint> > p_size {
         p_workPlace,
         p_hh
     };
@@ -205,8 +205,8 @@ void Simulation::build_test_2_sp(uint n_indiv){
     {
         if(_world[k].get_type()==SP_household)
         {
-            unsigned int n_linked_k = _world[k].n_linked_indiv();
-            for (unsigned int i=0; i<n_linked_k; i++)
+            uint n_linked_k = _world[k].n_linked_indiv();
+            for (uint i=0; i<n_linked_k; i++)
             {
                 ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
                 individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
@@ -268,7 +268,7 @@ void Simulation::build_test_world(double sizereduction){
     string doi_distrib = "exp";
     
     // individuals
-    unsigned int num_indiv			= (unsigned int)(1e7 * sizereduction); // <-- make sure it's large enough
+    uint num_indiv			= (uint)(1e7 * sizereduction); // <-- make sure it's large enough
     vector<individual> many_indiv	= build_individuals(num_indiv,
                                                         sched,
                                                         dol_distrib,
@@ -283,10 +283,10 @@ void Simulation::build_test_world(double sizereduction){
     };
     
     // populate social places with individuals (built above)
-    unsigned int num_pubTr   = (unsigned int)(2000 * sizereduction);
-    unsigned int num_biz     = (unsigned int)(180e3 * sizereduction);
-    unsigned int num_hh      = (unsigned int)(1500e3 * sizereduction);
-    unsigned int num_school  = (unsigned int)(2600 * sizereduction);
+    uint num_pubTr   = (uint)(2000 * sizereduction);
+    uint num_biz     = (uint)(180e3 * sizereduction);
+    uint num_hh      = (uint)(1500e3 * sizereduction);
+    uint num_school  = (uint)(2600 * sizereduction);
     
     cout << "Number of public transportations places: " << num_pubTr <<endl;
     cout << "Number of business places: " << num_biz <<endl;
@@ -295,7 +295,7 @@ void Simulation::build_test_world(double sizereduction){
     
     // W A R N I N G
     // same order as type of social places definition ('spt')
-    vector<unsigned int> num_sp {
+    vector<uint> num_sp {
         num_pubTr,
         num_biz,
         num_hh,
@@ -304,12 +304,12 @@ void Simulation::build_test_world(double sizereduction){
     
     // Distribution of the size of each social place type:
     
-    probaDistrib<unsigned int> p_pubTransp({20,30,60},{0.6,0.3,0.1});
-    probaDistrib<unsigned int> p_workPlace({3,7,15,30,75,200},{0.6,0.15,0.15,0.07,0.02,0.01});
-    probaDistrib<unsigned int> p_hh({1,2,3,4,5,6,7,8},{0.23, 0.34, 0.16, 0.15, 0.06, 0.03, 0.02, 0.01});
-    probaDistrib<unsigned int> p_school({250,500,750,1000,1250,1500},{0.60,0.25,0.10,0.03, 0.01,0.01});
+    probaDistrib<uint> p_pubTransp({20,30,60},{0.6,0.3,0.1});
+    probaDistrib<uint> p_workPlace({3,7,15,30,75,200},{0.6,0.15,0.15,0.07,0.02,0.01});
+    probaDistrib<uint> p_hh({1,2,3,4,5,6,7,8},{0.23, 0.34, 0.16, 0.15, 0.06, 0.03, 0.02, 0.01});
+    probaDistrib<uint> p_school({250,500,750,1000,1250,1500},{0.60,0.25,0.10,0.03, 0.01,0.01});
     
-    vector<probaDistrib<unsigned int> > p_size {
+    vector<probaDistrib<uint> > p_size {
         p_pubTransp,
         p_workPlace,
         p_hh,
@@ -326,8 +326,8 @@ void Simulation::build_test_world(double sizereduction){
     {
         if(_world[k].get_type()==SP_household)
         {
-            unsigned int n_linked_k = _world[k].n_linked_indiv();
-            for (unsigned int i=0; i<n_linked_k; i++)
+            uint n_linked_k = _world[k].n_linked_indiv();
+            for (uint i=0; i<n_linked_k; i++)
             {
                 ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
                 individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
@@ -358,7 +358,7 @@ void Simulation::time_update(double dt){
     _current_time += dt;
     
     // Update individuals' clock:
-    for (unsigned int k=0; k<_world.size(); k++) {
+    for (uint k=0; k<_world.size(); k++) {
         _world[k].time_update(dt);
     }
     update_pop_count();
@@ -390,7 +390,7 @@ void Simulation::run(){
     // - - - - - - - - -
     
     unsigned long nts = timeslice.size();
-    unsigned int k = 0;
+    uint k = 0;
     
     
     // MAIN LOOP FOR TIME
@@ -401,7 +401,7 @@ void Simulation::run(){
     
     for (_current_time=0.0; _current_time < _horizon; ) {
         
-        unsigned int idx_timeslice = k % nts;
+        uint idx_timeslice = k % nts;
         double dt = timeslice[idx_timeslice];
         
         if(debug_mode){
@@ -475,13 +475,13 @@ void Simulation::set_world(world w){
 
 void Simulation::set_disease(const disease &d){
     /// Set the disease 'd' to all individuals in all social places
-    for (unsigned int k=0; k<_world.size(); k++) {
+    for (uint k=0; k<_world.size(); k++) {
         _world[k].set_disease_to_all_indiv(d);
     }
 }
 
 
-void Simulation::move_individuals_sched(unsigned int idx_timeslice,
+void Simulation::move_individuals_sched(uint idx_timeslice,
                                         double proba){
     /// Move individuals across social places according to their schedule
     
@@ -545,7 +545,7 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
     
     for (int k=0; k<_world.size(); k++)
     {
-        vector<unsigned int> pos2move; // idx position to move (must be done at the end of the loop, bc vector keeps on changing size!)
+        vector<uint> pos2move; // idx position to move (must be done at the end of the loop, bc vector keeps on changing size!)
         for (int i=0; i<_world[k].get_size(); i++)
         {
             // Draw the chance move will actually happen:
@@ -591,7 +591,7 @@ vector<uint> Simulation::draw_n_contacts(uint k,
     if(infectious_type == "Is") n = (uint)_world[k]._indiv_Is.size();
     if(infectious_type == "Ia") n = (uint)_world[k]._indiv_Ia.size();
     
-    for (unsigned int i=0; i<n; i++) {
+    for (uint i=0; i<n; i++) {
         // draw the contact rate
         // based on the individual and the current social place:
         individual* tmp = nullptr;
@@ -762,7 +762,7 @@ uint Simulation::transmission_activation(int k,
 }
 
 
-unsigned int Simulation::transmission_oneSP(unsigned int k,
+uint Simulation::transmission_oneSP(uint k,
 											double contact_rate,
 											double dt){
 	/// Performs transmission within the k^th social place.
@@ -814,36 +814,36 @@ unsigned int Simulation::transmission_oneSP(unsigned int k,
 void Simulation::transmission_world(double timeslice){
     /// Simulates disease transmissions in the whole world (all social places)
     
-    unsigned int incidence = 0;
+    uint incidence = 0;
     double cr = _modelParam.get_prm_double("contact_rate");
     
-    for(unsigned int k=0; k < _world.size(); k++){
+    for(uint k=0; k < _world.size(); k++){
         incidence += transmission_oneSP(k, cr, timeslice);
     }
     _incidence = incidence;
 }
 
 
-unsigned int Simulation::census_total_alive(){
+uint Simulation::census_total_alive(){
     /// Counts all individuals that are alive
-    unsigned int cnt = 0;
+    uint cnt = 0;
     for(int k=0; k<_world.size(); k++) cnt += _world[k].census_alive();
     return cnt;
 }
 
 
-unsigned int Simulation::prevalence(){
+uint Simulation::prevalence(){
     /// Prevalence in the whole world
     
-    unsigned int cnt = 0;
+    uint cnt = 0;
     for (int k=0; k<_world.size(); k++) cnt += _world[k].get_prevalence();
     return cnt;
 }
 
 
-unsigned int Simulation::population_size(){
+uint Simulation::population_size(){
     
-    unsigned int s = 0;
+    uint s = 0;
     for(int i=0; i<_world.size(); i++) s+=_world[i].get_size();
     return s;
 }
@@ -852,8 +852,8 @@ unsigned int Simulation::population_size(){
 void Simulation::display_split_pop_present(){
     
     cout<<endl<<"------------"<<endl;
-    unsigned int s = 0;
-    unsigned int p = 0;
+    uint s = 0;
+    uint p = 0;
     for(int i=0;i<_world.size();i++){
         cout << "sp_"<<i<<" : present = " << _world[i].get_size()<<" (prev="<<_world[i].get_prevalence()<<")";
         cout << "\t ["<< SPtype2string(_world[i].get_type())<<"]" <<endl;
@@ -868,7 +868,7 @@ void Simulation::display_split_pop_present(){
 
 void Simulation::display_split_pop_linked(){
     cout<<endl<<"------------"<<endl;
-    unsigned int s = 0;
+    uint s = 0;
     for(int i=0;i<_world.size();i++){
         cout << "sp_"<<i<<" : Linked indiv = " << _world[i].n_linked_indiv();
         cout << "\t ["<< SPtype2string(_world[i].get_type())<<"]" <<endl;
@@ -878,7 +878,7 @@ void Simulation::display_split_pop_linked(){
     cout<<"------------"<<endl;
 }
 
-void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
+void Simulation::seed_infection(vector<ID> id_sp, vector<uint> I0){
     /// Seed infection in specified socialplaces, with specified initial number of infectious indiv
     
     stopif(id_sp.size() != I0.size(), "vectors must be same size");
@@ -892,7 +892,7 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
             stopif(_world[i].get_size() < I0[cnt], errmsg);
             
             // seed infection in this social place:
-            for(unsigned int k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
+            for(uint k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
             _world[i].set_n_E(I0[cnt]);
             cnt++;
         }
@@ -904,7 +904,7 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<unsigned int> I0){
 void Simulation::displayInfo_indiv(){
     /// Display informations on all individuals, in all social places:
     
-    for (unsigned int k=0; k<_world.size(); k++) {
+    for (uint k=0; k<_world.size(); k++) {
         for (ID i=0; i<_world[k].get_size(); i++) {
             _world[k].get_indiv(k).displayInfo();
         }
@@ -1037,8 +1037,8 @@ void Simulation::check_book_keeping(){
     /// WARNING: FOR DEBUG ONLY, SLOWS DOWN EXECUTION!
     
     // stage S
-    unsigned int nS=0;
-    unsigned int nS_census=0;
+    uint nS=0;
+    uint nS_census=0;
     for (ID k=0; k<_world.size(); k++) {
         nS += _world[k].get_n_S();
         nS_census += _world[k].census_disease_stage("S");
@@ -1050,8 +1050,8 @@ void Simulation::check_book_keeping(){
     stopif(!check_S, "Book keeping error with S stage");
     
     // stage E
-    unsigned int nE=0;
-    unsigned int nE_census=0;
+    uint nE=0;
+    uint nE_census=0;
     for (ID k=0; k<_world.size(); k++) {
         nE += _world[k].get_n_E();
         nE_census += _world[k].census_disease_stage("E");
@@ -1061,8 +1061,8 @@ void Simulation::check_book_keeping(){
     
     
     // stage Is
-    unsigned int nIs=0;
-    unsigned int nIs_census=0;
+    uint nIs=0;
+    uint nIs_census=0;
     for (ID k=0; k<_world.size(); k++) {
         nIs += _world[k].get_n_Is();
         nIs_census += _world[k].census_disease_stage("Is");
@@ -1074,8 +1074,8 @@ void Simulation::check_book_keeping(){
     stopif(!check_Is, "Book keeping error with Is stage");
     
     // stage Ia
-    unsigned int nIa=0;
-    unsigned int nIa_census=0;
+    uint nIa=0;
+    uint nIa_census=0;
     for (ID k=0; k<_world.size(); k++) {
         nIa += _world[k].get_n_Ia();
         nIa_census += _world[k].census_disease_stage("Ia");
@@ -1087,8 +1087,8 @@ void Simulation::check_book_keeping(){
     stopif(!check_Ia, "Book keeping error with Ia stage");
     
     // stage R
-    unsigned int nR=0;
-    unsigned int nR_census=0;
+    uint nR=0;
+    uint nR_census=0;
     for (ID k=0; k<_world.size(); k++) {
         nR += _world[k].get_n_R();
         nR_census += _world[k].census_disease_stage("R");
@@ -1106,7 +1106,7 @@ void Simulation::define_all_id_tables(){
     /// in all social places
     /// (define _id_S for all social places)
     
-    for (unsigned int k=0; k<_world.size(); k++)
+    for (uint k=0; k<_world.size(); k++)
     {
         vector<individual> indiv = _world[k].get_indiv();
 
@@ -1117,7 +1117,7 @@ void Simulation::define_all_id_tables(){
         _world[k]._indiv_Is.clear();
         _world[k]._indiv_Ia.clear();
         
-        for (unsigned int i=0; i< indiv.size(); i++)
+        for (uint i=0; i< indiv.size(); i++)
         {
             if (indiv[i].is_susceptible()) {
                 _world[k].add_id_S(indiv[i].get_id());

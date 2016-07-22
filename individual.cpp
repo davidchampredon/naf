@@ -252,7 +252,7 @@ void individual::recoverDisease() {
 }
 
 
-vector<individual> build_individuals(unsigned int n,
+vector<individual> build_individuals(uint n,
                                      const vector<schedule>& sched,
                                      string dol_distrib,
                                      string doi_distrib){
@@ -300,7 +300,7 @@ individual get_indiv_with_ID(ID id,
 
 
 
-ID individual::find_dest(unsigned int idx_timeslice){
+ID individual::find_dest(uint idx_timeslice){
     /// Find the ID of the social place this
     /// individual is supposed to go at a given times slice.
     

@@ -168,7 +168,7 @@ public:
 	void	recoverDisease();
 	
 	// Miscellenaous
-	ID find_dest(unsigned int idx_timeslice);
+	ID find_dest(uint idx_timeslice);
 	void displayInfo();
 };
 
@@ -180,7 +180,7 @@ inline bool operator == ( individual a, individual b){
 
 //DELETE WHEN SURE: inline void acquireDisease(individual& x) {x.set_is_infected(true);}
 
-vector<individual> build_individuals(unsigned int n,
+vector<individual> build_individuals(uint n,
 									 const vector<schedule>& sched,
 									 string dol_distrib,
 									 string doi_distrib);

@@ -20,7 +20,7 @@
 // initialization right for Rcpp.
 // (I don't know why this has to work like that...)
 
-extern unsigned int		_RANDOM_SEED;		// seed for random number generators
+extern uint		_RANDOM_SEED;		// seed for random number generators
 extern std::mt19937_64	_RANDOM_GENERATOR;
 
 

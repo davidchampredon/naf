@@ -14,8 +14,8 @@
 
 Simulation test_SEIR_vs_ODE(modelParam MP,
 							 double horizon,
-							 unsigned int n_indiv,
-							 unsigned int i0){
+							 uint n_indiv,
+							 uint i0){
 	
 	// unpack parameters
 	
@@ -44,7 +44,7 @@ Simulation test_SEIR_vs_ODE(modelParam MP,
 	vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
 	
 	vector<ID> sp_initially_infected {id_pres[0]};
-	vector<unsigned int> I0 {i0};
+	vector<uint> I0 {i0};
     
     sim.define_all_id_tables();
 	sim.seed_infection(sp_initially_infected, I0);
@@ -75,8 +75,8 @@ void main_test_SEIR_vs_ODE(){
     MP.add_prm_double("contact_rate", 1.0);
     MP.add_prm_uint("nt", 3);
     
-    unsigned int n_indiv = 1e4;
-    unsigned int i0 = 5;
+    uint n_indiv = 1e4;
+    uint i0 = 5;
     
     _RANDOM_GENERATOR.seed(123);
     Simulation sim1 = test_SEIR_vs_ODE(MP,horizon,n_indiv,i0);
@@ -91,7 +91,7 @@ void main_test_SEIR_vs_ODE(){
 Simulation test_move_2_sp(modelParam MP,
                           double horizon,
                           uint n_indiv,
-                          unsigned int i0){
+                          uint i0){
     
     // unpack parameters
     
@@ -122,7 +122,7 @@ Simulation test_move_2_sp(modelParam MP,
     vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
     
     vector<ID> sp_initially_infected {id_pres[0]};
-    vector<unsigned int> I0 {i0};
+    vector<uint> I0 {i0};
     
     sim.define_all_id_tables();
     sim.seed_infection(sp_initially_infected, I0);
@@ -189,7 +189,7 @@ void test_move_transmission(){
 	
 	
 	vector<ID> sp_initially_infected {id_pres[0], id_pres[1]};
-	vector<unsigned int> I0 {1,1};
+	vector<uint> I0 {1,1};
 	sim.seed_infection(sp_initially_infected, I0);
 	
 	if(sim.get_world().size()<2000) {

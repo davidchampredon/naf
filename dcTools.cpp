@@ -42,7 +42,7 @@ double max(double a, double b){
 	return c_new;
 }
 
-void coutline(unsigned int n)
+void coutline(uint n)
  {cout<<endl; for (int i=0;i<n;i++) cout<<"_"; cout<<endl;}
 
 
@@ -50,10 +50,10 @@ void coutline(unsigned int n)
 // ================ FILES MANIPULATION ===============
 // ===================================================
 
-unsigned int nbLinesFile(string pathFile)
+uint nbLinesFile(string pathFile)
 {
 	ifstream f(pathFile.c_str());
-	unsigned int n=0;
+	uint n=0;
 	string tmp;
 	
 	while (f.good()) {
@@ -1099,14 +1099,14 @@ double findAvgMin(vector<unsigned long int> x, vector<double> t, int lagSmooth, 
 
 
 
-vector<double> vector_seq(double start, double end, unsigned int size)
+vector<double> vector_seq(double start, double end, uint size)
 {
 	/// Create a vector of size 'size' with values
 	/// uniformly partitioned between 'start' and 'end'
 	
 	vector<double> x;
 	
-	for (unsigned int i=0; i<size; i++)
+	for (uint i=0; i<size; i++)
 		x.push_back(start + (end-start)/(size-1)*(double)(i));
 	
 	return x;
@@ -1121,7 +1121,7 @@ vector<double> vector_seq_by(double start, double end, double by)
 	
 	x.push_back(start);
 	
-	for(unsigned int i=0; (x[i]+by)<end; ) {
+	for(uint i=0; (x[i]+by)<end; ) {
 		x.push_back(x[i]+by);
 		i++;
 	}
@@ -1164,7 +1164,7 @@ dcMatrix LatinHypercubeSampling(vector<double> Vmin, vector<double> Vmax,
     
     dcMatrix W(samplingNb,N); 
     
-	unsigned int theseed = tim.tv_usec; // Fix the seed if reproductibility desired
+	uint theseed = tim.tv_usec; // Fix the seed if reproductibility desired
     srand ( theseed );
     
     for (int j=0; j<N; j++) 

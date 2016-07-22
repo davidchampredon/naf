@@ -22,7 +22,7 @@ class modelParam{
 	vector<double>		_prm_double_val;
 	vector<string>		_prm_double_name;
 
-	vector<unsigned int>	_prm_uint_val;
+	vector<uint>	_prm_uint_val;
 	vector<string>			_prm_uint_name;
 	
 	vector<int>			_prm_int_val;
@@ -35,7 +35,7 @@ class modelParam{
 	vector< vector<double> >	_prmvec_double_val;
 	vector<string>				_prmvec_double_name;
 
-	vector< vector<unsigned int> >	_prmvec_uint_val;
+	vector< vector<uint> >	_prmvec_uint_val;
 	vector<string>					_prmvec_uint_name;
 
 	vector< vector<int> >		_prmvec_int_val;
@@ -60,7 +60,7 @@ public:
 	void add_prmvec_double(string name, vector<double> value)
 	{_prmvec_double_name.push_back(name); _prmvec_double_val.push_back(value);}
 	
-	void add_prmvec_uint(string name, vector<unsigned int> value)
+	void add_prmvec_uint(string name, vector<uint> value)
 	{_prmvec_uint_name.push_back(name); _prmvec_uint_val.push_back(value);}
 	
 	void add_prmvec_int(string name, vector< int> value)
@@ -70,12 +70,12 @@ public:
 	// Get functions:
 	
 	double			get_prm_double(string name);
-	unsigned int	get_prm_uint(string name);
+	uint	get_prm_uint(string name);
 	int				get_prm_int(string name);
 	bool			get_prm_bool(string name);
 	
 	vector<double>			get_prmvec_double(string name);
-	vector<unsigned int>	get_prmvec_uint(string name);
+	vector<uint>	get_prmvec_uint(string name);
 	vector<int>			get_prmvec_int(string name);
 };
 

@@ -24,7 +24,7 @@
 //}
 //
 //
-//void population::assign_location(vector<location> loc, vector<double> proba, unsigned int seed){
+//void population::assign_location(vector<location> loc, vector<double> proba, uint seed){
 //	/// Assign location to all individuals based on discrete probability distribution
 //	
 //	stopif(loc.size() != proba.size(), "number of locations and probabilities not same size!");
@@ -32,7 +32,7 @@
 //	
 //	vector<ID> locsize;
 //	for (int i=0; i< loc.size(); i++) {
-//		locsize.push_back( (unsigned int)(proba[i]*_size) );
+//		locsize.push_back( (uint)(proba[i]*_size) );
 //	}
 //	ID c=0;
 //	for(ID L=0; L<locsize.size(); L++){
@@ -56,7 +56,7 @@
 //
 //
 //
-//void population::assign_age(vector<double> age, vector<double> proba, unsigned int seed){
+//void population::assign_age(vector<double> age, vector<double> proba, uint seed){
 //	/// Assign ages to all individuals based on discrete probability distribution
 //	
 //	stopif(age.size() != proba.size(), "Ages and probabilities not same size!");

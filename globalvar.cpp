@@ -11,5 +11,5 @@
 
 // ==== Random seeds ====
 
-unsigned int	_RANDOM_SEED	= 12345;
+uint	_RANDOM_SEED	= 12345;
 std::mt19937_64	_RANDOM_GENERATOR(_RANDOM_SEED);

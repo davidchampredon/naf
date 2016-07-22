@@ -22,8 +22,8 @@
 
 Simulation test_SEIR_vs_ODE(modelParam MP,
                             double horizon,
-                            unsigned int n_indiv,
-                            unsigned int i0);
+                            uint n_indiv,
+                            uint i0);
 
 void main_test_SEIR_vs_ODE();
 // ----------------------------------------------------
@@ -33,7 +33,7 @@ void main_test_SEIR_vs_ODE();
 Simulation test_move_2_sp(modelParam MP,
                           double horizon,
                           uint n_indiv,
-                          unsigned int i0);
+                          uint i0);
 
 void main_test_move_2_sp();
 

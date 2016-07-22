@@ -28,23 +28,23 @@ protected:
 	double	_horizon;
 	double	_current_time;
 	
-	unsigned int	_incidence;
-	unsigned int	_prevalence;
-	unsigned int	_n_S;   // susceptible
-	unsigned int	_n_E;   // latent stage
-	unsigned int	_n_Ia;  // infectious stage, asymptomatic
-	unsigned int	_n_Is;  // infectious stage, symptomatic
-	unsigned int	_n_R;   // recovered stage
+	uint	_incidence;
+	uint	_prevalence;
+	uint	_n_S;   // susceptible
+	uint	_n_E;   // latent stage
+	uint	_n_Ia;  // infectious stage, asymptomatic
+	uint	_n_Is;  // infectious stage, symptomatic
+	uint	_n_R;   // recovered stage
 	
 	// time series
 	vector<double>			_ts_times;
-	vector<unsigned int>	_ts_incidence;
-	vector<unsigned int>	_ts_prevalence;
-	vector<unsigned int>	_ts_S;
-	vector<unsigned int>	_ts_E;
-	vector<unsigned int>	_ts_Ia;
-	vector<unsigned int>	_ts_Is;
-	vector<unsigned int>	_ts_R;
+	vector<uint>	_ts_incidence;
+	vector<uint>	_ts_prevalence;
+	vector<uint>	_ts_S;
+	vector<uint>	_ts_E;
+	vector<uint>	_ts_Ia;
+	vector<uint>	_ts_Is;
+	vector<uint>	_ts_R;
     
     dcDataFrame             _ts_census_by_SP;
 
@@ -60,7 +60,7 @@ public:
 	// pseudo constructors:
 	void build_test_world(double reduction_size);
     void build_test_2_sp(uint n_indiv);
-	void build_single_world(unsigned int n_indiv);
+	void build_single_world(uint n_indiv);
 	
 	// Simulate
 	void run();
@@ -78,10 +78,10 @@ public:
 	
 	world	get_world() {return _world;}
 	
-	double					get_current_time()   const {return _current_time;}
-	vector<double>			get_ts_times()       const {return _ts_times;}
-	vector<unsigned int>	get_ts_incidence()   const {return _ts_incidence;}
-    dcDataFrame             get_ts_census_by_SP()const {return _ts_census_by_SP;}
+	double			get_current_time()   const {return _current_time;}
+	vector<double>	get_ts_times()       const {return _ts_times;}
+	vector<uint>	get_ts_incidence()   const {return _ts_incidence;}
+    dcDataFrame     get_ts_census_by_SP()const {return _ts_census_by_SP;}
 	
 	// Time updates
 	
@@ -90,9 +90,9 @@ public:
 	
 	// Migration
 
-	void move_individuals_sched(unsigned int idx_timeslice, double proba);
+	void move_individuals_sched(uint idx_timeslice, double proba);
 	void move_individuals(const SPtype sptype, double proba);
-	void move_one_individual(unsigned int k,unsigned int i, const SPtype sptype);
+	void move_one_individual(uint k,uint i, const SPtype sptype);
 	
     
     // Book keeping
@@ -102,11 +102,11 @@ public:
 	
 	// Epidemic
 	
-	void			set_disease(const disease& d);
-	void			seed_infection(vector<ID> id_sp, vector<unsigned int> I0);
-	unsigned int	transmission_oneSP(unsigned int k, double contact_rate, double dt);
-	void			transmission_world(double timeslice);
-	unsigned int	prevalence();
+	void	set_disease(const disease& d);
+	void	seed_infection(vector<ID> id_sp, vector<uint> I0);
+	uint	transmission_oneSP(uint k, double contact_rate, double dt);
+	void	transmission_world(double timeslice);
+	uint	prevalence();
 
     double          draw_contact_rate(individual* indiv, uint k);
     vector<uint>    draw_n_contacts(uint k,
@@ -135,17 +135,17 @@ public:
     
     // Census
     
-   	unsigned int	census_total_alive();
-    void            update_ts_census_by_SP();
+   	uint	census_total_alive();
+    void    update_ts_census_by_SP();
     
     
     // Miscelleanous
 
-	unsigned int	population_size();
-	void			display_split_pop_present();
-	void			display_split_pop_linked();
+	uint	population_size();
+	void	display_split_pop_present();
+	void	display_split_pop_linked();
 	
-	void			displayInfo_indiv();
+	void	displayInfo_indiv();
 	
 	void test();
 	

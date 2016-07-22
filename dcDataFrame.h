@@ -70,7 +70,7 @@ public:
 		for(unsigned long i=0; i<v.size(); i++) _rowname.push_back(to_string(i));
 	}
 	
-	dcDataFrame(vector<unsigned int> v, string header){
+	dcDataFrame(vector<uint> v, string header){
 		
 		vector<double> x;
 		for(int i=0; i<v.size(); i++) x.push_back((double)(v[i]));

@@ -38,7 +38,7 @@ using namespace std;
 
 // Customized types
 
-using ID = unsigned int;
+using ID = uint;
 
 // Warning: order matters!
 // social places ('SP') types
@@ -66,7 +66,7 @@ const ID __UNDEFINED_ID = 999999999;
 void stopif(bool condition, string error_msg,
 			int error_code=1, const char ff[]=__FUNCTION__);
 
-void	coutline(unsigned int n);
+void	coutline(uint n);
 
 
 
@@ -75,7 +75,7 @@ void	coutline(unsigned int n);
 // ================ FILES MANIPULATION ===============
 // ===================================================
 
-unsigned int nbLinesFile(string pathFile);
+uint nbLinesFile(string pathFile);
 
 void delete_out_files(string path_out);
 
@@ -347,7 +347,7 @@ template <class T> vector<T>  melt(vector< vector<T> > x)
 
 
 vector<string> trim(vector<string> x);
-vector<double> vector_seq(double start, double end, unsigned int size);
+vector<double> vector_seq(double start, double end, uint size);
 vector<double> vector_seq_by(double start, double end, double by);
 
 

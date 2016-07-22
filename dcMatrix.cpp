@@ -70,7 +70,7 @@ double & dcMatrix::operator [] (unsigned long i){
 
 void dcMatrix::RandomInit()
 {
-	srand ( (unsigned int) time(NULL) );
+	srand ( (uint) time(NULL) );
 	
 	for(unsigned long i=0;i<nbRows;i++)		
 		for(unsigned long j=0;j<nbCols;j++)
