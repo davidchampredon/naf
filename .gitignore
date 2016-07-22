@@ -6,3 +6,15 @@ naf
 Rlibrary/naf*
 
 *.pdf
+
+*.pdf
+
+*.out
+
+*.gz
+
+*.aux
+
+*.log
+
+*.toc
