@@ -1,7 +1,8 @@
 ##################################################################
 ######
-######    MINIMAL TEST FOR 'stiagent' LIBRARY
+######    MINIMAL TEST FOR 'NAF' LIBRARY
 ######
+######    --> Does NAF simulate the same prevalence os a standard ODE model?
 ######
 ##################################################################
 
@@ -34,8 +35,8 @@ prm[['proba_move']] <- 0.999
 prm[['homogeneous_contact']] <- TRUE
 prm[['contact_rate']] <- cr
 
-simul.prm[['horizon']] <- 70
-simul.prm[['n_indiv']] <- 3E2
+simul.prm[['horizon']] <- 90
+simul.prm[['n_indiv']] <- 1E5
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 4
 
@@ -61,7 +62,7 @@ df  <- sim.det$ts
 det.prev <- df$Iall
 det.t <- df$time
 
-n.MC <- 10
+n.MC <- 30
 
 
 loop.MC.naf <- function(iMC, prm, simul.prm) {
@@ -93,6 +94,8 @@ sim.naf.2 <- ddply(sim.naf,"time",summarize,
 
 ### PLOTS ###
 
+pdf('plot_TEST_naf_vs_ODE.pdf')
+
 plot.population(data.frame(res[[1]][['population_final']]))
 plot.epi.timeseries(data.frame(res[[1]][['time_series']]))
 
@@ -100,16 +103,19 @@ plot.epi.timeseries(data.frame(res[[1]][['time_series']]))
 plot(det.t, det.prev, 
 	 typ='l', col='red', 
 	 lty = 2, lwd =2,
+	 xlab = 'time', ylab = 'prevalence',
 	 main = paste0("naf v.s. SEIR ODEs (nMC=",n.MC,", pop=",simul.prm[['n_indiv']] ,")"),
 	 ylim=range(det.prev,sim.naf.2$prev.hi))
 lines(sim.naf.2$time, sim.naf.2$prev)
-lines(sim.naf.2$time, sim.naf.2$prev.lo, col='grey')
-lines(sim.naf.2$time, sim.naf.2$prev.hi, col='grey')
+lines(sim.naf.2$time, sim.naf.2$prev.lo, col='lightgrey')
+lines(sim.naf.2$time, sim.naf.2$prev.hi, col='lightgrey')
 
 legend(x = 'topleft',
-	   legend = c('Deterministic','naf'),col = c(2,1),
-	   lty=c(2,1))
+	   legend = c('Deterministic','naf','naf 95%CI'),
+	   col = c(2,1,'lightgrey'),
+	   lty=c(2,1,1))
 
 t1 <- Sys.time()
 message(paste("time elapsed:",round(t1-t0,1),"sec"))
 
+dev.off()

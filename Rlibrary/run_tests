@@ -1,0 +1,9 @@
+###
+###   Run the tests on NAF
+###
+
+rm -rf plot_TEST_*.pdf
+Rscript test_naf_vs_SEIR.R > test_naf_vs_SEIR.out &
+Rscript test_naf_2_sp.R > test_naf_2_sp.out &
+
+

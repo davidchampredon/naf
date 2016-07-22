@@ -1,6 +1,9 @@
 ##################################################################
 ######
-######    MINIMAL TEST FOR 'stiagent' LIBRARY
+######    MINIMAL TEST FOR 'NAF' LIBRARY
+######
+######    --> Does NAF simulate the right migration patterns in 
+######    a simple 2-spatial location model?
 ######
 ######
 ##################################################################
@@ -17,7 +20,7 @@ t0 <- Sys.time()
 prm <- list()
 simul.prm <- list()
 
-cr <- 3
+cr <- 0.0
 doi_mean <- 3.0
 R0 <- cr * doi_mean
 
@@ -40,6 +43,7 @@ res <- naf_test_2_sp(prm, simul.prm)
 
 ts_census <- as.data.frame(res[['time_series_census']])
 
+pdf('plot_TEST_naf_2_sp.pdf')
 g <- ggplot(ts_census)
 g <- g + geom_step(aes(x=time, y=pop_present), size=1) 
 g <- g + geom_step(aes(x=time, y=nS), colour='green4') 
@@ -53,3 +57,4 @@ plot(g)
 t1 <- Sys.time()
 message(paste("time elapsed:",round(t1-t0,1),"sec"))
 
+dev.off()
