@@ -1,0 +1,76 @@
+\documentclass[11pt, onecolumn]{article}
+% \setlength{\columnsep}{0.2cm}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+%\usepackage{mathtools}
+\usepackage{graphicx}
+
+\usepackage{color}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+
+\usepackage[colorlinks=true,linkcolor=blue, citecolor=BlueGreen]{hyperref}
+%\hypersetup{ pdfborder = {0 0 0}}
+
+\usepackage[parfill]{parskip}
+\usepackage{lscape}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{ }
+\rhead{\textsf{ABM} documentation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\textsf{NAF} (New Agent-based model for Flu) Documentation}
+\author{David Champredon}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\ttt}[1]{\texttt{#1}}
+\newcommand{\one}[1]{\textbf{\large{1}}_{#1}}
+\newcommand{\warning}[1]{\textbf{\textcolor{OrangeRed}{#1}}}
+\newcommand{\note}[1]{\textit{\textcolor{Grey}{Note: #1}}}
+\newcommand{\eg}{\textit{e.g.}}
+\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\naf}{\textsf{NAF}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+\maketitle
+
+\vspace{1cm}
+
+\tableofcontents
+
+
+\section{Introduction}
+
+\section{Tests performed}
+
+\begin{itemize}
+\item \textbf{SEIR ODEs.} One unique spatial location, homogeneous mixing. Compare solutions of the standard ODE model with \naf. Test passed, see figure xxx.
+\item \textbf{Migrations between social places.} Only two social places, no epidemic. Check if migrations occur as specified by schedule. Test passed. 
+\end{itemize}
+
+
+
+%\begin{figure}[!ht]
+%\centering
+%    \includegraphics[angle=0,width=0.9\textwidth]{figures/hazard_death.pdf}
+%\caption{Death hazard. The red dot represents the age of HIV acquisition. Vertical dashed lines are set at 5, 7 and 10 years after HIV acquisition.}
+%\label{fig:deathHazard}
+%\end{figure}
+
+
+\end{document}
+
+
+
+
