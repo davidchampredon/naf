@@ -89,14 +89,21 @@ string individual::_disease_status_update(double dt){
     // Update disease stages
     
     // From 'E' to 'I'
-    if (_dol > _dol_drawn && !_is_infectious && !_is_recovered ) {
+    if (_dol > _dol_drawn &&
+        !_is_infectious &&
+        !_is_recovered )
+    {
         _is_latent		= false;
         _is_infectious	= true;
         _doi = SUPERTINY;
         res = "E_to_I";
     }
+    
     // From 'I' to 'R'
-    if (_doi > _doi_drawn && !_is_recovered ) {
+    else if (_doi > _doi_drawn &&
+             !_is_recovered &&
+             !_is_hosp)
+    {
         _is_infectious	= false;
         _is_infected	= false;
         _is_symptomatic	= false;
@@ -104,7 +111,8 @@ string individual::_disease_status_update(double dt){
         res = "I_to_R";
     }
     
-    if (_doh > _doh_drawn) {
+    if (_doh > _doh_drawn)
+    {
         _is_hosp = false;
         res = "LEAVE_HOSPITAL";
     }

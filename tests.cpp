@@ -163,6 +163,85 @@ void main_test_move_2_sp(){
 
 
 
+
+Simulation test_hospitalization(modelParam MP,
+                          double horizon,
+                          uint n_indiv,
+                          uint i0){
+    
+    // unpack parameters
+    
+    double dol_mean = MP.get_prm_double("dol_mean");
+    double doi_mean = MP.get_prm_double("doi_mean");
+    bool debug_mode = MP.get_prm_bool("debug_mode");
+    
+    // Define the disease
+    disease flu("Influenza", dol_mean, doi_mean);
+    
+    // Build simulation:
+    
+    Simulation sim;
+    sim.set_modelParam(MP);
+    
+    sim.build_test_hospitalization(n_indiv);
+    
+    sim.set_horizon(horizon);
+    sim.set_disease(flu);
+    
+    if(debug_mode){
+        sim.display_split_pop_linked();
+        sim.display_split_pop_present();
+    }
+    
+    // Seed infection(s) in world:
+    
+    vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
+    
+    vector<ID> sp_initially_infected {id_pres[0]};
+    vector<uint> I0 {i0};
+    
+    sim.define_all_id_tables();
+    sim.seed_infection(sp_initially_infected, I0);
+    
+    sim.assign_hospital_to_individuals();
+    
+    // Run the simulation:
+    sim.run();
+    
+    //sim.test();
+    
+    return sim;
+}
+
+
+void main_test_hospitalization(){
+    /// Test moves of individuals between 2 social places
+    
+    
+    double horizon = 30.0;
+    
+    modelParam MP;
+    
+    MP.add_prm_bool("debug_mode", true);
+    
+    MP.add_prm_double ("dol_mean", 2.0);
+    MP.add_prm_double ("doi_mean", 3.0);
+    MP.add_prm_double ("proba_move", 1.0);
+    MP.add_prm_bool   ("homogeneous_contact", false);
+    MP.add_prm_double ("contact_rate", 0.0);
+    MP.add_prm_uint   ("nt", 3);
+    MP.add_prm_double ("proba_hospitalization", 1.0);
+    
+    uint n_indiv = 10;
+    uint i0 = 2;
+    
+    
+    _RANDOM_GENERATOR.seed(123);
+    Simulation sim1 = test_hospitalization(MP, horizon, n_indiv, i0);
+}
+
+
+
 void test_move_transmission(){
 	
 	auto t0 = std::chrono::system_clock::now();

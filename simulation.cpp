@@ -15,6 +15,7 @@ void Simulation::base_constructor(){
     _n_Ia = 0;
     _n_Is = 0;
     _n_R  = 0;
+    _n_H  = 0;
     _incidence = 0;
     _horizon = -999;
     
@@ -231,6 +232,124 @@ void Simulation::build_test_2_sp(uint n_indiv){
 }
 
 
+
+void Simulation::build_test_hospitalization(uint n_indiv){
+    /// Build a world
+    /// to test hospitalization and movements
+    
+    cout << endl << "Building test world hospitalization..."<<endl;
+    
+    bool debugcode = _modelParam.get_prm_bool("debug_mode");
+    
+    string region1 = "Halton";
+    ID id_region1 = 1;
+    
+    areaUnit A1(1, "Oakville", id_region1, region1);
+    areaUnit A2(2, "Burlington", id_region1, region1);
+    areaUnit A3(2, "Hospital", id_region1, region1);
+    
+    vector<areaUnit> A {A1,A2,A3};
+    
+    // Schedule
+    vector<double> timeslice {8.0/24, 16.0/24}; // must sum up to 1.0
+    vector<SPtype> worker_sed  {SP_workplace, SP_household};
+    
+    schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
+    
+    vector<schedule> sched {
+        sched_worker_sed,
+    };
+    
+    // Disease stage durations:
+    string dol_distrib = "exp";
+    string doi_distrib = "exp";
+    
+    // individuals
+    uint num_indiv			= (uint)(n_indiv*2); // <-- make sure it's large enough
+    vector<individual> many_indiv	= build_individuals(num_indiv,
+                                                        sched,
+                                                        dol_distrib,
+                                                        doi_distrib);
+    
+    // type of social places
+    // existing in the simulated world:
+    vector<SPtype> spt {
+        SP_workplace,
+        SP_household,
+        SP_hospital
+    };
+    
+    // populate social places with individuals (built above)
+    uint num_hh      = (uint)(1 );
+    uint num_biz     = (uint)(1 );
+    uint num_hosp    = (uint)(1 );
+    
+    cout << "Number of business places:  " << num_biz <<endl;
+    cout << "Number of household places: " << num_hh <<endl;
+    cout << "Number of hospital places: " << num_hosp <<endl;
+    
+    // Number of social places, by type.
+    // * *   W A R N I N G   * *
+    // same order as type of social places definition ('spt')
+    vector<uint> num_sp {
+        num_biz,
+        num_hh,
+        num_hosp
+    };
+    
+    // Distribution of the size of each social place type:
+    probaDistrib<uint> p_workPlace({n_indiv/2},  {1.0});
+    probaDistrib<uint> p_hh({n_indiv},  {1.0});
+    probaDistrib<uint> p_hosp({0},  {1.0});
+    
+    vector<probaDistrib<uint> > p_size {
+        p_workPlace,
+        p_hh,
+        p_hosp
+    };
+    
+    // build the world:
+    vector<socialPlace> W = build_world_simple(spt,
+                                               num_sp,
+                                               p_size,
+                                               many_indiv, A);
+    set_world(W);
+    
+    // initial population: Move everyone to its household!
+    
+    unsigned long N = _world.size();
+    for (int k=0; k<N; k++)
+    {
+        if(_world[k].get_type()==SP_household)
+        {
+            uint n_linked_k = _world[k].n_linked_indiv();
+            for (uint i=0; i<n_linked_k; i++)
+            {
+                ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+                individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
+                
+                
+                if(debugcode){
+                    // Checks (remove for better speed)
+                    ID id_hh = tmp.get_id_sp_household();
+                    stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
+                    stopif(id_hh != k, "Not consistent linkage!");
+                    _world[id_hh].add_indiv(tmp);
+                    // -----
+                }
+                
+                // Faster version:
+                if(!debugcode) _world[k].add_indiv(tmp);
+            }
+        }
+    }
+    cout << "... test world built."<<endl;
+    
+}
+
+
+
+
 void Simulation::build_test_world(double sizereduction){
     
     /// Build a test world with individuals LINKED and PRESENT to social places.
@@ -393,7 +512,7 @@ void Simulation::run(){
     uint k = 0;
     
     
-    // MAIN LOOP FOR TIME
+    // ----- MAIN LOOP FOR TIME ------
     
     if(debug_mode) check_book_keeping();
     
@@ -414,32 +533,21 @@ void Simulation::run(){
         
         update_ts_census_by_SP();
         
-        // DEBUG
-//        cout << endl << "BEFORE move" << endl;
-//        display_split_pop_present();
-        
         if(p_move>0) {
             move_individuals_sched(idx_timeslice, p_move);
             define_all_id_tables();
+            if(debug_mode) check_book_keeping();
         }
         
-        if(debug_mode) check_book_keeping();
-
-        // DEBUG
-//        cout << "AFTER move, BEFORE transmission" << endl;
-//        display_split_pop_present();
         
         transmission_world(dt);
-        
-        //DEBUG
-//        		cout << "AFTER transmissiom" << endl;
-//        		display_split_pop_present();
-        
-        // Update counts of population categories
-        // at the 'simulation' level
-        // (social places were updated during transmission):
         update_pop_count();
         
+        if(debug_mode) check_book_keeping();
+        
+        hospitalize();
+        define_all_id_tables(); // <-- check if this is necessary here
+        update_pop_count(); // <-- check if this is necessary here
         if(debug_mode) check_book_keeping();
         
         // Record for time series:
@@ -481,6 +589,19 @@ void Simulation::set_disease(const disease &d){
 }
 
 
+void Simulation::move_one_individual(uint pos_indiv, ID from, ID to){
+    /// Move the individual in position "pos_indiv" in thevector "_indiv"
+    /// from one social place to another.
+    /// (social places are identified by their IDs/position)
+    
+    individual tmp = _world[from].get_indiv(pos_indiv);
+    // add individual at destination
+    _world[to].add_indiv(tmp);
+    // remove this individual (in pos_indiv^th position in '_indiv' vector) from here
+    _world[from].remove_indiv(pos_indiv);
+}
+
+
 void Simulation::move_individuals_sched(uint idx_timeslice,
                                         double proba){
     /// Move individuals across social places according to their schedule
@@ -494,43 +615,40 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
         uint n = (uint)_world[k].get_size();
         if(n>0){
             
-            // IMPORTANT to run this loop
+            // * * * IMPORTANT * * *
+            // Must run this loop
             // in _descending_ order, else
             // it messes up the pointers vector deletion
             //
             for (uint i=n; (i--) > 0; )
             {
-                // Retrieve its actual destination
-                ID id_dest = _world[k].find_dest(i, idx_timeslice);
-                
-                if ( (id_dest!=k) && (id_dest!=__UNDEFINED_ID) )
+                // Check if individual is hospitalized
+                // (hospitalized cannot move to other places!)
+                if(! _world[k].get_indiv(i).is_hosp())
                 {
-                    // take a copy of the individual
-                    individual tmp = _world[k].get_indiv(i);
+                    // Retrieve its actual destination
+                    ID id_dest = _world[k].find_dest(i, idx_timeslice);
                     
-                    // Draw the chance move will actually happen:
-                    // TO DO: make this proba individual-dependent
-                    double u = unif(_RANDOM_GENERATOR);
-                    if ( u < proba ){
+                    if ( (id_dest!=k) && (id_dest!=__UNDEFINED_ID) )
+                    {
+                        // take a copy of the individual
+                        individual tmp = _world[k].get_indiv(i);
                         
-                        //DEBUG
-                        //					cout << endl << "BEFORE move" <<endl;
-                        //					_world[k].displayInfo();
-                        // ------
-                        
-                        // add individual at destination
-                        _world[id_dest].add_indiv(tmp);
-                        // remove this individual (in i^th position in '_indiv' vector) from here
-                        _world[k].remove_indiv(i);
-                        
-                        //DEBUG
-                        //					cout << endl << "AFTER move" <<endl;
-                        //					_world[k].displayInfo();
-                        // ------
-                        
-                        
+                        // Draw the chance move will actually happen:
+                        // TO DO: make this proba individual-dependent
+                        double u = unif(_RANDOM_GENERATOR);
+                        if ( u < proba ){
+                            
+                            move_one_individual(i, k, id_dest);
+                            
+                            // DELETE WHEN SURE:
+                            //                        // add individual at destination
+                            //                        _world[id_dest].add_indiv(tmp);
+                            //                        // remove this individual (in i^th position in '_indiv' vector) from here
+                            //                        _world[k].remove_indiv(i);
+                        }
                     }
-                }
+                } // end-if-not-hospitalized
             }
         }
     } // end-for-k-socialPlace
@@ -1012,7 +1130,8 @@ void Simulation::update_ts_census_by_SP(){
 
 void Simulation::update_pop_count(){
     /// Update the count of individuals in a all
-    /// stages of the disease.
+    /// stages of the disease at the 'simulation' level
+    /// (social places were updated during transmission).
     
     unsigned long n = _world.size();
     _n_S  = 0;
@@ -1167,6 +1286,87 @@ double  Simulation::draw_contact_rate(individual* indiv, uint k){
     }
     return cr;
 }
+
+
+//void Simulation::hospitalize_indiv(uint k, uint i){
+//    /// Hospitalize individual #i on social place #k
+//    
+//}
+
+void Simulation::assign_hospital_to_individuals(){
+    /// Assign hospitals to individuals
+    
+    // TO DO: implement something more elaborated
+    // (based on distance, when coordinate available)
+    
+    // SIMPLE ALGO FOR TEST = assign everyone to the first hospital
+    
+    //find first hospital
+    uint k_hosp = 0;
+    while (_world[k_hosp].get_type() != SP_hospital && k_hosp<_world.size()){
+        k_hosp++;
+    }
+    stopif(k_hosp>=_world.size(), "No hospital found!");
+    
+    for (uint k=0; k<_world.size(); k++) {
+        for (uint i=0; i<_world[k].get_size() ; i++) {
+            _world[k].set_id_sp_hospital(i, _world[k_hosp]);
+        }
+    }
+}
+
+
+// STOPPED HERE: change the way hospitalization is done
+// Instead of checking at every time step among Is,
+// decide when infection is acquired:
+// - if indiv will be hospitalized
+// - when
+// - for how long (doh)
+// But then, must implement a check if for example
+// treatment is given before hospitalization,
+// hospitalization must be canceled and indiv moved to T compartment.
+
+
+void Simulation::hospitalize(){
+    /// Scan all infectious symptomatic individuals
+    /// and 'decide' (stocahstic decision) to hospitalize or not
+    
+    std::uniform_real_distribution<> unif(0.0, 1.0);
+    
+    for (uint k=0; k<_world.size(); k++) {
+        uint nIs = _world[k].get_n_Is();
+        for (uint i=0; i<nIs; i++) {
+            
+            // If not already hospitalized:
+            if (! _world[k]._indiv_Is[i]->is_hosp())
+            {
+                double p =_modelParam.get_prm_double("proba_hospitalization");
+                if (unif(_RANDOM_GENERATOR) < p)
+                {
+                    // set the hospitalization flag for this individual
+                    _world[k]._indiv_Is[i]->set_is_hosp(true);
+                    
+                    // Move individual to its linked SP_hospital
+                    ID id_sp_hospital = _world[k]._indiv_Is[i]->get_id_sp_hospital();
+                    ID id_indiv = _world[k]._indiv_Is[i]->get_id();
+                    uint pos = _world[k].find_indiv_pos(id_indiv);
+                    move_one_individual(pos, k, id_sp_hospital);
+                    
+                    // update counters
+                    _n_H++;
+                    _world[id_sp_hospital].increment_n_H();
+                    
+                    // update _indiv_Is pointers:
+                    _world[id_sp_hospital]._indiv_Is.push_back(_world[k]._indiv_Is[i]);  //_world[k].get_mem_indiv(pos)
+                    _world[k]._indiv_Is.erase(_world[k]._indiv_Is.begin()+i);
+                }
+            }
+        }
+    }
+}
+
+
+
 
 
 

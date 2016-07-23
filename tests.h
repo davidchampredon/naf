@@ -29,6 +29,7 @@ void main_test_SEIR_vs_ODE();
 // ----------------------------------------------------
 
 
+
 // --- Two SP, test movements -------------------
 Simulation test_move_2_sp(modelParam MP,
                           double horizon,
@@ -39,11 +40,22 @@ void main_test_move_2_sp();
 
 // ----------------------------------------------------
 
+
+
+// --- Test Hospitalization -------------------
+
+Simulation test_hospitalization(modelParam MP,
+                          double horizon,
+                          uint n_indiv,
+                          uint i0);
+void main_test_hospitalization();
+// ----------------------------------------------------
+
+
+
+
 void test_move_transmission();
-
-
 void test_rnd_eng();
-
 void test_random();
 
 #endif

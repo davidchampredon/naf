@@ -74,11 +74,16 @@ public:
     
     void set_prevalence(uint p) {_prevalence = p;}
     void set_type(SPtype t){_type = t;}
-    void set_n_E(ID n) {_n_E = n;}
+    void set_n_E(uint n) {_n_E = n;}
+    void set_n_H(uint n) {_n_H = n;}
+    void increment_n_H() {_n_H++;}
     
     void set_id_S(vector<ID> x)  {_id_S  = x;}
     void set_id_Is(vector<ID> x) {_id_Is = x;}
     void set_id_Ia(vector<ID> x) {_id_Ia = x;}
+    
+    void set_id_sp_hospital(uint pos, socialPlace sp_hospital)
+    {_indiv[pos].set_id_sp_hospital(sp_hospital);}
     
     void increase_prevalence() {_prevalence++;}
     
@@ -153,6 +158,7 @@ public:
     void        remove_id_Is(ID x) {removeValue(_id_Is, x);}
     void        remove_id_Ia(ID x) {removeValue(_id_Ia, x);}
     
+    uint        find_indiv_pos(ID id);
     
     // Census functions:
     // WARNING: brute force counting, hence slow!

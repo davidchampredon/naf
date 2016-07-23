@@ -27,17 +27,20 @@ protected:
 	world	_world;
 	double	_horizon;
 	double	_current_time;
-	
+
 	uint	_incidence;
 	uint	_prevalence;
-	uint	_n_S;   // susceptible
+    
+    // Number of individuals:
+    uint	_n_S;   // susceptible
 	uint	_n_E;   // latent stage
 	uint	_n_Ia;  // infectious stage, asymptomatic
 	uint	_n_Is;  // infectious stage, symptomatic
 	uint	_n_R;   // recovered stage
+    uint	_n_H;   // hospitalized
 	
 	// time series
-	vector<double>			_ts_times;
+	vector<double>	_ts_times;
 	vector<uint>	_ts_incidence;
 	vector<uint>	_ts_prevalence;
 	vector<uint>	_ts_S;
@@ -46,7 +49,7 @@ protected:
 	vector<uint>	_ts_Is;
 	vector<uint>	_ts_R;
     
-    dcDataFrame             _ts_census_by_SP;
+    dcDataFrame     _ts_census_by_SP;
 
 	
 public:
@@ -61,6 +64,7 @@ public:
 	void build_test_world(double reduction_size);
     void build_test_2_sp(uint n_indiv);
 	void build_single_world(uint n_indiv);
+    void build_test_hospitalization(uint n_indiv);
 	
 	// Simulate
 	void run();
@@ -92,8 +96,8 @@ public:
 
 	void move_individuals_sched(uint idx_timeslice, double proba);
 	void move_individuals(const SPtype sptype, double proba);
-	void move_one_individual(uint k,uint i, const SPtype sptype);
-	
+	void move_one_individual(uint pos_indiv, ID from, ID to);
+    void assign_hospital_to_individuals();
     
     // Book keeping
     
@@ -126,6 +130,8 @@ public:
     uint    transmission_activation(int k,
                                     vector< vector<uint> > selected_S,
                                     vector< vector<uint> > transm_success);
+    void    hospitalize_indiv(uint k, uint i);
+    void    hospitalize();
     
     
 	// Exports

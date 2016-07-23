@@ -548,6 +548,21 @@ void socialPlace::displayInfo(){
 }
 
 
+uint socialPlace::find_indiv_pos(ID id){
+    /// Find the position, in the vector "_indiv",
+    /// of the individual with ID "id"
+    
+    uint pos = 0;
+    while (_indiv[pos].get_id() != id &&
+           pos<_indiv.size()) {
+        pos++;
+    }
+    stopif(pos >= _indiv.size(), "ID "+ to_string(id) + " not found in social place id_sp = "+to_string(_id_sp));
+    return pos;
+}
+
+
+
 // ================================================================
 // ================================================================
 // =====   OUTSIDE CLASS

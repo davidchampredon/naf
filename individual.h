@@ -122,8 +122,9 @@ public:
 	
 	void set_schedule(schedule s) {_schedule = s;}
 	
-	void set_disease(const disease& d) {_disease = d;}
-	void set_is_infected(bool x) {_is_infected = x;}
+	void set_disease(const disease& d)  {_disease = d;}
+	void set_is_infected(bool x)        {_is_infected = x;}
+    void set_is_hosp(bool x)            {_is_hosp = x;}
 	
 	void set_dol_distrib(string d) {_dol_distrib = d;}
 	void set_doi_distrib(string d) {_doi_distrib = d;}
