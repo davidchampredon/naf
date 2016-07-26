@@ -224,15 +224,17 @@ void main_test_hospitalization(){
     
     MP.add_prm_double ("dol_mean", 2.0);
     MP.add_prm_double ("doi_mean", 3.0);
+    MP.add_prm_double ("doh_mean", 5.0);
+
     MP.add_prm_double ("proba_move", 1.0);
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
 
     
-    uint n_indiv = 30;
+    uint n_indiv = 5000;
     uint i0 = 2;
-    
+
     
     _RANDOM_GENERATOR.seed(123);
     Simulation sim1 = test_hospitalization(MP, horizon, n_indiv, i0);

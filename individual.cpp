@@ -304,13 +304,13 @@ vector<individual> build_individuals(uint n,
     
     vector<individual> x(n);
     
-    std::uniform_real_distribution<double> unif(1.0, 80.0);
+    std::uniform_real_distribution<double> unif_age(1.0, 80.0);
     std::uniform_real_distribution<double> unif_01(0.0, 1.0);
     std::uniform_int_distribution<unsigned long> unif_int(0.0, sched.size()-1);
     
     for (int i=0; i<n; i++)
     {
-        double age = unif(_RANDOM_GENERATOR);
+        double age = unif_age(_RANDOM_GENERATOR);
         individual tmp(i, age);
         
         tmp.set_immunity(0.0); //unif_01(_RANDOM_GENERATOR));

@@ -230,13 +230,27 @@ void socialPlace::remove_indiv(uint pos){
     update_epidemic_count(_indiv[pos], "remove"); // <-- MUST BE BEFORE erasing individual!
     
     // update pointer tables (_indiv_X):
-    if(_indiv[pos].is_susceptible()) removeValue(_indiv_S, &_indiv[pos]);
+    uint pos2;
+    ID id_indiv = _indiv[pos].get_id();
     
-    else if(_indiv[pos].is_infectious() && _indiv[pos].is_symptomatic())
-        removeValue(_indiv_Is, &_indiv[pos]);
+    if(_indiv[pos].is_susceptible()) {
+        pos2 = find_indiv_X_pos(id_indiv, "S");
+        _indiv_S.erase(_indiv_S.begin()+pos2);
+        // TO DO: try to fix below, should be faster:
+        // DOESN'T WORK, DON'T KNOW WHY NOT USING TE SAME MEMORY ADDRESS:
+        // removeValue(_indiv_S, &_indiv[pos]);
+    }
     
-    else if(_indiv[pos].is_infectious() && !_indiv[pos].is_symptomatic())
-        removeValue(_indiv_Ia, &_indiv[pos]);
+    else if(_indiv[pos].is_infectious() && _indiv[pos].is_symptomatic()){
+        pos2 = find_indiv_X_pos(id_indiv, "Is");
+        //cout << "DEBUG: will remove ID_" +to_string(_indiv_Is[pos2]->get_id()) + " from _indiv_Is"<<endl;
+        _indiv_Is.erase(_indiv_Is.begin()+pos2);
+    }
+    
+    else if(_indiv[pos].is_infectious() && !_indiv[pos].is_symptomatic()){
+        pos2 = find_indiv_X_pos(id_indiv, "Ia");
+        _indiv_Ia.erase(_indiv_Ia.begin()+pos2);
+    }
     
     // remove from '_indiv' (MUST BE REMOVED _AFTER_ 'indiv_x')
     _indiv.erase(_indiv.begin()+pos);
@@ -588,6 +602,27 @@ uint socialPlace::find_indiv_pos(ID id){
 }
 
 
+uint socialPlace::find_indiv_X_pos(ID id, string X){
+    /// Find the position, in the vector "_indiv_X",
+    /// of the individual with ID "id"
+    
+    vector<individual*> tmp;
+    if (X == "S")   tmp = _indiv_S;
+    if (X == "Is")  tmp = _indiv_Is;
+    if (X == "Ia")  tmp = _indiv_Ia;
+    
+    uint pos = 0;
+    while ( pos<tmp.size() && (tmp[pos]->get_id() != id) ) {
+        //DEBUG
+        uint dummy = tmp[pos]->get_id();
+        // --
+        pos++;
+    }
+    stopif(pos >= tmp.size(), "ID "+ to_string(id) + " not found in indiv_"+ X +" social place id_sp = "+to_string(_id_sp));
+    return pos;
+}
+
+
 
 // ================================================================
 // ================================================================
@@ -718,7 +753,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     /// (use other function to make individuals PRESENT in social places)
     /// NOTE: this function is for test, it will eventually be useless...
     
-    stopif( ( spt.size() != n_sp.size() ) ||
+    stopif(( spt.size() != n_sp.size() ) ||
            ( spt.size() != p_size.size() ),
            "vectors must be same size");
     
@@ -734,7 +769,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     sp.resize(N_type_sp);
     y.resize(N_type_sp);
     
-    ID cnt_id = 0; // id counterto make sure ID is uniques across all types and SP
+    ID cnt_id = 0; // id counter to make sure ID is uniques across all types and SP
     for(uint t=0; t<N_type_sp; t++){
         sp[t].resize(n_sp[t]);
         y[t].resize(n_sp[t]);
@@ -793,7 +828,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
             // Do nothing.
             else if	(sp[t][cnt_sp[t]].n_linked_indiv() == y[t][cnt_sp[t]] &&
                      cnt_sp[t] == n_sp[t]-1){
-                // recorde this type is saturated:
+                // record this type is saturated:
                 all_sp_this_type_filled[t] = true;
             }
             
@@ -816,6 +851,48 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     
     return spfinal;
 }
+
+
+
+vector<socialPlace> build_world_simple_2(vector<individual>& indiv,
+                                         vector<areaUnit> auvec,
+                                         vector<schedule> sched,
+                                         uint seed ){
+    /// --- NEW VERSION, SIMPLER ---
+    /// Build a test world with individuals LINKED to social places.
+    /// (use other function to make individuals PRESENT in social places)
+    /// NOTE: this function is for test, it will eventually be useless...
+
+
+    vector<socialPlace> spfinal;
+    
+    socialPlace sp_w(auvec[0], 0, SP_workplace);
+    socialPlace sp_hh(auvec[0], 1, SP_household);
+    socialPlace sp_hosp(auvec[0], 2, SP_hospital);
+    
+    
+    uint pos_stayhome = pos_schedname("stayhome", sched);
+    uint pos_worker_sed = pos_schedname("worker_sed", sched);
+    
+    unsigned long n_indiv = indiv.size();
+    
+    for(uint i=0; i<n_indiv; i++){
+        indiv[i].set_id_sp_household(sp_hh);
+        indiv[i].set_schedule(sched[pos_stayhome]);
+        
+        if(i<n_indiv/2){
+            indiv[i].set_id_sp_workplace(sp_w);
+            indiv[i].set_schedule(sched[pos_worker_sed]);
+        }
+    }
+    
+    spfinal.push_back(sp_w);
+    spfinal.push_back(sp_hh);
+    spfinal.push_back(sp_hosp);
+    
+    return spfinal;
+}
+
 
 
 vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){

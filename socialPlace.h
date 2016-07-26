@@ -159,6 +159,7 @@ public:
     void        remove_id_Ia(ID x) {removeValue(_id_Ia, x);}
     
     uint        find_indiv_pos(ID id);
+    uint        find_indiv_X_pos(ID id, string X);
     
     // Census functions:
     // WARNING: brute force counting, hence slow!
@@ -187,6 +188,12 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
                                        vector<individual>& indiv,
                                        vector<areaUnit> auvec,
                                        uint seed =12345);
+
+vector<socialPlace> build_world_simple_2(vector<individual>& indiv,
+                                         vector<areaUnit> auvec,
+                                         vector<schedule> sched,
+                                         uint seed =12345);
+
 
 void populate_random_with_indiv(vector<socialPlace>& v,
                                 uint total_indiv,

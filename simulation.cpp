@@ -250,27 +250,6 @@ void Simulation::build_test_hospitalization(uint n_indiv){
     
     vector<areaUnit> A {A1,A2,A3};
     
-    // Schedule
-    vector<double> timeslice {8.0/24, 16.0/24}; // must sum up to 1.0
-    vector<SPtype> worker_sed  {SP_workplace, SP_household};
-    
-    schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
-    
-    vector<schedule> sched {
-        sched_worker_sed,
-    };
-    
-    // Disease stage durations:
-    string dol_distrib = "exp";
-    string doi_distrib = "exp";
-    
-    // individuals
-    uint num_indiv			= (uint)(n_indiv*2); // <-- make sure it's large enough
-    vector<individual> many_indiv	= build_individuals(num_indiv,
-                                                        sched,
-                                                        dol_distrib,
-                                                        doi_distrib);
-    
     // type of social places
     // existing in the simulated world:
     vector<SPtype> spt {
@@ -278,6 +257,39 @@ void Simulation::build_test_hospitalization(uint n_indiv){
         SP_household,
         SP_hospital
     };
+
+    
+    // === Schedules ===
+    
+    // Define the time slices
+    // must be same for all schedules and must sum up to 1.0
+    vector<double> timeslice {8.0/24, 16.0/24};
+
+    // type of schedules:
+    vector<SPtype> worker_sed  {SP_workplace, SP_household};
+    vector<SPtype> stayhome  {SP_household, SP_household};
+    
+    schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
+    schedule sched_stayhome(stayhome, timeslice, "stayhome");
+    
+    // Schedules used in the simulation:
+    vector<schedule> sched {
+        sched_worker_sed,
+        sched_stayhome
+    };
+    
+    
+    // Disease stage durations:
+    string dol_distrib = "exp";
+    string doi_distrib = "exp";
+    
+    // individuals
+    uint num_indiv = (uint)(n_indiv*2); // <-- make sure it's large enough
+    vector<individual> many_indiv = build_individuals(num_indiv,
+                                                      sched,
+                                                      dol_distrib,
+                                                      doi_distrib);
+    
     
     // populate social places with individuals (built above)
     uint num_hh      = (uint)(1 );
@@ -309,10 +321,10 @@ void Simulation::build_test_hospitalization(uint n_indiv){
     };
     
     // build the world:
-    vector<socialPlace> W = build_world_simple(spt,
-                                               num_sp,
-                                               p_size,
-                                               many_indiv, A);
+    vector<socialPlace> W = build_world_simple_2(
+                                               many_indiv,
+                                                 A,
+                                                 sched);
     set_world(W);
     
     // initial population: Move everyone to its household!
@@ -534,6 +546,7 @@ void Simulation::run(){
         update_ts_census_by_SP();
         
         if(p_move>0) {
+//            define_all_id_tables();
             move_individuals_sched(idx_timeslice, p_move);
             define_all_id_tables();
             if(debug_mode) check_book_keeping();
@@ -633,7 +646,10 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                     // Retrieve its actual destination
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
                     
-                    if ( (id_dest!=k) && (id_dest!=__UNDEFINED_ID) )
+                    stopif(id_dest==__UNDEFINED_ID,
+                           "Undefined destination for indiv ID_" + to_string(_world[k].get_indiv(i).get_id()));
+                    
+                    if ( (id_dest!=k) )
                     {
                         // take a copy of the individual
                         individual tmp = _world[k].get_indiv(i);
@@ -1255,6 +1271,9 @@ void Simulation::check_book_keeping(){
                _world[k].get_n_Is() != _world[k]._indiv_Is.size(),
                "Book keeping error with Is IDs.");
         
+        bool vec = true;
+//        for(uint )
+        
     }
     bool check_Is = ( (_n_Is == nIs) && (nIs == nIs_census) );
     stopif(!check_Is, "Book keeping error with Is stage");
@@ -1393,12 +1412,19 @@ void Simulation::hospitalize(){
     {
         uint nIs = _world[k].get_n_Is();
         
-        for (uint i=0; i<nIs; i++) {    
+        stopif(nIs != _world[k]._indiv_Is.size(), "Book keeping issue!");
+        
+        // * * * IMPORTANT * * *
+        // Must run this loop
+        // in _descending_ order, else
+        // it messes up the pointers vector deletion
+        for (uint i=nIs;  (i--) >0;) {
+            
             // If time to hospitalize:
             if (! _world[k]._indiv_Is[i]-> is_hosp() &&
                 _world[k]._indiv_Is[i]-> willbe_hosp() &&
                 _world[k]._indiv_Is[i]-> time_to_hospitalize())
-            {
+            {                
                 // set the hospitalization flag for this individual
                 _world[k]._indiv_Is[i]->set_is_hosp(true);
                 
@@ -1412,12 +1438,6 @@ void Simulation::hospitalize(){
                 
                 // Move individual to its linked SP_hospital
                 move_one_individual(pos_indiv, k, id_sp_hospital);
-                
-                // update _indiv_Is pointers:
-//                _world[id_sp_hospital]._indiv_Is.push_back(_world[k]._indiv_Is[i]);
-//                _world[k]._indiv_Is.erase(_world[k]._indiv_Is.begin()+i);
-                
-               
             }
         }
     }

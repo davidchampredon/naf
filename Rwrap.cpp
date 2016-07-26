@@ -192,6 +192,8 @@ List naf_test_hosp(List params, List simulParams){
 	// Store parameters in a 'modelParam' class:
 	modelParam MP;
 	MP.add_prm_bool("debug_mode", debug_mode);
+	MP.add_prm_double("horizon", horizon);
+	
 	MP.add_prm_double("dol_mean", dol_mean);
 	MP.add_prm_double("doi_mean", doi_mean);
 	MP.add_prm_double("doh_mean", doh_mean);
@@ -207,10 +209,7 @@ List naf_test_hosp(List params, List simulParams){
 	_RANDOM_GENERATOR.seed(rnd_seed);
 	
 	// Call C++ function
-	Simulation sim = test_hospitalization(MP,
-										  horizon,
-										  n_indiv,
-										  i0);
+	Simulation sim = test_hospitalization(MP,horizon,n_indiv,i0);
 	
 	// Retrieve all results from simulation:
 	// populations:
@@ -220,8 +219,8 @@ List naf_test_hosp(List params, List simulParams){
 	dcDataFrame ts_census = sim.get_ts_census_by_SP();
 	// Return R-formatted result:
 	return List::create(Named("population_final") = dcDataFrameToRcppList(pop_final,false),
-						Named("time_series") = dcDataFrameToRcppList(ts, false),
-						Named("time_series_census") = dcDataFrameToRcppList(ts_census, false));
+					  Named("time_series") = dcDataFrameToRcppList(ts, false),
+					  Named("time_series_census") = dcDataFrameToRcppList(ts_census, false));
 }
 
 

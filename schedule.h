@@ -55,6 +55,6 @@ public:
 	vector<double>	get_timeslice(){return _timeslice;}
 };
 
-
+uint pos_schedname(string name, vector<schedule> sched);
 
 #endif /* defined(__naf__schedule__) */
