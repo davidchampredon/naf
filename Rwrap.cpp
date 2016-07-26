@@ -173,6 +173,11 @@ List naf_test_hosp(List params, List simulParams){
 	// Model parameters:
 	
 	bool debug_mode		= params["debug_mode"];
+	
+	string dol_distrib	= params["dol_distrib"];
+	string doi_distrib	= params["doi_distrib"];
+	string doh_distrib	= params["doh_distrib"];
+	
 	double dol_mean		= params["dol_mean"];
 	double doi_mean		= params["doi_mean"];
 	double doh_mean		= params["doh_mean"];
@@ -184,15 +189,21 @@ List naf_test_hosp(List params, List simulParams){
 	unsigned int rnd_seed	= params["rnd_seed"];
 	
 	// Simulation parameters:
-	unsigned int n_indiv = simulParams["n_indiv"];
-	unsigned int i0	     = simulParams["initial_latent"];
-	double horizon       = simulParams["horizon"];
-	unsigned int nt	     = simulParams["nt"];
+	unsigned int n_indiv	= simulParams["n_indiv"];
+	unsigned int i0		= simulParams["initial_latent"];
+	double horizon		= simulParams["horizon"];
+	unsigned int nt		= simulParams["nt"];
+	
+	unsigned int popexport	= simulParams["popexport"];
 	
 	// Store parameters in a 'modelParam' class:
 	modelParam MP;
 	MP.add_prm_bool("debug_mode", debug_mode);
 	MP.add_prm_double("horizon", horizon);
+
+	MP.add_prm_string("dol_distrib", dol_distrib);
+	MP.add_prm_string("doi_distrib", doi_distrib);
+	MP.add_prm_string("doh_distrib", doh_distrib);
 	
 	MP.add_prm_double("dol_mean", dol_mean);
 	MP.add_prm_double("doi_mean", doi_mean);
@@ -202,8 +213,9 @@ List naf_test_hosp(List params, List simulParams){
 	MP.add_prm_uint("n_indiv", n_indiv);
 	MP.add_prm_bool("homogeneous_contact", homog);
 	MP.add_prm_uint("nt", nt);
+
 	
-	cout << "DEBUG: the seed is "<<rnd_seed <<endl;
+	cout << "DEBUG: popexport is "<< popexport <<endl;
 	
 	// Set random seed
 	_RANDOM_GENERATOR.seed(rnd_seed);
@@ -213,7 +225,7 @@ List naf_test_hosp(List params, List simulParams){
 	
 	// Retrieve all results from simulation:
 	// populations:
-	dcDataFrame pop_final = sim.get_world()[0].export_dcDataFrame();
+	dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
 	// epidemic time series
 	dcDataFrame ts = sim.timeseries();
 	dcDataFrame ts_census = sim.get_ts_census_by_SP();

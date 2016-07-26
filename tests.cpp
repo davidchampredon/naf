@@ -173,10 +173,11 @@ Simulation test_hospitalization(modelParam MP,
     
     double dol_mean = MP.get_prm_double("dol_mean");
     double doi_mean = MP.get_prm_double("doi_mean");
+    double doh_mean = MP.get_prm_double("doh_mean");
     bool debug_mode = MP.get_prm_bool("debug_mode");
     
     // Define the disease
-    disease flu("Influenza", dol_mean, doi_mean);
+    disease flu("Influenza", dol_mean, doi_mean, doh_mean);
     
     // Build simulation:
     
@@ -222,22 +223,28 @@ void main_test_hospitalization(){
     
     MP.add_prm_bool("debug_mode", true);
     
+    MP.add_prm_string("dol_distrib", "exp");
+    MP.add_prm_string("doi_distrib", "exp");
+    MP.add_prm_string("doh_distrib", "exp");
+    
     MP.add_prm_double ("dol_mean", 2.0);
-    MP.add_prm_double ("doi_mean", 3.0);
-    MP.add_prm_double ("doh_mean", 5.0);
+    MP.add_prm_double ("doi_mean", 3.789);
+    MP.add_prm_double ("doh_mean", 4.123);
 
     MP.add_prm_double ("proba_move", 1.0);
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
-
-    
-    uint n_indiv = 5000;
-    uint i0 = 2;
+    MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
+    uint n_indiv = 200;
+    uint i0 = 12;
 
     
     _RANDOM_GENERATOR.seed(123);
     Simulation sim1 = test_hospitalization(MP, horizon, n_indiv, i0);
+    
+    dcDataFrame pop_final = sim1.get_world()[2].export_dcDataFrame();
+    pop_final.display();
 }
 
 

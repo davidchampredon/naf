@@ -185,11 +185,17 @@ void socialPlace::add_indiv(individual & newindiv){
     if(_indiv.back().is_susceptible())
         _indiv_S.push_back(&_indiv.back());
 
-    else if(_indiv.back().is_infectious() && _indiv.back().is_symptomatic())
+    if(_indiv.back().is_infectious() &&
+            _indiv.back().is_symptomatic())
         _indiv_Is.push_back(&_indiv.back());
 
-    else if(_indiv.back().is_infectious() && !_indiv.back().is_symptomatic())
+    if(_indiv.back().is_infectious() &&
+            !_indiv.back().is_symptomatic())
         _indiv_Ia.push_back(&_indiv.back());
+    
+    if(_indiv.back().is_hosp())
+        _indiv_H.push_back(&_indiv.back());
+    
 }
 
 
@@ -251,6 +257,13 @@ void socialPlace::remove_indiv(uint pos){
         pos2 = find_indiv_X_pos(id_indiv, "Ia");
         _indiv_Ia.erase(_indiv_Ia.begin()+pos2);
     }
+    
+    // DELETE WHEN SURE:
+//    else if(_indiv[pos].is_discharged()){
+//        pos2 = find_indiv_X_pos(id_indiv, "H");
+//        _indiv_H.erase(_indiv_H.begin()+pos2);
+//    }
+
     
     // remove from '_indiv' (MUST BE REMOVED _AFTER_ 'indiv_x')
     _indiv.erase(_indiv.begin()+pos);
@@ -446,7 +459,10 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     vector<double> dol_drawn(n);
     vector<double> doi_drawn(n);
     vector<double> dobh_drawn(n);
+    vector<double> doh_drawn(n);
     vector<double> is_hosp(n);
+    vector<double> is_discharged(n);
+    
     
     for(ID i=0; i<n; i++){
         id_indiv[i]      = _indiv[i].get_id();
@@ -454,13 +470,15 @@ dcDataFrame socialPlace::export_dcDataFrame(){
         immunity[i]      = _indiv[i].get_immunity();
         frailty[i]       = _indiv[i].get_frailty();
         is_infected[i]   = _indiv[i].is_infected();
-        is_infectious[i]	= _indiv[i].is_infectious();
-        is_latent[i]		= _indiv[i].is_latent();
-        is_recovered[i]	= _indiv[i].is_recovered();
+        is_infectious[i] = _indiv[i].is_infectious();
+        is_latent[i]     = _indiv[i].is_latent();
+        is_recovered[i]  = _indiv[i].is_recovered();
         dol_drawn[i]     = _indiv[i].get_dol_drawn();
         doi_drawn[i]     = _indiv[i].get_doi_drawn();
         dobh_drawn[i]    = _indiv[i].get_dobh_drawn();
+        doh_drawn[i]     = _indiv[i].get_doh_drawn();
         is_hosp[i]       = _indiv[i].is_hosp();
+        is_discharged[i] = _indiv[i].is_discharged();
     }
     
     df.addcol("id_indiv", id_indiv);
@@ -474,7 +492,9 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     df.addcol("dol_drawn", dol_drawn);
     df.addcol("doi_drawn", doi_drawn);
     df.addcol("dobh_drawn", dobh_drawn);
+    df.addcol("doh_drawn", doh_drawn);
     df.addcol("is_hosp", is_hosp);
+    df.addcol("is_discharged", is_discharged);
     return df;
 }
 
@@ -490,6 +510,7 @@ uint socialPlace::census_disease_stage(string stage){
         else if(stage == "Is" && _indiv[i].is_infectious() && _indiv[i].is_symptomatic()) cnt++;
         else if(stage == "Ia" && _indiv[i].is_infectious() && !_indiv[i].is_symptomatic()) cnt++;
         else if(stage == "R" && _indiv[i].is_recovered()) cnt++;
+        else if(stage == "H" && _indiv[i].is_hosp()) cnt++;
     }
     return cnt;
 }
@@ -537,7 +558,7 @@ void socialPlace::time_update(double dt){
         }
         
         else if (event == "Is_to_H") {
-            stopif(_n_Is==0, "Book keeping problem!");
+            stopif(_n_Is==0, "Book keeping problem with Is!");
             // * * * WARNING * * *
             // DO NOT DO ANYTHING HERE (unlike other 'if' cases)
             // because hospitalization requires
@@ -547,7 +568,7 @@ void socialPlace::time_update(double dt){
         }
         
         else if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
-            stopif(_n_Is==0, "Book keeping problem!");
+            stopif(_n_Is==0, "Book keeping problem with Is!");
             _n_Is--;
             removeValue(_indiv_Is, &_indiv[i]);
             remove_id_Is(_indiv[i].get_id());
@@ -555,11 +576,20 @@ void socialPlace::time_update(double dt){
         }
         
         else if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
-            stopif(_n_Ia==0, "Book keeping problem!");
+            stopif(_n_Ia==0, "Book keeping problem with Ia!");
             _n_Ia--;
             removeValue(_indiv_Ia, &_indiv[i]);
             remove_id_Ia(_indiv[i].get_id());
             _n_R++;
+        }
+        else if (event == "DISCHARGED_HOSPITAL") {
+            stopif(_n_H==0, "Book keeping problem with H!");
+            // * * * WARNING * * *
+            // DO NOT DO ANYTHING HERE (unlike other 'if' cases)
+            // because leaving hospital requires
+            // moving the individual from an
+            // 'hospital' social place to its scheduled social place,
+            // so that's dealt with at the 'Simulation' level.
         }
     }
 }
@@ -610,12 +640,10 @@ uint socialPlace::find_indiv_X_pos(ID id, string X){
     if (X == "S")   tmp = _indiv_S;
     if (X == "Is")  tmp = _indiv_Is;
     if (X == "Ia")  tmp = _indiv_Ia;
+    if (X == "H")   tmp = _indiv_H;
     
     uint pos = 0;
     while ( pos<tmp.size() && (tmp[pos]->get_id() != id) ) {
-        //DEBUG
-        uint dummy = tmp[pos]->get_id();
-        // --
         pos++;
     }
     stopif(pos >= tmp.size(), "ID "+ to_string(id) + " not found in indiv_"+ X +" social place id_sp = "+to_string(_id_sp));

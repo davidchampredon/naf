@@ -55,6 +55,7 @@ protected:
 	bool	_is_recovered;
 	bool	_is_hosp;
     bool    _willbe_hosp; // hospitalization is decided in advance, at transmission time
+    bool    _is_discharged;
 	
 	float	_dol; // duration of latency
 	float	_doi; // duration of infection
@@ -131,12 +132,16 @@ public:
 	void set_is_infected(bool x)        {_is_infected = x;}
     void set_is_hosp(bool x)            {_is_hosp = x;}
     void set_willbe_hosp(bool x)        {_willbe_hosp = x;}
+    void set_is_discharged(bool x)      {_is_discharged = x;}
+    
     void set_is_symptomatic(bool x)     {_is_symptomatic = x;}
     void set_was_symptomatic(bool x)    {_was_symptomatic = x;}
     
-	void set_dol_distrib(string d) {_dol_distrib = d;}
-	void set_doi_distrib(string d) {_doi_distrib = d;}
+    void set_doh(double x)              {_doh = x;}
     
+	void set_dol_distrib(string d)      {_dol_distrib = d;}
+	void set_doi_distrib(string d)      {_doi_distrib = d;}
+    void set_doh_distrib(string d)      {_doh_distrib = d;}
     
 	
 	// Get functions
@@ -149,12 +154,13 @@ public:
 	ID get_id_sp_hospital()		const {return _id_sp_hospital;}
 	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
 	
-	double	get_age()			const {return _age;}
-	float	get_immunity()		const {return _immunity;}
-	float	get_frailty()		const {return _frailty;}
-	float	get_dol_drawn()	const {return _dol_drawn;}
-	float	get_doi_drawn()	const {return _doi_drawn;}
-    float	get_dobh_drawn()	const {return _dobh_drawn;}
+	double	get_age()           const {return _age;}
+	float	get_immunity()      const {return _immunity;}
+	float	get_frailty()       const {return _frailty;}
+	float	get_dol_drawn()     const {return _dol_drawn;}
+	float	get_doi_drawn()     const {return _doi_drawn;}
+    float	get_doh_drawn()     const {return _doh_drawn;}
+    float	get_dobh_drawn()    const {return _dobh_drawn;}
 	
     bool is_susceptible()   const {return _is_susceptible;}
     bool is_infected()      const {return _is_infected;}
@@ -165,6 +171,7 @@ public:
     bool is_recovered()     const {return _is_recovered;}
     bool is_hosp()          const {return _is_hosp;}
     bool willbe_hosp()      const {return _willbe_hosp;}
+    bool is_discharged()    const {return _is_discharged;}
 	
 	bool is_alive()				const {return _is_alive;}
 	
@@ -198,7 +205,8 @@ inline bool operator == ( individual a, individual b){
 vector<individual> build_individuals(uint n,
 									 const vector<schedule>& sched,
 									 string dol_distrib,
-									 string doi_distrib);
+									 string doi_distrib,
+                                     string doh_distrib);
 
 
 individual get_indiv_with_ID(ID id, const vector<individual>& indiv_vec);

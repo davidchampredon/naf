@@ -42,6 +42,7 @@ void individual::base_constructor(){
 
     _is_hosp            = false;
     _willbe_hosp        = false;
+    _is_discharged      = false;
     
     _doi	= 0.0;
     _dol	= 0.0;
@@ -118,7 +119,7 @@ string individual::_disease_status_update(double dt){
     
     
     // From 'I' to 'R'
-    else if (_doi > _doi_drawn &&
+    if (_doi > _doi_drawn &&
              !_is_recovered &&
              !_is_hosp)
     {
@@ -129,11 +130,11 @@ string individual::_disease_status_update(double dt){
         res = "I_to_R";
     }
     
-    // from 'H' to 'R' or 'D'
-    if (_doh > _doh_drawn)
+    // from 'H' to 'R'
+    if (_doh > _doh_drawn && !_is_discharged)
     {
-        _is_hosp = false;
-        res = "LEAVE_HOSPITAL";
+        _is_discharged = true;
+        res = "DISCHARGED_HOSPITAL";
     }
     
     return res;
@@ -250,7 +251,6 @@ void individual::acquireDisease(){
         float dol_mean = _disease.get_dol_mean();
         std::exponential_distribution<float> d(1.0/dol_mean);
         _dol_drawn = d(_RANDOM_GENERATOR);
-        //		cout << "DEBUG: dol_drawn = " << _dol_drawn <<endl;
     }
     
     if (_doi_distrib == "dirac") _doi_drawn = _disease.get_doi_mean();
@@ -259,7 +259,6 @@ void individual::acquireDisease(){
         std::exponential_distribution<float> d(1.0/doi_mean);
         _doi_drawn = d(_RANDOM_GENERATOR);
     }
-   
 }
 
 void individual::futureHospitalization(){
@@ -274,11 +273,13 @@ void individual::futureHospitalization(){
     _dobh_drawn = _dol_drawn + unif(_RANDOM_GENERATOR);
     
     float doh_mean = _disease.get_doh_mean();
-    if (_doh_distrib == "dirac") _doh_distrib = doh_mean;
+    if (_doh_distrib == "dirac") _doh_drawn = doh_mean;
     if (_doh_distrib == "exp") {
         std::exponential_distribution<float> d(1.0/doh_mean);
         _doh_drawn = d(_RANDOM_GENERATOR);
     }
+    // DEBUG
+//    cout << "  DEBUG: doh_drawn = " << _doh_drawn << " " << _doh_distrib <<" mean: " <<doh_mean << endl;
 }
 
 
@@ -298,7 +299,8 @@ void individual::recoverDisease() {
 vector<individual> build_individuals(uint n,
                                      const vector<schedule>& sched,
                                      string dol_distrib,
-                                     string doi_distrib){
+                                     string doi_distrib,
+                                     string doh_distrib){
     /// Build several individuals
     /// TO DO: make it more sophisticated!
     
@@ -313,11 +315,12 @@ vector<individual> build_individuals(uint n,
         double age = unif_age(_RANDOM_GENERATOR);
         individual tmp(i, age);
         
-        tmp.set_immunity(0.0); //unif_01(_RANDOM_GENERATOR));
-        tmp.set_frailty(1.0);  //unif_01(_RANDOM_GENERATOR));
+        tmp.set_immunity(0.0); //unif_01(_RANDOM_GENERATOR)
+        tmp.set_frailty(1.0);  //unif_01(_RANDOM_GENERATOR)
         tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);
         tmp.set_dol_distrib(dol_distrib);
         tmp.set_doi_distrib(doi_distrib);
+        tmp.set_doh_distrib(doh_distrib);
         x[i] = tmp;
     }
     return x;

@@ -42,6 +42,6 @@ disease::disease(string name,
 	_name = name;
 	_dol_mean = dol_mean;
 	_doi_mean = doi_mean;
-    _doh_mean = doi_mean;
+    _doh_mean = doh_mean;
 }
 

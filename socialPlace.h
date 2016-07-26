@@ -56,6 +56,7 @@ public:
     vector<individual*>     _indiv_S;
     vector<individual*>     _indiv_Is;
     vector<individual*>     _indiv_Ia;
+    vector<individual*>     _indiv_H;
     
     // Constructors:
     void base_constructor();
@@ -77,6 +78,7 @@ public:
     void set_n_E(uint n) {_n_E = n;}
     void set_n_H(uint n) {_n_H = n;}
     void increment_n_H() {_n_H++;}
+    void decrement_n_H() {_n_H--;}
     
     void set_id_S(vector<ID> x)  {_id_S  = x;}
     void set_id_Is(vector<ID> x) {_id_Is = x;}
@@ -99,6 +101,7 @@ public:
     uint	get_n_Is()		const {return _n_Is;}
     uint	get_n_Ia()		const {return _n_Ia;}
     uint	get_n_R()		const {return _n_R;}
+    uint	get_n_H()		const {return _n_H;}
     
     vector<ID>      get_id_S()      const {return _id_S;}
     vector<ID>      get_id_Is()     const {return _id_Is;}

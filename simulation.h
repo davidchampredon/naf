@@ -129,13 +129,15 @@ public:
     double          calc_proba_hospitalized(float frailty);
     
     vector< vector<uint> > transmission_attempts(uint k,
-                                                 vector< vector<uint> > selected_S);
+                                                 vector< vector<uint> > selected_S,
+                                                 string infectious_type);
 
     uint    transmission_activation(int k,
                                     vector< vector<uint> > selected_S,
                                     vector< vector<uint> > transm_success);
     void    hospitalize_indiv(uint k, uint i);
     void    hospitalize();
+    void    discharge_hospital(uint idx_timeslice);
     
     
 	// Exports

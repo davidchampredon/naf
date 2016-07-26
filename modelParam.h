@@ -19,27 +19,30 @@ using namespace std;
 
 class modelParam{
 	
-	vector<double>		_prm_double_val;
-	vector<string>		_prm_double_name;
-
-	vector<uint>	_prm_uint_val;
-	vector<string>			_prm_uint_name;
-	
-	vector<int>			_prm_int_val;
-	vector<string>			_prm_int_name;
-
-	vector<bool>			_prm_bool_val;
-	vector<string>			_prm_bool_name;
-
-	
-	vector< vector<double> >	_prmvec_double_val;
-	vector<string>				_prmvec_double_name;
-
-	vector< vector<uint> >	_prmvec_uint_val;
-	vector<string>					_prmvec_uint_name;
-
-	vector< vector<int> >		_prmvec_int_val;
-	vector<string>				_prmvec_int_name;
+    vector<double>      _prm_double_val;
+    vector<string>      _prm_double_name;
+    
+    vector<uint>        _prm_uint_val;
+    vector<string>      _prm_uint_name;
+    
+    vector<int>         _prm_int_val;
+    vector<string>      _prm_int_name;
+    
+    vector<bool>        _prm_bool_val;
+    vector<string>      _prm_bool_name;
+    
+    vector<string>      _prm_string_val;
+    vector<string>      _prm_string_name;
+    
+    
+    vector< vector<double> >	_prmvec_double_val;
+    vector<string>				_prmvec_double_name;
+    
+    vector< vector<uint> >  _prmvec_uint_val;
+    vector<string>          _prmvec_uint_name;
+    
+    vector< vector<int> >   _prmvec_int_val;
+    vector<string>          _prmvec_int_name;
 
 public:
 	
@@ -56,6 +59,9 @@ public:
 	
 	void add_prm_bool(string name, bool value)
 	{_prm_bool_name.push_back(name); _prm_bool_val.push_back(value);}
+    
+    void add_prm_string(string name, string value)
+    {_prm_string_name.push_back(name); _prm_string_val.push_back(value);}
 	
 	void add_prmvec_double(string name, vector<double> value)
 	{_prmvec_double_name.push_back(name); _prmvec_double_val.push_back(value);}
@@ -69,14 +75,15 @@ public:
 	
 	// Get functions:
 	
-	double			get_prm_double(string name);
-	uint	get_prm_uint(string name);
-	int				get_prm_int(string name);
-	bool			get_prm_bool(string name);
+	double  get_prm_double(string name);
+	uint    get_prm_uint(string name);
+	int     get_prm_int(string name);
+	bool    get_prm_bool(string name);
+    string  get_prm_string(string name);
 	
-	vector<double>			get_prmvec_double(string name);
-	vector<uint>	get_prmvec_uint(string name);
-	vector<int>			get_prmvec_int(string name);
+	vector<double>  get_prmvec_double(string name);
+	vector<uint>    get_prmvec_uint(string name);
+	vector<int>     get_prmvec_int(string name);
 };
 
 

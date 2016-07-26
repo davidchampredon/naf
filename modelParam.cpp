@@ -37,6 +37,12 @@ bool modelParam::get_prm_bool(string name){
 }
 
 
+string modelParam::get_prm_string(string name){
+    auto pos = distance(_prm_string_name.begin(), find(_prm_string_name.begin(), _prm_string_name.end(), name));
+    stopif(pos >= _prm_string_name.size(), "Parameter '" + name + "' not found!");
+    return(_prm_string_val[pos]);
+}
+
 
 vector<double> modelParam::get_prmvec_double(string name){
 	auto pos = distance(_prmvec_double_name.begin(), find(_prmvec_double_name.begin(), _prmvec_double_name.end(), name));
