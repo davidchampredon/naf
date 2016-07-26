@@ -38,6 +38,8 @@ prm[['doh_mean']] <- 5.0
 prm[['proba_move']] <- 1
 prm[['homogeneous_contact']] <- FALSE
 prm[['contact_rate']] <- cr
+prm[['asymptom_infectiousness_ratio']] <- 0.8
+
 prm[['rnd_seed']] <- 12345
 
 simul.prm[['horizon']] <- 40
@@ -48,16 +50,18 @@ simul.prm[['popexport']] <- 1
 
 res <- naf_test_hosp(prm, simul.prm)
 
+ts <- as.data.frame(res[['time_series']])
 ts_census <- as.data.frame(res[['time_series_census']])
-
 
 ### PLOTS ###
 
 if (save.plot.to.file) pdf('plot_TEST_naf_hosp.pdf')
 
-popf <- as.data.frame(res[['population_final']])
-plot.population(popf)
+pop <- as.data.frame(res[['population_final']])
+plot.population(pop)
 
+
+plot.epi.timeseries(ts)
 
 g <- ggplot(ts_census)
 g <- g + geom_point(aes(x=time, y=pop_present), size=1) 

@@ -184,6 +184,8 @@ List naf_test_hosp(List params, List simulParams){
 	
 	double proba_move   = params["proba_move"];
 	double contact_rate = params["contact_rate"];
+	
+	double asymptom_infectiousness_ratio = params["asymptom_infectiousness_ratio"];
 	bool homog          = params["homogeneous_contact"];
 	
 	unsigned int rnd_seed	= params["rnd_seed"];
@@ -210,6 +212,7 @@ List naf_test_hosp(List params, List simulParams){
 	MP.add_prm_double("doh_mean", doh_mean);
 	MP.add_prm_double("proba_move", proba_move);
 	MP.add_prm_double("contact_rate", contact_rate);
+	MP.add_prm_double("asymptom_infectiousness_ratio", asymptom_infectiousness_ratio);
 	MP.add_prm_uint("n_indiv", n_indiv);
 	MP.add_prm_bool("homogeneous_contact", homog);
 	MP.add_prm_uint("nt", nt);
