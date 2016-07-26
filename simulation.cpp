@@ -790,7 +790,7 @@ double Simulation::calc_proba_transmission(individual *infectious,
         p_inf = _modelParam.get_prm_double("asymptom_infectiousness_ratio");
     
     // DEBUG
-    cout << " DEBUG: p_susc = "<< p_susc << " ; p_inf = " << p_inf << endl;
+//    cout << " DEBUG: p_susc = "<< p_susc << " ; p_inf = " << p_inf << endl;
     
     return p_susc * p_inf;
 }
@@ -820,13 +820,14 @@ double Simulation::calc_proba_hospitalized(float frailty){
 vector< vector<uint> > Simulation::draw_contacted_S(uint k,
                                                     vector<uint> n_contacts,
                                                     string infectious_type){
-    /// Randomly select the susceptible that will be
+    /// Randomly select the positions in '_indiv_S'
+    /// for susceptibles that will be
     /// contacted by infectious individuals of a
     /// given infectious type (e.g. symptomatic or not).
     
     uint n_inf = 0;
-    if(infectious_type == "Is") n_inf = (uint)_world[k]._indiv_Is.size();
-    if(infectious_type == "Ia") n_inf = (uint)_world[k]._indiv_Ia.size();
+    if(infectious_type == "Is")         n_inf = (uint)_world[k]._indiv_Is.size();
+    else if(infectious_type == "Ia")    n_inf = (uint)_world[k]._indiv_Ia.size();
     
     uint n_susc = (uint)_world[k]._indiv_S.size();
     
@@ -838,12 +839,12 @@ vector< vector<uint> > Simulation::draw_contacted_S(uint k,
     // sample (with replacement)
     // which susceptibles will be contacted:
     std::uniform_int_distribution<uint> unif(0,n_susc-1);
-    
+        
     for(uint i=0; i<n_inf; i++){
         for(uint j=0; j<n_contacts[i]; j++)
         {
-            uint rnd_idx = unif(_RANDOM_GENERATOR);
-            selected_S[i].push_back(rnd_idx);
+            uint rnd_pos = unif(_RANDOM_GENERATOR);
+            selected_S[i].push_back(rnd_pos);
         }
     }
     return selected_S;
@@ -883,7 +884,7 @@ vector< vector<uint> > Simulation::transmission_attempts(uint k,
                 
                 double p_ij = -999.99;
                 
-                cout << " DEBUG infectous_type = "<< infectious_type <<endl;
+//                cout << " DEBUG infectous_type = "<< infectious_type <<endl;
                 
                 
 //                p_ij = calc_proba_transmission(_world[k]._indiv_Is[i],
@@ -952,9 +953,6 @@ uint Simulation::transmission_activation(int k,
         float frailty  = _world[k]._indiv_S[SS_melt_success[m]]->get_frailty();
         double p_sympt = calc_proba_symptomatic(immunity, frailty);
         
-        // DEBUG
-        cout << "DEBUG >> p_sympt = " << p_sympt << endl;
-        
         bool is_symptomatic = ( unif_01(_RANDOM_GENERATOR) < p_sympt );
         if (is_symptomatic) {
             _world[k]._indiv_S[SS_melt_success[m]]->set_is_symptomatic(true);
@@ -975,6 +973,8 @@ uint Simulation::transmission_activation(int k,
         // Book keeping: Update counters
         _world[k].update_epidemic_count(*_world[k]._indiv_S[SS_melt_success[m]], "new_case");
         
+        // STOPPED HERE: book keeping problem....
+        
         // Book keeping: Update pointer tables:
         uint tmp1 = SS_melt_success[m];
         _world[k]._indiv_S.erase(_world[k]._indiv_S.begin() + tmp1);
@@ -986,54 +986,114 @@ uint Simulation::transmission_activation(int k,
 }
 
 
-uint Simulation::transmission_oneSP(uint k,
-                                    double contact_rate,
-                                    double dt){
-    /// Performs transmission within the k^th social place.
-    /// Returns incidence for _this_ social place, during the time step 'dt'.
-    
-    // STOPPED HERE & TO DO:
-    // implement the homogeneous contact case
+
+uint Simulation::transmission_process(uint k, double dt, string infectious_type){
+    /// Full transmission process:
+    /// draw number of contacts, identify susceptible contacted,
+    /// attempts transmission, activate successful attempts.
     
     stopif(k >= _world.size(), "Asking for an inexistent social place");
     
     // If there are no susceptibles
     // or no infectious individuals,
     // then no transmission can occur!!!
-    if (_n_S == 0 || (_n_Is+_n_Ia==0) ) {
+    uint nI = (infectious_type=="Is")?_n_Is:_n_Ia;
+    if (_n_S == 0 || (nI==0) ) {
         return 0;
     }
     
     // Number of contacts for each infectious individual.
     // (numbers are stored in the order of vectors _indiv_Is, _indiv_Ia)
-    
-    vector<uint> n_contacts_Is = draw_n_contacts(k, dt, "Is");
-    vector<uint> n_contacts_Ia = draw_n_contacts(k, dt, "Ia");
-    
-    // Randomly select susceptibles
+    vector<uint> n_contacts_Ix = draw_n_contacts(k, dt, infectious_type);
+
+    // Randomly select susceptibles (position in '_indiv_S')
     // in this social place that will
     // be in contact: sampling _with_ replacement
     // (a S can be in contact with more than one I)
-    
-    vector< vector<uint> > selected_S_Is = draw_contacted_S(k, n_contacts_Is, "Is");
-    vector< vector<uint> > selected_S_Ia = draw_contacted_S(k, n_contacts_Ia, "Ia");
-    
+    vector< vector<uint> > selected_S_Ix = draw_contacted_S(k, n_contacts_Ix, infectious_type);
+
     // Transmission attempts
     // (need to do this intermediary step
     // in order not to mess up pointers vector '_indiv_X')
-    
-    vector< vector<uint> > transm_success_Is = transmission_attempts(k, selected_S_Is, "Is");
-    vector< vector<uint> > transm_success_Ia = transmission_attempts(k, selected_S_Ia, "Ia");
+    vector< vector<uint> > transm_success_Ix = transmission_attempts(k, selected_S_Ix, infectious_type);
     
     // Activate disease acquisition:
+    uint inc_Ix = transmission_activation(k, selected_S_Ix, transm_success_Ix);
     
-    uint inc_Is     = transmission_activation(k, selected_S_Is, transm_success_Is);
-    uint inc_Ia     = transmission_activation(k, selected_S_Ia, transm_success_Ia);
-    uint inc_total  = inc_Is + inc_Ia;
+    return inc_Ix;
+}
+
+
+uint Simulation::transmission_oneSP(uint k,
+                                    double contact_rate,
+                                    double dt){
+    /// Performs transmission within the k^th social place.
+    /// Returns incidence for _this_ social place, during the time step 'dt'.
+
     
-    cout << "INCIDENCES: inc_Is = "<< inc_Is << " ; inc_Ia = " << inc_Ia << endl;
+    uint inc_Is, inc_Ia;
     
-    return inc_total;
+    // During a 'transmission_process'
+    // susceptibles get infected and hence
+    // are removed from the list of susceptibles '_indiv_S'.
+    // So the order of running the process matters
+    // (the firsts get more chance to infect as there are more
+    // susceptible available).
+    // Because we don't want to bias infections towards
+    // either symptomatic or asymptomatic, the order is
+    // drawn at random.
+    
+    std::uniform_real_distribution<> unif(0.0, 1.0);
+    if (unif(_RANDOM_GENERATOR) <0.5){
+        inc_Is = transmission_process(k, dt, "Is");
+        inc_Ia = transmission_process(k, dt, "Ia");
+    }
+    else{
+        inc_Ia = transmission_process(k, dt, "Ia");
+        inc_Is = transmission_process(k, dt, "Is");
+    }
+    
+    return inc_Is + inc_Ia;
+    
+//    stopif(k >= _world.size(), "Asking for an inexistent social place");
+//    
+//    // If there are no susceptibles
+//    // or no infectious individuals,
+//    // then no transmission can occur!!!
+//    if (_n_S == 0 || (_n_Is+_n_Ia==0) ) {
+//        return 0;
+//    }
+//    
+//    // Number of contacts for each infectious individual.
+//    // (numbers are stored in the order of vectors _indiv_Is, _indiv_Ia)
+//    
+//    vector<uint> n_contacts_Is = draw_n_contacts(k, dt, "Is");
+//    vector<uint> n_contacts_Ia = draw_n_contacts(k, dt, "Ia");
+//    
+//    // Randomly select susceptibles (position in '_indiv_S')
+//    // in this social place that will
+//    // be in contact: sampling _with_ replacement
+//    // (a S can be in contact with more than one I)
+//    
+//    vector< vector<uint> > selected_S_Is = draw_contacted_S(k, n_contacts_Is, "Is");
+//    vector< vector<uint> > selected_S_Ia = draw_contacted_S(k, n_contacts_Ia, "Ia");
+//    
+//    // Transmission attempts
+//    // (need to do this intermediary step
+//    // in order not to mess up pointers vector '_indiv_X')
+//    
+//    vector< vector<uint> > transm_success_Is = transmission_attempts(k, selected_S_Is, "Is");
+//    vector< vector<uint> > transm_success_Ia = transmission_attempts(k, selected_S_Ia, "Ia");
+//    
+//    // Activate disease acquisition:
+//    
+//    uint inc_Is     = transmission_activation(k, selected_S_Is, transm_success_Is);
+//    uint inc_Ia     = transmission_activation(k, selected_S_Ia, transm_success_Ia);
+//    uint inc_total  = inc_Is + inc_Ia;
+    
+//    cout << "INCIDENCES: inc_Is = "<< inc_Is << " ; inc_Ia = " << inc_Ia << endl;
+    
+
 }
 
 
@@ -1340,6 +1400,17 @@ void Simulation::check_book_keeping(){
         stopif(_world[k].get_n_Ia() != _world[k].get_id_Ia().size() ||
                _world[k].get_n_Ia() != _world[k]._indiv_Ia.size(),
                "Book keeping error with Ia IDs.");
+        
+        for(uint i=0; i<_world[k]._indiv_Ia.size(); i++){
+            ID id = _world[k]._indiv_Ia[i]->get_id();
+            uint j=0;
+            while(_world[k].get_indiv(j).get_id() != id)
+                j++;
+            stopif(j >= _world[k].get_indiv().size(), "Book keeping error with _indiv_Ia.");
+            stopif(!_world[k].get_indiv(j).is_infectious(), "Book keeping error with _indiv_Ia.");
+            stopif(_world[k].get_indiv(j).is_symptomatic(), "Book keeping error with _indiv_Ia.");
+        }
+
     }
     bool check_Ia = ( (_n_Ia == nIa) && (nIa == nIa_census) );
     stopif(!check_Ia, "Book keeping error with Ia stage");

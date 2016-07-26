@@ -128,6 +128,8 @@ public:
     double          calc_proba_symptomatic(float immunity, float frailty);
     double          calc_proba_hospitalized(float frailty);
     
+    uint    transmission_process(uint k, double dt, string infectious_type);
+    
     vector< vector<uint> > transmission_attempts(uint k,
                                                  vector< vector<uint> > selected_S,
                                                  string infectious_type);

@@ -236,8 +236,8 @@ void main_test_hospitalization(){
     MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
     MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
-    uint n_indiv = 200;
-    uint i0 = 12;
+    uint n_indiv = 100;
+    uint i0 = 2;
 
     
     _RANDOM_GENERATOR.seed(123);

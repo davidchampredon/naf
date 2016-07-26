@@ -184,13 +184,13 @@ void socialPlace::add_indiv(individual & newindiv){
     // update pointer tables:
     if(_indiv.back().is_susceptible())
         _indiv_S.push_back(&_indiv.back());
-
+    
     if(_indiv.back().is_infectious() &&
-            _indiv.back().is_symptomatic())
+       _indiv.back().is_symptomatic())
         _indiv_Is.push_back(&_indiv.back());
-
+    
     if(_indiv.back().is_infectious() &&
-            !_indiv.back().is_symptomatic())
+       !_indiv.back().is_symptomatic())
         _indiv_Ia.push_back(&_indiv.back());
     
     if(_indiv.back().is_hosp())

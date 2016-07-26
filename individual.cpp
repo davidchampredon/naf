@@ -315,8 +315,8 @@ vector<individual> build_individuals(uint n,
         double age = unif_age(_RANDOM_GENERATOR);
         individual tmp(i, age);
         
-        tmp.set_immunity(0.0); //unif_01(_RANDOM_GENERATOR)
-        tmp.set_frailty(1.0);  //unif_01(_RANDOM_GENERATOR)
+        tmp.set_immunity(unif_01(_RANDOM_GENERATOR)); //unif_01(_RANDOM_GENERATOR)
+        tmp.set_frailty(unif_01(_RANDOM_GENERATOR));  //unif_01(_RANDOM_GENERATOR)
         tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);
         tmp.set_dol_distrib(dol_distrib);
         tmp.set_doi_distrib(doi_distrib);
