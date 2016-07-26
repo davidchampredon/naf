@@ -217,9 +217,7 @@ Simulation test_hospitalization(modelParam MP,
 void main_test_hospitalization(){
     /// Test moves of individuals between 2 social places
     
-    
     double horizon = 30.0;
-    
     modelParam MP;
     
     MP.add_prm_bool("debug_mode", true);
@@ -228,11 +226,11 @@ void main_test_hospitalization(){
     MP.add_prm_double ("doi_mean", 3.0);
     MP.add_prm_double ("proba_move", 1.0);
     MP.add_prm_bool   ("homogeneous_contact", false);
-    MP.add_prm_double ("contact_rate", 0.0);
+    MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
-    MP.add_prm_double ("proba_hospitalization", 1.0);
+
     
-    uint n_indiv = 10;
+    uint n_indiv = 30;
     uint i0 = 2;
     
     

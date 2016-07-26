@@ -4,6 +4,7 @@ TO DO LIST:
 === MAJOR ITEMS ===
 
 - Hospitalization
+- _id_Is and _indiv_Is redundant
 - Draw contact rate from distributions
 - Treatment class
 - Vaccinated class, several types of concurrent vaccines.

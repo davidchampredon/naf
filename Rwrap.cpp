@@ -164,6 +164,67 @@ List naf_test_2_sp(List params, List simulParams){
 
 
 
+// [[Rcpp::export]]
+List naf_test_hosp(List params, List simulParams){
+	/// Test hospitalization
+	
+	vector<unsigned int> res;
+	
+	// Model parameters:
+	
+	bool debug_mode		= params["debug_mode"];
+	double dol_mean		= params["dol_mean"];
+	double doi_mean		= params["doi_mean"];
+	double doh_mean		= params["doh_mean"];
+	
+	double proba_move   = params["proba_move"];
+	double contact_rate = params["contact_rate"];
+	bool homog          = params["homogeneous_contact"];
+	
+	unsigned int rnd_seed	= params["rnd_seed"];
+	
+	// Simulation parameters:
+	unsigned int n_indiv = simulParams["n_indiv"];
+	unsigned int i0	     = simulParams["initial_latent"];
+	double horizon       = simulParams["horizon"];
+	unsigned int nt	     = simulParams["nt"];
+	
+	// Store parameters in a 'modelParam' class:
+	modelParam MP;
+	MP.add_prm_bool("debug_mode", debug_mode);
+	MP.add_prm_double("dol_mean", dol_mean);
+	MP.add_prm_double("doi_mean", doi_mean);
+	MP.add_prm_double("doh_mean", doh_mean);
+	MP.add_prm_double("proba_move", proba_move);
+	MP.add_prm_double("contact_rate", contact_rate);
+	MP.add_prm_uint("n_indiv", n_indiv);
+	MP.add_prm_bool("homogeneous_contact", homog);
+	MP.add_prm_uint("nt", nt);
+	
+	cout << "DEBUG: the seed is "<<rnd_seed <<endl;
+	
+	// Set random seed
+	_RANDOM_GENERATOR.seed(rnd_seed);
+	
+	// Call C++ function
+	Simulation sim = test_hospitalization(MP,
+										  horizon,
+										  n_indiv,
+										  i0);
+	
+	// Retrieve all results from simulation:
+	// populations:
+	dcDataFrame pop_final = sim.get_world()[0].export_dcDataFrame();
+	// epidemic time series
+	dcDataFrame ts = sim.timeseries();
+	dcDataFrame ts_census = sim.get_ts_census_by_SP();
+	// Return R-formatted result:
+	return List::create(Named("population_final") = dcDataFrameToRcppList(pop_final,false),
+						Named("time_series") = dcDataFrameToRcppList(ts, false),
+						Named("time_series_census") = dcDataFrameToRcppList(ts_census, false));
+}
+
+
 
 // [[Rcpp::export]]
 List rnd_test(List params){

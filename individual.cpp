@@ -20,35 +20,41 @@ void individual::base_constructor(){
     _frailty	= 1.0;
     
     // Social place:
-    _id_sp_current		= __UNDEFINED_ID;
-    _id_sp_household	= __UNDEFINED_ID;
-    _id_sp_workplace	= __UNDEFINED_ID;
-    _id_sp_school		= __UNDEFINED_ID;
-    _id_sp_other		= __UNDEFINED_ID;
-    _id_sp_hospital		= __UNDEFINED_ID;
-    _id_sp_pubTransp	= __UNDEFINED_ID;
+    _id_sp_current      = __UNDEFINED_ID;
+    _id_sp_household    = __UNDEFINED_ID;
+    _id_sp_workplace    = __UNDEFINED_ID;
+    _id_sp_school       = __UNDEFINED_ID;
+    _id_sp_other        = __UNDEFINED_ID;
+    _id_sp_hospital     = __UNDEFINED_ID;
+    _id_sp_pubTransp    = __UNDEFINED_ID;
     
     // Clinical:
     _is_at_risk		= false;
     
-    _is_susceptible = true;
-    _is_infected	= false;
-    _is_latent		= false;
-    _is_infectious	= false;
-    _is_recovered	= false;
-    _is_symptomatic = false;
-    _was_symptomatic = false;
-    _is_hosp		= false;
+    _is_susceptible     = true;
+    _is_infected        = false;
+    _is_latent          = false;
+    _is_infectious      = false;
+    _is_recovered       = false;
+    
+    _is_symptomatic     = false;
+    _was_symptomatic    = false;
+
+    _is_hosp            = false;
+    _willbe_hosp        = false;
     
     _doi	= 0.0;
     _dol	= 0.0;
     _doh	= 0.0;
+    _dobh   = 0.0;
     _doi_drawn	= 0.0;
     _dol_drawn	= 0.0;
     _doh_drawn	= 0.0;
+    _dobh_drawn = 0.0;
     
     _dol_distrib = "dirac";
     _doi_distrib = "dirac";
+    _doh_distrib = "dirac";
 }
 
 
@@ -83,7 +89,10 @@ string individual::_disease_status_update(double dt){
     
     // Disease-related durations:
     if (_dol>0 && _dol <= _dol_drawn) _dol += dt;
-    if (_doi>0 && _doi <= _doi_drawn) _doi += dt;
+    if (_doi>0 && _doi <= _doi_drawn) {
+        _doi += dt;
+        _dobh = _dol+_doi;
+    }
     if (_doh>0 && _doh <= _doh_drawn) _doh += dt;
     
     // Update disease stages
@@ -99,6 +108,15 @@ string individual::_disease_status_update(double dt){
         res = "E_to_I";
     }
     
+    // form 'Is' to 'H'
+    // * * * WARNING * * *
+    // DO NOT DO ANYTHING FOR THIS CASE:
+    // because hospitalization requires
+    // moving the individual to an
+    // 'hospital' social place,
+    // so that's dealt with at the 'Simulation' level.
+    
+    
     // From 'I' to 'R'
     else if (_doi > _doi_drawn &&
              !_is_recovered &&
@@ -111,6 +129,7 @@ string individual::_disease_status_update(double dt){
         res = "I_to_R";
     }
     
+    // from 'H' to 'R' or 'D'
     if (_doh > _doh_drawn)
     {
         _is_hosp = false;
@@ -210,6 +229,7 @@ double individual::calc_proba_acquire_disease(){
     return (1-_immunity) * _frailty ;
 }
 
+
 void individual::acquireDisease(){
     /// This individual acquires the disease
     
@@ -239,11 +259,26 @@ void individual::acquireDisease(){
         std::exponential_distribution<float> d(1.0/doi_mean);
         _doi_drawn = d(_RANDOM_GENERATOR);
     }
+   
+}
+
+void individual::futureHospitalization(){
+    /// This individual will be hopitalized,
+    /// determine when and duration
     
+    _willbe_hosp = true;
     
-    // TO DO: change that! Make this random...
-    _is_symptomatic = true;
-    _was_symptomatic = true;
+    // hospitalization will happen after (drawn) latent,
+    // but before end of (drawn) infectiousness
+    std::uniform_real_distribution<> unif(0, _doi_drawn);
+    _dobh_drawn = _dol_drawn + unif(_RANDOM_GENERATOR);
+    
+    float doh_mean = _disease.get_doh_mean();
+    if (_doh_distrib == "dirac") _doh_distrib = doh_mean;
+    if (_doh_distrib == "exp") {
+        std::exponential_distribution<float> d(1.0/doh_mean);
+        _doh_drawn = d(_RANDOM_GENERATOR);
+    }
 }
 
 

@@ -178,12 +178,18 @@ void socialPlace::add_indiv(individual & newindiv){
     
     _indiv.push_back(newindiv);
     _size++;
-    // DELETE WHEN SURE: if(newindiv.is_infected()) _prevalence++;
+    
     update_epidemic_count(newindiv, "add");
     
     // update pointer tables:
-    if(_indiv.back().is_susceptible()) _indiv_S.push_back(&_indiv.back());
-    
+    if(_indiv.back().is_susceptible())
+        _indiv_S.push_back(&_indiv.back());
+
+    else if(_indiv.back().is_infectious() && _indiv.back().is_symptomatic())
+        _indiv_Is.push_back(&_indiv.back());
+
+    else if(_indiv.back().is_infectious() && !_indiv.back().is_symptomatic())
+        _indiv_Ia.push_back(&_indiv.back());
 }
 
 
@@ -221,19 +227,22 @@ void socialPlace::remove_indiv(uint pos){
     
     stopif(pos>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
     
-    // DELETE WHEN SURE: bool is_infected = _indiv[pos].is_infected(); // <-- MUST BE BEFORE erasing individual!
-    
     update_epidemic_count(_indiv[pos], "remove"); // <-- MUST BE BEFORE erasing individual!
     
-    // update pointer tables:
-    // DELETE WHEN SURE: removeValue(_indiv_S, &_indiv[pos]);
+    // update pointer tables (_indiv_X):
     if(_indiv[pos].is_susceptible()) removeValue(_indiv_S, &_indiv[pos]);
-       
+    
+    else if(_indiv[pos].is_infectious() && _indiv[pos].is_symptomatic())
+        removeValue(_indiv_Is, &_indiv[pos]);
+    
+    else if(_indiv[pos].is_infectious() && !_indiv[pos].is_symptomatic())
+        removeValue(_indiv_Ia, &_indiv[pos]);
+    
+    // remove from '_indiv' (MUST BE REMOVED _AFTER_ 'indiv_x')
     _indiv.erase(_indiv.begin()+pos);
     
     // Mandatory updates:
     _size--;
-    // DELETE WHEN SURE: if(is_infected) _prevalence--;
 }
 
 
@@ -422,18 +431,22 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     vector<double> is_recovered(n);
     vector<double> dol_drawn(n);
     vector<double> doi_drawn(n);
+    vector<double> dobh_drawn(n);
+    vector<double> is_hosp(n);
     
     for(ID i=0; i<n; i++){
-        id_indiv[i]			= _indiv[i].get_id();
-        age[i]				= _indiv[i].get_age();
-        immunity[i]			= _indiv[i].get_immunity();
-        frailty[i]			= _indiv[i].get_frailty();
-        is_infected[i]		= _indiv[i].is_infected();
+        id_indiv[i]      = _indiv[i].get_id();
+        age[i]           = _indiv[i].get_age();
+        immunity[i]      = _indiv[i].get_immunity();
+        frailty[i]       = _indiv[i].get_frailty();
+        is_infected[i]   = _indiv[i].is_infected();
         is_infectious[i]	= _indiv[i].is_infectious();
         is_latent[i]		= _indiv[i].is_latent();
-        is_recovered[i]		= _indiv[i].is_recovered();
-        dol_drawn[i]        = _indiv[i].get_dol_drawn();
-        doi_drawn[i]        = _indiv[i].get_doi_drawn();
+        is_recovered[i]	= _indiv[i].is_recovered();
+        dol_drawn[i]     = _indiv[i].get_dol_drawn();
+        doi_drawn[i]     = _indiv[i].get_doi_drawn();
+        dobh_drawn[i]    = _indiv[i].get_dobh_drawn();
+        is_hosp[i]       = _indiv[i].is_hosp();
     }
     
     df.addcol("id_indiv", id_indiv);
@@ -446,6 +459,8 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     df.addcol("is_recovered", is_recovered);
     df.addcol("dol_drawn", dol_drawn);
     df.addcol("doi_drawn", doi_drawn);
+    df.addcol("dobh_drawn", dobh_drawn);
+    df.addcol("is_hosp", is_hosp);
     return df;
 }
 
@@ -497,7 +512,8 @@ void socialPlace::time_update(double dt){
             stopif(_n_E==0, "Book keeping problem!");
             _n_E--;
         }
-        if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
+        
+        else if (event == "E_to_I" && !_indiv[i].is_symptomatic() ) {
             _n_Ia++;
             add_id_Ia(_indiv[i].get_id());
             _indiv_Ia.push_back(get_mem_indiv(i));
@@ -506,7 +522,17 @@ void socialPlace::time_update(double dt){
             _n_E--;
         }
         
-        if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
+        else if (event == "Is_to_H") {
+            stopif(_n_Is==0, "Book keeping problem!");
+            // * * * WARNING * * *
+            // DO NOT DO ANYTHING HERE (unlike other 'if' cases)
+            // because hospitalization requires
+            // moving the individual to an
+            // 'hospital' social place,
+            // so that's dealt with at the 'Simulation' level.
+        }
+        
+        else if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
             stopif(_n_Is==0, "Book keeping problem!");
             _n_Is--;
             removeValue(_indiv_Is, &_indiv[i]);
@@ -514,7 +540,7 @@ void socialPlace::time_update(double dt){
             _n_R++;
         }
         
-        if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
+        else if (event == "I_to_R" && !_indiv[i].was_symptomatic() ) {
             stopif(_n_Ia==0, "Book keeping problem!");
             _n_Ia--;
             removeValue(_indiv_Ia, &_indiv[i]);

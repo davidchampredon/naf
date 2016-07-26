@@ -20,8 +20,8 @@ class disease{
 	
 	float	_dol_mean;		// mean duration of latency
 	float	_doi_mean;		// mean duration of infectiousness
-	
-	
+	float	_doh_mean;		// mean duration of hospitalization
+    
 public:
 	
 	disease(){base_constructor();}
@@ -29,12 +29,21 @@ public:
 	void	base_constructor();
 	
 	disease(string name);
-	disease(string name, float dol_mean, float doi_mean);
+    disease(string name,
+            float dol_mean,
+            float doi_mean);
+	disease(string name,
+            float dol_mean,
+            float doi_mean,
+            float doh_mean);
 	
 	// Get functions:
-	string	get_name() const {return _name;}
-	float	get_dol_mean() const{return _dol_mean;}
-	float	get_doi_mean() const{return _doi_mean;}
+	string	get_name()      const {return _name;}
+	float	get_dol_mean()  const {return _dol_mean;}
+	float	get_doi_mean()  const {return _doi_mean;}
+    float	get_doh_mean()  const {return _doh_mean;}
+    
+    
 };
 
 

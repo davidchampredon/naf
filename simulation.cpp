@@ -558,7 +558,9 @@ void Simulation::run(){
         _ts_E.push_back(_n_E);
         _ts_Ia.push_back(_n_Ia);
         _ts_Is.push_back(_n_Is);
+        _ts_H.push_back(_n_H);
         _ts_R.push_back(_n_R);
+        
         
         // Advance time:
         time_update(dt);
@@ -571,6 +573,8 @@ void Simulation::run(){
     if(debug_mode){
         cout << endl << endl << "Simulation completed."<< endl;
         displayVector(_ts_incidence);
+        cout << "time series of hospitalizations:"<<endl;
+        displayVector(_ts_H);
         cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
     }
 }
@@ -703,13 +707,18 @@ vector<uint> Simulation::draw_n_contacts(uint k,
     /// Draw the (random) number of contacts
     /// for all infectious individuals of a given type.
     
-    vector<uint> n_contacts; // number of contacts for each infectious individual
+    
     
     uint n=0;
     if(infectious_type == "Is") n = (uint)_world[k]._indiv_Is.size();
     if(infectious_type == "Ia") n = (uint)_world[k]._indiv_Ia.size();
     
-    for (uint i=0; i<n; i++) {
+    vector<uint> n_contacts(n,0); // number of contacts for each infectious individual
+    
+    uint nS = _world[k].get_n_S();
+    uint total_contacts = 0;
+    
+    for (uint i=0; (i<n) && (total_contacts <= nS) ; i++) {
         // draw the contact rate
         // based on the individual and the current social place:
         individual* tmp = nullptr;
@@ -720,7 +729,18 @@ vector<uint> Simulation::draw_n_contacts(uint k,
         
         // Draw the actual number of contacts
         std::poisson_distribution<> poiss(cr * dt);
-        n_contacts.push_back( poiss(_RANDOM_GENERATOR) );
+        uint rnd_contact = poiss(_RANDOM_GENERATOR);
+        
+        // If too many contact drawn,
+        // reduce the latest one drawn,
+        // and exit this loop.
+        // (hence, the following infectious will have ZERO contact)
+        total_contacts += rnd_contact;
+        if ( total_contacts > nS ){
+            rnd_contact -= (total_contacts - nS);
+        }
+        
+        n_contacts[i] = rnd_contact;
     }
     return n_contacts;
 }
@@ -744,6 +764,27 @@ double Simulation::calc_proba_transmission(individual *infectious,
 }
 
 
+
+double Simulation::calc_proba_symptomatic(float immunity, float frailty){
+    /// Probability to be symptomatic given
+    /// an individual's immunity and frailty
+    
+    // TO DO: more sophisticated!
+    
+    return frailty * (1-immunity);
+}
+
+
+double Simulation::calc_proba_hospitalized(float frailty){
+    /// Probability to be symptomatic given
+    /// an individual's immunity and frailty
+    
+    // TO DO: more sophisticated!
+    
+    return frailty ;
+}
+
+
 vector< vector<uint> > Simulation::draw_contacted_S(uint k,
                                                     vector<uint> n_contacts,
                                                     string infectious_type){
@@ -756,6 +797,9 @@ vector< vector<uint> > Simulation::draw_contacted_S(uint k,
     if(infectious_type == "Ia") n_inf = (uint)_world[k]._indiv_Ia.size();
     
     uint n_susc = (uint)_world[k]._indiv_S.size();
+    
+    stopif(sumElements(n_contacts)>n_susc, "Asking to draw more susceptibles than it exists!");
+    
     vector< vector<uint> > selected_S(n_inf);
     
     // For all infectious indiv,
@@ -840,9 +884,43 @@ uint Simulation::transmission_activation(int k,
     // clean-up: sort descending and remove duplicates
     // (important for easy deletions!)
     vector<uint> SS_melt_success = sort_remove_duplicate(SS_melt, false);
+    unsigned long nss =SS_melt_success.size();
     
-    for (uint m=0; m<SS_melt_success.size(); m++) {
+    // * * * WARNING * * *
+    // for performance, put this here instead of inside for loop below,
+    // but this assumes only ONE disease
+    disease flu ;
+    if(nss>0) flu = _world[k]._indiv_S[SS_melt_success[0]]->get_disease();
+    
+    std::uniform_real_distribution<float> unif_01(0.0, 1.0);
+    
+    // activate tranmission:
+    for (uint m=0; m<nss; m++) {
+        
+        // acquire the disease and (inside fct) set DOL & DOI
         _world[k]._indiv_S[SS_melt_success[m]]->acquireDisease();
+        
+        // determine if symptomatic:
+        float immunity = _world[k]._indiv_S[SS_melt_success[m]]->get_immunity();
+        float frailty  = _world[k]._indiv_S[SS_melt_success[m]]->get_frailty();
+        double p_sympt = calc_proba_symptomatic(immunity, frailty);
+        
+        bool is_symptomatic = ( unif_01(_RANDOM_GENERATOR) < p_sympt );
+        if (is_symptomatic) {
+            _world[k]._indiv_S[SS_melt_success[m]]->set_is_symptomatic(true);
+            _world[k]._indiv_S[SS_melt_success[m]]->set_was_symptomatic(true);
+            
+          
+            // For performance, the time and duration of hospitalization
+            // is decided (in advance) at infection
+            // (this is faster than checking if we hospitalized at every time step)
+            
+            double  p_hosp  = calc_proba_hospitalized(frailty);
+            bool    willbe_hosp = ( unif_01(_RANDOM_GENERATOR) < p_hosp );
+            if (willbe_hosp) {
+                _world[k]._indiv_S[SS_melt_success[m]]->futureHospitalization();
+            }
+        }
         
         // Book keeping: Update counters
         _world[k].update_epidemic_count(*_world[k]._indiv_S[SS_melt_success[m]], "new_case");
@@ -854,28 +932,6 @@ uint Simulation::transmission_activation(int k,
         incidence ++;
         // TO DO: record infection times, etc.
     }
-    
-    
-//    for (uint i=0; i<selected_S.size(); i++) {
-//        for (uint j=0; j < selected_S[i].size(); j++){
-//            
-//            if(transm_success[i][j]){
-//                _world[k]._indiv_S[selected_S[i][j]]->acquireDisease();
-//                
-//                // Book keeping: Update counters
-//                _world[k].update_epidemic_count(*_world[k]._indiv_S[selected_S[i][j]], "new_case");
-//
-//                // Book keeping: Update pointer tables:
-//                uint tmp1 = selected_S[i][j];
-//                _world[k]._indiv_S.erase(_world[k]._indiv_S.begin() + selected_S[i][j]);
-//                
-//                
-//                incidence ++;
-//                // TO DO: record infection times, etc.
-//            }
-//        }
-//    }
-
     return incidence;
 }
 
@@ -1001,6 +1057,9 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<uint> I0){
     
     stopif(id_sp.size() != I0.size(), "vectors must be same size");
     
+    vector<vector<uint> > selected_S(1);
+    vector<vector<uint> > transm_success(id_sp.size());
+    
     ID cnt = 0;
     for(ID i=0; i<_world.size(); i++){
         if (_world[i].get_id_sp() == id_sp[cnt]) {
@@ -1010,8 +1069,15 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<uint> I0){
             stopif(_world[i].get_size() < I0[cnt], errmsg);
             
             // seed infection in this social place:
-            for(uint k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
-            _world[i].set_n_E(I0[cnt]);
+//            for(uint k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
+//            _world[i].set_n_E(I0[cnt]);
+            
+            for(uint j=0; j<I0[cnt]; j++) {
+                selected_S[0].push_back(j);
+                transm_success[0].push_back(true);
+            }
+            transmission_activation(id_sp[cnt], selected_S, transm_success);
+            
             cnt++;
         }
     }
@@ -1188,6 +1254,7 @@ void Simulation::check_book_keeping(){
         stopif(_world[k].get_n_Is() != _world[k].get_id_Is().size() ||
                _world[k].get_n_Is() != _world[k]._indiv_Is.size(),
                "Book keeping error with Is IDs.");
+        
     }
     bool check_Is = ( (_n_Is == nIs) && (nIs == nIs_census) );
     stopif(!check_Is, "Book keeping error with Is stage");
@@ -1316,50 +1383,41 @@ void Simulation::assign_hospital_to_individuals(){
 }
 
 
-// STOPPED HERE: change the way hospitalization is done
-// Instead of checking at every time step among Is,
-// decide when infection is acquired:
-// - if indiv will be hospitalized
-// - when
-// - for how long (doh)
-// But then, must implement a check if for example
-// treatment is given before hospitalization,
-// hospitalization must be canceled and indiv moved to T compartment.
-
-
 void Simulation::hospitalize(){
     /// Scan all infectious symptomatic individuals
-    /// and 'decide' (stocahstic decision) to hospitalize or not
+    /// and hospitalize them if they were meant to and if it's time to do so.
     
     std::uniform_real_distribution<> unif(0.0, 1.0);
     
-    for (uint k=0; k<_world.size(); k++) {
+    for (uint k=0; k<_world.size(); k++)
+    {
         uint nIs = _world[k].get_n_Is();
-        for (uint i=0; i<nIs; i++) {
-            
-            // If not already hospitalized:
-            if (! _world[k]._indiv_Is[i]->is_hosp())
+        
+        for (uint i=0; i<nIs; i++) {    
+            // If time to hospitalize:
+            if (! _world[k]._indiv_Is[i]-> is_hosp() &&
+                _world[k]._indiv_Is[i]-> willbe_hosp() &&
+                _world[k]._indiv_Is[i]-> time_to_hospitalize())
             {
-                double p =_modelParam.get_prm_double("proba_hospitalization");
-                if (unif(_RANDOM_GENERATOR) < p)
-                {
-                    // set the hospitalization flag for this individual
-                    _world[k]._indiv_Is[i]->set_is_hosp(true);
-                    
-                    // Move individual to its linked SP_hospital
-                    ID id_sp_hospital = _world[k]._indiv_Is[i]->get_id_sp_hospital();
-                    ID id_indiv = _world[k]._indiv_Is[i]->get_id();
-                    uint pos = _world[k].find_indiv_pos(id_indiv);
-                    move_one_individual(pos, k, id_sp_hospital);
-                    
-                    // update counters
-                    _n_H++;
-                    _world[id_sp_hospital].increment_n_H();
-                    
-                    // update _indiv_Is pointers:
-                    _world[id_sp_hospital]._indiv_Is.push_back(_world[k]._indiv_Is[i]);  //_world[k].get_mem_indiv(pos)
-                    _world[k]._indiv_Is.erase(_world[k]._indiv_Is.begin()+i);
-                }
+                // set the hospitalization flag for this individual
+                _world[k]._indiv_Is[i]->set_is_hosp(true);
+                
+                ID id_sp_hospital = _world[k]._indiv_Is[i]->get_id_sp_hospital();
+                ID id_indiv = _world[k]._indiv_Is[i]->get_id();
+                uint pos_indiv = _world[k].find_indiv_pos(id_indiv);
+                
+                // update counters
+                _n_H++;
+                _world[id_sp_hospital].increment_n_H();
+                
+                // Move individual to its linked SP_hospital
+                move_one_individual(pos_indiv, k, id_sp_hospital);
+                
+                // update _indiv_Is pointers:
+//                _world[id_sp_hospital]._indiv_Is.push_back(_world[k]._indiv_Is[i]);
+//                _world[k]._indiv_Is.erase(_world[k]._indiv_Is.begin()+i);
+                
+               
             }
         }
     }

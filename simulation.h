@@ -47,6 +47,7 @@ protected:
 	vector<uint>	_ts_E;
 	vector<uint>	_ts_Ia;
 	vector<uint>	_ts_Is;
+    vector<uint>	_ts_H;
 	vector<uint>	_ts_R;
     
     dcDataFrame     _ts_census_by_SP;
@@ -101,8 +102,8 @@ public:
     
     // Book keeping
     
-    void			check_book_keeping();
-    void            define_all_id_tables();
+    void    check_book_keeping();
+    void    define_all_id_tables();
 	
 	// Epidemic
 	
@@ -123,6 +124,9 @@ public:
     
     double          calc_proba_transmission(individual* infectious,
                                             individual* susceptible);
+    
+    double          calc_proba_symptomatic(float immunity, float frailty);
+    double          calc_proba_hospitalized(float frailty);
     
     vector< vector<uint> > transmission_attempts(uint k,
                                                  vector< vector<uint> > selected_S);
