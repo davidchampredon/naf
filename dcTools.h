@@ -56,10 +56,13 @@ enum SPtype {
 
 // Global constants
 
-const ID __UNDEFINED_ID = 999999999;
+const ID __UNDEFINED_ID     = 999999999;
+const uint __UNDEFINED_UINT   = 999999999;
+const float __UNDEFINED_FLOAT   = 999999999.9999;
+const double __UNDEFINED_DOUBLE   = 999999999.9999;
 
-# define TINY			1e-3
-# define SUPERTINY	1e-19     // <-- Keep this really small (e.g. 1E-19), else book keeping problems!
+# define TINY           1e-3
+# define SUPERTINY      1e-19     // <-- Keep this really small (e.g. 1E-19), else book keeping problems!
 
 
 

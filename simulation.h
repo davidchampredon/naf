@@ -109,7 +109,7 @@ public:
 	
 	void	set_disease(const disease& d);
 	void	seed_infection(vector<ID> id_sp, vector<uint> I0);
-	uint	transmission_oneSP(uint k, double contact_rate, double dt);
+	uint	transmission_oneSP(uint k, double dt);
 	void	transmission_world(double timeslice);
 	uint	prevalence();
 
@@ -134,6 +134,11 @@ public:
                                                  vector< vector<uint> > selected_S,
                                                  string infectious_type);
 
+    void    transmission_wiw(int k,
+                             vector< vector<uint> > selected_S,
+                             vector< vector<uint> > transm_success,
+                             string infectious_type);
+    
     uint    transmission_activation(int k,
                                     vector< vector<uint> > selected_S,
                                     vector< vector<uint> > transm_success);

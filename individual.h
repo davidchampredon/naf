@@ -52,24 +52,24 @@ protected:
 	bool	_is_symptomatic;
 	bool	_was_symptomatic;  // records if was symptomatic (when checked after infection).
 
-	bool	_is_recovered;
-	bool	_is_hosp;
-    bool    _willbe_hosp; // hospitalization is decided in advance, at transmission time
-    bool    _is_discharged;
+    bool	_is_recovered;
+    bool	_is_hosp;
+    bool   _willbe_hosp; // hospitalization is decided in advance, at transmission time
+    bool   _is_discharged;
 	
-	float	_dol; // duration of latency
-	float	_doi; // duration of infection
+    float	_dol; // duration of latency
+    float	_doi; // duration of infection
     float   _dobh; // duration before hospitalization
-	float	_doh; // duration of hospitalization
+    float	_doh; // duration of hospitalization
 	// When individual is infected,
 	// disease stages durations are randomly drawn:
-	float	_dol_drawn;
-	float	_doi_drawn;
-	float	_doh_drawn;
+    float	_dol_drawn;
+    float	_doi_drawn;
+    float	_doh_drawn;
     float	_dobh_drawn;
 	
-	string	_dol_distrib;  // distribution of the duration of latency
-	string	_doi_distrib;  // distribution of the duration of infectiousness
+    string	_dol_distrib;  // distribution of the duration of latency
+    string	_doi_distrib;  // distribution of the duration of infectiousness
     string	_doh_distrib;  // distribution of the duration of hospitalization
 
 	// Risk group:
@@ -80,7 +80,15 @@ protected:
 	// ???? REDUNDANT WITH FRAILTY ????
 	bool	_is_at_risk;
 	
-	
+    
+	// Epidemiology at individual level
+    float       _acquisition_time;
+    float       _acquisition_time_infector;
+    
+    uint        _num_secondary_cases;
+    vector<ID>  _ID_secondary_cases;
+
+    
 	// Social spaces linked
 	// to this individual
 	ID	_id_sp_current; // useful?
@@ -139,11 +147,20 @@ public:
     
     void set_doh(double x)              {_doh = x;}
     
-	void set_dol_distrib(string d)      {_dol_distrib = d;}
-	void set_doi_distrib(string d)      {_doi_distrib = d;}
+    void set_dol_distrib(string d)      {_dol_distrib = d;}
+    void set_doi_distrib(string d)      {_doi_distrib = d;}
     void set_doh_distrib(string d)      {_doh_distrib = d;}
     
-	
+    void set_acquisition_time(float t)  {_acquisition_time = t;}
+    void set_acquisition_time_infector(float t)  {_acquisition_time_infector = t;}
+    
+    void set_num_secondary_cases(uint x)    {_num_secondary_cases = x;}
+    void increment_num_secondary_cases()    {_num_secondary_cases++;}
+    
+    void set_ID_secondary_cases(vector<ID> x)   {_ID_secondary_cases = x;}
+    void push_ID_secondary_cases(ID x)          {_ID_secondary_cases.push_back(x);}
+    
+    
 	// Get functions
 	
 	ID get_id()					const {return _id;}
@@ -151,7 +168,7 @@ public:
 	ID get_id_sp_workplace()	const {return _id_sp_workplace;}
 	ID get_id_sp_school()		const {return _id_sp_school;}
 	ID get_id_sp_other()		const {return _id_sp_other;}
-	ID get_id_sp_hospital()		const {return _id_sp_hospital;}
+	ID get_id_sp_hospital()	const {return _id_sp_hospital;}
 	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
 	
 	double	get_age()           const {return _age;}
@@ -162,6 +179,10 @@ public:
     float	get_doh_drawn()     const {return _doh_drawn;}
     float	get_dobh_drawn()    const {return _dobh_drawn;}
 	
+    float get_acquisition_time()            const{return _acquisition_time;}
+    float get_acquisition_time_infector()   const{return _acquisition_time_infector;}
+    uint get_num_secondary_cases()          const{return _num_secondary_cases;}
+    
     bool is_susceptible()   const {return _is_susceptible;}
     bool is_infected()      const {return _is_infected;}
     bool is_infectious()    const {return _is_infectious;}
@@ -188,6 +209,7 @@ public:
 	void	acquireDisease();
 	void	recoverDisease();
     void    futureHospitalization();
+    
 	
 	// Miscellenaous
 	ID find_dest(uint idx_timeslice);

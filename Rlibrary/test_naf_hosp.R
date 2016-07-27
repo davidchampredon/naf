@@ -14,7 +14,7 @@ library(naf,lib.loc = "./lib")
 
 source('analysis_tools.R')
 
-save.plot.to.file <- F
+save.plot.to.file <- T
 
 t0 <- as.numeric(Sys.time())
 
@@ -55,11 +55,11 @@ ts_census <- as.data.frame(res[['time_series_census']])
 
 ### PLOTS ###
 
-if (save.plot.to.file) pdf('plot_TEST_naf_hosp.pdf')
+if (save.plot.to.file) pdf('plot_TEST_naf_hosp.pdf', width = 30,height = 20)
 
 pop <- as.data.frame(res[['population_final']])
-plot.population(pop)
 
+plot.population(pop)
 
 plot.epi.timeseries(ts)
 

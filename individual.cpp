@@ -56,6 +56,11 @@ void individual::base_constructor(){
     _dol_distrib = "dirac";
     _doi_distrib = "dirac";
     _doh_distrib = "dirac";
+    
+    _acquisition_time           = __UNDEFINED_FLOAT;
+    _acquisition_time_infector  = __UNDEFINED_FLOAT;
+    _num_secondary_cases        = 0;
+    _ID_secondary_cases.clear();
 }
 
 
