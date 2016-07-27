@@ -91,7 +91,7 @@ plot.population <- function(pop) {
 	g.R.symptom <- ggplot(pop.transm) +geom_density(aes(x=n_secondary_cases,
 														fill = factor(was_symptomatic),
 														colour = factor(was_symptomatic)),
-													alpha = 0.3)
+													alpha = 0.2)
 	g.R.symptom <- g.R.symptom + geom_vline(xintercept=pop.transm.sum$m[1],colour='blue',linetype=2)
 	g.R.symptom <- g.R.symptom + geom_vline(xintercept=pop.transm.sum$m[2],colour='red',linetype=2)
 	g.R.symptom <- g.R.symptom + ggtitle(paste0("Secondary cases distribution (R0_asympt=",
@@ -115,6 +115,24 @@ plot.population <- function(pop) {
 										" ; sd=",
 										round(sd.gibck),")"))
 	
+	pop2.sum <- ddply(pop2,'was_symptomatic',summarize,
+					  m = mean(gi_bck))
+	
+	g.gibck.sympt <- ggplot(pop2) + geom_density(aes(gi_bck,
+												 fill = factor(was_symptomatic),
+												 colour = factor(was_symptomatic)),
+												 alpha = 0.2)
+	g.gibck.sympt <- g.gibck.sympt + geom_vline(data = pop2.sum , 
+								aes(xintercept=m,
+									colour = factor(was_symptomatic)), 
+								linetype=2)
+	
+	g.gibck.sympt <- g.gibck.sympt + ggtitle(paste0("Backward GI (mean_asympt=",
+													round(pop2.sum$m[1],2),
+													" ; mean_sympt=",
+													round(pop2.sum$m[2],2),
+													")"))
+	
 	grid.arrange(g.age, 
 				 g.dol.drawn, 
 				 g.doi.drawn,
@@ -125,7 +143,8 @@ plot.population <- function(pop) {
 				 g.age.hosp, 
 				 g.R,
 				 g.R.symptom,
-				 g.gibck)
+				 g.gibck,
+				 g.gibck.sympt)
 	
 }
 
