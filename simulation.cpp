@@ -11,7 +11,7 @@
 
 void Simulation::base_constructor(){
     
-    _n_E = 0;
+    _n_E  = 0;
     _n_Ia = 0;
     _n_Is = 0;
     _n_R  = 0;
@@ -25,6 +25,8 @@ void Simulation::base_constructor(){
     _ts_Is.clear();
     _ts_R.clear();
     _ts_census_by_SP.clear();
+    
+    _intervention.clear();
     
 }
 

@@ -460,6 +460,10 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     vector<double> doi_drawn(n);
     vector<double> dobh_drawn(n);
     vector<double> doh_drawn(n);
+    vector<double> dol(n);
+    vector<double> doi(n);
+    vector<double> doh(n);
+
     vector<double> is_hosp(n);
     vector<double> is_discharged(n);
     vector<double> n_secondary_cases(n);
@@ -476,7 +480,9 @@ dcDataFrame socialPlace::export_dcDataFrame(){
         is_latent[i]     = _indiv[i].is_latent();
         is_recovered[i]  = _indiv[i].is_recovered();
         dol_drawn[i]     = _indiv[i].get_dol_drawn();
+        dol[i]           = _indiv[i].get_dol();
         doi_drawn[i]     = _indiv[i].get_doi_drawn();
+        doi[i]           = _indiv[i].get_doi();
         dobh_drawn[i]    = _indiv[i].get_dobh_drawn();
         doh_drawn[i]     = _indiv[i].get_doh_drawn();
         is_hosp[i]       = _indiv[i].is_hosp();
@@ -495,7 +501,9 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     df.addcol("is_latent", is_latent);
     df.addcol("is_recovered", is_recovered);
     df.addcol("dol_drawn", dol_drawn);
+    df.addcol("dol", dol);
     df.addcol("doi_drawn", doi_drawn);
+    df.addcol("doi", doi);
     df.addcol("dobh_drawn", dobh_drawn);
     df.addcol("doh_drawn", doh_drawn);
     df.addcol("is_hosp", is_hosp);

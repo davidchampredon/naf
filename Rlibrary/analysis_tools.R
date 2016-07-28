@@ -39,6 +39,7 @@ plot.population <- function(pop) {
 	g.doh.drawn <- g.doh.drawn + ggtitle(paste0("DOH drawn distribution, among hospitalized (mean = ", round(m_doh_drawn,3),")"))
 	
 	
+	### Hospitalizations
 	
 	g.frail.hosp <- ggplot(pop)
 	g.frail.hosp <- g.frail.hosp + geom_smooth(aes(x=frailty, y=hosp),method = "glm", 
@@ -79,12 +80,11 @@ plot.population <- function(pop) {
 	g.R <- g.R + ggtitle(paste0("Secondary cases distribution (R0=",
 								round(R0,2),")"))
 	
-	CI = 0.80
 	pop.transm.sum <- ddply(pop.transm,"was_symptomatic",
 							summarize,
 							m = mean(n_secondary_cases),
-							q.lo = quantile(n_secondary_cases,probs = 0.5-CI/2),
-							q.hi = quantile(n_secondary_cases,probs = 0.5+CI/2))
+							q.lo = quantile(n_secondary_cases,probs = 0.5-0.80/2),
+							q.hi = quantile(n_secondary_cases,probs = 0.5+0.80/2))
 	
 	pop.transm.sum
 	
@@ -100,7 +100,8 @@ plot.population <- function(pop) {
 												round(pop.transm.sum$m[2],2),
 												")"))
 	
-	### generation interval
+	### Generation interval
+	
 	pop2 <- subset(pop,gi_bck>0)
 	mean.gibck <- mean(pop2$gi_bck)
 	sd.gibck <- sd(pop2$gi_bck)
@@ -133,6 +134,8 @@ plot.population <- function(pop) {
 													round(pop2.sum$m[2],2),
 													")"))
 	
+	### Final
+	
 	grid.arrange(g.age, 
 				 g.dol.drawn, 
 				 g.doi.drawn,
@@ -149,6 +152,8 @@ plot.population <- function(pop) {
 }
 
 plot.epi.timeseries <- function(ts){
+	### Plot time series
+	
 	g.SR <- ggplot(ts, aes(x=time))
 	g.SR <- g.SR + geom_step(aes(y=nS),colour='springgreen3') 
 	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue')

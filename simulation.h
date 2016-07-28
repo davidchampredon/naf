@@ -16,6 +16,7 @@
 #include "modelParam.h"
 #include "globalvar.h"
 #include "dcDataFrame.h"
+#include "intervention.h"
 
 using world = vector<socialPlace>;
 
@@ -52,7 +53,8 @@ protected:
     
     dcDataFrame     _ts_census_by_SP;
 
-	
+    vector<intervention> _intervention;
+    
 public:
 	
 	modelParam _modelParam;
@@ -146,16 +148,22 @@ public:
     void    hospitalize();
     void    discharge_hospital(uint idx_timeslice);
     
+
+    // Interventions
     
-	// Exports
-	
-	dcDataFrame		timeseries();
+    void    add_intervention(intervention x) {_intervention.push_back(x);}
     
     
     // Census
     
    	uint	census_total_alive();
     void    update_ts_census_by_SP();
+
+    
+	// Exports
+	
+	dcDataFrame		timeseries();
+    
     
     
     // Miscelleanous

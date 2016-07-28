@@ -40,7 +40,6 @@ protected:
 	float	_immunity;		// between 0 and 1.0 (1=completely immune)
 	float	_frailty;		// between 0 and 1.0 (1=extremely weak)
 	
-    
 	// Disease
 	
 	disease	_disease;
@@ -54,14 +53,15 @@ protected:
 
     bool	_is_recovered;
     bool	_is_hosp;
-    bool   _willbe_hosp; // hospitalization is decided in advance, at transmission time
-    bool   _is_discharged;
+    bool    _willbe_hosp; // hospitalization is decided in advance, at transmission time
+    bool    _is_discharged;
 	
     float	_dol; // duration of latency
     float	_doi; // duration of infection
     float   _dobh; // duration before hospitalization
     float	_doh; // duration of hospitalization
-	// When individual is infected,
+	
+    // When individual is infected,
 	// disease stages durations are randomly drawn:
     float	_dol_drawn;
     float	_doi_drawn;
@@ -88,6 +88,10 @@ protected:
     uint        _num_secondary_cases;
     vector<ID>  _ID_secondary_cases;
 
+    // Treatmentand Vaccination
+    bool    _is_treated;
+    
+    
     
 	// Social spaces linked
 	// to this individual
@@ -178,6 +182,11 @@ public:
 	float	get_doi_drawn()     const {return _doi_drawn;}
     float	get_doh_drawn()     const {return _doh_drawn;}
     float	get_dobh_drawn()    const {return _dobh_drawn;}
+    float	get_dol()           const {return _dol;}
+    float	get_doi()           const {return _doi;}
+    float	get_doh()           const {return _doh;}
+    float	get_dobh()          const {return _dobh;}
+
 	
     float get_acquisition_time()            const{return _acquisition_time;}
     float get_acquisition_time_infector()   const{return _acquisition_time_infector;}
