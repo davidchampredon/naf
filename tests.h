@@ -18,6 +18,15 @@
 #include "globalvar.h"
 
 
+void main_test_naf();
+Simulation test_naf(modelParam MP,
+                    double horizon,
+                    uint n_indiv,
+                    uint i0,
+                    const intervention &interv);
+
+
+
 // --- One single world, SEIR model -------------------
 
 Simulation test_SEIR_vs_ODE(modelParam MP,

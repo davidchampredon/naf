@@ -1134,6 +1134,19 @@ vector<double> vector_seq_by(double start, double end, double by)
 // ====================  SAMPLING  ===================
 // ===================================================
 
+
+double beta_distribution(double a, double b, std::mt19937_64& rnd_eng){
+    
+    std::gamma_distribution<double> gamma_a(a,1.0);
+    std::gamma_distribution<double> gamma_b(b,1.0);
+    
+    double x = gamma_a(rnd_eng);
+    double y = gamma_b(rnd_eng);
+    
+    return x/(x+y);
+}
+
+
 dcMatrix LatinHypercubeSampling(vector<double> Vmin, vector<double> Vmax,
                               int samplingNb)
 {

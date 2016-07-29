@@ -39,6 +39,8 @@ protected:
 	uint	_n_Is;  // infectious stage, symptomatic
 	uint	_n_R;   // recovered stage
     uint	_n_H;   // hospitalized
+    
+    uint    _n_treated;
 	
 	// time series
 	vector<double>	_ts_times;
@@ -50,6 +52,7 @@ protected:
 	vector<uint>	_ts_Is;
     vector<uint>	_ts_H;
 	vector<uint>	_ts_R;
+    vector<uint>    _ts_n_treated;
     
     dcDataFrame     _ts_census_by_SP;
 
@@ -152,6 +155,11 @@ public:
     // Interventions
     
     void    add_intervention(intervention x) {_intervention.push_back(x);}
+    void    activate_interventions(ID id_sp, double dt);
+    
+    vector<individual*> draw_targeted_individuals(uint i_intervention,
+                                                  ID id_sp,
+                                                  double dt);
     
     
     // Census

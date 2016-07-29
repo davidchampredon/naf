@@ -40,7 +40,8 @@ int main(int argc, const char * argv[]) {
     
     auto t0 = std::chrono::system_clock::now();
     
-    main_test_hospitalization();
+    
+     main_test_naf();
     
     // Previous tests:
     // main_test_SEIR_vs_ODE();

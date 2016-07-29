@@ -360,6 +360,8 @@ vector<double> vector_seq_by(double start, double end, double by);
 // ===================================================
 
 
+double beta_distribution(double a, double b, std::mt19937_64& rnd_eng);
+
 template <class T> vector<unsigned long> distribution(vector<T> data, vector<T> data_breaks)
 {
 	/// *** HISTOGRAM WITH LEFT CLOSED CONVENTION ***

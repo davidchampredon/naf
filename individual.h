@@ -149,6 +149,11 @@ public:
     void set_is_symptomatic(bool x)     {_is_symptomatic = x;}
     void set_was_symptomatic(bool x)    {_was_symptomatic = x;}
     
+    void set_is_treated(bool x)         {_is_treated = x;}
+    
+    void set_doi(double x)              {_doi = x;}
+    void set_doi_drawn(double x)        {_doi_drawn = x;}
+    void reduce_doi_drawn(double x);
     void set_doh(double x)              {_doh = x;}
     
     void set_dol_distrib(string d)      {_dol_distrib = d;}
@@ -172,7 +177,7 @@ public:
 	ID get_id_sp_workplace()	const {return _id_sp_workplace;}
 	ID get_id_sp_school()		const {return _id_sp_school;}
 	ID get_id_sp_other()		const {return _id_sp_other;}
-	ID get_id_sp_hospital()	const {return _id_sp_hospital;}
+	ID get_id_sp_hospital()     const {return _id_sp_hospital;}
 	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
 	
 	double	get_age()           const {return _age;}
@@ -202,6 +207,7 @@ public:
     bool is_hosp()          const {return _is_hosp;}
     bool willbe_hosp()      const {return _willbe_hosp;}
     bool is_discharged()    const {return _is_discharged;}
+    bool is_treated()       const {return _is_treated;}
 	
 	bool is_alive()				const {return _is_alive;}
 	
@@ -214,11 +220,12 @@ public:
     bool    time_to_hospitalize() {return (_dobh >= _dobh_drawn);}
 	
 	// Epidemiology
-	double	calc_proba_acquire_disease();
+    
 	void	acquireDisease();
 	void	recoverDisease();
     void    futureHospitalization();
-    
+    void    receive_treatment(double doi_reduction);
+    void    receive_cure();
 	
 	// Miscellenaous
 	ID find_dest(uint idx_timeslice);

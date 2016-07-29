@@ -21,6 +21,9 @@ t0 <- as.numeric(Sys.time())
 prm <- list()
 simul.prm <- list()
 
+
+### ==== Model Parameters ====
+
 cr <- 2.9
 doi_mean <- 6.0
 R0 <- cr * doi_mean
@@ -39,16 +42,32 @@ prm[['proba_move']] <- 1
 prm[['homogeneous_contact']] <- FALSE
 prm[['contact_rate']] <- cr
 prm[['asymptom_infectiousness_ratio']] <- 0.8
+prm[['doi_reduc_treat']] <- 1.1123
+prm[['treat_reduc_infect_mean']] <- 0.99
 
-prm[['rnd_seed']] <- 12345
+### ==== Simulation parameters ====
 
+simul.prm[['rnd_seed']] <- 12345
 simul.prm[['horizon']] <- 40
 simul.prm[['n_indiv']] <- 1000
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 2
 simul.prm[['popexport']] <- 1
 
-res <- naf_test_hosp(prm, simul.prm)
+# intervention:
+
+simul.prm[['interv_name']] <- 'interv_test'
+simul.prm[['interv_type']] <- 'treatment'  # treatment cure
+simul.prm[['interv_target']] <- 'symptomatic'
+simul.prm[['interv_start']] <- 10
+simul.prm[['interv_end']] <- 999
+simul.prm[['interv_cvg_rate']] <- 0.05
+simul.prm[['interv_cvg_max_prop']] <- 0.9999
+
+
+### ==== Run Simulation ====
+
+res <- naf_test(prm, simul.prm)
 
 ts <- as.data.frame(res[['time_series']])
 ts_census <- as.data.frame(res[['time_series_census']])
@@ -57,8 +76,7 @@ pop <- as.data.frame(res[['population_final']])
 
 ### PLOTS ###
 
-if (save.plot.to.file) pdf('plot_TEST_naf_hosp.pdf', width = 30,height = 20)
-
+if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
 
 plot.population(pop)
 

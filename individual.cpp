@@ -43,6 +43,8 @@ void individual::base_constructor(){
     _is_hosp            = false;
     _willbe_hosp        = false;
     _is_discharged      = false;
+    _is_treated         = false;
+    
     
     _doi	= 0.0;
     _dol	= 0.0;
@@ -88,9 +90,9 @@ string individual::_disease_status_update(double dt){
     string res = "NO_CHANGE";
     
     // DEBUG
-    //	if(_id == 0){
-    //		cout << "debug"<<endl;
-    //	}
+//    	if(_id == 22){
+//    		cout << "debug"<<endl;
+//    	}
     // ------
     
     // Disease-related durations:
@@ -125,8 +127,8 @@ string individual::_disease_status_update(double dt){
     
     // From 'I' to 'R'
     if (_doi > _doi_drawn &&
-             !_is_recovered &&
-             !_is_hosp)
+        !_is_recovered &&
+        !_is_hosp)
     {
         _is_infectious	= false;
         _is_infected	= false;
@@ -223,16 +225,6 @@ void individual::displayInfo(){
     cout << "doi = " << _doi << endl;
     cout << "doh = " << _doh << endl;
     cout << "-- " << endl;
-}
-
-
-double individual::calc_proba_acquire_disease(){
-    /// Calculate the probability of aquiring
-    /// the disease, given an infectious contact
-    
-    // TO DO: maybe implement something more sophisticated ? (logistic curves?)
-    
-    return (1-_immunity) * _frailty ;
 }
 
 
@@ -369,6 +361,36 @@ ID individual::find_dest(uint idx_timeslice){
     
     return id_dest;
 }
+
+
+void individual::reduce_doi_drawn(double x)
+{
+    _doi_drawn = _doi_drawn - x;
+    if(_doi_drawn<0)
+        _doi_drawn=SUPERTINY;
+}
+
+
+void individual::receive_treatment(double doi_reduction){
+    /// This individual receives a treamtment
+    /// that is supposed to reduced its DOI
+    
+    set_is_treated(true);
+    std::exponential_distribution<double> expdist(1.0/doi_reduction);
+    double tmp = _doi_drawn - expdist(_RANDOM_GENERATOR);
+    double new_doi_drawn = (tmp>0)?tmp:SUPERTINY;
+    set_doi_drawn(new_doi_drawn);
+
+}
+
+
+void individual::receive_cure(){
+    /// Instantaneously cure this individual (--> doi_drawn=0)
+    /// Used for debuging.
+    set_is_treated(true);
+    set_doi_drawn(SUPERTINY);
+}
+
 
 
 

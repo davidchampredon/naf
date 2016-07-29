@@ -12,6 +12,117 @@
 #include "tests.h"
 
 
+
+
+Simulation test_naf(modelParam MP,
+                    double horizon,
+                    uint n_indiv,
+                    uint i0,
+                    const intervention &interv){
+    
+    // unpack parameters
+    
+    double dol_mean = MP.get_prm_double("dol_mean");
+    double doi_mean = MP.get_prm_double("doi_mean");
+    double doh_mean = MP.get_prm_double("doh_mean");
+    bool debug_mode = MP.get_prm_bool("debug_mode");
+    
+    // Define the disease
+    disease flu("Influenza", dol_mean, doi_mean, doh_mean);
+    
+    
+    // Build simulation:
+    
+    Simulation sim;
+    sim.set_modelParam(MP);
+    sim.build_test_hospitalization(n_indiv);
+    sim.set_horizon(horizon);
+    sim.set_disease(flu);
+    
+    if(debug_mode){
+        sim.display_split_pop_linked();
+        sim.display_split_pop_present();
+    }
+    
+    // Seed infection(s) in world:
+    
+    vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
+    
+    vector<ID> sp_initially_infected {id_pres[0]};
+    vector<uint> I0 {i0};
+    
+    sim.define_all_id_tables();
+    sim.seed_infection(sp_initially_infected, I0);
+    
+    sim.assign_hospital_to_individuals();
+    
+    sim.add_intervention(interv);
+    
+    // Run the simulation:
+    sim.run();
+    
+    //sim.test();
+    
+    return sim;
+}
+
+
+void main_test_naf(){
+    /// Main test
+    
+    double horizon = 30.0;
+    modelParam MP;
+    
+    MP.add_prm_bool("debug_mode", true);
+    
+    MP.add_prm_string("dol_distrib", "exp");
+    MP.add_prm_string("doi_distrib", "exp");
+    MP.add_prm_string("doh_distrib", "exp");
+    
+    MP.add_prm_double ("dol_mean", 2.0);
+    MP.add_prm_double ("doi_mean", 3.789);
+    MP.add_prm_double ("doh_mean", 4.123);
+    
+    MP.add_prm_double ("proba_move", 1.0);
+    MP.add_prm_bool   ("homogeneous_contact", false);
+    MP.add_prm_double ("contact_rate", 2.0);
+    MP.add_prm_uint   ("nt", 3);
+    MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
+    MP.add_prm_double ("doi_reduc_treat", 999.99);
+    MP.add_prm_double ("treat_reduc_infect_mean",0.1);
+    
+    uint n_indiv = 200;
+    uint i0 = 2;
+    
+    _RANDOM_GENERATOR.seed(123);
+    
+    // Define intervention
+    float time_start = 10;
+    float time_end = 20;
+    float cvg_rate = 999.99;
+    float cvg_max_prop = 0.30;
+    intervention interv_test("treatment",  // treatment  cure
+                              "symptomatic",
+                              "interv_treat",
+                              time_start, time_end,
+                              cvg_rate, cvg_max_prop);
+    
+    // Run simulations:
+    
+    Simulation sim1 = test_naf(MP, horizon, n_indiv, i0,interv_test);
+    
+    dcDataFrame pop_final = sim1.get_world()[2].export_dcDataFrame();
+    pop_final.display();
+}
+
+
+
+
+
+
+
+
+
 Simulation test_SEIR_vs_ODE(modelParam MP,
 							 double horizon,
 							 uint n_indiv,
@@ -179,16 +290,27 @@ Simulation test_hospitalization(modelParam MP,
     // Define the disease
     disease flu("Influenza", dol_mean, doi_mean, doh_mean);
     
+    
+    // Define intervention
+    float time_start = 10;
+    float time_end = 20;
+    float cvg_rate = 0.05;
+    float cvg_max_prop = 0.30;
+    intervention interv_treat("cure",  // treatment  cure
+                              "symptomatic",
+                              "interv_treat",
+                              time_start, time_end,
+                              cvg_rate, cvg_max_prop);
+    
+    
     // Build simulation:
     
     Simulation sim;
     sim.set_modelParam(MP);
-    
     sim.build_test_hospitalization(n_indiv);
-    
     sim.set_horizon(horizon);
     sim.set_disease(flu);
-    
+
     if(debug_mode){
         sim.display_split_pop_linked();
         sim.display_split_pop_present();
@@ -205,6 +327,8 @@ Simulation test_hospitalization(modelParam MP,
     sim.seed_infection(sp_initially_infected, I0);
     
     sim.assign_hospital_to_individuals();
+    
+    sim.add_intervention(interv_treat);
     
     // Run the simulation:
     sim.run();
@@ -236,6 +360,8 @@ void main_test_hospitalization(){
     MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
     MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
+    MP.add_prm_double ("doi_reduc_treat", 1.0);
+    
     uint n_indiv = 200;
     uint i0 = 2;
 
@@ -341,5 +467,14 @@ void test_random(){
 	
 	
 }
+
+
+
+
+
+
+
+
+
 
 

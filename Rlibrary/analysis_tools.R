@@ -39,7 +39,7 @@ plot.population <- function(pop) {
 	g.doh.drawn <- g.doh.drawn + ggtitle(paste0("DOH drawn distribution, among hospitalized (mean = ", round(m_doh_drawn,3),")"))
 	
 	
-	### Hospitalizations
+	### ==== Hospitalizations ==== 
 	
 	g.frail.hosp <- ggplot(pop)
 	g.frail.hosp <- g.frail.hosp + geom_smooth(aes(x=frailty, y=hosp),method = "glm", 
@@ -67,7 +67,7 @@ plot.population <- function(pop) {
 	g.age.hosp <- g.age.hosp + ggtitle('Hospitalization and age')
 	
 	
-	### Secondary cases distribution
+	### ==== Secondary cases distribution ==== 
 	
 	pop.transm <- subset(pop, n_secondary_cases>0)
 	R0 <- mean(pop.transm$n_secondary_cases)
@@ -80,6 +80,8 @@ plot.population <- function(pop) {
 	g.R <- g.R + ggtitle(paste0("Secondary cases distribution (R0=",
 								round(R0,2),")"))
 	
+
+	# R0 symptomatic or not
 	pop.transm.sum <- ddply(pop.transm,"was_symptomatic",
 							summarize,
 							m = mean(n_secondary_cases),
@@ -92,15 +94,41 @@ plot.population <- function(pop) {
 														fill = factor(was_symptomatic),
 														colour = factor(was_symptomatic)),
 													alpha = 0.2)
-	g.R.symptom <- g.R.symptom + geom_vline(xintercept=pop.transm.sum$m[1],colour='blue',linetype=2)
-	g.R.symptom <- g.R.symptom + geom_vline(xintercept=pop.transm.sum$m[2],colour='red',linetype=2)
-	g.R.symptom <- g.R.symptom + ggtitle(paste0("Secondary cases distribution (R0_asympt=",
+	g.R.symptom <- g.R.symptom + geom_vline(data = pop.transm.sum, 
+										aes(xintercept=m, colour=factor(was_symptomatic)),
+										linetype=2)
+	g.R.symptom <- g.R.symptom + ggtitle(paste0("Secondary cases distribution\n (R0_asympt=",
 												round(pop.transm.sum$m[1],2),
 												" ; R0_sympt=",
 												round(pop.transm.sum$m[2],2),
 												")"))
 	
-	### Generation interval
+	# R0 treated or not
+	
+	pop.transm.sum2 <- ddply(pop.transm,"is_treated",
+							summarize,
+							m = mean(n_secondary_cases),
+							q.lo = quantile(n_secondary_cases,probs = 0.5-0.80/2),
+							q.hi = quantile(n_secondary_cases,probs = 0.5+0.80/2))
+	
+	pop.transm.sum2
+	
+	g.R.treat <- ggplot(pop.transm) +geom_density(aes(x=n_secondary_cases,
+													   fill = factor(is_treated),
+													   colour = factor(is_treated)),
+												   alpha = 0.2)
+	g.R.treat <- g.R.treat + geom_vline(data = pop.transm.sum2, 
+										aes(xintercept=m, colour=factor(is_treated)),
+										linetype=2)
+	g.R.treat <- g.R.treat + ggtitle(paste0("Secondary cases distribution\n (R0_untreated=",
+											round(pop.transm.sum2$m[1],2),
+											" ; R0_treated=",
+											round(pop.transm.sum2$m[2],2),
+											")"))
+	
+	plot(g.R.treat)
+	
+	### ==== Generation interval ====
 	
 	pop2 <- subset(pop,gi_bck>0)
 	mean.gibck <- mean(pop2$gi_bck)
@@ -134,7 +162,7 @@ plot.population <- function(pop) {
 													round(pop2.sum$m[2],2),
 													")"))
 	
-	### Final
+	### ==== Final ====
 	
 	grid.arrange(g.age, 
 				 g.dol.drawn, 
@@ -146,6 +174,7 @@ plot.population <- function(pop) {
 				 g.age.hosp, 
 				 g.R,
 				 g.R.symptom,
+				 g.R.treat,
 				 g.gibck,
 				 g.gibck.sympt)
 	
@@ -159,17 +188,18 @@ plot.epi.timeseries <- function(ts){
 	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue')
 	g.SR <- g.SR + ggtitle("Susceptible and recovered") + ylab("")
 	
-	g.nE.nI <- ggplot(ts, aes(x=time))
-	g.nE.nI <- g.nE.nI + geom_step(aes(y=nE),colour='orange') 
-	g.nE.nI <- g.nE.nI + geom_step(aes(y=nIs),colour='red',size=2)
-	g.nE.nI <- g.nE.nI + geom_step(aes(y=nIa),colour='red')
-	g.nE.nI <- g.nE.nI + ggtitle("All latent (nE, orange) and Infectious (Ia & Is[bold])") + ylab("")
+	g.inf <- ggplot(ts, aes(x=time))
+	g.inf <- g.inf + geom_step(aes(y=nE),colour='orange') 
+	g.inf <- g.inf + geom_step(aes(y=nIs),colour='red',size=2)
+	g.inf <- g.inf + geom_step(aes(y=nIa),colour='red')
+	g.inf <- g.inf + geom_step(aes(y=n_treated),colour='green3')
+	g.inf <- g.inf + ggtitle("All latent (nE, orange) and Infectious (Ia & Is[bold])") + ylab("")
 	
 	g.prev <- ggplot(ts, aes(x=time))
 	g.prev <- g.prev + geom_step(aes(y=prevalence))
 	g.prev <- g.prev + ggtitle("Prevalence") + ylab("")
 	
 	grid.arrange(g.SR ,
-				 g.nE.nI, 
+				 g.inf, 
 				 g.prev)
 }

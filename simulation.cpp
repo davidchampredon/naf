@@ -17,7 +17,9 @@ void Simulation::base_constructor(){
     _n_R  = 0;
     _n_H  = 0;
     _incidence = 0;
+    _n_treated = 0;
     _horizon = -999;
+    
     
     _ts_times.clear();
     _ts_E.clear();
@@ -25,6 +27,7 @@ void Simulation::base_constructor(){
     _ts_Is.clear();
     _ts_R.clear();
     _ts_census_by_SP.clear();
+    _ts_n_treated.clear();
     
     _intervention.clear();
     
@@ -532,12 +535,11 @@ void Simulation::run(){
     unsigned long nts = timeslice.size();
     uint k = 0;
     
+    if(debug_mode) check_book_keeping();
+    define_all_id_tables();
+    
     
     // ----- MAIN LOOP FOR TIME ------
-    
-    if(debug_mode) check_book_keeping();
-    
-    define_all_id_tables();
     
     for (_current_time=0.0; _current_time < _horizon; ) {
         
@@ -571,7 +573,14 @@ void Simulation::run(){
         hospitalize();
         define_all_id_tables(); // <-- check if this is necessary here
         update_pop_count(); // <-- check if this is necessary here
+        
         if(debug_mode) check_book_keeping();
+        
+        // Interventions
+        for (uint k=0; k<_world.size(); k++) {
+            activate_interventions(k, dt);
+        }
+
         
         // Record for time series:
         _ts_times.push_back(_current_time);
@@ -583,7 +592,7 @@ void Simulation::run(){
         _ts_Is.push_back(_n_Is);
         _ts_H.push_back(_n_H);
         _ts_R.push_back(_n_R);
-        
+        _ts_n_treated.push_back(_n_treated);
         
         // Advance time:
         time_update(dt);
@@ -787,6 +796,16 @@ double Simulation::calc_proba_transmission(individual *infectious,
     double p_inf = 1.0;
     if(! infectious->is_symptomatic())
         p_inf = _modelParam.get_prm_double("asymptom_infectiousness_ratio");
+    
+    if (infectious->is_treated()){
+        // Infectiousness reduction if patient is treated
+        //
+        double m = _modelParam.get_prm_double("treat_reduc_infect_mean");
+        if(m>0){
+            double reduc = beta_distribution(1.0, 1/m - 1.0, _RANDOM_GENERATOR);
+            p_inf = p_inf * (1-reduc);
+        }
+    }
     
     // DEBUG
 //    cout << " DEBUG: p_susc = "<< p_susc << " ; p_inf = " << p_inf << endl;
@@ -1202,6 +1221,7 @@ dcDataFrame Simulation::timeseries(){
     df.addcol("nIa", to_vector_double(_ts_Ia));
     df.addcol("nIs", to_vector_double(_ts_Is));
     df.addcol("nR", to_vector_double(_ts_R));
+    df.addcol("n_treated", to_vector_double(_ts_n_treated));
     
     return df;
 }
@@ -1633,9 +1653,65 @@ void Simulation::discharge_hospital(uint idx_timeslice){
 }
 
 
+vector<individual*> Simulation::draw_targeted_individuals(uint i,
+                                                           ID id_sp,
+                                                           double dt){
+    /// Draw the targeted individuals of the ith intervention,
+    /// in sociale place with ID 'id_sp'
+    
+    vector<individual*> indiv_drawn;
+    bool found = false;
+    
+    float cvg_rate  = _intervention[i].get_cvg_rate();
+    string type_target = _intervention[i].get_type_indiv_targeted();
+    
+    if(type_target == "symptomatic"){
+        found = true;
+        uint nI = (uint)_world[id_sp]._indiv_Is.size();
+        
+        if (nI > 0){
+            // Draw the total number of individuals that are targeted
+            std::poisson_distribution<> poiss(cvg_rate * _world[id_sp].get_size() * dt);
+            uint n_target = poiss(_RANDOM_GENERATOR);
+            if (n_target > nI) n_target = nI;
+            
+//            std::uniform_int_distribution<uint> unif_int(0, nI-1);
+            
+            uint cnt = 0;
+            for(uint i=0; i<nI && cnt<n_target; i++) {
+                bool is_treated = _world[id_sp]._indiv_Is[i]->is_treated();
+                if (!is_treated){
+                    indiv_drawn.push_back(_world[id_sp]._indiv_Is[i]);
+                    cnt ++;
+                }
+            }
+        }
+    }
+    
+    stopif(!found, "Type of targeted individual unknown: " + type_target);
+    
+    return indiv_drawn;
+}
 
 
-
+void Simulation::activate_interventions(ID id_sp, double dt){
+    /// Activate all interventions for social place 'id_sp'
+    
+    float doi_reduc_treat = _modelParam.get_prm_double("doi_reduc_treat");
+    
+    for (uint i=0; i<_intervention.size(); i++) {
+        
+        if (_intervention[i].get_time_start() <= _current_time &&
+            _intervention[i].get_time_end() > _current_time)
+        {
+            vector<individual*> x = draw_targeted_individuals(i, id_sp, dt);
+            _intervention[i].act_on_individual(x, doi_reduc_treat);
+            
+            if (_intervention[i].get_type_intervention()=="treatment")
+                _n_treated += x.size();
+        }
+    }
+}
 
 
 
