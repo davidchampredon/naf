@@ -3,16 +3,12 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
-- _id_Is and _indiv_Is redundant
-- Draw contact rate from distributions
-- Treatment class
-- Vaccinated class, several types of concurrent vaccines.
+- Deaths
 - Build realistic worlds from size distributions
-- Interventions
-
-
+- Draw contact rate from distributions
+- Treatment: prophylaxis to do.
 
 === MINOR ITEMS ===
 
 - helper function to convert AUTOMATICALLY R input param list to _modelParam 
-
+- _id_Is and _indiv_Is redundant
