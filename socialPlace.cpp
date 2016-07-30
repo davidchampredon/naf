@@ -457,6 +457,7 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     vector<double> is_latent(n);
     vector<double> is_recovered(n);
     vector<double> is_treated(n);
+    vector<double> is_vaccinated(n);
     vector<double> dol_drawn(n);
     vector<double> doi_drawn(n);
     vector<double> dobh_drawn(n);
@@ -481,6 +482,7 @@ dcDataFrame socialPlace::export_dcDataFrame(){
         is_latent[i]     = _indiv[i].is_latent();
         is_recovered[i]  = _indiv[i].is_recovered();
         is_treated[i]    = _indiv[i].is_treated();
+        is_vaccinated[i] = _indiv[i].is_vaccinated();
         dol_drawn[i]     = _indiv[i].get_dol_drawn();
         dol[i]           = _indiv[i].get_dol();
         doi_drawn[i]     = _indiv[i].get_doi_drawn();
@@ -503,6 +505,7 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     df.addcol("is_latent", is_latent);
     df.addcol("is_recovered", is_recovered);
     df.addcol("is_treated", is_treated);
+    df.addcol("is_vaccinated", is_vaccinated);
     df.addcol("dol_drawn", dol_drawn);
     df.addcol("dol", dol);
     df.addcol("doi_drawn", doi_drawn);

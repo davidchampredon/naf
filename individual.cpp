@@ -44,6 +44,7 @@ void individual::base_constructor(){
     _willbe_hosp        = false;
     _is_discharged      = false;
     _is_treated         = false;
+    _is_vaccinated      = false;
     
     
     _doi	= 0.0;
@@ -384,9 +385,35 @@ void individual::receive_treatment(double doi_reduction){
 }
 
 
+void individual::receive_vaccine(float time,
+                                 float imm_incr,
+                                 float frail_incr,
+                                 float vaxlag){
+    /// Vaccinate this individual
+    
+    _is_vaccinated = true;
+    
+    _imm_when_recv_vax      = _immunity;
+    _frail_when_recv_vax    = _frailty;
+    
+    // TO DO: more sophisticated (age dependence?), investigate literature
+    std::uniform_real_distribution<> unif_lag(vaxlag-vaxlag/2.0, vaxlag+vaxlag/2.0);
+    std::uniform_real_distribution<> unif_imm(imm_incr-imm_incr/2.0, imm_incr+imm_incr/2.0);
+    std::uniform_real_distribution<> unif_fra(frail_incr-frail_incr/2.0, frail_incr+frail_incr/2.0);
+    
+    _vax_time_received      = time;
+    _vax_target_immunity    = _immunity + unif_imm(_RANDOM_GENERATOR);
+    _vax_target_frailty     = _frailty + unif_fra(_RANDOM_GENERATOR);
+    _vax_lag_full_efficacy  = unif_lag(_RANDOM_GENERATOR);
+    
+    if(_vax_target_immunity > 1.0) _vax_target_immunity = 1.0;
+    if(_vax_target_frailty > 1.0)  _vax_target_frailty  = 1.0;
+}
+
+
 void individual::receive_cure(){
     /// Instantaneously cure this individual (--> doi_drawn=0)
-    /// Used for debuging.
+    /// * * Used for debuging * *
     set_is_treated(true);
     set_doi_drawn(SUPERTINY);
 }

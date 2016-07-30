@@ -57,8 +57,19 @@ public:
     
     // Actions
     
-    void    act_on_individual(vector<individual*> x, float doi_reduc_treat);
-
+    void    act_on_individual(vector<individual*> x,
+                              float current_time,
+                              float doi_reduc_treat,
+                              float imm_incr,
+                              float frail_incr,
+                              float vax_lag);
+    
+    void    vaccinate(vector<individual*> x,
+                      float current_time,
+                      float imm_incr,
+                      float frail_incr,
+                      float lag);
+    
     void    treat(vector<individual*> x, float doi_reduction);
     void    cure(vector<individual*> x);
     

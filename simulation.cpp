@@ -18,6 +18,7 @@ void Simulation::base_constructor(){
     _n_H  = 0;
     _incidence = 0;
     _n_treated = 0;
+    _n_vaccinated = 0;
     _horizon = -999;
     
     
@@ -28,6 +29,7 @@ void Simulation::base_constructor(){
     _ts_R.clear();
     _ts_census_by_SP.clear();
     _ts_n_treated.clear();
+    _ts_n_vaccinated.clear();
     
     _intervention.clear();
     
@@ -580,7 +582,9 @@ void Simulation::run(){
         for (uint k=0; k<_world.size(); k++) {
             activate_interventions(k, dt);
         }
-
+        
+        if(at_least_one_vaccination_intervention())
+            update_immunity_frailty();
         
         // Record for time series:
         _ts_times.push_back(_current_time);
@@ -593,6 +597,7 @@ void Simulation::run(){
         _ts_H.push_back(_n_H);
         _ts_R.push_back(_n_R);
         _ts_n_treated.push_back(_n_treated);
+        _ts_n_vaccinated.push_back(_n_vaccinated);
         
         // Advance time:
         time_update(dt);
@@ -827,7 +832,7 @@ double Simulation::calc_proba_symptomatic(float immunity, float frailty){
 
 double Simulation::calc_proba_hospitalized(float frailty){
     /// Probability to be symptomatic given
-    /// an individual's immunity and frailty
+    /// an individual's frailty
     
     // TO DO: more sophisticated!
     
@@ -1222,6 +1227,7 @@ dcDataFrame Simulation::timeseries(){
     df.addcol("nIs", to_vector_double(_ts_Is));
     df.addcol("nR", to_vector_double(_ts_R));
     df.addcol("n_treated", to_vector_double(_ts_n_treated));
+    df.addcol("n_vaccinated", to_vector_double(_ts_n_vaccinated));
     
     return df;
 }
@@ -1664,19 +1670,21 @@ vector<individual*> Simulation::draw_targeted_individuals(uint i,
     
     float cvg_rate  = _intervention[i].get_cvg_rate();
     string type_target = _intervention[i].get_type_indiv_targeted();
+    float interv_intensity = cvg_rate * _world[id_sp].get_size() * dt;
     
     if(type_target == "symptomatic"){
+        
+        // * * WARNING * *  excludes symptomatic already treated!
+        
         found = true;
         uint nI = (uint)_world[id_sp]._indiv_Is.size();
         
         if (nI > 0){
             // Draw the total number of individuals that are targeted
-            std::poisson_distribution<> poiss(cvg_rate * _world[id_sp].get_size() * dt);
+            std::poisson_distribution<> poiss(interv_intensity);
             uint n_target = poiss(_RANDOM_GENERATOR);
             if (n_target > nI) n_target = nI;
-            
-//            std::uniform_int_distribution<uint> unif_int(0, nI-1);
-            
+            // Select targeted individuals:
             uint cnt = 0;
             for(uint i=0; i<nI && cnt<n_target; i++) {
                 bool is_treated = _world[id_sp]._indiv_Is[i]->is_treated();
@@ -1688,6 +1696,32 @@ vector<individual*> Simulation::draw_targeted_individuals(uint i,
         }
     }
     
+    else if(type_target == "susceptible"){
+        
+        // * * WARNING * * excludes susceptiblr already treated & vaccinated!
+        
+        found = true;
+        uint nS  = (uint)_world[id_sp]._indiv_S.size();
+
+        if (nS > 0){
+            // Draw the total number of individuals that are targeted
+            std::poisson_distribution<> poiss(interv_intensity);
+            uint n_target = poiss(_RANDOM_GENERATOR);
+            if (n_target > nS) n_target = nS;
+            // Select targeted individuals:
+            uint cnt = 0;
+            for(uint i=0; i<nS && cnt<n_target; i++) {
+                bool is_treated = _world[id_sp]._indiv_S[i]->is_treated();
+                bool is_vax     = _world[id_sp]._indiv_S[i]->is_vaccinated();
+                if (!is_treated && !is_vax){
+                    indiv_drawn.push_back(_world[id_sp]._indiv_S[i]);
+                    cnt ++;
+                }
+            }
+        }
+    } // end-if-type_target == "susceptible"
+    
+    
     stopif(!found, "Type of targeted individual unknown: " + type_target);
     
     return indiv_drawn;
@@ -1697,7 +1731,10 @@ vector<individual*> Simulation::draw_targeted_individuals(uint i,
 void Simulation::activate_interventions(ID id_sp, double dt){
     /// Activate all interventions for social place 'id_sp'
     
-    float doi_reduc_treat = _modelParam.get_prm_double("doi_reduc_treat");
+    float treat_doi_reduc   = _modelParam.get_prm_double("treat_doi_reduc");
+    float vax_imm_incr      = _modelParam.get_prm_double("vax_imm_incr");
+    float vax_frail_incr    = _modelParam.get_prm_double("vax_frail_incr");
+    float vax_lag           = _modelParam.get_prm_double("vax_lag_full_efficacy");
     
     for (uint i=0; i<_intervention.size(); i++) {
         
@@ -1705,13 +1742,79 @@ void Simulation::activate_interventions(ID id_sp, double dt){
             _intervention[i].get_time_end() > _current_time)
         {
             vector<individual*> x = draw_targeted_individuals(i, id_sp, dt);
-            _intervention[i].act_on_individual(x, doi_reduc_treat);
+            _intervention[i].act_on_individual(x,
+                                               _current_time,
+                                               treat_doi_reduc,
+                                               vax_imm_incr,
+                                               vax_frail_incr,
+                                               vax_lag);
             
             if (_intervention[i].get_type_intervention()=="treatment")
                 _n_treated += x.size();
+            else if (_intervention[i].get_type_intervention()=="vaccination"){
+                _n_vaccinated += x.size();
+                
+                _world[id_sp]._indiv_vax.insert(_world[id_sp]._indiv_vax.end(),
+                                                x.begin(),
+                                                x.end());
+            }
         }
     }
 }
+
+void Simulation::update_immunity_frailty() {
+    /// Update immunity and frailty of vaccinated individuals
+    /// at each time step. Because vaccine takes some time
+    /// to reach its full efficacy, both immunity and frailty
+    /// need to be updated during this period of time.
+    
+    for (uint k=0; k<_world.size(); k++) {
+        unsigned long n_vax = _world[k]._indiv_vax.size();
+        for (uint i=0; i<n_vax; i++)
+        {
+            float t_vax   = _world[k]._indiv_vax[i]->get_vax_time_received();
+            float lag_vax = _world[k]._indiv_vax[i]->get_vax_lag_full_efficacy();
+            
+            if (_current_time < t_vax+lag_vax){
+                
+                float target_imm =  _world[k]._indiv_vax[i]->get_vax_target_immunity();
+                float target_fra =  _world[k]._indiv_vax[i]->get_vax_target_frailty();
+                float imm0       =  _world[k]._indiv_vax[i]->get_imm_when_recv_vax();
+                float frail0     =  _world[k]._indiv_vax[i]->get_frail_when_recv_vax();
+                
+                // Exponential growth to target level:
+                float tmp_i_b = log(target_imm/imm0) / lag_vax;
+                float tmp_i_a = imm0 * exp(-tmp_i_b * t_vax);
+                float tmp_i   = tmp_i_a * exp( tmp_i_b * _current_time);
+                
+                float tmp_f_b = log(target_fra/frail0) / lag_vax;
+                float tmp_f_a = frail0 * exp(-tmp_f_b * t_vax);
+                float tmp_f   = tmp_f_a * exp( tmp_f_b * _current_time);
+                
+                // update levels:
+                _world[k]._indiv_vax[i]->set_immunity(tmp_i);
+                _world[k]._indiv_vax[i]->set_frailty(tmp_f);
+            }
+        }
+    }
+}
+
+
+
+bool Simulation::at_least_one_vaccination_intervention(){
+    /// Check if there is at least one vaccination among all
+    /// interventions defined for this Simulator
+    
+    for (uint i=0; i<_intervention.size(); i++) {
+        if (_intervention[i].get_type_intervention() == "vaccination")
+            return true;
+    }
+    return false;
+}
+
+
+
+
 
 
 

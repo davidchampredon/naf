@@ -24,8 +24,8 @@ simul.prm <- list()
 
 ### ==== Model Parameters ====
 
-cr <- 2.9
-doi_mean <- 6.0
+cr <- 2.1
+doi_mean <- 4
 R0 <- cr * doi_mean
 
 prm[['debug_mode']] <- F
@@ -42,13 +42,18 @@ prm[['proba_move']] <- 1
 prm[['homogeneous_contact']] <- FALSE
 prm[['contact_rate']] <- cr
 prm[['asymptom_infectiousness_ratio']] <- 0.8
-prm[['doi_reduc_treat']] <- 1.1123
-prm[['treat_reduc_infect_mean']] <- 0.99
+prm[['treat_doi_reduc']] <- 1.1123
+prm[['treat_reduc_infect_mean']] <- 0.1
+
+prm[['vax_imm_incr']]   <- 0.4
+prm[['vax_frail_incr']] <- 0.2
+prm[['vax_lag_full_efficacy']] <- 12
+
 
 ### ==== Simulation parameters ====
 
 simul.prm[['rnd_seed']] <- 12345
-simul.prm[['horizon']] <- 40
+simul.prm[['horizon']] <- 50
 simul.prm[['n_indiv']] <- 1000
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 2
@@ -57,9 +62,9 @@ simul.prm[['popexport']] <- 1
 # intervention:
 
 simul.prm[['interv_name']] <- 'interv_test'
-simul.prm[['interv_type']] <- 'treatment'  # treatment cure
-simul.prm[['interv_target']] <- 'symptomatic'
-simul.prm[['interv_start']] <- 10
+simul.prm[['interv_type']] <- 'vaccination'  # treatment cure vaccination
+simul.prm[['interv_target']] <- 'susceptible'  # symptomatic  susceptible
+simul.prm[['interv_start']] <- 5
 simul.prm[['interv_end']] <- 999
 simul.prm[['interv_cvg_rate']] <- 0.05
 simul.prm[['interv_cvg_max_prop']] <- 0.9999
@@ -74,7 +79,7 @@ ts_census <- as.data.frame(res[['time_series_census']])
 pop <- as.data.frame(res[['population_final']])
 
 
-### PLOTS ###
+### ==== PLOTS ==== 
 
 if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
 

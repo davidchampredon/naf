@@ -66,49 +66,55 @@ List naf_test(List params, List simulParams){
 	
 	double asymptom_infectiousness_ratio = params["asymptom_infectiousness_ratio"];
 	bool homog				= params["homogeneous_contact"];
-	double doi_reduc_treat	= params["doi_reduc_treat"];
+	
+	double doi_reduc_treat			= params["treat_doi_reduc"];
 	double treat_reduc_infect_mean	= params["treat_reduc_infect_mean"];
 	
-
+	double vax_imm_incr         = params["vax_imm_incr"];
+	double vax_frail_incr       = params["vax_frail_incr"];
+	double vax_lag_full_efficacy= params["vax_lag_full_efficacy"];
 	
 	// Simulation parameters:
 	
-	unsigned int rnd_seed	= simulParams["rnd_seed"];
-	unsigned int n_indiv	= simulParams["n_indiv"];
-	unsigned int i0			= simulParams["initial_latent"];
-	double horizon			= simulParams["horizon"];
-	unsigned int nt			= simulParams["nt"];
-	unsigned int popexport	= simulParams["popexport"];
+	unsigned int rnd_seed   = simulParams["rnd_seed"];
+	unsigned int n_indiv    = simulParams["n_indiv"];
+	unsigned int i0         = simulParams["initial_latent"];
+	double horizon          = simulParams["horizon"];
+	unsigned int nt         = simulParams["nt"];
+	unsigned int popexport  = simulParams["popexport"];
 	
-	string	interv_name		= simulParams["interv_name"];
-	string	interv_type		= simulParams["interv_type"];
-	string	interv_target	= simulParams["interv_target"];
-	double	interv_start	= simulParams["interv_start"];
-	double	interv_end  	= simulParams["interv_end"];
-	double	interv_cvg_rate  	= simulParams["interv_cvg_rate"];
+	string	interv_name     = simulParams["interv_name"];
+	string	interv_type     = simulParams["interv_type"];
+	string	interv_target   = simulParams["interv_target"];
+	double	interv_start    = simulParams["interv_start"];
+	double	interv_end      = simulParams["interv_end"];
+	double	interv_cvg_rate = simulParams["interv_cvg_rate"];
 	double	interv_cvg_max_prop = simulParams["interv_cvg_max_prop"];
 	
 	
 	// Store parameters in a 'modelParam' class:
 	
 	modelParam MP;
-	MP.add_prm_bool("debug_mode", debug_mode);
-	MP.add_prm_double("horizon", horizon);
-	MP.add_prm_string("dol_distrib", dol_distrib);
-	MP.add_prm_string("doi_distrib", doi_distrib);
-	MP.add_prm_string("doh_distrib", doh_distrib);
-	MP.add_prm_double("dol_mean", dol_mean);
-	MP.add_prm_double("doi_mean", doi_mean);
-	MP.add_prm_double("doh_mean", doh_mean);
-	MP.add_prm_double("proba_move", proba_move);
-	MP.add_prm_double("contact_rate", contact_rate);
-	MP.add_prm_double("asymptom_infectiousness_ratio", asymptom_infectiousness_ratio);
-	MP.add_prm_uint("n_indiv", n_indiv);
-	MP.add_prm_bool("homogeneous_contact", homog);
-	MP.add_prm_uint("nt", nt);
-	MP.add_prm_double ("doi_reduc_treat", doi_reduc_treat);
-	MP.add_prm_double ("treat_reduc_infect_mean", treat_reduc_infect_mean);
+	MP.add_prm_bool     ("debug_mode", debug_mode);
+	MP.add_prm_double   ("horizon", horizon);
+	MP.add_prm_string   ("dol_distrib", dol_distrib);
+	MP.add_prm_string   ("doi_distrib", doi_distrib);
+	MP.add_prm_string   ("doh_distrib", doh_distrib);
+	MP.add_prm_double   ("dol_mean", dol_mean);
+	MP.add_prm_double   ("doi_mean", doi_mean);
+	MP.add_prm_double   ("doh_mean", doh_mean);
+	MP.add_prm_double   ("proba_move", proba_move);
+	MP.add_prm_double   ("contact_rate", contact_rate);
+	MP.add_prm_double   ("asymptom_infectiousness_ratio", asymptom_infectiousness_ratio);
+	MP.add_prm_uint     ("n_indiv", n_indiv);
+	MP.add_prm_bool     ("homogeneous_contact", homog);
+	MP.add_prm_uint     ("nt", nt);
+	MP.add_prm_double   ("treat_doi_reduc", doi_reduc_treat);
+	MP.add_prm_double   ("treat_reduc_infect_mean", treat_reduc_infect_mean);
 	
+	MP.add_prm_double   ("vax_imm_incr", vax_imm_incr);
+	MP.add_prm_double   ("vax_frail_incr", vax_frail_incr);
+	MP.add_prm_double   ("vax_lag_full_efficacy", vax_lag_full_efficacy);
 	
 	
 	cout << "DEBUG: popexport is "<< popexport <<endl;
@@ -142,9 +148,9 @@ List naf_test(List params, List simulParams){
 	dcDataFrame ts_census = sim.get_ts_census_by_SP();
 	
 	// Return R-formatted result:
-	return List::create(Named("population_final") = dcDataFrameToRcppList(pop_final,false),
-						Named("time_series") = dcDataFrameToRcppList(ts, false),
-						Named("time_series_census") = dcDataFrameToRcppList(ts_census, false));
+    return List::create(Named("population_final") = dcDataFrameToRcppList(pop_final,false),
+                        Named("time_series") = dcDataFrameToRcppList(ts, false),
+                        Named("time_series_census") = dcDataFrameToRcppList(ts_census, false));
 }
 
 
@@ -175,21 +181,21 @@ List naf_test_SEIR_vs_ODE(List params, List simulParams){
 	unsigned int rnd_seed	= params["rnd_seed"];
 	
 	// Simulation parameters:
-	unsigned int n_indiv = simulParams["n_indiv"];
-	unsigned int i0	     = simulParams["initial_latent"];
-	double horizon       = simulParams["horizon"];
-	unsigned int nt	     = simulParams["nt"];
+	unsigned int n_indiv    = simulParams["n_indiv"];
+	unsigned int i0         = simulParams["initial_latent"];
+	double horizon          = simulParams["horizon"];
+	unsigned int nt         = simulParams["nt"];
 	
 	// Store parameters in a 'modelParam' class:
 	modelParam MP;
-	MP.add_prm_bool("debug_mode", debug_mode);
-	MP.add_prm_double("dol_mean", dol_mean);
-	MP.add_prm_double("doi_mean", doi_mean);
-	MP.add_prm_double("proba_move", proba_move);
-	MP.add_prm_double("contact_rate", contact_rate);
-	MP.add_prm_uint("n_indiv", n_indiv);
-	MP.add_prm_bool("homogeneous_contact", homog);
-	MP.add_prm_uint("nt", nt);
+	MP.add_prm_bool     ("debug_mode", debug_mode);
+	MP.add_prm_double   ("dol_mean", dol_mean);
+	MP.add_prm_double   ("doi_mean", doi_mean);
+	MP.add_prm_double   ("proba_move", proba_move);
+	MP.add_prm_double   ("contact_rate", contact_rate);
+	MP.add_prm_uint     ("n_indiv", n_indiv);
+	MP.add_prm_bool     ("homogeneous_contact", homog);
+	MP.add_prm_uint     ("nt", nt);
 	
 	cout << "DEBUG: the seed is "<<rnd_seed <<endl;
 	

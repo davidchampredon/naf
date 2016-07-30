@@ -6,26 +6,51 @@ library(gridExtra)
 plot.population <- function(pop) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
+	pop.hosp <- subset(pop, hosp>0)
+	pop.transm <- subset(pop, n_secondary_cases>0)
+	pop.inf <- subset(pop, doi_drawn>0)
+	
+	# ==== Age ====
 	
 	g <- ggplot(pop)
 	g.age <- g + geom_histogram(aes(x=age), binwidth=2, fill='darkgrey', colour = 'black')
 	g.age <- g.age + ggtitle('Age distribution')
 	
+	
+	# ==== Immunity and frailty ====
+	
+	pop$age.round <- round(pop$age,0)
+	
+	age.imm.fra <- ddply(pop,c('age.round'),summarize, imm = mean(immunity), fra = mean(frailty))
+	age.imm.fra
+	
+	g.age.imm <- ggplot(age.imm.fra)+geom_line(aes(x=age.round,y=imm)) +coord_cartesian(ylim = c(0,1))
+	g.age.imm <- g.age.imm + ggtitle('Immunity by age') + xlab('age') + ylab('immunity')
+	g.age.imm <- g.age.imm + geom_smooth(aes(x=age.round,y=imm), colour='red3',size=2,se = F)
+	
+	g.age.fra <- ggplot(age.imm.fra)+geom_line(aes(x=age.round,y=fra)) +coord_cartesian(ylim = c(0,1))
+	g.age.fra <- g.age.fra + ggtitle('Frailty by age') + xlab('age') + ylab('frailty')
+	g.age.fra <- g.age.fra + geom_smooth(aes(x=age.round,y=fra), colour='red3',size=2,se = F)
+	
+	
+	# ==== DOI & DOL ====
+	
 	linew = 1
 	alpha = 0.8
-	m_dol_drawn = mean(pop$dol_drawn)
-	m_doi_drawn = mean(pop$doi_drawn)
+	m_dol_drawn = mean(pop.inf$dol_drawn)
+	m_doi_drawn = mean(pop.inf$doi_drawn)
 
+	g <- ggplot(pop.inf)
 	
 	g.dol.drawn <- g + geom_histogram(aes(x=dol_drawn), fill='orange',colour='orange', size=linew, alpha=alpha, binwidth = 0.5)
 	g.dol.drawn <- g.dol.drawn + geom_vline(xintercept = m_dol_drawn, colour='orange',linetype = 2)
-	g.dol.drawn <- g.dol.drawn + ggtitle(paste0("DOL drawn distribution (mean = ", round(m_dol_drawn,2),")"))
+	g.dol.drawn <- g.dol.drawn + ggtitle(paste0("DOL drawn distribution, among infected (mean = ", round(m_dol_drawn,2),")"))
 	
 	g.doi.drawn <- g + geom_histogram(aes(x=doi_drawn), fill='red',colour='red', size=linew, alpha=alpha, binwidth = 0.5)
 	g.doi.drawn <- g.doi.drawn + geom_vline(xintercept = m_doi_drawn, colour='red',linetype = 2)
-	g.doi.drawn <- g.doi.drawn + ggtitle(paste0("DOI drawn distribution (mean = ", round(m_doi_drawn,2),")"))
+	g.doi.drawn <- g.doi.drawn + ggtitle(paste0("DOI drawn distribution, among infected (mean = ", round(m_doi_drawn,2),")"))
 	
-	pop.hosp <- subset(pop, hosp>0)
+	
 	m_dobh_drawn = mean(pop.hosp$dobh_drawn)
 	m_doh_drawn  = mean(pop.hosp$doh_drawn)
 	
@@ -66,10 +91,24 @@ plot.population <- function(pop) {
 	g.age.hosp <- g.age.hosp + geom_point(aes(x=age, y=hosp), size=0.5)
 	g.age.hosp <- g.age.hosp + ggtitle('Hospitalization and age')
 	
+	pop.treat.hosp <- ddply(pop,c('hosp','is_treated'),summarize, n=length(id_indiv))
+	g.treat.hosp <- ggplot(pop.treat.hosp) + geom_bar(aes(x = factor(hosp), 
+														  y = n, 
+														  fill = factor(is_treated)),
+													  position = 'dodge', stat = 'identity')
+	g.treat.hosp <- g.treat.hosp + ggtitle('Hospitalization and treatment')
+	
+	
+	pop.vax.hosp <- ddply(pop,c('hosp','is_vaccinated'),summarize, n=length(id_indiv))
+	g.vax.hosp <- ggplot(pop.vax.hosp) + geom_bar(aes(x = factor(hosp), 
+														  y = n, 
+														  fill = factor(is_vaccinated)),
+													  position = 'dodge', stat = 'identity')
+	g.vax.hosp <- g.vax.hosp + ggtitle('Hospitalization and vaccination')
+	
 	
 	### ==== Secondary cases distribution ==== 
 	
-	pop.transm <- subset(pop, n_secondary_cases>0)
 	R0 <- mean(pop.transm$n_secondary_cases)
 	
 	g.R <- ggplot(pop.transm) + geom_histogram(aes(n_secondary_cases), 
@@ -125,8 +164,7 @@ plot.population <- function(pop) {
 											" ; R0_treated=",
 											round(pop.transm.sum2$m[2],2),
 											")"))
-	
-	plot(g.R.treat)
+
 	
 	### ==== Generation interval ====
 	
@@ -162,9 +200,21 @@ plot.population <- function(pop) {
 													round(pop2.sum$m[2],2),
 													")"))
 	
+	### ==== Symptomatics ====
+	
+	sympt.vax <- ddply(pop.inf,c("is_vaccinated","was_symptomatic"), summarize, n=length(id_indiv))
+	sympt.vax
+	
+	g.sympt.vax <- ggplot(sympt.vax)+geom_bar(aes(x=factor(is_vaccinated), y=n, fill=factor(was_symptomatic)),
+												  stat='identity', position='dodge')
+	g.sympt.vax <- g.sympt.vax + ggtitle('Symptomatic infection and vaccination')
+	
+	
 	### ==== Final ====
 	
 	grid.arrange(g.age, 
+				 g.age.imm,
+				 g.age.fra,
 				 g.dol.drawn, 
 				 g.doi.drawn,
 				 g.dobh.drawn,
@@ -172,6 +222,8 @@ plot.population <- function(pop) {
 				 g.imm.hosp,
 				 g.frail.hosp,
 				 g.age.hosp, 
+				 g.treat.hosp,
+				 g.sympt.vax,
 				 g.R,
 				 g.R.symptom,
 				 g.R.treat,
@@ -184,22 +236,29 @@ plot.epi.timeseries <- function(ts){
 	### Plot time series
 	
 	g.SR <- ggplot(ts, aes(x=time))
-	g.SR <- g.SR + geom_step(aes(y=nS),colour='springgreen3') 
-	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue')
-	g.SR <- g.SR + ggtitle("Susceptible and recovered") + ylab("")
+	g.SR <- g.SR + geom_step(aes(y=nS),colour='springgreen3', size=2) 
+	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue', size=2)
+	g.SR <- g.SR + geom_step(aes(y=n_vaccinated),colour='springgreen2', linetype = 2)
+	g.SR <- g.SR + ggtitle("Susceptible, recovered, vaccinated") + ylab("")
 	
 	g.inf <- ggplot(ts, aes(x=time))
-	g.inf <- g.inf + geom_step(aes(y=nE),colour='orange') 
+	g.inf <- g.inf + geom_step(aes(y=nE),colour='orange',size=2) 
 	g.inf <- g.inf + geom_step(aes(y=nIs),colour='red',size=2)
 	g.inf <- g.inf + geom_step(aes(y=nIa),colour='red')
-	g.inf <- g.inf + geom_step(aes(y=n_treated),colour='green3')
-	g.inf <- g.inf + ggtitle("All latent (nE, orange) and Infectious (Ia & Is[bold])") + ylab("")
+	g.inf <- g.inf + geom_step(aes(y=nIa+nIs),colour='red',linetype=3)
+	g.inf <- g.inf + geom_step(aes(y=nE+nIa+nIs),colour='grey70',linetype=3)
+	g.inf <- g.inf + geom_step(aes(y=n_treated), colour='cyan', linetype = 2)
+	g.inf <- g.inf + geom_step(aes(y=n_vaccinated), colour='springgreen2', linetype = 2)
+	g.inf <- g.inf + ggtitle("All latent (nE, orange), Infectious (Ia & Is[bold])\n treated and vaccinated (dashed)") + ylab("")
 	
 	g.prev <- ggplot(ts, aes(x=time))
 	g.prev <- g.prev + geom_step(aes(y=prevalence))
 	g.prev <- g.prev + ggtitle("Prevalence") + ylab("")
 	
+	g.prev.log <- g.prev + scale_y_log10()
+	
 	grid.arrange(g.SR ,
 				 g.inf, 
-				 g.prev)
+				 g.prev,
+				 g.prev.log)
 }

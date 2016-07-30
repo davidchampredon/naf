@@ -88,8 +88,12 @@ void main_test_naf(){
     MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
     MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
-    MP.add_prm_double ("doi_reduc_treat", 999.99);
+    MP.add_prm_double ("treat_doi_reduc", 1.123);
     MP.add_prm_double ("treat_reduc_infect_mean",0.1);
+    
+    MP.add_prm_double ("vax_imm_incr", 0.4);
+    MP.add_prm_double ("vax_frail_incr",0.1);
+    MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
     uint n_indiv = 200;
     uint i0 = 2;
@@ -97,13 +101,13 @@ void main_test_naf(){
     _RANDOM_GENERATOR.seed(123);
     
     // Define intervention
-    float time_start = 10;
-    float time_end = 20;
-    float cvg_rate = 999.99;
+    float time_start = 5;
+    float time_end = 999;
+    float cvg_rate = 0.05;
     float cvg_max_prop = 0.30;
-    intervention interv_test("treatment",  // treatment  cure
-                              "symptomatic",
-                              "interv_treat",
+    intervention interv_test("vaccination",  // treatment  cure vaccination
+                              "susceptible",  // symptomatic   susceptible
+                              "interv_test",
                               time_start, time_end,
                               cvg_rate, cvg_max_prop);
     

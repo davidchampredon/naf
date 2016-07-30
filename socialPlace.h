@@ -57,6 +57,7 @@ public:
     vector<individual*>     _indiv_Is;
     vector<individual*>     _indiv_Ia;
     vector<individual*>     _indiv_H;
+    vector<individual*>     _indiv_vax;
     
     // Constructors:
     void base_constructor();

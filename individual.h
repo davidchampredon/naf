@@ -44,22 +44,22 @@ protected:
 	
 	disease	_disease;
 	
-	bool	_is_susceptible;
-	bool	_is_latent;
-	bool	_is_infected;
-	bool	_is_infectious;
-	bool	_is_symptomatic;
-	bool	_was_symptomatic;  // records if was symptomatic (when checked after infection).
+	bool    _is_susceptible;
+	bool    _is_latent;
+	bool    _is_infected;
+	bool    _is_infectious;
+	bool    _is_symptomatic;
+	bool    _was_symptomatic;  // records if was symptomatic (when checked after infection).
 
-    bool	_is_recovered;
-    bool	_is_hosp;
+    bool    _is_recovered;
+    bool    _is_hosp;
     bool    _willbe_hosp; // hospitalization is decided in advance, at transmission time
     bool    _is_discharged;
 	
-    float	_dol; // duration of latency
-    float	_doi; // duration of infection
+    float   _dol; // duration of latency
+    float   _doi; // duration of infection
     float   _dobh; // duration before hospitalization
-    float	_doh; // duration of hospitalization
+    float   _doh; // duration of hospitalization
 	
     // When individual is infected,
 	// disease stages durations are randomly drawn:
@@ -71,16 +71,10 @@ protected:
     string	_dol_distrib;  // distribution of the duration of latency
     string	_doi_distrib;  // distribution of the duration of infectiousness
     string	_doh_distrib;  // distribution of the duration of hospitalization
-
-	// Risk group:
-	// has an underlying condition increasing
-	// the risk of severity if infected by disease
-	// (e.g. HIV, pregnant, etc.)
 	
 	// ???? REDUNDANT WITH FRAILTY ????
 	bool	_is_at_risk;
 	
-    
 	// Epidemiology at individual level
     float       _acquisition_time;
     float       _acquisition_time_infector;
@@ -90,8 +84,20 @@ protected:
 
     // Treatmentand Vaccination
     bool    _is_treated;
+    bool    _is_vaccinated;
     
-    
+    // After being vaccinated,
+    // there is a lag until full
+    // vaccine efficacy.
+    // These variables represent the
+    // time lag and the target levels
+    // reached at the end of that period:
+    float   _vax_time_received;
+    float   _vax_lag_full_efficacy; // <-- lag b/w time vax recvd and full efficacy
+    float   _vax_target_immunity;
+    float   _vax_target_frailty;
+    float   _imm_when_recv_vax;     // immunity when vaccinated
+    float   _frail_when_recv_vax;   // frailty when vaccinated
     
 	// Social spaces linked
 	// to this individual
@@ -150,6 +156,7 @@ public:
     void set_was_symptomatic(bool x)    {_was_symptomatic = x;}
     
     void set_is_treated(bool x)         {_is_treated = x;}
+    void set_is_vaccinated(bool x)      {_is_vaccinated = x;}
     
     void set_doi(double x)              {_doi = x;}
     void set_doi_drawn(double x)        {_doi_drawn = x;}
@@ -172,30 +179,36 @@ public:
     
 	// Get functions
 	
-	ID get_id()					const {return _id;}
-	ID get_id_sp_household()	const {return _id_sp_household;}
-	ID get_id_sp_workplace()	const {return _id_sp_workplace;}
-	ID get_id_sp_school()		const {return _id_sp_school;}
-	ID get_id_sp_other()		const {return _id_sp_other;}
+	ID get_id()                 const {return _id;}
+	ID get_id_sp_household()    const {return _id_sp_household;}
+	ID get_id_sp_workplace()    const {return _id_sp_workplace;}
+	ID get_id_sp_school()       const {return _id_sp_school;}
+	ID get_id_sp_other()        const {return _id_sp_other;}
 	ID get_id_sp_hospital()     const {return _id_sp_hospital;}
-	ID get_id_sp_pubTransp()	const {return _id_sp_pubTransp;}
+	ID get_id_sp_pubTransp()    const {return _id_sp_pubTransp;}
 	
-	double	get_age()           const {return _age;}
-	float	get_immunity()      const {return _immunity;}
-	float	get_frailty()       const {return _frailty;}
-	float	get_dol_drawn()     const {return _dol_drawn;}
-	float	get_doi_drawn()     const {return _doi_drawn;}
+    double	get_age()           const {return _age;}
+    float	get_immunity()      const {return _immunity;}
+    float	get_frailty()       const {return _frailty;}
+    float	get_dol_drawn()     const {return _dol_drawn;}
+    float	get_doi_drawn()     const {return _doi_drawn;}
     float	get_doh_drawn()     const {return _doh_drawn;}
     float	get_dobh_drawn()    const {return _dobh_drawn;}
     float	get_dol()           const {return _dol;}
     float	get_doi()           const {return _doi;}
     float	get_doh()           const {return _doh;}
     float	get_dobh()          const {return _dobh;}
-
+    
+    float get_vax_time_received()       const {return _vax_time_received;}
+    float get_vax_lag_full_efficacy()   const {return _vax_lag_full_efficacy;}
+    float get_vax_target_immunity()     const {return _vax_target_immunity;}
+    float get_vax_target_frailty()      const {return _vax_target_frailty;}
+    float get_imm_when_recv_vax()       const {return _imm_when_recv_vax;}
+    float get_frail_when_recv_vax()     const {return _frail_when_recv_vax;}
 	
     float get_acquisition_time()            const{return _acquisition_time;}
     float get_acquisition_time_infector()   const{return _acquisition_time_infector;}
-    uint get_num_secondary_cases()          const{return _num_secondary_cases;}
+    uint  get_num_secondary_cases()         const{return _num_secondary_cases;}
     
     bool is_susceptible()   const {return _is_susceptible;}
     bool is_infected()      const {return _is_infected;}
@@ -208,6 +221,7 @@ public:
     bool willbe_hosp()      const {return _willbe_hosp;}
     bool is_discharged()    const {return _is_discharged;}
     bool is_treated()       const {return _is_treated;}
+    bool is_vaccinated()    const {return _is_vaccinated;}
 	
 	bool is_alive()				const {return _is_alive;}
 	
@@ -221,10 +235,14 @@ public:
 	
 	// Epidemiology
     
-	void	acquireDisease();
-	void	recoverDisease();
+    void    acquireDisease();
+    void    recoverDisease();
     void    futureHospitalization();
     void    receive_treatment(double doi_reduction);
+    void    receive_vaccine(float time,
+                            float vaxlag,
+                            float imm_incr,
+                            float frail_incr);
     void    receive_cure();
 	
 	// Miscellenaous

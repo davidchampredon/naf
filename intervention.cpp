@@ -45,6 +45,19 @@ void intervention::treat(vector<individual*> x,
     }
 }
 
+void intervention::vaccinate(vector<individual*> x,
+                             float current_time,
+                             float imm_incr,
+                             float frail_incr,
+                             float vaxlag){
+    /// Vaccinate selected symptomatic individuals.
+    
+    for (uint i = 0; i<x.size(); i++) {
+        x[i]->receive_vaccine(current_time, imm_incr, frail_incr, vaxlag);
+    }
+}
+
+
 
 void intervention::cure(vector<individual *> x){
     /// Instantaneously cure individual (--> doi_drawn=0)
@@ -57,14 +70,30 @@ void intervention::cure(vector<individual *> x){
 
 
 void intervention::act_on_individual(vector<individual*> x,
-                                     float doi_reduc_treat){
+                                     float current_time,
+                                     float doi_reduc_treat,
+                                     float imm_incr,
+                                     float frail_incr,
+                                     float vax_lag){
     /// Activate intervention at the individual level
     /// according to intervention type.
 
     bool found = false;
     
-    if (_type_intervention == "treatment") {treat(x,doi_reduc_treat); found=true;}
-    else if (_type_intervention == "cure") {cure(x); found=true;}
+    if (_type_intervention == "treatment") {
+        treat(x,doi_reduc_treat);
+        found=true;
+    }
+    
+    else if (_type_intervention == "vaccination") {
+        vaccinate(x,current_time,imm_incr,frail_incr,vax_lag);
+        found = true;
+    }
+    
+    else if (_type_intervention == "cure") {
+        cure(x);
+        found=true;
+    }
     
     stopif(!found,"Intervention type unknown: " + _type_intervention);
 }

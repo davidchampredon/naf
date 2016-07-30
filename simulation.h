@@ -41,6 +41,7 @@ protected:
     uint	_n_H;   // hospitalized
     
     uint    _n_treated;
+    uint    _n_vaccinated;
 	
 	// time series
 	vector<double>	_ts_times;
@@ -53,6 +54,7 @@ protected:
     vector<uint>	_ts_H;
 	vector<uint>	_ts_R;
     vector<uint>    _ts_n_treated;
+    vector<uint>    _ts_n_vaccinated;
     
     dcDataFrame     _ts_census_by_SP;
 
@@ -156,7 +158,8 @@ public:
     
     void    add_intervention(intervention x) {_intervention.push_back(x);}
     void    activate_interventions(ID id_sp, double dt);
-    
+    void    update_immunity_frailty();
+    bool    at_least_one_vaccination_intervention();
     vector<individual*> draw_targeted_individuals(uint i_intervention,
                                                   ID id_sp,
                                                   double dt);
