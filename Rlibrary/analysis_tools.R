@@ -101,9 +101,9 @@ plot.population <- function(pop) {
 	
 	pop.vax.hosp <- ddply(pop,c('hosp','is_vaccinated'),summarize, n=length(id_indiv))
 	g.vax.hosp <- ggplot(pop.vax.hosp) + geom_bar(aes(x = factor(hosp), 
-														  y = n, 
-														  fill = factor(is_vaccinated)),
-													  position = 'dodge', stat = 'identity')
+													  y = n, 
+													  fill = factor(is_vaccinated)),
+												  position = 'dodge', stat = 'identity')
 	g.vax.hosp <- g.vax.hosp + ggtitle('Hospitalization and vaccination')
 	
 	
@@ -223,6 +223,7 @@ plot.population <- function(pop) {
 				 g.frail.hosp,
 				 g.age.hosp, 
 				 g.treat.hosp,
+				 g.vax.hosp,
 				 g.sympt.vax,
 				 g.R,
 				 g.R.symptom,
