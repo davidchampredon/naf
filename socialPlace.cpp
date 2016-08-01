@@ -684,7 +684,11 @@ uint socialPlace::find_indiv_pos(ID id){
 
 uint socialPlace::find_indiv_X_pos(ID id, string X){
     /// Find the position, in the vector "_indiv_X",
-    /// of the individual with ID "id"
+    /// of the individual with ID "id".
+    /// NOTE: this function is used when the ID to
+    /// find is likely at the _end_ of the vector,
+    /// so implementation of search starts from
+    /// the end of the vector.
     
     vector<individual*> tmp;
     if (X == "S")   tmp = _indiv_S;
@@ -693,12 +697,25 @@ uint socialPlace::find_indiv_X_pos(ID id, string X){
     if (X == "H")   tmp = _indiv_H;
     if (X == "vax") tmp = _indiv_vax;
     
-    uint pos = 0;
-    while ( pos<tmp.size() && (tmp[pos]->get_id() != id) ) {
-        pos++;
+    uint n = (uint)tmp.size();
+
+    // Search from the end of the vector:
+    long pos = n-1;
+    bool found = true;
+    while ( pos >= 0 && (tmp[pos]->get_id() != id) ) {
+        if(pos==0) found = false;
+        pos--;
     }
-    stopif(pos >= tmp.size(), "ID "+ to_string(id) + " not found in indiv_"+ X +" social place id_sp = "+to_string(_id_sp));
-    return pos;
+    stopif(!found, "ID "+ to_string(id) + " not found in indiv_"+ X +" social place id_sp = "+to_string(_id_sp));
+
+    // code if search from begining:
+    //    uint pos = 0;
+    //    while ( pos < n && (tmp[pos]->get_id() != id) ) {
+    //        pos++;
+    //    }
+    //    stopif(pos >= tmp.size(), "ID "+ to_string(id) + " not found in indiv_"+ X +" social place id_sp = "+to_string(_id_sp));
+
+    return (uint) pos;
 }
 
 
