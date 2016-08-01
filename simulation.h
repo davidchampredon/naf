@@ -170,7 +170,8 @@ public:
     
     // Census
     
-   	uint	census_total_alive();
+    bool    at_least_one_infected();
+    uint    census_total_alive();
     void    update_ts_census_by_SP();
 
     

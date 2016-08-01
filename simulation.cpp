@@ -523,7 +523,7 @@ void Simulation::run(){
     
     
     // Retrieve all model parameters:
-    double p_move = _modelParam.get_prm_double("proba_move");
+    double p_move   = _modelParam.get_prm_double("proba_move");
     bool debug_mode = _modelParam.get_prm_bool("debug_mode");
     
     if(debug_mode) cout << endl << endl << " ======= START SIMULATION ======" <<endl<<endl;
@@ -546,6 +546,13 @@ void Simulation::run(){
     
     for (_current_time = 0.0; _current_time < _horizon; ) {
         
+        // Check is the is at least one infected or susceptible indivual.
+        // If not, stop the simulation.
+        // * * WARNING * *
+        // This test must be changed if immigration of cases is implemented
+        if (!at_least_one_infected()) break;
+        
+        
         uint idx_timeslice = k % nts;
         double dt = timeslice[idx_timeslice];
         
@@ -555,6 +562,12 @@ void Simulation::run(){
             cout << " ; sched idx = " << idx_timeslice;
             cout << " ; sched length = " << dt;
             cout <<endl;
+        }
+        else{
+            if(k % 5 == 0){
+                cout << " simulation time: " << _current_time << "    "<< '\r';
+                fflush(stdout);
+            }
         }
         
         update_ts_census_by_SP();
@@ -574,20 +587,14 @@ void Simulation::run(){
         transmission_world(dt);
         update_pop_count();
         
-        if(debug_mode) check_book_keeping();
-        
         hospitalize();
         define_all_id_tables(); // <-- check if this is necessary here
         update_pop_count(); // <-- check if this is necessary here
-        
-        if(debug_mode) check_book_keeping();
         
         // Interventions
         for (uint k=0; k<_world.size(); k++) {
             activate_interventions(k, dt);
         }
-        
-        if(debug_mode) check_book_keeping();
         
         if(at_least_one_vaccination_intervention())
             update_immunity_frailty();
@@ -649,17 +656,14 @@ void Simulation::move_one_individual(uint pos_indiv, ID from, ID to){
     /// (social places are identified by their IDs/position)
     
     individual tmp = _world[from].get_indiv(pos_indiv);
-    
-    // DEBUG
-    ID tmpid =_world[from].get_indiv(pos_indiv).get_id();
-    
-    
+       
     // add individual at destination
     _world[to].add_indiv(tmp);
     // remove this individual (in pos_indiv^th position in '_indiv' vector) from here
     _world[from].remove_indiv(pos_indiv);
     
     // DEBUG
+    // ID tmpid =_world[from].get_indiv(pos_indiv).get_id();
     //cout << "DEBUG --> id_" <<tmpid << "moved from SP_"<<from << " to SP_"<<to <<endl;
 }
 
@@ -1262,6 +1266,7 @@ dcDataFrame Simulation::timeseries(){
     df.addcol("nIa", to_vector_double(_ts_Ia));
     df.addcol("nIs", to_vector_double(_ts_Is));
     df.addcol("nR", to_vector_double(_ts_R));
+    df.addcol("nD", to_vector_double(_ts_D));
     df.addcol("n_treated", to_vector_double(_ts_n_treated));
     df.addcol("n_vaccinated", to_vector_double(_ts_n_vaccinated));
     
@@ -1916,7 +1921,17 @@ bool Simulation::at_least_one_vaccination_intervention(){
 
 
 
-
+bool Simulation::at_least_one_infected(){
+    /// Check if there is at least one infected individual
+    /// in the whole population.
+    bool res = false;
+    for (uint k=0; k<_world.size(); k++) {
+        if (_world[k].get_n_E() + _world[k].get_n_Ia() + _world[k].get_n_Is() >0) {
+            return true;
+        }
+    }
+    return res;
+}
 
 
 
