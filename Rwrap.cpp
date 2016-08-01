@@ -74,6 +74,11 @@ List naf_test(List params, List simulParams){
 	double vax_frail_incr       = params["vax_frail_incr"];
 	double vax_lag_full_efficacy= params["vax_lag_full_efficacy"];
 	
+    double proba_death_prm_1    = params["proba_death_prm_1"];
+    double proba_death_prm_2    = params["proba_death_prm_2"];
+    double proba_death_prm_3    = params["proba_death_prm_3"];
+	
+	
 	// Simulation parameters:
 	
 	unsigned int rnd_seed   = simulParams["rnd_seed"];
@@ -95,6 +100,7 @@ List naf_test(List params, List simulParams){
 	// Store parameters in a 'modelParam' class:
 	
 	modelParam MP;
+    
 	MP.add_prm_bool     ("debug_mode", debug_mode);
 	MP.add_prm_double   ("horizon", horizon);
 	MP.add_prm_string   ("dol_distrib", dol_distrib);
@@ -104,7 +110,12 @@ List naf_test(List params, List simulParams){
 	MP.add_prm_double   ("doi_mean", doi_mean);
 	MP.add_prm_double   ("doh_mean", doh_mean);
 	MP.add_prm_double   ("proba_move", proba_move);
-	MP.add_prm_double   ("contact_rate", contact_rate);
+	
+    MP.add_prm_double   ("proba_death_prm_1", proba_death_prm_1);
+    MP.add_prm_double   ("proba_death_prm_2", proba_death_prm_2);
+    MP.add_prm_double   ("proba_death_prm_3", proba_death_prm_3);
+    
+    MP.add_prm_double   ("contact_rate", contact_rate);
 	MP.add_prm_double   ("asymptom_infectiousness_ratio", asymptom_infectiousness_ratio);
 	MP.add_prm_uint     ("n_indiv", n_indiv);
 	MP.add_prm_bool     ("homogeneous_contact", homog);

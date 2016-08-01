@@ -16,6 +16,25 @@ plot.population <- function(pop) {
 	g.age <- g + geom_histogram(aes(x=age), binwidth=2, fill='darkgrey', colour = 'black')
 	g.age <- g.age + ggtitle('Age distribution')
 	
+	# ==== Death ====
+	
+	g.death.frailty <- g + geom_point(aes(x=frailty,y=is_alive), alpha=0.3) 
+	g.death.frailty <- g.death.frailty + geom_smooth(aes(x=frailty,y=is_alive), 
+													 method = "glm", 
+													 method.args = list(family = "binomial"), 
+													 colour='red3',size=2,se = F)
+	g.death.frailty <- g.death.frailty + ggtitle('Death and Frailty')
+	#plot(g.death.frailty)
+	
+	g.death.frailty.dist <- g + geom_density(aes(x=frailty, 
+												 fill=factor(is_alive),
+												 colour=factor(is_alive)),
+											 alpha=0.3)
+	g.death.frailty.dist <- g.death.frailty.dist + geom_line(stat='density', 
+															 aes(x=frailty),
+															 size = 1.5)
+	g.death.frailty.dist <- g.death.frailty.dist + ggtitle('Frailty distributions')
+	# plot(g.death.frailty.dist)
 	
 	# ==== Immunity and frailty ====
 	
@@ -215,6 +234,8 @@ plot.population <- function(pop) {
 	grid.arrange(g.age, 
 				 g.age.imm,
 				 g.age.fra,
+				 g.death.frailty,
+				 g.death.frailty.dist,
 				 g.dol.drawn, 
 				 g.doi.drawn,
 				 g.dobh.drawn,

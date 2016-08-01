@@ -45,6 +45,7 @@ void individual::base_constructor(){
     _is_discharged      = false;
     _is_treated         = false;
     _is_vaccinated      = false;
+    _will_die           = false;  
     
     
     _doi	= 0.0;
@@ -109,11 +110,12 @@ string individual::_disease_status_update(double dt){
     // From 'E' to 'I'
     if (_dol > _dol_drawn &&
         !_is_infectious &&
-        !_is_recovered )
+        !_is_recovered  &&
+        _is_alive)
     {
-        _is_latent		= false;
-        _is_infectious	= true;
-        _doi = SUPERTINY;
+        _is_latent      = false;
+        _is_infectious  = true;
+        _doi            = SUPERTINY;
         res = "E_to_I";
     }
     
@@ -129,20 +131,31 @@ string individual::_disease_status_update(double dt){
     // From 'I' to 'R'
     if (_doi > _doi_drawn &&
         !_is_recovered &&
-        !_is_hosp)
+        !_is_hosp      &&
+        _is_alive)
     {
-        _is_infectious	= false;
-        _is_infected	= false;
-        _is_symptomatic	= false;
-        _is_recovered	= true;
+        // TO DO: use 'recoverDisease()' function instead
+        
+        _is_infectious  = false;
+        _is_infected    = false;
+        _is_symptomatic = false;
+        _is_recovered   = true;
         res = "I_to_R";
     }
     
     // from 'H' to 'R'
-    if (_doh > _doh_drawn && !_is_discharged)
+    if (_doh > _doh_drawn &&
+        !_is_discharged   &&
+        _is_alive)
     {
-        _is_discharged = true;
-        res = "DISCHARGED_HOSPITAL";
+        if (_will_die){
+            //die();
+            res = "DEATH";
+        }
+        else {
+            _is_discharged = true;
+            res = "DISCHARGED_HOSPITAL";
+        }
     }
     
     return res;
@@ -261,7 +274,9 @@ void individual::acquireDisease(){
 
 void individual::futureHospitalization(){
     /// This individual will be hopitalized,
-    /// determine when and duration
+    /// determine when and duration.
+    /// Also determine if death occur at
+    /// the end of the hospitalization period.
     
     _willbe_hosp = true;
     
@@ -285,12 +300,40 @@ void individual::recoverDisease() {
     /// This individual recovers from the disease
     
     _is_susceptible = false;
-    _is_infected	= false;
-    _is_infectious	= false;
-    _is_recovered	= true;
-    _is_symptomatic	= false;
+    _is_infected    = false;
+    _is_infectious  = false;
+    _is_recovered   = true;
+    _is_symptomatic = false;
     
     _doi= 0.0;
+}
+
+void individual::futureDeath(){
+    /// This individual will die at
+    /// the end of the hospitalization period
+    
+    _will_die = true;
+    
+}
+
+void individual::die(){
+    /// This individual dies from the disease.
+    /// NOTE: current implementation means death
+    /// is only possible after hospitalization.
+    
+    stopif(!_is_hosp, "Individual cannot die if it's not already hospitalized!");
+    
+    _is_alive       = false;
+    
+    _is_hosp        = false;
+    _is_susceptible = false;
+    _is_infected    = false;
+    _is_infectious  = false;
+    _is_recovered   = false;
+    _is_symptomatic = false;
+    
+    _doi = 0.0;
+    _doh = 0.0;
 }
 
 

@@ -84,6 +84,11 @@ void main_test_naf(){
     MP.add_prm_double ("doh_mean", 4.123);
     
     MP.add_prm_double ("proba_move", 1.0);
+    
+    MP.add_prm_double ("proba_death_prm_1", 0.59999999999999); // <-- TEST!
+    MP.add_prm_double ("proba_death_prm_2", 0.85);
+    MP.add_prm_double ("proba_death_prm_3", 0.80);
+    
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_double ("contact_rate", 2.0);
     MP.add_prm_uint   ("nt", 3);
@@ -95,15 +100,15 @@ void main_test_naf(){
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
-    uint n_indiv = 200;
+    uint n_indiv = 300;
     uint i0 = 2;
     
     _RANDOM_GENERATOR.seed(123);
     
     // Define intervention
-    float time_start = 5;
+    float time_start = 2;
     float time_end = 999;
-    float cvg_rate = 0.05;
+    float cvg_rate = 0.01;
     float cvg_max_prop = 0.30;
     intervention interv_test("vaccination",  // treatment  cure vaccination
                               "susceptible",  // symptomatic   susceptible

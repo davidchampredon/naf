@@ -39,6 +39,7 @@ protected:
 	uint	_n_Is;  // infectious stage, symptomatic
 	uint	_n_R;   // recovered stage
     uint	_n_H;   // hospitalized
+    uint    _n_D;   // dead
     
     uint    _n_treated;
     uint    _n_vaccinated;
@@ -53,9 +54,10 @@ protected:
 	vector<uint>	_ts_Is;
     vector<uint>	_ts_H;
 	vector<uint>	_ts_R;
+    vector<uint>    _ts_D;
     vector<uint>    _ts_n_treated;
     vector<uint>    _ts_n_vaccinated;
-    
+
     dcDataFrame     _ts_census_by_SP;
 
     vector<intervention> _intervention;
@@ -129,11 +131,12 @@ public:
                                             vector<uint> n_contacts,
                                             string infectious_type);
     
-    double          calc_proba_transmission(individual* infectious,
+    double calc_proba_transmission(individual* infectious,
                                             individual* susceptible);
     
-    double          calc_proba_symptomatic(float immunity, float frailty);
-    double          calc_proba_hospitalized(float frailty);
+    double calc_proba_symptomatic(float immunity, float frailty);
+    double calc_proba_hospitalized(float frailty);
+    double calc_proba_death(float frailty);
     
     uint    transmission_process(uint k, double dt, string infectious_type);
     
@@ -152,7 +155,7 @@ public:
     void    hospitalize_indiv(uint k, uint i);
     void    hospitalize();
     void    discharge_hospital(uint idx_timeslice);
-    
+    void    death_hospital();
 
     // Interventions
     

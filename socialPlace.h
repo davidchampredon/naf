@@ -79,7 +79,9 @@ public:
     void set_n_E(uint n) {_n_E = n;}
     void set_n_H(uint n) {_n_H = n;}
     void increment_n_H() {_n_H++;}
+    void increment_n_D() {_n_D++;}
     void decrement_n_H() {_n_H--;}
+    void decrement_n_Is(){_n_Is--;}
     
     void set_id_S(vector<ID> x)  {_id_S  = x;}
     void set_id_Is(vector<ID> x) {_id_Is = x;}
@@ -103,6 +105,7 @@ public:
     uint	get_n_Ia()		const {return _n_Ia;}
     uint	get_n_R()		const {return _n_R;}
     uint	get_n_H()		const {return _n_H;}
+    uint	get_n_D()		const {return _n_D;}
     
     vector<ID>      get_id_S()      const {return _id_S;}
     vector<ID>      get_id_Is()     const {return _id_Is;}

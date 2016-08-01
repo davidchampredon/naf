@@ -16,24 +16,25 @@ void Simulation::base_constructor(){
     _n_Is = 0;
     _n_R  = 0;
     _n_H  = 0;
+    _n_D  = 0;
     _incidence = 0;
     _n_treated = 0;
     _n_vaccinated = 0;
     _horizon = -999;
-    
     
     _ts_times.clear();
     _ts_E.clear();
     _ts_Ia.clear();
     _ts_Is.clear();
     _ts_R.clear();
+    _ts_D.clear();
     _ts_census_by_SP.clear();
     _ts_n_treated.clear();
     _ts_n_vaccinated.clear();
     
     _intervention.clear();
-    
 }
+
 
 Simulation::Simulation(){
     base_constructor();
@@ -273,7 +274,7 @@ void Simulation::build_test_hospitalization(uint n_indiv){
     
     // Define the time slices
     // must be same for all schedules and must sum up to 1.0
-    vector<double> timeslice {8.0/24, 16.0/24};
+    vector<double> timeslice {6.0/24, 18.0/24};
     
     // type of schedules:
     vector<SPtype> worker_sed  {SP_workplace, SP_household};
@@ -543,7 +544,7 @@ void Simulation::run(){
     
     // ----- MAIN LOOP FOR TIME ------
     
-    for (_current_time=0.0; _current_time < _horizon; ) {
+    for (_current_time = 0.0; _current_time < _horizon; ) {
         
         uint idx_timeslice = k % nts;
         double dt = timeslice[idx_timeslice];
@@ -559,6 +560,9 @@ void Simulation::run(){
         update_ts_census_by_SP();
         
         discharge_hospital(idx_timeslice);
+        define_all_id_tables(); // <-- check if this is necessary here
+        
+        death_hospital();
         define_all_id_tables(); // <-- check if this is necessary here
         
         if(p_move>0) {
@@ -583,6 +587,8 @@ void Simulation::run(){
             activate_interventions(k, dt);
         }
         
+        if(debug_mode) check_book_keeping();
+        
         if(at_least_one_vaccination_intervention())
             update_immunity_frailty();
         
@@ -596,12 +602,12 @@ void Simulation::run(){
         _ts_Is.push_back(_n_Is);
         _ts_H.push_back(_n_H);
         _ts_R.push_back(_n_R);
+        _ts_D.push_back(_n_D);
         _ts_n_treated.push_back(_n_treated);
         _ts_n_vaccinated.push_back(_n_vaccinated);
         
         // Advance time:
         time_update(dt);
-        update_pop_count();
         k++;
         
         if(debug_mode) check_book_keeping();
@@ -617,6 +623,9 @@ void Simulation::run(){
         
         cout << endl << "time series of hospitalizations:"<<endl;
         displayVector(_ts_H);
+        
+        cout << endl << "time series of deaths:"<<endl;
+        displayVector(_ts_D);
     }
 }
 
@@ -640,10 +649,18 @@ void Simulation::move_one_individual(uint pos_indiv, ID from, ID to){
     /// (social places are identified by their IDs/position)
     
     individual tmp = _world[from].get_indiv(pos_indiv);
+    
+    // DEBUG
+    ID tmpid =_world[from].get_indiv(pos_indiv).get_id();
+    
+    
     // add individual at destination
     _world[to].add_indiv(tmp);
     // remove this individual (in pos_indiv^th position in '_indiv' vector) from here
     _world[from].remove_indiv(pos_indiv);
+    
+    // DEBUG
+    //cout << "DEBUG --> id_" <<tmpid << "moved from SP_"<<from << " to SP_"<<to <<endl;
 }
 
 
@@ -840,6 +857,19 @@ double Simulation::calc_proba_hospitalized(float frailty){
 }
 
 
+double Simulation::calc_proba_death(float frailty){
+    /// Probability to die at the end of hospitalization period.
+    
+    // TO DO: more sophisticated!
+    double p        = _modelParam.get_prm_double("proba_death_prm_1");
+    double thres    = _modelParam.get_prm_double("proba_death_prm_2");
+    double p_hi     = _modelParam.get_prm_double("proba_death_prm_3");
+    if (frailty > thres) p = p_hi;
+    return p;
+}
+
+
+
 vector< vector<uint> > Simulation::draw_contacted_S(uint k,
                                                     vector<uint> n_contacts,
                                                     string infectious_type){
@@ -1008,15 +1038,21 @@ uint Simulation::transmission_activation(int k,
             _world[k]._indiv_S[SS_melt_success[m]]->set_is_symptomatic(true);
             _world[k]._indiv_S[SS_melt_success[m]]->set_was_symptomatic(true);
             
-            
             // For performance, the time and duration of hospitalization
             // is decided (in advance) at infection
             // (this is faster than checking if we hospitalized at every time step)
-            
             double  p_hosp  = calc_proba_hospitalized(frailty);
             bool    willbe_hosp = ( unif_01(_RANDOM_GENERATOR) < p_hosp );
             if (willbe_hosp) {
                 _world[k]._indiv_S[SS_melt_success[m]]->futureHospitalization();
+            }
+            
+            // Also decide here if death at
+            // the end of hospitalization period:
+            double  p_death  = calc_proba_death(frailty);
+            bool    will_die = ( unif_01(_RANDOM_GENERATOR) < p_death );
+            if (will_die){
+                _world[k]._indiv_S[SS_melt_success[m]]->futureDeath();
             }
         }
         
@@ -1458,10 +1494,9 @@ void Simulation::check_book_keeping(){
 
 
 void Simulation::define_all_id_tables(){
-    /// Define all IDs of susceptible
-    /// and infectious individuals
-    /// in all social places
-    /// (define _id_S for all social places)
+    /// Define all IDs and pointers
+    /// of tracked individuals
+    /// in all social places.
     
     for (uint k=0; k<_world.size(); k++)
     {
@@ -1474,6 +1509,7 @@ void Simulation::define_all_id_tables(){
         _world[k]._indiv_Is.clear();
         _world[k]._indiv_Ia.clear();
         _world[k]._indiv_H.clear();
+        _world[k]._indiv_vax.clear();
         
         for (uint i=0; i< indiv.size(); i++)
         {
@@ -1481,16 +1517,21 @@ void Simulation::define_all_id_tables(){
                 _world[k].add_id_S(indiv[i].get_id());
                 _world[k]._indiv_S.push_back(_world[k].get_mem_indiv(i));
             }
-            if (indiv[i].is_infectious() && indiv[i].is_symptomatic()){
-                _world[k].add_id_Is(indiv[i].get_id());
-                _world[k]._indiv_Is.push_back(_world[k].get_mem_indiv(i));
+            else {
+                if (indiv[i].is_infectious() && indiv[i].is_symptomatic()){
+                    _world[k].add_id_Is(indiv[i].get_id());
+                    _world[k]._indiv_Is.push_back(_world[k].get_mem_indiv(i));
+                }
+                else if (indiv[i].is_infectious() && !indiv[i].is_symptomatic()){
+                    _world[k].add_id_Ia(indiv[i].get_id());
+                    _world[k]._indiv_Ia.push_back(_world[k].get_mem_indiv(i));
+                }
+                if (indiv[i].is_hosp() && indiv[i].is_alive()){
+                    _world[k]._indiv_H.push_back(_world[k].get_mem_indiv(i));
+                }
             }
-            if (indiv[i].is_infectious() && !indiv[i].is_symptomatic()){
-                _world[k].add_id_Ia(indiv[i].get_id());
-                _world[k]._indiv_Ia.push_back(_world[k].get_mem_indiv(i));
-            }
-            if (indiv[i].is_hosp() && indiv[i].is_alive()){
-                _world[k]._indiv_H.push_back(_world[k].get_mem_indiv(i));
+            if  (indiv[i].is_vaccinated()){
+                 _world[k]._indiv_vax.push_back(_world[k].get_mem_indiv(i));
             }
             
         }
@@ -1578,9 +1619,9 @@ void Simulation::hospitalize(){
         for (uint i=nIs;  (i--) >0;) {
             
             // If time to hospitalize:
-            if (! _world[k]._indiv_Is[i]-> is_hosp() &&
-                _world[k]._indiv_Is[i]-> willbe_hosp() &&
-                _world[k]._indiv_Is[i]-> time_to_hospitalize() &&
+            if (!_world[k]._indiv_Is[i]-> is_hosp() &&
+                 _world[k]._indiv_Is[i]-> willbe_hosp() &&
+                 _world[k]._indiv_Is[i]-> time_to_hospitalize() &&
                 !_world[k]._indiv_Is[i]->is_discharged())
             {
                 // set the hospitalization flag for this individual
@@ -1594,6 +1635,7 @@ void Simulation::hospitalize(){
                 // update counters
                 _n_H++;
                 _world[id_sp_hospital].increment_n_H();
+                
                 
                 // Move individual to its linked SP_hospital
                 move_one_individual(pos_indiv, k, id_sp_hospital);
@@ -1614,7 +1656,7 @@ void Simulation::discharge_hospital(uint idx_timeslice){
         
         stopif(nH != _world[k]._indiv_H.size(), "Book keeping issue with H!");
         
-        if(_world[k].get_type() == SP_hospital &&   // <-- can only leave from hospital
+        if(_world[k].get_type() == SP_hospital &&   // <-- can only leave from a hospital
            _world[k]._indiv_H.size() >0 )           // <-- at least one must be hospitalized
         {
             // * * * IMPORTANT * * *
@@ -1624,15 +1666,23 @@ void Simulation::discharge_hospital(uint idx_timeslice){
             for (uint i=nH;  (i--) >0;) {
                 
                 // If time to leave hospital:
-                if (_world[k]._indiv_H[i]-> is_discharged() &&
-                    _world[k]._indiv_H[i]-> is_alive() )
+                if ( _world[k]._indiv_H[i]-> is_discharged() &&
+                     _world[k]._indiv_H[i]-> is_alive()      &&
+                    !_world[k]._indiv_H[i]-> will_die()
+                    )
                 {
-                    // set the hospitalization flag for this individual
-                    _world[k]._indiv_Is[i]->set_is_hosp(false);
                     
                     ID id_sp_hospital = _world[k]._indiv_H[i]->get_id_sp_hospital();
-                    ID id_indiv = _world[k]._indiv_H[i]->get_id();
-                    uint pos_indiv = _world[k].find_indiv_pos(id_indiv);
+                    ID id_indiv       = _world[k]._indiv_H[i]->get_id();
+                    uint pos_indiv    = _world[k].find_indiv_pos(id_indiv);
+                    
+                    // set the hospitalization flag for this individual
+                    _world[k]._indiv_H[i]->set_is_hosp(false);
+                    
+                    // DELETE WHEN SURE:
+//                    uint pos_Is = _world[k].find_indiv_X_pos(id_indiv, "Is");
+//                    _world[k]._indiv_Is[pos_Is]->set_is_hosp(false);
+
                     
                     // update counters
                     _n_H--;
@@ -1648,15 +1698,67 @@ void Simulation::discharge_hospital(uint idx_timeslice){
                     if ( id_dest!=k )
                     { move_one_individual(pos_indiv, k, id_dest); }
                     
-//                    cout <<" DEBUG: indiv ID_"<<to_string(id_indiv)<<" leave hospital!" <<endl;
+                    //                    cout <<" DEBUG: indiv ID_"<<to_string(id_indiv)<<" leave hospital!" <<endl;
                 }
             }
         } // end-if-SP_hospital
-        
     }
-    
-    
 }
+
+void Simulation::death_hospital(){
+    
+    /// Scan all infectious hospitalized individuals
+    /// and trigger death if meant to die (see '_will_die')
+    
+    for (uint k=0; k<_world.size(); k++)
+    {
+        uint nH = _world[k].get_n_H();
+        
+        stopif(nH != _world[k]._indiv_H.size(), "Book keeping issue with H!");
+        
+        if(_world[k].get_type() == SP_hospital &&   // <-- can only leave from a hospital
+           _world[k]._indiv_H.size() >0 )           // <-- at least one must be hospitalized
+        {
+            // * * * IMPORTANT * * *
+            // Must run this loop
+            // in _descending_ order, else
+            // it messes up the pointers vector deletion
+            for (uint i=nH;  (i--) >0;) {
+                
+                // If time to die:
+                if (!_world[k]._indiv_H[i]-> is_discharged() &&
+                     _world[k]._indiv_H[i]-> is_alive()      &&
+                     _world[k]._indiv_H[i]-> will_die()
+                    )
+                {
+                    ID id_sp_hospital = _world[k]._indiv_H[i]->get_id_sp_hospital();
+                    ID id_indiv       = _world[k]._indiv_H[i]->get_id();
+//                    uint pos_indiv    = _world[k].find_indiv_pos(id_indiv);
+                    
+                    // set the hospitalization flag for this individual
+                    _world[k]._indiv_H[i]->die();
+                    
+                    // update counters
+                    _n_H--;
+                    _n_Is--;
+                    _n_D++;
+                    _world[id_sp_hospital].decrement_n_H();
+                    _world[id_sp_hospital].decrement_n_Is();
+                    _world[id_sp_hospital].increment_n_D();
+                    
+                    // An hospitalized individual
+                    // is in _both_ Is and H, so must
+                    // remove it from these 2 categories:
+                    removeValue(_world[id_sp_hospital]._indiv_Is, _world[k]._indiv_H[i]);
+                    removeValue(_world[id_sp_hospital]._indiv_H,  _world[k]._indiv_H[i]); // <-- remove in _indiv_H after all other _indiv_X !!!
+                    _world[id_sp_hospital].remove_id_Is(id_indiv);
+                }
+            }
+        } // end-if-SP_hospital
+    }
+}
+
+
 
 
 vector<individual*> Simulation::draw_targeted_individuals(uint i,

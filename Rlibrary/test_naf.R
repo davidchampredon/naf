@@ -39,6 +39,12 @@ prm[['doi_mean']] <- doi_mean
 prm[['doh_mean']] <- 5.0
 
 prm[['proba_move']] <- 1
+
+prm[['proba_death_prm_1']] <- 0.08
+prm[['proba_death_prm_2']] <- 0.75
+prm[['proba_death_prm_3']] <- 9.999
+
+
 prm[['homogeneous_contact']] <- FALSE
 prm[['contact_rate']] <- cr
 prm[['asymptom_infectiousness_ratio']] <- 0.8
@@ -54,7 +60,7 @@ prm[['vax_lag_full_efficacy']] <- 12
 
 simul.prm[['rnd_seed']] <- 12345
 simul.prm[['horizon']] <- 50
-simul.prm[['n_indiv']] <- 1000
+simul.prm[['n_indiv']] <- 5000
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 2
 simul.prm[['popexport']] <- 1
@@ -64,7 +70,7 @@ simul.prm[['popexport']] <- 1
 simul.prm[['interv_name']] <- 'interv_test'
 simul.prm[['interv_type']] <- 'vaccination'  # treatment cure vaccination
 simul.prm[['interv_target']] <- 'susceptible'  # symptomatic  susceptible
-simul.prm[['interv_start']] <- 5
+simul.prm[['interv_start']] <- 49
 simul.prm[['interv_end']] <- 999
 simul.prm[['interv_cvg_rate']] <- 0.05
 simul.prm[['interv_cvg_max_prop']] <- 0.9999

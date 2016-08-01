@@ -182,20 +182,31 @@ void socialPlace::add_indiv(individual & newindiv){
     update_epidemic_count(newindiv, "add");
     
     // update pointer tables:
-    if(_indiv.back().is_susceptible())
+    
+    
+    if(_indiv.back().is_susceptible()){
         _indiv_S.push_back(&_indiv.back());
+    }
     
-    if(_indiv.back().is_infectious() &&
-       _indiv.back().is_symptomatic())
-        _indiv_Is.push_back(&_indiv.back());
+    else {
+        if(_indiv.back().is_infectious() &&
+           _indiv.back().is_symptomatic())
+            _indiv_Is.push_back(&_indiv.back());
+        
+        if(_indiv.back().is_infectious() &&
+           !_indiv.back().is_symptomatic())
+            _indiv_Ia.push_back(&_indiv.back());
+        
+        if(_indiv.back().is_hosp())
+            _indiv_H.push_back(&_indiv.back());
+    }
     
-    if(_indiv.back().is_infectious() &&
-       !_indiv.back().is_symptomatic())
-        _indiv_Ia.push_back(&_indiv.back());
     
-    if(_indiv.back().is_hosp())
-        _indiv_H.push_back(&_indiv.back());
-    
+    if(_indiv.back().is_vaccinated()){
+        _indiv_vax.push_back(&_indiv.back());
+        // DEBUG
+//        cout << "DEBUG: vax'ed indiv_" << newindiv.get_id() << " is added to  SP_" << _id_sp <<endl;
+    }
 }
 
 
@@ -210,20 +221,22 @@ void socialPlace::add_indiv(vector<individual>& newindiv){
 void socialPlace::remove_indiv(individual& x){
     /// Remove an individual from this social place
     
-    // find the position of individual 'x' in the vector:
-    auto pos = distance(_indiv.begin(), find(_indiv.begin(),_indiv.end(),x));
-    stopif(pos>=_indiv.size(), "Try to remove ABSENT individual from social place!");
+    // DELETE WHEN SURE 2016-08-01:
     
-    _indiv.erase(_indiv.begin()+pos);
-    
-    // update ID (function 'add_individual' will specify ID)
-    x.set_id_sp_current(__UNDEFINED_ID);
-    
-    // update size:
-    _size--;
-    // update prevalence:
-    // DELETE WHEN SURE: if(x.is_infected()) _prevalence--;
-    update_epidemic_count(x, "remove");
+//    // find the position of individual 'x' in the vector:
+//    auto pos = distance(_indiv.begin(), find(_indiv.begin(),_indiv.end(),x));
+//    stopif(pos>=_indiv.size(), "Try to remove ABSENT individual from social place!");
+//    
+//    _indiv.erase(_indiv.begin()+pos);
+//    
+//    // update ID (function 'add_individual' will specify ID)
+//    x.set_id_sp_current(__UNDEFINED_ID);
+//    
+//    // update size:
+//    _size--;
+//    // update prevalence:
+//    // DELETE WHEN SURE: if(x.is_infected()) _prevalence--;
+//    update_epidemic_count(x, "remove");
 }
 
 
@@ -258,12 +271,14 @@ void socialPlace::remove_indiv(uint pos){
         _indiv_Ia.erase(_indiv_Ia.begin()+pos2);
     }
     
-    // DELETE WHEN SURE:
-//    else if(_indiv[pos].is_discharged()){
-//        pos2 = find_indiv_X_pos(id_indiv, "H");
-//        _indiv_H.erase(_indiv_H.begin()+pos2);
-//    }
-
+    if(_indiv[pos].is_vaccinated()) {
+        pos2 = find_indiv_X_pos(id_indiv, "vax");
+        _indiv_vax.erase(_indiv_vax.begin()+pos2);
+        
+        // DEBUG
+       // cout << "DEBUG: vax'ed indiv_" << id_indiv << " removed from SP_" << _id_sp <<endl;
+        
+    }
     
     // remove from '_indiv' (MUST BE REMOVED _AFTER_ 'indiv_x')
     _indiv.erase(_indiv.begin()+pos);
@@ -450,6 +465,7 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     // Individuals info
     vector<double> id_indiv(n);
     vector<double> age(n);
+    vector<double> is_alive(n);
     vector<double> immunity(n);
     vector<double> frailty(n);
     vector<double> is_infected(n);
@@ -475,6 +491,7 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     for(ID i=0; i<n; i++){
         id_indiv[i]      = _indiv[i].get_id();
         age[i]           = _indiv[i].get_age();
+        is_alive[i]      = _indiv[i].is_alive();
         immunity[i]      = _indiv[i].get_immunity();
         frailty[i]       = _indiv[i].get_frailty();
         is_infected[i]   = _indiv[i].is_infected();
@@ -498,6 +515,7 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     
     df.addcol("id_indiv", id_indiv);
     df.addcol("age", age);
+    df.addcol("is_alive", is_alive);
     df.addcol("immunity", immunity);
     df.addcol("frailty", frailty);
     df.addcol("is_infected", is_infected);
@@ -562,7 +580,11 @@ void socialPlace::time_update(double dt){
         
         string event = _indiv[i].time_update(dt);
         
-        if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
+        if (event == "NO_CHANGE"){
+            // do nothing!
+        }
+        
+        else if (event == "E_to_I" && _indiv[i].is_symptomatic() ) {
             _n_Is++;
             add_id_Is(_indiv[i].get_id());
             _indiv_Is.push_back(get_mem_indiv(i));
@@ -614,6 +636,11 @@ void socialPlace::time_update(double dt){
             // 'hospital' social place to its scheduled social place,
             // so that's dealt with at the 'Simulation' level.
         }
+        else if (event == "DEATH") {
+            // * * * WARNING * * *
+            // DO NOT DO ANYTHING HERE (unlike other 'if' cases)
+            // because leaving hospital is dealt with at the 'Simulation' level.
+        }
     }
 }
 
@@ -664,6 +691,7 @@ uint socialPlace::find_indiv_X_pos(ID id, string X){
     if (X == "Is")  tmp = _indiv_Is;
     if (X == "Ia")  tmp = _indiv_Ia;
     if (X == "H")   tmp = _indiv_H;
+    if (X == "vax") tmp = _indiv_vax;
     
     uint pos = 0;
     while ( pos<tmp.size() && (tmp[pos]->get_id() != id) ) {

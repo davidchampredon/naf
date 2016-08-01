@@ -55,7 +55,8 @@ protected:
     bool    _is_hosp;
     bool    _willbe_hosp; // hospitalization is decided in advance, at transmission time
     bool    _is_discharged;
-	
+    bool    _will_die;      // whether death occurs at the end of hospitalization.
+    
     float   _dol; // duration of latency
     float   _doi; // duration of infection
     float   _dobh; // duration before hospitalization
@@ -67,7 +68,7 @@ protected:
     float	_doi_drawn;
     float	_doh_drawn;
     float	_dobh_drawn;
-	
+    
     string	_dol_distrib;  // distribution of the duration of latency
     string	_doi_distrib;  // distribution of the duration of infectiousness
     string	_doh_distrib;  // distribution of the duration of hospitalization
@@ -219,6 +220,7 @@ public:
     bool is_recovered()     const {return _is_recovered;}
     bool is_hosp()          const {return _is_hosp;}
     bool willbe_hosp()      const {return _willbe_hosp;}
+    bool will_die()         const {return _will_die;}
     bool is_discharged()    const {return _is_discharged;}
     bool is_treated()       const {return _is_treated;}
     bool is_vaccinated()    const {return _is_vaccinated;}
@@ -235,9 +237,11 @@ public:
 	
 	// Epidemiology
     
+    void    die();
     void    acquireDisease();
     void    recoverDisease();
     void    futureHospitalization();
+    void    futureDeath();
     void    receive_treatment(double doi_reduction);
     void    receive_vaccine(float time,
                             float vaxlag,
