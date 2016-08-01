@@ -3,6 +3,35 @@ library(plyr)
 library(gridExtra)
 
 
+plot.binomial.regression <- function(dat, xvar, binomial_response, title) {
+	g <- ggplot(dat) + geom_point(aes_string(x=xvar,y=binomial_response), alpha=0.3) 
+	g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response), 
+						 method = "glm", 
+						 method.args = list(family = "binomial"), 
+						 colour='red3',size=2,se = F)
+	g <- g + ggtitle(title)
+	return(g)
+}
+
+plot.density.categ <- function(dat, xvar, categ, title) {
+	
+	dat[,categ] <- as.factor(dat[,categ])
+	g <- ggplot(dat) 
+	
+	if (categ != ''){
+		g <- g + geom_density(aes_string(x=xvar,
+										 fill=categ,
+										 colour=categ),
+							  alpha=0.3)
+	}
+	g <- g + geom_line(stat='density',
+					   aes_string(x=xvar),
+					   size = 1.5)
+	g <- g + ggtitle(title)
+	return(g)
+}
+
+
 plot.population <- function(pop) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
@@ -16,25 +45,34 @@ plot.population <- function(pop) {
 	g.age <- g + geom_histogram(aes(x=age), binwidth=2, fill='darkgrey', colour = 'black')
 	g.age <- g.age + ggtitle('Age distribution')
 	
+	g.age.death.dist <- plot.density.categ(dat = pop, 
+										   xvar='age',
+										   categ = 'is_alive',
+										   title='Age distribution (by survival)')
+	
 	# ==== Death ====
 	
-	g.death.frailty <- g + geom_point(aes(x=frailty,y=is_alive), alpha=0.3) 
-	g.death.frailty <- g.death.frailty + geom_smooth(aes(x=frailty,y=is_alive), 
-													 method = "glm", 
-													 method.args = list(family = "binomial"), 
-													 colour='red3',size=2,se = F)
-	g.death.frailty <- g.death.frailty + ggtitle('Death and Frailty')
-	#plot(g.death.frailty)
 	
-	g.death.frailty.dist <- g + geom_density(aes(x=frailty, 
-												 fill=factor(is_alive),
-												 colour=factor(is_alive)),
-											 alpha=0.3)
-	g.death.frailty.dist <- g.death.frailty.dist + geom_line(stat='density', 
-															 aes(x=frailty),
-															 size = 1.5)
-	g.death.frailty.dist <- g.death.frailty.dist + ggtitle('Frailty distributions')
-	# plot(g.death.frailty.dist)
+	g.death.frailty <- plot.binomial.regression(dat = pop, 
+												xvar='frailty',
+												binomial_response = 'is_alive',
+												title='Death and Frailty')
+	
+	g.death.imm <- plot.binomial.regression(dat = pop, 
+											xvar='immunity',
+											binomial_response = 'is_alive',
+											title='Death and Immunity')
+	
+	g.death.frailty.dist <- plot.density.categ(dat = pop, 
+											   xvar='frailty',
+											   categ = 'is_alive',
+											   title='Frailty distribution (by survival)')
+	g.death.imm.dist <- plot.density.categ(dat = pop, 
+										   xvar='immunity',
+										   categ = 'is_alive',
+										   title='Immunity distribution (by survival)')
+	
+	
 	
 	# ==== Immunity and frailty ====
 	
@@ -85,30 +123,18 @@ plot.population <- function(pop) {
 	
 	### ==== Hospitalizations ==== 
 	
-	g.frail.hosp <- ggplot(pop)
-	g.frail.hosp <- g.frail.hosp + geom_smooth(aes(x=frailty, y=hosp),method = "glm", 
-						 method.args = list(family = "binomial"), 
-						 se = FALSE, 
-						 colour='brown', size=2)
-	g.frail.hosp <- g.frail.hosp + geom_point(aes(x=frailty, y=hosp), size=0.5)
-	g.frail.hosp <- g.frail.hosp + ggtitle('Hospitalization and frailty')
+	g.frail.hosp <- plot.binomial.regression(dat = pop, xvar = 'frailty',
+											 binomial_response = 'hosp',
+											 title = 'Hospitalization and frailty')
 	
+	g.imm.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity',
+											 binomial_response = 'hosp',
+											 title = 'Hospitalization and immunity')
 	
-	g.imm.hosp <- ggplot(pop)
-	g.imm.hosp <- g.imm.hosp + geom_smooth(aes(x=immunity, y=hosp),method = "glm", 
-											   method.args = list(family = "binomial"), 
-											   se = FALSE, 
-											   colour='red', size=2)
-	g.imm.hosp <- g.imm.hosp + geom_point(aes(x=immunity, y=hosp), size=0.5)
-	g.imm.hosp <- g.imm.hosp + ggtitle('Hospitalization and immunity')
-	
-	g.age.hosp <- ggplot(pop)
-	g.age.hosp <- g.age.hosp + geom_smooth(aes(x=age, y=hosp),method = "glm", 
-										   method.args = list(family = "binomial"), 
-										   se = FALSE, 
-										   colour='blue', size=2)
-	g.age.hosp <- g.age.hosp + geom_point(aes(x=age, y=hosp), size=0.5)
-	g.age.hosp <- g.age.hosp + ggtitle('Hospitalization and age')
+	g.age.hosp <- plot.binomial.regression(dat = pop, xvar = 'age',
+										   binomial_response = 'hosp',
+										   title = 'Hospitalization and age')
+
 	
 	pop.treat.hosp <- ddply(pop,c('hosp','is_treated'),summarize, n=length(id_indiv))
 	g.treat.hosp <- ggplot(pop.treat.hosp) + geom_bar(aes(x = factor(hosp), 
@@ -234,8 +260,11 @@ plot.population <- function(pop) {
 	grid.arrange(g.age, 
 				 g.age.imm,
 				 g.age.fra,
+				 g.age.death.dist,
 				 g.death.frailty,
+				 g.death.imm,
 				 g.death.frailty.dist,
+				 g.death.imm.dist,
 				 g.dol.drawn, 
 				 g.doi.drawn,
 				 g.dobh.drawn,
@@ -257,6 +286,8 @@ plot.population <- function(pop) {
 plot.epi.timeseries <- function(ts){
 	### Plot time series
 	
+	ts$death_incidence <- c(ts$nD[1],diff(ts$nD))
+	
 	g.SR <- ggplot(ts, aes(x=time))
 	g.SR <- g.SR + geom_step(aes(y=nS),colour='springgreen3', size=2) 
 	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue', size=2)
@@ -271,7 +302,8 @@ plot.epi.timeseries <- function(ts){
 	g.inf <- g.inf + geom_step(aes(y=nE+nIa+nIs),colour='grey70',linetype=3)
 	g.inf <- g.inf + geom_step(aes(y=n_treated), colour='cyan', linetype = 2)
 	g.inf <- g.inf + geom_step(aes(y=n_vaccinated), colour='springgreen2', linetype = 2)
-	g.inf <- g.inf + ggtitle("All latent (nE, orange), Infectious (Ia & Is[bold])\n treated and vaccinated (dashed)") + ylab("")
+	g.inf <- g.inf + geom_step(aes(y=death_incidence), colour='black', linetype = 1)
+	g.inf <- g.inf + ggtitle("All latent (nE, orange), Infectious (Ia & Is[bold])\n treated, vaccinated (dashed) and death (black)") + ylab("")
 	
 	g.prev <- ggplot(ts, aes(x=time))
 	g.prev <- g.prev + geom_step(aes(y=prevalence))
@@ -279,8 +311,13 @@ plot.epi.timeseries <- function(ts){
 	
 	g.prev.log <- g.prev + scale_y_log10()
 	
+	g.death <- ggplot(ts, aes(x=time))
+	g.death <- g.death + geom_step(aes(y=nD))
+	g.death <- g.death + ggtitle("Cumulative Deaths") + ylab("")
+	
 	grid.arrange(g.SR ,
 				 g.inf, 
 				 g.prev,
-				 g.prev.log)
+				 g.prev.log,
+				 g.death)
 }

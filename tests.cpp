@@ -70,7 +70,7 @@ Simulation test_naf(modelParam MP,
 void main_test_naf(){
     /// Main test
     
-    double horizon = 30.0;
+    double horizon = 300.0;
     modelParam MP;
     
     MP.add_prm_bool("debug_mode", true);
@@ -100,9 +100,9 @@ void main_test_naf(){
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
-    uint n_indiv = 300;
+    uint n_indiv = 500;
     uint i0 = 2;
-    
+
     _RANDOM_GENERATOR.seed(123);
     
     // Define intervention

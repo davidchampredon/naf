@@ -58,8 +58,8 @@ prm[['vax_lag_full_efficacy']] <- 12
 
 ### ==== Simulation parameters ====
 
-simul.prm[['rnd_seed']] <- 12345
-simul.prm[['horizon']] <- 50
+simul.prm[['rnd_seed']] <- 1234
+simul.prm[['horizon']] <- 300
 simul.prm[['n_indiv']] <- 5000
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 2
@@ -70,7 +70,7 @@ simul.prm[['popexport']] <- 1
 simul.prm[['interv_name']] <- 'interv_test'
 simul.prm[['interv_type']] <- 'vaccination'  # treatment cure vaccination
 simul.prm[['interv_target']] <- 'susceptible'  # symptomatic  susceptible
-simul.prm[['interv_start']] <- 49
+simul.prm[['interv_start']] <- 15
 simul.prm[['interv_end']] <- 999
 simul.prm[['interv_cvg_rate']] <- 0.05
 simul.prm[['interv_cvg_max_prop']] <- 0.9999
