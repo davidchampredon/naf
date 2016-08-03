@@ -18,8 +18,6 @@ save.plot.to.file <- T
 
 t0 <- as.numeric(Sys.time())
 
-prm <- list()
-simul.prm <- list()
 
 
 ### ==== Model Parameters ====

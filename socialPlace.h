@@ -15,7 +15,7 @@
 #include "areaUnit.h"
 #include "individual.h"
 #include "dcTools.h"
-#include "probaDistribution.h"
+#include "discrete_prob_dist.h"
 #include "dcDataFrame.h"
 
 string SPtype2string(SPtype x);
@@ -26,9 +26,9 @@ class socialPlace: public areaUnit{
     
 protected:
     
-    SPtype			_type;
-    ID				_id_sp;
-    uint	_size;
+    SPtype  _type;
+    ID      _id_sp;
+    uint    _size;
     
     vector<individual> _indiv;
     
@@ -112,10 +112,11 @@ public:
     vector<ID>      get_id_Ia()     const {return _id_Ia;}
     
     
-    uint	get_prevalence()            const {return _prevalence;}
-    vector<individual>	get_indiv()             const {return _indiv;}
-    individual		get_indiv(uint pos)	const {return _indiv[pos];}
-    vector<ID>		get_linked_indiv_id()       const {return _linked_indiv_id;}
+    uint        get_prevalence()        const {return _prevalence;}
+    vector<individual>	get_indiv()     const {return _indiv;}
+    individual  get_indiv(uint pos)     const {return _indiv[pos];}
+    vector<ID>  get_linked_indiv_id()   const {return _linked_indiv_id;}
+    ID          get_linked_indiv_id(uint pos) const {return _linked_indiv_id[pos];}
     
     individual*      get_mem_indiv(uint i) {return &_indiv[i];}
     
@@ -138,7 +139,7 @@ public:
     void remove_indiv(vector<uint> posvec);
     void add_linked_indiv(ID id);
     void remove_linked_indiv(ID id);
-    ID   n_linked_indiv(){return (ID)(_linked_indiv_id.size());}
+    ID   n_linked_indiv() const {return (ID)(_linked_indiv_id.size());}
     
     
     // Diseases
@@ -178,12 +179,16 @@ public:
     
     
     // Exports
-    dcDataFrame		export_dcDataFrame();
+    dcDataFrame export_dcDataFrame() const;
     
-    
+
     // Miscellenaous:
     void	displayInfo();
 };
+
+
+dcDataFrame export_dcDataFrame_slow(const vector<socialPlace> & df);
+vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace> & df);
 
 
 vector<socialPlace> build_world_random(uint n_sp,
@@ -191,7 +196,7 @@ vector<socialPlace> build_world_random(uint n_sp,
 
 vector<socialPlace> build_world_simple(vector<SPtype> spt,
                                        vector<uint> n_sp,
-                                       vector< probaDistrib<uint> > p_size,
+                                       vector< discrete_prob_dist<uint> > p_size,
                                        vector<individual>& indiv,
                                        vector<areaUnit> auvec,
                                        uint seed =12345);

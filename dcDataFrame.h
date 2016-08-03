@@ -221,9 +221,9 @@ public:
 	
 	// ==== MANIPULATIONS ====
 	
-	void addrow(string varname, vector<double> values);
+	void addrow(string varname, const vector<double>& values);
 	void addrow(string varname, double value);
-	void addcol(string colname, vector<double> values);
+	void addcol(string colname, const vector<double>& values);
 	
 	// ==== SET FUNCTIONS ====
 	
@@ -233,9 +233,9 @@ public:
 	
 	// ==== RETRIEVE DATA ====
 	
-	vector<string>	get_rowname() {return _rowname;}
-	vector<string>	get_colname() {return _colname;}
-	dcMatrix		get_value() {return _value;}
+	vector<string>	get_rowname()   const {return _rowname;}
+	vector<string>	get_colname()   const {return _colname;}
+	dcMatrix		get_value()     const {return _value;}
 	
 	
 	double	getValue(string varname, string valuename);
@@ -260,7 +260,8 @@ public:
 // ===== OUTSIDE CLASS ======
 // =================================
 
-dcDataFrame rbind(dcDataFrame x, dcDataFrame y);
+dcDataFrame rbind(const dcDataFrame& x, const dcDataFrame& y);
+void append( dcDataFrame& x, const dcDataFrame& y);
 
 void thetest(dcDataFrame& d);
 

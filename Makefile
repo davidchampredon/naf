@@ -28,10 +28,12 @@ LINK_LIB_GPP :=    #-lgsl -lgslcblas # <--- For Earnservs
 # === FILE LISTS ===
 # ==================
 
-SOURCE_LIST := areaUnit.cpp population.cpp\
+SOURCE_LIST := areaUnit.cpp build_world.cpp population.cpp\
+discrete_prob_dist.cpp \
 simulation.cpp dcDataFrame.cpp\
 dcMatrix.cpp dcTools.cpp\
 disease.cpp globalvar.cpp\
+intervention.cpp\
 individual.cpp modelParam.cpp\
 schedule.cpp socialPlace.cpp\
 tests.cpp

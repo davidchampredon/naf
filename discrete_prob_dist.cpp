@@ -6,7 +6,6 @@
 //  Copyright (c) 2016 David CHAMPREDON. All rights reserved.
 //
 
-#include "probaDistribution.h"
-
+#include "discrete_prob_dist.h"
 
 

@@ -91,9 +91,9 @@ void Simulation::build_single_world(uint n_indiv){
     vector<uint> num_sp {num_hh};
     
     // Distribution of the size of each social place type:
-    probaDistrib<uint> p_hh({n_indiv},{1.0});
+    discrete_prob_dist<uint> p_hh({n_indiv},{1.0});
     
-    vector< probaDistrib<uint> > p_size {p_hh};
+    vector< discrete_prob_dist<uint> > p_size {p_hh};
     
     // build the world:
     vector<socialPlace> W = build_world_simple(spt, num_sp, p_size, many_indiv, A);
@@ -195,10 +195,10 @@ void Simulation::build_test_2_sp(uint n_indiv){
     };
     
     // Distribution of the size of each social place type:
-    probaDistrib<uint> p_workPlace({n_indiv/2},  {1.0});
-    probaDistrib<uint> p_hh({n_indiv},  {1.0});
+    discrete_prob_dist<uint> p_workPlace({n_indiv/2},  {1.0});
+    discrete_prob_dist<uint> p_hh({n_indiv},  {1.0});
     
-    vector<probaDistrib<uint> > p_size {
+    vector<discrete_prob_dist<uint> > p_size {
         p_workPlace,
         p_hh
     };
@@ -323,11 +323,11 @@ void Simulation::build_test_hospitalization(uint n_indiv){
     };
     
     // Distribution of the size of each social place type:
-    probaDistrib<uint> p_workPlace({n_indiv/2},  {1.0});
-    probaDistrib<uint> p_hh({n_indiv},  {1.0});
-    probaDistrib<uint> p_hosp({0},  {1.0});
+    discrete_prob_dist<uint> p_workPlace({n_indiv/2},  {1.0});
+    discrete_prob_dist<uint> p_hh({n_indiv},  {1.0});
+    discrete_prob_dist<uint> p_hosp({0},  {1.0});
     
-    vector<probaDistrib<uint> > p_size {
+    vector<discrete_prob_dist<uint> > p_size {
         p_workPlace,
         p_hh,
         p_hosp
@@ -350,7 +350,7 @@ void Simulation::build_test_hospitalization(uint n_indiv){
             uint n_linked_k = _world[k].n_linked_indiv();
             for (uint i=0; i<n_linked_k; i++)
             {
-                ID curr_indiv_ID = _world[k].get_linked_indiv_id()[i];
+                ID curr_indiv_ID = _world[k].get_linked_indiv_id(i);
                 individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
                 
                 
@@ -450,12 +450,12 @@ void Simulation::build_test_world(double sizereduction){
     
     // Distribution of the size of each social place type:
     
-    probaDistrib<uint> p_pubTransp({20,30,60},{0.6,0.3,0.1});
-    probaDistrib<uint> p_workPlace({3,7,15,30,75,200},{0.6,0.15,0.15,0.07,0.02,0.01});
-    probaDistrib<uint> p_hh({1,2,3,4,5,6,7,8},{0.23, 0.34, 0.16, 0.15, 0.06, 0.03, 0.02, 0.01});
-    probaDistrib<uint> p_school({250,500,750,1000,1250,1500},{0.60,0.25,0.10,0.03, 0.01,0.01});
+    discrete_prob_dist<uint> p_pubTransp({20,30,60},{0.6,0.3,0.1});
+    discrete_prob_dist<uint> p_workPlace({3,7,15,30,75,200},{0.6,0.15,0.15,0.07,0.02,0.01});
+    discrete_prob_dist<uint> p_hh({1,2,3,4,5,6,7,8},{0.23, 0.34, 0.16, 0.15, 0.06, 0.03, 0.02, 0.01});
+    discrete_prob_dist<uint> p_school({250,500,750,1000,1250,1500},{0.60,0.25,0.10,0.03, 0.01,0.01});
     
-    vector<probaDistrib<uint> > p_size {
+    vector<discrete_prob_dist<uint> > p_size {
         p_pubTransp,
         p_workPlace,
         p_hh,
@@ -656,7 +656,7 @@ void Simulation::move_one_individual(uint pos_indiv, ID from, ID to){
     /// (social places are identified by their IDs/position)
     
     individual tmp = _world[from].get_indiv(pos_indiv);
-       
+    
     // add individual at destination
     _world[to].add_indiv(tmp);
     // remove this individual (in pos_indiv^th position in '_indiv' vector) from here
@@ -1083,7 +1083,8 @@ uint Simulation::transmission_process(uint k, double dt, string infectious_type)
     stopif(k >= _world.size(), "Asking for an inexistent social place");
     
     // If there are no susceptibles
-    // or no infectious individuals,
+    // or no infectious individuals
+    // in the kth social place,
     // then no transmission can occur!!!
     uint nI = (infectious_type=="Is")?_n_Is:_n_Ia;
     if (_n_S == 0 || (nI==0) ) {
@@ -1577,10 +1578,6 @@ double  Simulation::draw_contact_rate(individual* indiv, uint k){
 }
 
 
-//void Simulation::hospitalize_indiv(uint k, uint i){
-//    /// Hospitalize individual #i on social place #k
-//
-//}
 
 void Simulation::assign_hospital_to_individuals(){
     /// Assign hospitals to individuals

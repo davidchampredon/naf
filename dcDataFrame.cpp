@@ -18,7 +18,7 @@ bool dcDataFrame::is_empty(){
 // ==== MANIPULATIONS ====
 
 
-void dcDataFrame::addrow(string varname, vector<double> values)
+void dcDataFrame::addrow(string varname, const vector<double>& values)
 {
 	// Add a row to the data frame
 	// Size of values MUST equal the nb of columns of dcMatrix _value
@@ -50,7 +50,7 @@ void dcDataFrame::addrow(string varname,double value)
 	addrow(varname,tmp);
 }
 
-void dcDataFrame::addcol(string colname, vector<double> values){
+void dcDataFrame::addcol(string colname, const vector<double> & values){
 	
 	if (values.size()!= _value.getNbRows() &&  _value.val.size()>0 ){
 		cerr << "ERROR dcDataFrame [addcol]:";
@@ -230,7 +230,7 @@ void dcDataFrame::saveToCSV(string filename, bool col_headers)
 // /////////////////////////////////////////////////////////////
 
 
-dcDataFrame rbind(dcDataFrame x, dcDataFrame y)
+dcDataFrame rbind(const dcDataFrame& x, const dcDataFrame& y)
 {
 	/// Binds 2 dcDataFrames along rows (same number of columns)
 	
@@ -248,6 +248,25 @@ dcDataFrame rbind(dcDataFrame x, dcDataFrame y)
 	
 	return z;
 }
+
+
+void append( dcDataFrame& x, const dcDataFrame& y)
+{
+    /// Append (at the bottom) a data frame to another one
+    
+    unsigned long nx = x.get_colname().size();
+    unsigned long ny = y.get_colname().size();
+    
+    string errmsg = "cannot append if column number different ("+to_string(nx)+" != "+to_string(ny) + ")";
+    stopif( nx!=ny ,errmsg);
+    
+    vector<string> rowname = y.get_rowname();
+    dcMatrix val = y.get_value();
+    
+    for(int i=0;i<y.get_rowname().size();i++)
+        x.addrow(rowname[i], val.extractRow(i));
+}
+
 
 
 // /////////////////////////////////////////////////////////////

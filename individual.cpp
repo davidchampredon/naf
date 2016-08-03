@@ -72,6 +72,10 @@ individual::individual(){
     base_constructor();
 }
 
+individual::individual(ID id){
+    base_constructor();
+    _id = id;
+}
 
 individual::individual(ID id, float age){
     base_constructor();

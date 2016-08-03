@@ -72,7 +72,7 @@ public:
 		this->val.resize(nRows*nCols);
 	}
     
-	void    display();
+	void    display() const;
         
 	void    RandomInit();
     
@@ -90,10 +90,10 @@ public:
     vector<double>  extractColumn(unsigned long j_col);
 	vector<double>	extractRow(unsigned long i_row);
 	
-	void            addRowVector(vector<double> v);
-	void            addRowVector(vector<unsigned long> v);
+	void            addRowVector(const vector<double>& v);
+	void            addRowVector(const vector<unsigned long>& v);
 	
-    void            addColVector(vector<double> v);
+    void            addColVector(const vector<double> & v);
     
 	void			removeRow(unsigned long i_row);	// removes row 'i_row' and resize dcMatrix
 	void			removeCol(unsigned long j_col);	// removes column 'j_col' and resize dcMatrix

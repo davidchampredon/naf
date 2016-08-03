@@ -19,7 +19,7 @@
 #include "socialPlace.h"
 #include "simulation.h"
 #include "dcTools.h"
-#include "probaDistribution.h"
+#include "discrete_prob_dist.h"
 
 #include "tests.h"
 
@@ -28,20 +28,15 @@
 using namespace std;
 
 
-/*
- TO DO:
- - recovery from disease
- 
- */
-
-
-
 int main(int argc, const char * argv[]) {
     
     auto t0 = std::chrono::system_clock::now();
     
+    system("pwd");
     
-     main_test_naf();
+    test_build_world();
+    
+    // main_test_naf();
     
     // Previous tests:
     // main_test_SEIR_vs_ODE();

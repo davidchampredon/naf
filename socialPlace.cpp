@@ -455,14 +455,17 @@ void socialPlace::acquireDisease(uint pos){
 }
 
 
-dcDataFrame socialPlace::export_dcDataFrame(){
+dcDataFrame socialPlace::export_dcDataFrame() const {
     /// Export this social place to a dcDataFrame
     
     unsigned long n =_indiv.size();
+    vector<double> id_au(n,(double)(_id_au));
     vector<double> id_sp(n,(double)(_id_sp));
+    vector<double> sp_type(n,(double)(_type));
     dcDataFrame df(id_sp,"id_sp");
     
     // Individuals info
+
     vector<double> id_indiv(n);
     vector<double> age(n);
     vector<double> is_alive(n);
@@ -512,7 +515,8 @@ dcDataFrame socialPlace::export_dcDataFrame(){
         gi_bck[i]        = _indiv[i].get_acquisition_time() - _indiv[i].get_acquisition_time_infector();
         was_symptomatic[i]= _indiv[i].was_symptomatic();
     }
-    
+    df.addcol("sp_type", sp_type);
+    df.addcol("id_au", id_au);
     df.addcol("id_indiv", id_indiv);
     df.addcol("age", age);
     df.addcol("is_alive", is_alive);
@@ -538,6 +542,35 @@ dcDataFrame socialPlace::export_dcDataFrame(){
     
     return df;
 }
+
+
+dcDataFrame export_dcDataFrame_slow(const vector<socialPlace>& x){
+    
+    dcDataFrame df;
+    for (uint i=0; i<x.size(); i++) {
+        /* DEBUG */
+        if(i%100==0) {cout << "exporting "<<i<<"/"<<x.size()<<"\r";fflush(stdout);}
+        
+        dcDataFrame tmp = x[i].export_dcDataFrame();
+        if(i==0) df = tmp;
+        else append(df, tmp);
+    }
+    return df;
+}
+
+
+vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace>& x){
+    
+    vector<dcDataFrame> df(x.size());
+    for (uint i=0; i<x.size(); i++) {
+        /* DEBUG */
+        //if(i%100==0) {cout << "exporting "<<i<<"/"<<x.size()<<"\r";fflush(stdout);}
+        
+        df[i] = x[i].export_dcDataFrame();
+    }
+    return df;
+}
+
 
 
 uint socialPlace::census_disease_stage(string stage){
@@ -840,7 +873,7 @@ void displayPopulationSize(const vector<socialPlace>& sp){
 
 vector<socialPlace> build_world_simple(vector<SPtype> spt,
                                        vector<uint> n_sp,
-                                       vector< probaDistrib<uint> > p_size,
+                                       vector< discrete_prob_dist<uint> > p_size,
                                        vector<individual>& indiv,
                                        vector<areaUnit> auvec,
                                        uint seed ){
@@ -887,7 +920,7 @@ vector<socialPlace> build_world_simple(vector<SPtype> spt,
     // pre-sample from the size distributions
     for(uint t=0; t< N_type_sp; t++){
         uint N = n_sp[t];  // total number of social places of this type
-        probaDistrib<uint> probD = p_size[t];  // distribution of social places' size
+        discrete_prob_dist<uint> probD = p_size[t];  // distribution of social places' size
         // sample the sizes of each social places
         vector<uint> y_t = probD.sample(N, seed+t);
         y[t] = y_t;

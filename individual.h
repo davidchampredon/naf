@@ -124,12 +124,15 @@ public:
 	
 	void base_constructor();
 	individual();
+     individual(ID id);
 	individual(ID id, float age);
 	individual(ID id, float age, ID id_household);
 	
 	
 	// Set functions
 	
+    void set_age(double x){_age = x;}
+    
 	void set_id_sp_current(ID id_sp){_id_sp_current = id_sp;}
 	
 	void set_id_sp_household(socialPlace& sp);

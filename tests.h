@@ -13,9 +13,10 @@
 #include "socialPlace.h"
 #include "simulation.h"
 #include "dcTools.h"
-#include "probaDistribution.h"
+#include "discrete_prob_dist.h"
 #include "disease.h"
 #include "globalvar.h"
+#include "build_world.h"
 
 
 void main_test_naf();
@@ -62,9 +63,9 @@ void main_test_hospitalization();
 
 
 
-
 void test_move_transmission();
 void test_rnd_eng();
 void test_random();
+void test_build_world();
 
 #endif

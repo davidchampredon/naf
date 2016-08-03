@@ -14,7 +14,7 @@ using namespace Rcpp;
 
 
 
-List to_list(dcDataFrame df,
+List to_list(const dcDataFrame & df,
              bool addRowName){
     /// Converts a dcDataFrame to a Rccp list
     /// (helper function)
@@ -165,6 +165,97 @@ List naf_test(List params, List simulParams){
 }
 
 
+// [[Rcpp::export]]
+List build_world(List params){
+	
+	
+	vector<ID> id_au = params["id_au"];
+	vector<string> name_au = params["name_au"];
+
+	ID id_region = 0;
+	string regionName = "RegionOne";
+	vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
+	
+	// Households sizes
+	vector<uint> hh_size			= params["hh_size"];
+	vector<double> hh_size_proba	= params["hh_size_proba"];
+	discrete_prob_dist<uint> D_size_hh(hh_size, hh_size_proba);
+	D_size_hh.display();
+	
+	// Age distribution inside households
+	vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
+	
+	discrete_prob_dist<uint> pr_age_hh_00(params["age_hh_00"],params["age_hh_00_proba"]);
+	discrete_prob_dist<uint> pr_age_hh_10(params["age_hh_10"],params["age_hh_10_proba"]);
+	discrete_prob_dist<uint> pr_age_hh_11(params["age_hh_11"],params["age_hh_11_proba"]);
+	discrete_prob_dist<uint> pr_age_hh_20(params["age_hh_20"],params["age_hh_20_proba"]);
+	discrete_prob_dist<uint> pr_age_hh_21(params["age_hh_21"],params["age_hh_21_proba"]);
+	discrete_prob_dist<uint> pr_age_hh_22(params["age_hh_22"],params["age_hh_22_proba"]);
+	
+	vector<discrete_prob_dist<uint> > tmp;
+	
+	tmp.push_back(pr_age_hh_00);
+	pr_age_hh.push_back(tmp);
+	
+	tmp.clear();
+	tmp = {pr_age_hh_10,pr_age_hh_11};
+	pr_age_hh.push_back(tmp);
+	
+	tmp.clear();
+	tmp = {pr_age_hh_20,pr_age_hh_21,pr_age_hh_22};
+	pr_age_hh.push_back(tmp);
+	
+	
+	// Workplace sizes
+	vector<uint> wrk_size			= params["wrk_size"];
+	vector<double> wrk_size_proba	= params["wrk_size_proba"];
+	discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
+	D_size_wrk.display();
+	
+	// Public transport sizes
+	vector<uint> pubt_size			= params["pubt_size"];
+	vector<double> pubt_size_proba	= params["pubt_size_proba"];
+	discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
+	D_size_pubt.display();
+	
+	// School sizes
+	vector<uint> school_size			= params["school_size"];
+	vector<double> school_size_proba	= params["school_size_proba"];
+	discrete_prob_dist<uint> D_size_school(school_size, school_size_proba);
+	D_size_school.display();
+	
+ 
+	
+	// === Create world ===
+	
+	// number of each social place type
+	vector<uint> n_hh       = params["n_hh"];
+	vector<uint> n_wrk      = params["n_wrk"];
+	vector<uint> n_pubt     = params["n_pubt"];
+	vector<uint> n_school   = params["n_school"];
+	
+	vector<socialPlace> W = build_world(auvec,
+										D_size_hh,      // Households sizes
+										pr_age_hh,      // Age distribution inside households
+										D_size_wrk,
+										D_size_pubt,
+										D_size_school,
+										n_hh,           // number of households
+										n_wrk,
+										n_pubt,
+										n_school);
+	
+	vector<dcDataFrame> df = export_dcDataFrame(W);
+	
+	Rcpp::List rcpplist;
+
+	for(unsigned int i=0; i< df.size(); i++)
+		rcpplist.push_back( to_list(df[i], false) );
+	
+	return rcpplist;
+}
+
+
 
 
 
@@ -176,11 +267,11 @@ List naf_test_SEIR_vs_ODE(List params, List simulParams){
     /// This runs a SEIR model implemented
     /// in this agent-based model.
     /// The goal is to compare its output to an ODE model.
-    
+	
     vector<unsigned int> res;
-    
+	
     // Model parameters:
-    
+	
     bool debug_mode		= params["debug_mode"];
     double dol_mean		= params["dol_mean"];
     double doi_mean		= params["doi_mean"];

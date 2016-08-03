@@ -315,9 +315,15 @@ plot.epi.timeseries <- function(ts){
 	g.death <- g.death + geom_step(aes(y=nD))
 	g.death <- g.death + ggtitle("Cumulative Deaths") + ylab("")
 	
+	g.death.inc <- ggplot(ts, aes(x=time))
+	g.death.inc <- g.death.inc + geom_step(aes(y=death_incidence))
+	g.death.inc <- g.death.inc + ggtitle("Deaths incidence") + ylab("")
+	
+	
 	grid.arrange(g.SR ,
 				 g.inf, 
 				 g.prev,
 				 g.prev.log,
-				 g.death)
+				 g.death,
+				 g.death.inc)
 }

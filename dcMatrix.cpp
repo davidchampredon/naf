@@ -250,7 +250,7 @@ void dcMatrix::WriteToFileCSV(string fileName, vector<string> headers)
 
 
 
-void dcMatrix::addRowVector(vector<double> v)
+void dcMatrix::addRowVector(const vector<double> & v)
 {    
 	dcMatrix res;
 	
@@ -322,7 +322,7 @@ void dcMatrix::addRowVector(vector<double> v)
 }
 
 
-void dcMatrix::addRowVector(vector<unsigned long> v)
+void dcMatrix::addRowVector(const vector<unsigned long> &v)
 {
 	vector<double> tmp;
 	
@@ -333,7 +333,7 @@ void dcMatrix::addRowVector(vector<unsigned long> v)
 }
 
 
-void dcMatrix::addColVector(vector<double> v)
+void dcMatrix::addColVector(const vector<double> & v)
 {        
     unsigned long nrow = this->nbRows;
     unsigned long ncol = this->nbCols;
@@ -380,6 +380,8 @@ void dcMatrix::removeCol(unsigned long j_col)
 
 vector<double> dcMatrix::extractColumn(unsigned long j_col)
 {
+    /// Extract a column from a dcMatrix.
+    /// First column number is '0'.
 	string errmsg ="Cannot extract dcMatrix column("+ to_string(j_col)+") greater than size (0--"+ to_string(nbCols-1)+")!";
 	stopif (j_col >= nbCols, errmsg);
 	
@@ -479,19 +481,19 @@ void dcMatrix::setRowValues(unsigned long rowNb_start0, vector<unsigned long> v)
 
 
 
-void dcMatrix::display()
+void dcMatrix::display() const
 {
-    cerr<<endl;
-	cerr << "dcMatrix dimension: "<<nbRows<<"x"<<nbCols<<endl;
+    cout << endl;
+    cout << "dcMatrix dimension: "<<nbRows<<"x"<<nbCols<<endl;
     for(unsigned long i=0;i<nbRows;i++)
     {
-        cerr<<"[ ";
+        cout<<"[ ";
         for(unsigned long j=0;j<nbCols;j++)
         {
-            cerr<<val[i*nbCols+j];
-			if (j<nbCols-1) cerr<<"\t";
+            cout << val[i*nbCols+j];
+            if (j<nbCols-1) cout<<"\t";
         }
-        cerr<<"]"<<endl;
+        cout<<" ]"<<endl;
     }
 }
 

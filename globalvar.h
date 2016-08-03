@@ -24,4 +24,13 @@ extern uint		_RANDOM_SEED;		// seed for random number generators
 extern std::mt19937_64	_RANDOM_GENERATOR;
 
 
+
+
+// ==== File Directories ====
+
+
+const std::string    _DIR_INPUT = "./INPUT/";
+
+
+
 #endif /* defined(__naf__globalvar__) */

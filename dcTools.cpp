@@ -1,4 +1,4 @@
-//
+
 //  dcTools.cpp
 //  Epidemic_Models
 //
@@ -489,8 +489,6 @@ string getParameterFromFile_string(string paramName, string fileName)
 
 	return res;
 }
-
-
 
 
 
