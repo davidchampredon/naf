@@ -51,8 +51,8 @@ x <- build_world(prm)
 z <- lapply(x, as.data.frame)
 world <- do.call('rbind',z)
 
-ws <- ddply(world, c('id_au','sp_type'), summarize, 
+ws <- ddply(world, c('id_au','sp_type','n_linked'), summarize, 
 			n = length(id_indiv) ,
 			ma = mean(age))
 ws
-
+ggplot(ws)+geom_bar(aes(x=n_linked, y=ma),stat = 'identity') + facet_wrap(~id_au)
