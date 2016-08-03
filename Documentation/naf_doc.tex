@@ -51,8 +51,45 @@
 
 \tableofcontents
 
+\newpage
 
 \section{Introduction}
+
+This documentation describes the implementation of an agent-based model, named \naf, designed specifically for the spread of influenza at the population level. 
+
+The implementation of \naf is \emph{not} event driven. Instead, time is divided in relatively coarse ``slices'' that represent relevant epidemiological periods of a day. Within a given time slice, epidemiological events are calculated only \emph{once}. This approximation allows significant computing time saving for an acceptable loss of realism (of course that depends on the size of time slices). Although each individual is uniquely identified, the information of who infects who is omitted for performance (this is optional though; and time of transmission is always recorded to keep track of the generation interval). 
+
+
+\naf is implemented with a representation of a spatial structure. The fundamental spatial unit is called a ``social place'' which broadly represents any physical place human mix. Because it is preferable to have a limited number of social places types, only the most relevant ones on which data exists are explicitly represented (for example households, schools, workplace, etc. ). A social place type that represents all other types not explicitly modelled is used. 
+In order to have a similar hierarchical structure as real world data, social places are gathered in ``area units'', which are themselves gathered in ``regions''.
+
+The programming language for the model is C++. The executable is wrapped in R, mostly for output analysis and debugging.
+
+
+\section{Population}
+
+\subsection{Social place}
+
+\naf is implemented with a spatial structure, and its fundamental spatial unit is called a ``social place''. It represents real world locations where individuals may have relevant contacts for disease transmission (\eg households, schools, public transportations, etc). Because all types of such social places cannot be explicitly described in the model, a social place typed ``other'' is used for all other real-world locations.
+In order to have a similar hierarchical structure as real world data, social places are gathered in ``area units'', which are themselves gathered in ``regions''.
+
+
+
+\subsection{Individuals}
+
+Individuals are uniquely identified in the model with an identification number (ID). These individuals are ``linked'' to social places. A link means that the individual will eventually visit and have contacts in this social place (according to its schedule, see details later).
+All individuals are linked to a social place of type  household. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace. 
+
+
+\section{Simulator}
+
+\subsection{Spatial movements}
+
+\subsection{Transmission process}
+
+\section{Interventions}
+
+
 
 \section{Tests performed}
 
