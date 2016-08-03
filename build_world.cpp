@@ -108,13 +108,16 @@ void assign_age_in_households(vector<socialPlace>& hh,
     
     uint seed = 0;
     
+    unsigned long n_ad = age_distrib.size();
+    
     for (uint k=0; k<hh.size(); k++) {
         uint hh_size = hh[k].n_linked_indiv();
+        uint idx = hh_size -1; // <-- warning '-1'
+        stopif(idx >= n_ad, "Age distribution within households not defined for all cases.");
         for (uint i=0; i<hh_size; i++) {
             
             // Retrieve the age distribution
             // appropriate for the size of this social place:
-            uint idx = hh_size -1; // <-- warning '-1'
             discrete_prob_dist<uint> pr = age_distrib[idx][i];
             uint age = pr.sample(1, seed++)[0];
             
@@ -163,7 +166,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         
         // these individuals is the raw material for creating the world:
         vector<individual> indiv    = create_individuals(max(n_hh[a]*3, n_wrk[a]*10)); // TO DO: do not hard code, but base on mean of size distribution
-        vector<socialPlace> sp_hh   = create_socialPlaces_size(SP_household, n_hh[a], D_size_hh, AU[0],indiv);
+        vector<socialPlace> sp_hh   = create_socialPlaces_size(SP_household, n_hh[a], D_size_hh, AU[a],indiv);
         assign_age_in_households(sp_hh, indiv, pr_age_hh);
         populate_households(sp_hh, indiv);
         
