@@ -235,15 +235,18 @@ List build_world(List params){
 	vector<uint> n_school   = params["n_school"];
 	
 	vector<socialPlace> W = build_world(auvec,
-										D_size_hh,      // Households sizes
-										pr_age_hh,      // Age distribution inside households
-										D_size_wrk,
-										D_size_pubt,
-										D_size_school,
-										n_hh,           // number of households
-										n_wrk,
-										n_pubt,
-										n_school);
+									D_size_hh,      // Households sizes
+									pr_age_hh,      // Age distribution inside households
+									D_size_wrk,
+									D_size_pubt,
+									D_size_school,
+									n_hh,           // number of households
+									n_wrk,
+									n_pubt,
+									n_school);
+	
+	//DEBUG
+	cout << "DEBUG: W.size = "<< W.size() << endl;
 	
 	vector<dcDataFrame> df = export_dcDataFrame(W);
 	

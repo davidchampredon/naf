@@ -462,6 +462,8 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     vector<double> id_au(n,(double)(_id_au));
     vector<double> id_sp(n,(double)(_id_sp));
     vector<double> sp_type(n,(double)(_type));
+    vector<double> n_linked(n,(double)(get_linked_indiv_id().size()));
+    
     dcDataFrame df(id_sp,"id_sp");
     
     // Individuals info
@@ -516,6 +518,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
         was_symptomatic[i]= _indiv[i].was_symptomatic();
     }
     df.addcol("sp_type", sp_type);
+    df.addcol("n_linked", n_linked);
     df.addcol("id_au", id_au);
     df.addcol("id_indiv", id_indiv);
     df.addcol("age", age);
