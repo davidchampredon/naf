@@ -3,10 +3,14 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
-- Deaths
+
 - Build realistic worlds from size distributions
 - Draw contact rate from distributions
 - Treatment: prophylaxis to do.
+- Age contact matrix
+- Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
+- Treatment & vax affects hospitalization outcome
+
 
 === MINOR ITEMS ===
 
