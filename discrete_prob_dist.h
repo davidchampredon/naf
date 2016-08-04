@@ -45,6 +45,8 @@ public:
         check_construction();
     }
     
+    unsigned long size() const { return _value.size();}
+    vector<T> get_value() const {return _value;}
     
     vector<T> sample(uint n, uint seed);
     

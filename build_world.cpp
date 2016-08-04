@@ -9,12 +9,12 @@
 #include "build_world.h"
 
 
-vector<individual> create_individuals(uint n){
+vector<individual> create_individuals(uint n, uint first_id_indiv){
     /// Build several (empty) individuals
     
     vector<individual> x(n);
     for (int i=0; i<n; i++){
-        individual tmp(i);
+        individual tmp(first_id_indiv + i);
         x[i] = tmp;
     }
     return x;
@@ -78,7 +78,7 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
     // Draw the size for each social place:
     vector<uint> size_sp = size_distrib.sample(num_sp, seed);
     
-    uint cnt = first_id_indiv; // <--- counts over the _whole_ vector of individuals supplied and make sure individual id do not overlap across AUs.
+    uint cnt = 0; // <--- counts over the _whole_ vector of individuals supplied and make sure individual id do not overlap across AUs.
     uint sp_not_linked = 0;
     
     for (ID k=0; k < num_sp; k++) {
@@ -86,28 +86,42 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
         // Create social place (empty shell):
         socialPlace tmp(AU, first_id_sp + k, sp_type);
         
+        bool record = false;
+        
         // Link individuals with the kth social place:
         for (uint linked = 0;
              linked < size_sp[k] &&
              cnt < n_indiv; )
         {
             float age = indiv[first_id_indiv + cnt].get_age();
+            
+            // DEBUG
+            //cout << SPtype2string(sp_type) << ": SP_"<<first_id_sp + k <<"  ; first_id_sp = "<<first_id_sp << " k = "<<k << endl;
+            
             if(age_min<age && age<age_max)
             {
                 // Link both individual and social place ('set_id_sp' does both)
-//                indiv[first_id_indiv + cnt].set_id_sp(sp_type, tmp); DELETE
+                //                indiv[first_id_indiv + cnt].set_id_sp(sp_type, tmp); DELETE
                 indiv[cnt].set_id_sp(sp_type, tmp);
                 
+                //DEBUG
+                cout << SPtype2string(sp_type) << ": Link SP_"<<first_id_sp + k << " with indiv_" <<first_id_indiv + cnt << endl;
+                
+                record = true;
                 linked++;
             }
             cnt++;
         }
+        // Record the links
+        if(record)
+            x.push_back(tmp);
+        
+
         if(cnt == n_indiv){
             // end of indiv vector reached
             sp_not_linked++;
         }
-        // Record the links
-        if(cnt < n_indiv) x.push_back(tmp);
+        
     }
     if(sp_not_linked>0){
         cout << endl;
@@ -215,20 +229,22 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
     vector< vector<socialPlace> > y;
     
     // Variables that make sure id (sp & indiv) do not overlap across Area Units!
-    uint first_id_sp = 0;
-    uint first_id_indiv = 0;
+    uint first_id_sp = 0;       // make sure no overlap for id_sp _within_ an Area Unit
+    uint first_id_sp_au = 0;    // make sure no overlap for id_sp _across_ Area Units
+    uint first_id_indiv_au = 0;    // make sure no overlap for id_indiv _across_ Area Units
     
     for (uint a=0; a<AU.size(); a++)
     {
         // these individuals is the raw material for creating the world:
-
-        // TO DO: do not hard code, but base on mean of size distribution
-        vector<individual> indiv    = create_individuals(n_hh[a]*3);
+        vector<uint> ds = D_size_hh.get_value();
+        uint nmax = (uint) std::distance(ds.begin(), std::max_element(ds.begin(), ds.end())) ;
+        
+        vector<individual> indiv    = create_individuals(n_hh[a]*nmax, first_id_indiv_au);
 
         vector<socialPlace> sp_hh   = create_socialPlaces_size(SP_household,
                                                                n_hh[a],
                                                                first_id_sp,
-                                                               first_id_indiv,
+                                                               first_id_indiv_au,
                                                                D_size_hh,
                                                                AU[a],
                                                                indiv);
@@ -237,46 +253,48 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         // get rid of excess individuals:
         keep_indiv_with_household(indiv);
         
+        first_id_sp += (uint) sp_hh.size();
+        
         float age_min_wrk = 18.0;
         float age_max_wrk = 70.0;
-        first_id_sp += (uint) sp_hh.size();
         vector<socialPlace> sp_wrk = create_socialPlaces_size(SP_workplace,
                                                               n_wrk[a],
                                                               first_id_sp,
-                                                              first_id_indiv,
+                                                              first_id_indiv_au,
                                                               D_size_wrk,
                                                               AU[a],
                                                               indiv,
                                                               age_min_wrk,
                                                               age_max_wrk);
         
+        first_id_sp += (uint) sp_wrk.size()  ;
+        
         float age_min_pubt = 5.0;
         float age_max_pubt = 80.0;
-        first_id_sp += (uint) sp_wrk.size();
         vector<socialPlace> sp_pubt = create_socialPlaces_size(SP_pubTransp,
                                                                n_pubt[a],
                                                                first_id_sp,
-                                                               first_id_indiv,
+                                                               first_id_indiv_au,
                                                                D_size_pubt,
                                                                AU[a],
                                                                indiv,
                                                                age_min_pubt,
                                                                age_max_pubt);
+        first_id_sp += (uint) sp_pubt.size() ;
         
         float age_min_school = 3.0;
         float age_max_school = 19.0;
-        first_id_sp += (uint) sp_pubt.size();
         vector<socialPlace> sp_school = create_socialPlaces_size(SP_school,
                                                                  n_school[a],
                                                                  first_id_sp,
-                                                                 first_id_indiv,
+                                                                 first_id_indiv_au,
                                                                  D_size_school,
                                                                  AU[a],
                                                                  indiv,
                                                                  age_min_school,
                                                                  age_max_school);
         
-        first_id_sp += (uint) sp_school.size();
+        first_id_sp += (uint) sp_school.size() ;
         vector<socialPlace> sp_other = create_other_socialPlaces(n_other[a],
                                                                  first_id_sp,
                                                                  D_size_other,
@@ -286,11 +304,11 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         vector<socialPlace> sp_hosp = create_socialPlaces_size(SP_hospital,
                                                                n_hosp[a],
                                                                first_id_sp,
-                                                               first_id_indiv,
+                                                               first_id_indiv_au,
                                                                D_size_hosp,
                                                                AU[a],
                                                                indiv);
-        first_id_sp += (uint) sp_hosp.size(); // <-- makes sure sp_ids are incremented for the next AU iteration.
+        first_id_sp += (uint) sp_hosp.size() ; // <-- makes sure sp_ids are incremented for the next AU iteration.
 
         
         populate_households(sp_hh, indiv);
@@ -307,7 +325,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         vector<socialPlace> tmp2 = melt(tmp);
         check_sp_integrity(tmp2);
 
-        first_id_indiv += world_size(tmp2);
+        first_id_indiv_au += indiv.size();
+        
         
         y.push_back(tmp2);
     }

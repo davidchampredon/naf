@@ -879,8 +879,7 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                     if(id_dest==72){
                         double dum=0;
                     }
-                    
-                    
+                      
                     stopif(id_dest==__UNDEFINED_ID,
                            "Undefined destination for indiv ID_" + to_string(_world[k].get_indiv(i).get_id()));
                     
@@ -1607,7 +1606,7 @@ void Simulation::check_book_keeping(){
     for (ID k=0; k<_world.size(); k++) {
         unsigned long pres = _world[k].get_indiv().size();
         unsigned long linked = _world[k].get_linked_indiv_id().size();
-        stopif(pres>linked, "More individual present than linked in SP ID "+to_string(k));
+        stopif(pres>linked, "More individuals present than linked in SP ID "+to_string(k));
     }
     
     

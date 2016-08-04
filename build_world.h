@@ -20,7 +20,7 @@
 
 using namespace std;
 
-vector<individual> create_individuals(uint n);
+vector<individual> create_individuals(uint n, uint first_id_indiv);
 
 vector<areaUnit> create_area_unit(const vector<ID>& id_au,
                                   const vector<string>& name_au,
