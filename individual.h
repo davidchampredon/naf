@@ -233,6 +233,10 @@ public:
 	schedule get_schedule()     const {return _schedule;}
 	
     disease get_disease()       const {return _disease;}
+    
+    SPtype get_schedule_sp_type(uint idx_timeslice) const{
+        return _schedule.get_sp_type(idx_timeslice);
+    }
 	
 	// Time updates for all relevant members.
 	string	time_update(double dt);

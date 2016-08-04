@@ -17,6 +17,7 @@
 #include "globalvar.h"
 #include "dcDataFrame.h"
 #include "intervention.h"
+#include "build_world.h"
 
 using world = vector<socialPlace>;
 
@@ -44,6 +45,8 @@ protected:
     uint    _n_treated;
     uint    _n_vaccinated;
 	
+    vector<socialPlace*>  _sp_other;  // keep track of 'other' social places
+    
 	// time series
 	vector<double>	_ts_times;
 	vector<uint>	_ts_incidence;
@@ -70,12 +73,36 @@ public:
 	void base_constructor();
 	Simulation();
 
-	// pseudo constructors:
+	// Pseudo constructors:
+    
+    void create_world(vector<areaUnit> AU,
+                      discrete_prob_dist<uint> D_size_hh,     // Households sizes
+                      vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
+                      discrete_prob_dist<uint> D_size_wrk,
+                      discrete_prob_dist<uint> D_size_pubt,
+                      discrete_prob_dist<uint> D_size_school,
+                      discrete_prob_dist<uint> D_size_hosp,
+                      discrete_prob_dist<uint> D_size_other,
+                      vector<uint> n_hh,
+                      vector<uint> n_wrk,
+                      vector<uint> n_pubt,
+                      vector<uint> n_school,
+                      vector<uint> n_hosp,
+                      vector<uint> n_other,
+                      vector<schedule> sched);
+    
 	void build_test_world(double reduction_size);
     void build_test_2_sp(uint n_indiv);
 	void build_single_world(uint n_indiv);
     void build_test_hospitalization(uint n_indiv);
+    void build_test(uint n_indiv);
 	
+    void assign_dox_distribution(string dol_distrib,
+                                 string doi_distrib,
+                                 string doh_distrib);
+    void assign_immunity();
+    void assign_frailty();
+    
 	// Simulate
 	void run();
 	
@@ -86,7 +113,7 @@ public:
 	void set_world(world w);
 	void set_horizon(double h) {_horizon = h;}
 	void set_modelParam(modelParam mp) {_modelParam = mp;}
-
+    void set_sp_other();
 	
 	// Get functions
 	
@@ -96,7 +123,10 @@ public:
 	vector<double>	get_ts_times()       const {return _ts_times;}
 	vector<uint>	get_ts_incidence()   const {return _ts_incidence;}
     dcDataFrame     get_ts_census_by_SP()const {return _ts_census_by_SP;}
-	
+
+    uint            get_id_sp_other(uint pos) const {return _sp_other[pos]->get_id_sp();}
+    
+    
 	// Time updates
 	
 	void	time_update(double dt);
@@ -109,8 +139,10 @@ public:
 	void move_one_individual(uint pos_indiv, ID from, ID to);
     void assign_hospital_to_individuals();
     
-    // Book keeping
+    socialPlace* pick_rnd_sp_other();
     
+    // Book keeping
+
     void    check_book_keeping();
     void    define_all_id_tables();
 	

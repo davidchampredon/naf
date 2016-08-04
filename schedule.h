@@ -50,9 +50,10 @@ public:
 	
 	
 	// Get functions:
-	vector<SPtype>	get_sp_type() {return _sp_type;}
-	string			get_name() {return _name;}
-	vector<double>	get_timeslice(){return _timeslice;}
+	vector<SPtype>	get_sp_type()           const {return _sp_type;}
+    SPtype          get_sp_type(uint i)     const {return _sp_type[i];}
+	string			get_name()              const {return _name;}
+	vector<double>	get_timeslice()         const {return _timeslice;}
 };
 
 uint pos_schedname(string name, vector<schedule> sched);

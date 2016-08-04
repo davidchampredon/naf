@@ -395,7 +395,7 @@ ID individual::find_dest(uint idx_timeslice){
     /// Find the ID of the social place this
     /// individual is supposed to go at a given times slice.
     
-    SPtype sptype = get_schedule().get_sp_type()[idx_timeslice];
+    SPtype sptype = get_schedule_sp_type(idx_timeslice);
     
     //			Retrieve the actual destination:
     
@@ -403,9 +403,11 @@ ID individual::find_dest(uint idx_timeslice){
     if(sptype == SP_household)	id_dest = get_id_sp_household();
     if(sptype == SP_workplace)	id_dest = get_id_sp_workplace();
     if(sptype == SP_school)		id_dest = get_id_sp_school();
-    if(sptype == SP_other)		id_dest = get_id_sp_other();
     if(sptype == SP_hospital)	id_dest = get_id_sp_hospital();
     if(sptype == SP_pubTransp)	id_dest = get_id_sp_pubTransp();
+    
+    if(sptype == SP_other)		id_dest = __LARGE_ID;
+    
     
     return id_dest;
 }

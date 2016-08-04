@@ -1,16 +1,20 @@
 TO DO LIST: 
 
-
 === MAJOR ITEMS ===
 
 
+((create_world has bugs))
+
 - Build realistic worlds from size distributions
+- 'other' social place movements
+
 - Draw contact rate from distributions
 - Treatment: prophylaxis to do.
 - Age contact matrix
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
 
+- track where transmissions occur (in which social place)
 
 === MINOR ITEMS ===
 

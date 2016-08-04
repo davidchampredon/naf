@@ -92,6 +92,14 @@ public:
     
     void increase_prevalence() {_prevalence++;}
     
+    void set_schedule_indiv(uint pos, schedule sched);
+    
+    void set_dol_distrib(uint pos, string distrib) {_indiv[pos].set_dol_distrib(distrib);}
+    void set_doi_distrib(uint pos, string distrib) {_indiv[pos].set_doi_distrib(distrib);}
+    void set_doh_distrib(uint pos, string distrib) {_indiv[pos].set_doh_distrib(distrib);}
+    
+    void set_immunity(uint pos, float val) {_indiv[pos].set_immunity(val);}
+    void set_frailty(uint pos, float val)  {_indiv[pos].set_frailty(val);}
     
     // Get functions:
     
@@ -220,6 +228,7 @@ uint  choose_SPtype_random(const vector<socialPlace>& sp, SPtype x);
 vector<socialPlace> test_world(double sizereduction = 0.001);
 
 void displayPopulationSize(const vector<socialPlace>& sp);
+
 
 
 

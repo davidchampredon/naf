@@ -34,7 +34,7 @@ int main(int argc, const char * argv[]) {
     
     system("pwd");
     
-    test_build_world();
+    main_run_test();
     
     // main_test_naf();
     

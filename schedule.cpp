@@ -17,7 +17,8 @@ uint pos_schedname(string name, vector<schedule> sched){
     
     while (sched[pos].get_name() != name ) {
         pos++;
+        stopif(pos >= sched.size(),"Schedule named "+name+ " not found in vector of schedules.");
     }
-    stopif(pos >= sched.size(),"Schedule named "+name+ "not found in vector of schedules.");
+    
     return pos;
 }

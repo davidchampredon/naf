@@ -41,6 +41,50 @@ Simulation::Simulation(){
 }
 
 
+void Simulation::create_world(vector<areaUnit> AU,
+                              discrete_prob_dist<uint> D_size_hh,     // Households sizes
+                              vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
+                              discrete_prob_dist<uint> D_size_wrk,
+                              discrete_prob_dist<uint> D_size_pubt,
+                              discrete_prob_dist<uint> D_size_school,
+                              discrete_prob_dist<uint> D_size_hosp,
+                              discrete_prob_dist<uint> D_size_other,
+                              vector<uint> n_hh,
+                              vector<uint> n_wrk,
+                              vector<uint> n_pubt,
+                              vector<uint> n_school,
+                              vector<uint> n_hosp,
+                              vector<uint> n_other,
+                              vector<schedule> sched)
+{
+    /// Create the specified world
+    
+    cout << endl << " Creating world ... ";
+    
+    // Create social places:
+    
+    world W = build_world(AU, D_size_hh, pr_age_hh,
+                          D_size_wrk, D_size_pubt, D_size_school, D_size_hosp, D_size_other,
+                          n_hh, n_wrk, n_pubt, n_school, n_hosp, n_other);
+    
+    set_world(W);
+    
+    // Define individuals' features:
+    
+    string dol_distrib = _modelParam.get_prm_string("dol_distrib");
+    string doi_distrib = _modelParam.get_prm_string("doi_distrib");
+    string doh_distrib = _modelParam.get_prm_string("doh_distrib");
+    assign_dox_distribution(dol_distrib,  doi_distrib,  doh_distrib);
+    
+    assign_immunity();
+    assign_frailty();
+    assign_schedules(_world, sched, {9.99999,9.9999});
+    
+    cout << "... world created. " << endl;
+}
+
+
+
 void Simulation::build_single_world(uint n_indiv){
     /// Build a very simple world:
     /// one social place with 'n_indiv' individuals.
@@ -249,6 +293,136 @@ void Simulation::build_test_hospitalization(uint n_indiv){
     /// to test hospitalization and movements
     
     cout << endl << "Building test world hospitalization..."<<endl;
+    
+    bool debugcode = _modelParam.get_prm_bool("debug_mode");
+    
+    string region1 = "Halton";
+    ID id_region1 = 1;
+    
+    areaUnit A1(1, "Oakville", id_region1, region1);
+    areaUnit A2(2, "Burlington", id_region1, region1);
+    areaUnit A3(2, "Hospital", id_region1, region1);
+    
+    vector<areaUnit> A {A1,A2,A3};
+    
+    // type of social places
+    // existing in the simulated world:
+    vector<SPtype> spt {
+        SP_workplace,
+        SP_household,
+        SP_hospital
+    };
+    
+    
+    // === Schedules ===
+    
+    // Define the time slices
+    // must be same for all schedules and must sum up to 1.0
+    vector<double> timeslice {6.0/24, 18.0/24};
+    
+    // type of schedules:
+    vector<SPtype> worker_sed  {SP_workplace, SP_household};
+    vector<SPtype> stayhome  {SP_household, SP_household};
+    
+    schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
+    schedule sched_stayhome(stayhome, timeslice, "stayhome");
+    
+    // Schedules used in the simulation:
+    vector<schedule> sched {
+        sched_worker_sed,
+        sched_stayhome
+    };
+    
+    
+    // Disease stage durations:
+    string dol_distrib = _modelParam.get_prm_string("dol_distrib");
+    string doi_distrib = _modelParam.get_prm_string("doi_distrib");
+    string doh_distrib = _modelParam.get_prm_string("doh_distrib");
+    
+    // individuals
+    uint num_indiv = (uint)(n_indiv*2); // <-- make sure it's large enough
+    vector<individual> many_indiv = build_individuals(num_indiv,
+                                                      sched,
+                                                      dol_distrib,
+                                                      doi_distrib,
+                                                      doh_distrib);
+    
+    
+    // populate social places with individuals (built above)
+    uint num_hh      = (uint)(1 );
+    uint num_biz     = (uint)(1 );
+    uint num_hosp    = (uint)(1 );
+    
+    cout << "Number of business places:  " << num_biz << endl;
+    cout << "Number of household places: " << num_hh << endl;
+    cout << "Number of hospital places: " << num_hosp << endl;
+    
+    // Number of social places, by type.
+    // * *   W A R N I N G   * *
+    // same order as type of social places definition ('spt')
+    vector<uint> num_sp {
+        num_biz,
+        num_hh,
+        num_hosp
+    };
+    
+    // Distribution of the size of each social place type:
+    discrete_prob_dist<uint> p_workPlace({n_indiv/2},  {1.0});
+    discrete_prob_dist<uint> p_hh({n_indiv},  {1.0});
+    discrete_prob_dist<uint> p_hosp({0},  {1.0});
+    
+    vector<discrete_prob_dist<uint> > p_size {
+        p_workPlace,
+        p_hh,
+        p_hosp
+    };
+    
+    // build the world:
+    vector<socialPlace> W = build_world_simple_2(
+                                                 many_indiv,
+                                                 A,
+                                                 sched);
+    set_world(W);
+    
+    // initial population: Move everyone to its household!
+    
+    unsigned long N = _world.size();
+    for (int k=0; k<N; k++)
+    {
+        if(_world[k].get_type()==SP_household)
+        {
+            uint n_linked_k = _world[k].n_linked_indiv();
+            for (uint i=0; i<n_linked_k; i++)
+            {
+                ID curr_indiv_ID = _world[k].get_linked_indiv_id(i);
+                individual tmp = get_indiv_with_ID(curr_indiv_ID, many_indiv);
+                
+                
+                if(debugcode){
+                    // Checks (remove for better speed)
+                    ID id_hh = tmp.get_id_sp_household();
+                    stopif(id_hh == __UNDEFINED_ID, "at least one individual has no linked household!");
+                    stopif(id_hh != k, "Not consistent linkage!");
+                    _world[id_hh].add_indiv(tmp);
+                    // -----
+                }
+                
+                // Faster version:
+                if(!debugcode) _world[k].add_indiv(tmp);
+            }
+        }
+    }
+    cout << "... test world built."<<endl;
+    
+}
+
+
+
+
+void Simulation::build_test(uint n_indiv){
+    /// Build a world for test
+    
+    cout << endl << "Building test world..."<<endl;
     
     bool debugcode = _modelParam.get_prm_bool("debug_mode");
     
@@ -672,7 +846,7 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                                         double proba){
     /// Move individuals across social places according to their schedule
     
-    unsigned long N = _world.size();
+    unsigned long N          = _world.size();
     
     std::uniform_real_distribution<double> unif(0.0,1.0);
     
@@ -698,8 +872,19 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                     stopif(id_dest==__UNDEFINED_ID,
                            "Undefined destination for indiv ID_" + to_string(_world[k].get_indiv(i).get_id()));
                     
-                    if ( (id_dest!=k) )
+                    
+                    if ( (id_dest!=k && id_dest!=__LARGE_ID) )
                     {
+                        // if destination is 'other',
+                        // then pick randomly a social place of type 'other'
+                        // for the destination:
+                        if (id_dest == __LARGE_ID){
+                            id_dest = pick_rnd_sp_other()->get_id_sp();
+                            //DEBUG
+                            cout << "DEBUG: other dest --> sp_id = " << id_dest << endl;
+                        }
+                        
+                        
                         // take a copy of the individual
                         individual tmp = _world[k].get_indiv(i);
                         
@@ -707,14 +892,7 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                         // TO DO: make this proba individual-dependent
                         double u = unif(_RANDOM_GENERATOR);
                         if ( u < proba ){
-                            
                             move_one_individual(i, k, id_dest);
-                            
-                            // DELETE WHEN SURE:
-                            //                        // add individual at destination
-                            //                        _world[id_dest].add_indiv(tmp);
-                            //                        // remove this individual (in i^th position in '_indiv' vector) from here
-                            //                        _world[k].remove_indiv(i);
                         }
                     }
                 } // end-if-not-hospitalized
@@ -808,6 +986,29 @@ vector<uint> Simulation::draw_n_contacts(uint k,
 }
 
 
+
+void Simulation::set_sp_other(){
+    /// Make the inventory of all 'sp_other'
+    /// social places and record in '_sp_other'
+    
+    for (uint k=0; k<_world.size(); k++) {
+        if(_world[k].get_type() == SP_other){
+            _sp_other.push_back(&_world[k]);
+        }
+    }
+}
+
+
+socialPlace* Simulation::pick_rnd_sp_other(){
+    /// Choose randomly a social place
+    /// of type 'other'
+    
+    std::uniform_int_distribution<uint> unif(0,(uint)_sp_other.size()-1);
+    uint rnd_idx = unif(_RANDOM_GENERATOR);
+    
+    return _sp_other[rnd_idx];
+}
+
 double Simulation::calc_proba_transmission(individual *infectious,
                                            individual *susceptible){
     /// Calculate probability of transmission given contact
@@ -834,7 +1035,7 @@ double Simulation::calc_proba_transmission(individual *infectious,
     }
     
     // DEBUG
-//    cout << " DEBUG: p_susc = "<< p_susc << " ; p_inf = " << p_inf << endl;
+    //    cout << " DEBUG: p_susc = "<< p_susc << " ; p_inf = " << p_inf << endl;
     
     return p_susc * p_inf;
 }
@@ -896,7 +1097,7 @@ vector< vector<uint> > Simulation::draw_contacted_S(uint k,
     // sample (with replacement)
     // which susceptibles will be contacted:
     std::uniform_int_distribution<uint> unif(0,n_susc-1);
-        
+    
     for(uint i=0; i<n_inf; i++){
         for(uint j=0; j<n_contacts[i]; j++)
         {
@@ -943,10 +1144,10 @@ vector< vector<uint> > Simulation::transmission_attempts(uint k,
                 
                 if (infectious_type == "Is")
                     p_ij = calc_proba_transmission(_world[k]._indiv_Is[i],
-                                            _world[k]._indiv_S[selected_S[i][j]]);
+                                                   _world[k]._indiv_S[selected_S[i][j]]);
                 if (infectious_type == "Ia")
                     p_ij = calc_proba_transmission(_world[k]._indiv_Ia[i],
-                                            _world[k]._indiv_S[selected_S[i][j]]);
+                                                   _world[k]._indiv_S[selected_S[i][j]]);
                 
                 stopif(p_ij <0 && p_ij > 1.0, "Probability of transmissiom not b/w 0 and 1");
                 
@@ -978,7 +1179,7 @@ void Simulation::transmission_wiw(int k,
                 if(infectious_type=="Is"){
                     _world[k]._indiv_Is[i]->increment_num_secondary_cases();
                     _world[k]._indiv_Is[i]->push_ID_secondary_cases(id_S);
-                     ti = _world[k]._indiv_Is[i]->get_acquisition_time();
+                    ti = _world[k]._indiv_Is[i]->get_acquisition_time();
                 }
                 
                 if(infectious_type=="Ia"){
@@ -1094,13 +1295,13 @@ uint Simulation::transmission_process(uint k, double dt, string infectious_type)
     // Number of contacts for each infectious individual.
     // (numbers are stored in the order of vectors _indiv_Is, _indiv_Ia)
     vector<uint> n_contacts_Ix = draw_n_contacts(k, dt, infectious_type);
-
+    
     // Randomly select susceptibles (position in '_indiv_S')
     // in this social place that will
     // be in contact: sampling _with_ replacement
     // (a S can be in contact with more than one I)
     vector< vector<uint> > selected_S_Ix = draw_contacted_S(k, n_contacts_Ix, infectious_type);
-
+    
     // Transmission attempts
     // (need to do this intermediary step
     // in order not to mess up pointers vector '_indiv_X')
@@ -1120,7 +1321,7 @@ uint Simulation::transmission_oneSP(uint k,
                                     double dt){
     /// Performs transmission within the k^th social place.
     /// Returns incidence for _this_ social place, during the time step 'dt'.
-
+    
     
     uint inc_Is, inc_Ia;
     
@@ -1211,6 +1412,7 @@ void Simulation::display_split_pop_linked(){
     cout<< "Total linked = "<< s << endl;
     cout<<"------------"<<endl;
 }
+
 
 void Simulation::seed_infection(vector<ID> id_sp, vector<uint> I0){
     /// Seed infection in specified socialplaces, with specified initial number of infectious indiv
@@ -1461,7 +1663,7 @@ void Simulation::check_book_keeping(){
             stopif(!_world[k].get_indiv(j).is_infectious(), "Book keeping error with _indiv_Ia.");
             stopif(_world[k].get_indiv(j).is_symptomatic(), "Book keeping error with _indiv_Ia.");
         }
-
+        
     }
     bool check_Ia = ( (_n_Ia == nIa) && (nIa == nIa_census) );
     stopif(!check_Ia, "Book keeping error with Ia stage");
@@ -1537,7 +1739,7 @@ void Simulation::define_all_id_tables(){
                 }
             }
             if  (indiv[i].is_vaccinated()){
-                 _world[k]._indiv_vax.push_back(_world[k].get_mem_indiv(i));
+                _world[k]._indiv_vax.push_back(_world[k].get_mem_indiv(i));
             }
             
         }
@@ -1622,8 +1824,8 @@ void Simulation::hospitalize(){
             
             // If time to hospitalize:
             if (!_world[k]._indiv_Is[i]-> is_hosp() &&
-                 _world[k]._indiv_Is[i]-> willbe_hosp() &&
-                 _world[k]._indiv_Is[i]-> time_to_hospitalize() &&
+                _world[k]._indiv_Is[i]-> willbe_hosp() &&
+                _world[k]._indiv_Is[i]-> time_to_hospitalize() &&
                 !_world[k]._indiv_Is[i]->is_discharged())
             {
                 // set the hospitalization flag for this individual
@@ -1641,7 +1843,7 @@ void Simulation::hospitalize(){
                 
                 // Move individual to its linked SP_hospital
                 move_one_individual(pos_indiv, k, id_sp_hospital);
-//                cout <<" DEBUG: indiv ID_"<<to_string(id_indiv)<<"  hospitalized" <<endl;
+                //                cout <<" DEBUG: indiv ID_"<<to_string(id_indiv)<<"  hospitalized" <<endl;
             }
         }
     }
@@ -1669,7 +1871,7 @@ void Simulation::discharge_hospital(uint idx_timeslice){
                 
                 // If time to leave hospital:
                 if ( _world[k]._indiv_H[i]-> is_discharged() &&
-                     _world[k]._indiv_H[i]-> is_alive()      &&
+                    _world[k]._indiv_H[i]-> is_alive()      &&
                     !_world[k]._indiv_H[i]-> will_die()
                     )
                 {
@@ -1682,9 +1884,9 @@ void Simulation::discharge_hospital(uint idx_timeslice){
                     _world[k]._indiv_H[i]->set_is_hosp(false);
                     
                     // DELETE WHEN SURE:
-//                    uint pos_Is = _world[k].find_indiv_X_pos(id_indiv, "Is");
-//                    _world[k]._indiv_Is[pos_Is]->set_is_hosp(false);
-
+                    //                    uint pos_Is = _world[k].find_indiv_X_pos(id_indiv, "Is");
+                    //                    _world[k]._indiv_Is[pos_Is]->set_is_hosp(false);
+                    
                     
                     // update counters
                     _n_H--;
@@ -1729,13 +1931,13 @@ void Simulation::death_hospital(){
                 
                 // If time to die:
                 if (!_world[k]._indiv_H[i]-> is_discharged() &&
-                     _world[k]._indiv_H[i]-> is_alive()      &&
-                     _world[k]._indiv_H[i]-> will_die()
+                    _world[k]._indiv_H[i]-> is_alive()      &&
+                    _world[k]._indiv_H[i]-> will_die()
                     )
                 {
                     ID id_sp_hospital = _world[k]._indiv_H[i]->get_id_sp_hospital();
                     ID id_indiv       = _world[k]._indiv_H[i]->get_id();
-//                    uint pos_indiv    = _world[k].find_indiv_pos(id_indiv);
+                    //                    uint pos_indiv    = _world[k].find_indiv_pos(id_indiv);
                     
                     // set the hospitalization flag for this individual
                     _world[k]._indiv_H[i]->die();
@@ -1764,8 +1966,8 @@ void Simulation::death_hospital(){
 
 
 vector<individual*> Simulation::draw_targeted_individuals(uint i,
-                                                           ID id_sp,
-                                                           double dt){
+                                                          ID id_sp,
+                                                          double dt){
     /// Draw the targeted individuals of the ith intervention,
     /// in sociale place with ID 'id_sp'
     
@@ -1806,7 +2008,7 @@ vector<individual*> Simulation::draw_targeted_individuals(uint i,
         
         found = true;
         uint nS  = (uint)_world[id_sp]._indiv_S.size();
-
+        
         if (nS > 0){
             // Draw the total number of individuals that are targeted
             std::poisson_distribution<> poiss(interv_intensity);
@@ -1929,6 +2131,54 @@ bool Simulation::at_least_one_infected(){
     }
     return res;
 }
+
+
+
+
+void Simulation::assign_dox_distribution(string dol_distrib,
+                                         string doi_distrib,
+                                         string doh_distrib){
+    
+    for (uint k=0; k< _world.size(); k++)
+    {
+        unsigned long nk = _world[k].get_size();
+        for (uint i=0; i< nk; i++) {
+            _world[k].set_dol_distrib(i, dol_distrib);
+            _world[k].set_doi_distrib(i, doi_distrib);
+            _world[k].set_doh_distrib(i, doh_distrib);
+        }
+    }
+}
+
+
+void Simulation::assign_immunity(){
+    for (uint k=0; k< _world.size(); k++)
+    {
+        unsigned long nk = _world[k].get_size();
+        std::uniform_real_distribution<float> unif01(0,1);
+        
+        for (uint i=0; i< nk; i++) {
+            _world[k].set_immunity(i, unif01(_RANDOM_GENERATOR));
+        }
+    }
+}
+
+void Simulation::assign_frailty(){
+    for (uint k=0; k< _world.size(); k++)
+    {
+        unsigned long nk = _world[k].get_size();
+        std::uniform_real_distribution<float> unif01(0,1);
+        
+        for (uint i=0; i< nk; i++) {
+            _world[k].set_frailty(i, unif01(_RANDOM_GENERATOR));
+        }
+    }
+}
+
+
+
+
+
 
 
 

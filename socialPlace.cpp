@@ -375,6 +375,13 @@ vector<uint> socialPlace::pick_rnd_susceptibles(uint num){
 }
 
 
+void socialPlace::set_schedule_indiv(uint pos, schedule sched){
+    /// Set the schedule for ith individual (ith in '_indiv')
+    
+    _indiv[pos].set_schedule(sched);
+}
+
+
 uint socialPlace::census_alive(){
     /// Counts all individuals alive
     

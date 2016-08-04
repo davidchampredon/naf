@@ -19,12 +19,37 @@
 #include "build_world.h"
 
 
+Simulation run_test(vector<areaUnit> auvec,
+                    discrete_prob_dist<uint> D_size_hh,
+                    discrete_prob_dist<uint> D_size_wrk,
+                    discrete_prob_dist<uint> D_size_pubt,
+                    discrete_prob_dist<uint> D_size_school,
+                    discrete_prob_dist<uint> D_size_hosp,
+                    discrete_prob_dist<uint> D_size_other,
+                    vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
+                    vector<uint> n_hh ,
+                    vector<uint> n_wrk,
+                    vector<uint> n_pubt ,
+                    vector<uint> n_school,
+                    vector<uint> n_hosp,
+                    vector<uint> n_other,
+                    vector<schedule> sched ,
+                    modelParam MP,
+                    double horizon,
+                    uint i0,
+                    const intervention &interv);
+
+void main_run_test();
+
+
+// -----------------------------------------
 void main_test_naf();
 Simulation test_naf(modelParam MP,
                     double horizon,
                     uint n_indiv,
                     uint i0,
                     const intervention &interv);
+// -----------------------------------------
 
 
 
@@ -66,6 +91,6 @@ void main_test_hospitalization();
 void test_move_transmission();
 void test_rnd_eng();
 void test_random();
-void test_build_world();
+
 
 #endif

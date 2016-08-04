@@ -30,19 +30,21 @@ vector<areaUnit> create_area_unit(const vector<ID>& id_au,
 
 void keep_indiv_with_household(vector<individual>& x);
 
-//vector<socialPlace> create_households_size(uint num_hh,
-//                                           discrete_prob_dist<uint> size_distrib,
-//                                           areaUnit AU,
-//                                           vector<individual>& indiv);
-
 
 vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              uint num_sp,
+                                             uint first_id_sp,
                                              discrete_prob_dist<uint> size_distrib,
                                              areaUnit AU,
                                              vector<individual>& indiv,
                                              float age_min = -999.999,
                                              float age_max = 999.99);
+
+vector<socialPlace> create_other_socialPlaces(uint num_sp,
+                                              uint first_id_sp,
+                                              discrete_prob_dist<uint> size_distrib,
+                                              areaUnit AU);
+
 
 void assign_age_in_households(vector<socialPlace>& hh,
                               vector<individual>& indiv,
@@ -55,13 +57,32 @@ vector<socialPlace> build_world(vector<areaUnit> auvec,
                                 discrete_prob_dist<uint> D_size_wrk,
                                 discrete_prob_dist<uint> D_size_pubt,
                                 discrete_prob_dist<uint> D_size_school,
+                                discrete_prob_dist<uint> D_size_hosp,
+                                discrete_prob_dist<uint> D_size_other,
                                 vector<uint> n_hh,
                                 vector<uint> n_wrk,
                                 vector<uint> n_pubt,
-                                vector<uint> n_school);
+                                vector<uint> n_school,
+                                vector<uint> n_hosp,
+                                vector<uint> n_other);
 
 
-void move_all_indiv_to(SPtype sp_type,
-                       world &w);
+void assign_schedules(vector<socialPlace> & W,
+                      const vector<schedule> & sched,
+                      vector<float> prop_sched);
+
+void assign_dox_distribution(vector<socialPlace> & W,
+                             string dol_distrib,
+                             string doi_distrib,
+                             string doh_distrib);
+
+
+
+
+
+
+
+
+
 
 #endif /* defined(__naf__build_world__) */
