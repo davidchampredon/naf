@@ -744,7 +744,7 @@ void Simulation::run(){
             }
         }
         
-        update_ts_census_by_SP();
+        //update_ts_census_by_SP();
         
         discharge_hospital(idx_timeslice);
         define_all_id_tables(); // <-- check if this is necessary here
@@ -852,6 +852,12 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
     
     for (int k=0; k<N; k++)
     {
+        // DEBUG
+        if (k==72){
+            double dummy = 0;
+        }
+        
+        
         uint n = (uint)_world[k].get_size();
         if(n>0){
             
@@ -868,6 +874,12 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                 {
                     // Retrieve its actual destination
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
+                    
+                    //DEBUG
+                    if(id_dest==72){
+                        double dum=0;
+                    }
+                    
                     
                     stopif(id_dest==__UNDEFINED_ID,
                            "Undefined destination for indiv ID_" + to_string(_world[k].get_indiv(i).get_id()));
@@ -1585,6 +1597,20 @@ void Simulation::update_pop_count(){
 void Simulation::check_book_keeping(){
     /// Check consistency of book keeping.
     /// WARNING: FOR DEBUG ONLY, SLOWS DOWN EXECUTION!
+    
+    
+
+    check_sp_integrity(_world);
+
+    
+    // more individual present than linked?
+    for (ID k=0; k<_world.size(); k++) {
+        unsigned long pres = _world[k].get_indiv().size();
+        unsigned long linked = _world[k].get_linked_indiv_id().size();
+        stopif(pres>linked, "More individual present than linked in SP ID "+to_string(k));
+    }
+    
+    
     
     // stage S
     uint nS=0;

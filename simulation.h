@@ -195,6 +195,7 @@ public:
     void    activate_interventions(ID id_sp, double dt);
     void    update_immunity_frailty();
     bool    at_least_one_vaccination_intervention();
+    
     vector<individual*> draw_targeted_individuals(uint i_intervention,
                                                   ID id_sp,
                                                   double dt);

@@ -68,8 +68,8 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
     /// * * WARNING * *
     /// vector of individuals must be large enough!
     
-    cout << endl <<  "Creating social places of type " + SPtype2string(sp_type) + " ...";
-    fflush(stdout);
+//    cout << endl <<  "Creating social places of type " + SPtype2string(sp_type) + " ...";
+//    fflush(stdout);
     
     vector<socialPlace> x;
     unsigned long n_indiv = indiv.size();
@@ -86,14 +86,18 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
         // Create social place (empty shell):
         socialPlace tmp(AU, first_id_sp + k, sp_type);
         
-        // Link individuals to this social place:
+        // Link individuals with the kth social place:
         for (uint linked = 0;
              linked < size_sp[k] &&
              cnt < n_indiv; )
         {
             float age = indiv[first_id_indiv + cnt].get_age();
-            if(age_min<age && age<age_max) {
-                indiv[first_id_indiv + cnt].set_id_sp(sp_type, tmp);
+            if(age_min<age && age<age_max)
+            {
+                // Link both individual and social place ('set_id_sp' does both)
+//                indiv[first_id_indiv + cnt].set_id_sp(sp_type, tmp); DELETE
+                indiv[cnt].set_id_sp(sp_type, tmp);
+                
                 linked++;
             }
             cnt++;
@@ -113,7 +117,7 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
         cout << " of the "<< num_sp <<" requested."<< endl;
     }
     
-    cout << " done." <<endl;
+    cout << "Social places of type " + SPtype2string(sp_type) + " completed." <<endl;
     return x;
 }
 

@@ -67,8 +67,8 @@ void main_run_test(){
     // ================================================================
     
     // Area Units
-    vector<ID> id_au {0,1,}; //2,3};
-    vector<string> name_au {"AUone", "AUtwo"}; //, "AUthree", "AUfour"};
+    vector<ID> id_au {0}; //2,3};
+    vector<string> name_au {"AUone"}; //, "AUtwo"}; //, "AUthree", "AUfour"};
     ID id_region = 0;
     string regionName = "RegionOne";
     vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
@@ -104,13 +104,13 @@ void main_run_test(){
     
     
     // Workplace sizes
-    vector<uint> wrk_size {5,20,40,60};
+    vector<uint> wrk_size {5,8,9,12};
     vector<double> wrk_size_proba {0.55, 0.3, 0.1, 0.05};
     discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
     D_size_wrk.display();
     
     // Public transport sizes
-    vector<uint> pubt_size {20,50,60};
+    vector<uint> pubt_size {7,8,9};
     vector<double> pubt_size_proba {0.3,0.4,0.3};
     discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
     D_size_pubt.display();
@@ -128,7 +128,7 @@ void main_run_test(){
     D_size_hosp.display();
     
     // other public placed sizes
-    vector<uint> other_size {10,50,100};
+    vector<uint> other_size {5,6,7};
     vector<double> other_size_proba {0.4,0.4,0.2};
     discrete_prob_dist<uint> D_size_other(other_size, other_size_proba);
     D_size_other.display();
@@ -155,12 +155,12 @@ void main_run_test(){
     };
     
     // number of each social place type
-    vector<uint> n_hh       {50, 20};     //{5000,2500,1000,900};
-    vector<uint> n_wrk      {30, 33};         //{10, 5, 3, 2};
-    vector<uint> n_pubt     {40,30};          //{7,2,1,0};
-    vector<uint> n_school   {20,20,1,1};
-    vector<uint> n_hosp     {1,1,1,1};
-    vector<uint> n_other    {100,50};       //{1000,500,250,200};
+    vector<uint> n_hh       {50}; //, 20};     //{5000,2500,1000,900};
+    vector<uint> n_wrk      {30}; //, 33};         //{10, 5, 3, 2};
+    vector<uint> n_pubt     {40}; //,30};          //{7,2,1,0};
+    vector<uint> n_school   {20}; //,20};
+    vector<uint> n_hosp     {1}; //,1};
+    vector<uint> n_other    {100}; //,50};       //{1000,500,250,200};
     
     
     // ================================================================
@@ -213,6 +213,13 @@ Simulation run_test(vector<areaUnit> auvec,
                     const intervention &interv){
     
     
+    stopif(auvec.size() != n_hh.size() ||
+           auvec.size() != n_wrk.size() ||
+           auvec.size() != n_pubt.size() ||
+           auvec.size() != n_school.size() ||
+           auvec.size() != n_hosp.size() ||
+           auvec.size() != n_other.size(),
+           "Inconsistent inputs.");
     
     Simulation sim;
     sim.set_modelParam(MP);
