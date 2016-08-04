@@ -1046,7 +1046,15 @@ vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
 }
 
 
-
+uint world_size(const vector<socialPlace>& w){
+    /// Count the number of individual in a world (=vector<socialPlace>)
+    
+    uint res = 0;
+    for (uint k=0; k<w.size(); k++) {
+        res += w[k].get_indiv().size();
+    }
+    return res;
+}
 
 
 

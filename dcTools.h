@@ -318,7 +318,7 @@ template <class T> vector<double> to_vector_double(vector<T> x){
 }
 
 
-template <class T> vector<T> sort_remove_duplicate(vector<T> x, bool ascending)
+template <class T> vector<T> sort_remove_duplicate(const vector<T>& x, bool ascending)
 {
     /// Sort vector and removes duplicates
     

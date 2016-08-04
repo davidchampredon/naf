@@ -229,7 +229,7 @@ vector<socialPlace> test_world(double sizereduction = 0.001);
 
 void displayPopulationSize(const vector<socialPlace>& sp);
 
-
+uint world_size(const vector<socialPlace>& sp);
 
 
 

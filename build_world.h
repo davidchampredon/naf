@@ -34,6 +34,7 @@ void keep_indiv_with_household(vector<individual>& x);
 vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              uint num_sp,
                                              uint first_id_sp,
+                                             uint first_id_indiv,
                                              discrete_prob_dist<uint> size_distrib,
                                              areaUnit AU,
                                              vector<individual>& indiv,
@@ -78,7 +79,7 @@ void assign_dox_distribution(vector<socialPlace> & W,
 
 
 
-
+void check_sp_integrity(const vector<socialPlace>& x);
 
 
 

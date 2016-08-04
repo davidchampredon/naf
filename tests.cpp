@@ -116,7 +116,7 @@ void main_run_test(){
     D_size_pubt.display();
     
     // School sizes
-    vector<uint> school_size {15, 20, 30};
+    vector<uint> school_size {6, 8, 9};
     vector<double> school_size_proba {0.7,0.2,0.1};
     discrete_prob_dist<uint> D_size_school(school_size, school_size_proba);
     D_size_school.display();
@@ -155,8 +155,8 @@ void main_run_test(){
     };
     
     // number of each social place type
-    vector<uint> n_hh       {500, 250};     //{5000,2500,1000,900};
-    vector<uint> n_wrk      {500, 50};         //{10, 5, 3, 2};
+    vector<uint> n_hh       {50, 20};     //{5000,2500,1000,900};
+    vector<uint> n_wrk      {30, 33};         //{10, 5, 3, 2};
     vector<uint> n_pubt     {40,30};          //{7,2,1,0};
     vector<uint> n_school   {20,20,1,1};
     vector<uint> n_hosp     {1,1,1,1};
