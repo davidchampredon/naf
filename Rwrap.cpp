@@ -42,15 +42,160 @@ List to_list(const dcDataFrame & df,
 }
 
 
+void set_parameter(modelParam &MP, string prm_name, string prm_type, List params){
+	
+	bool found = false;
+	
+	if (prm_type=="double") {
+		double val = params[prm_name];
+		MP.add_prm_double(prm_name, val);
+		found = true;
+	}
+	
+	else if (prm_type=="bool") {
+		bool val = params[prm_name];
+		MP.add_prm_bool(prm_name, val);
+		found = true;
+	}
+	
+	else if (prm_type=="string") {
+		string val = params[prm_name];
+		MP.add_prm_string(prm_name, val);
+		found = true;
+	}
+	
+	else if (prm_type=="uint") {
+		uint val = params[prm_name];
+		MP.add_prm_uint(prm_name, val);
+		found = true;
+	}
+	if(!found)
+		cerr << "Parameter type " << prm_type << " not found for parameter "<<prm_name <<endl;
+}
+
+
+
+// ====================================================================================
+// ====================================================================================
+// = = = =  M A I N    E X P O R T  = = = =
+// ====================================================================================
+// ====================================================================================
+
+
+// [[Rcpp::export]]
+List naf_run(List params, List simulParams){
+	/// Main test
+	
+	vector<unsigned int> res;
+	
+	// Model parameters:
+	modelParam MP;
+	
+	set_parameter(MP, "debug_mode", "bool", params);
+	
+	set_parameter(MP, "homogeneous_contact", "bool", params);
+	
+	set_parameter(MP, "dol_distrib", "string", params);
+	set_parameter(MP, "doi_distrib", "string", params);
+	set_parameter(MP, "doh_distrib", "string", params);
+	
+	set_parameter(MP, "dol_mean", "double", params);
+	set_parameter(MP, "doi_mean", "double", params);
+	set_parameter(MP, "doh_mean", "double", params);
+
+	set_parameter(MP, "proba_move", "double", params);
+	set_parameter(MP, "contact_rate", "double", params);
+
+	set_parameter(MP, "asymptom_infectiousness_ratio", "double", params);
+	
+	set_parameter(MP, "treat_doi_reduc", "double", params);
+	set_parameter(MP, "treat_reduc_infect_mean", "double", params);
+	
+	set_parameter(MP, "vax_imm_incr", "double", params);
+	set_parameter(MP, "vax_frail_incr", "double", params);
+	set_parameter(MP, "vax_lag_full_efficacy", "double", params);
+	
+	set_parameter(MP, "proba_death_prm_1", "double", params);
+	set_parameter(MP, "proba_death_prm_2", "double", params);
+	set_parameter(MP, "proba_death_prm_3", "double", params);
+
+	
+	// Simulation parameters:
+	
+	unsigned int rnd_seed   = simulParams["rnd_seed"];
+	unsigned int n_indiv    = simulParams["n_indiv"];
+	unsigned int i0         = simulParams["initial_latent"];
+	double horizon          = simulParams["horizon"];
+	unsigned int nt         = simulParams["nt"];
+	unsigned int popexport  = simulParams["popexport"];
+	
+	string	interv_name     = simulParams["interv_name"];
+	string	interv_type     = simulParams["interv_type"];
+	string	interv_target   = simulParams["interv_target"];
+	double	interv_start    = simulParams["interv_start"];
+	double	interv_end      = simulParams["interv_end"];
+	double	interv_cvg_rate = simulParams["interv_cvg_rate"];
+	double	interv_cvg_max_prop = simulParams["interv_cvg_max_prop"];
+
+	
+	
+	cout << "DEBUG: popexport is "<< popexport <<endl;
+	
+	
+	// Define intervention
+	intervention interv_test(interv_type,
+							 interv_target,
+							 interv_name,
+							 interv_start,
+							 interv_end,
+							 interv_cvg_rate,
+							 interv_cvg_max_prop);
+	
+	
+	// Call C++ function
+	
+	_RANDOM_GENERATOR.seed(rnd_seed);
+	
+	Simulation sim = test_naf(MP,
+							  horizon,
+							  n_indiv,
+							  i0,
+							  interv_test);
+	
+	// Retrieve all results from simulation:
+	// populations:
+	dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
+	// epidemic time series
+	dcDataFrame ts = sim.timeseries();
+	dcDataFrame ts_census = sim.get_ts_census_by_SP();
+	
+	// Return R-formatted result:
+	return List::create(Named("population_final") = to_list(pop_final,false),
+						Named("time_series") = to_list(ts, false),
+						Named("time_series_census") = to_list(ts_census, false));
+}
+
+
+
+
+
+// ====================================================================================
+// ====================================================================================
+// = = = =  T E S T S  = = = =
+// ====================================================================================
+// ====================================================================================
+
+
+
 
 // [[Rcpp::export]]
 List naf_test(List params, List simulParams){
     /// Main test
-    
+	
     vector<unsigned int> res;
-    
+	
     // Model parameters:
-    
+	
     bool debug_mode		= params["debug_mode"];
     
     string dol_distrib	= params["dol_distrib"];
@@ -164,11 +309,11 @@ List naf_test(List params, List simulParams){
                         Named("time_series_census") = to_list(ts_census, false));
 }
 
-
+	/*
 // [[Rcpp::export]]
 List build_world(List params){
 	
-	
+
 	vector<ID> id_au = params["id_au"];
 	vector<string> name_au = params["name_au"];
 
@@ -256,8 +401,9 @@ List build_world(List params){
 		rcpplist.push_back( to_list(df[i], false) );
 	
 	return rcpplist;
-}
 
+}
+	 */
 
 
 
