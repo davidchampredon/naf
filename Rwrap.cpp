@@ -42,8 +42,28 @@ List to_list(const dcDataFrame & df,
 }
 
 
+List to_list_vector(const vector<dcDataFrame> & df,
+					bool addRowName){
+	/// Converts a vector of dcDataFrame to a Rccp list
+	/// (helper function)
+	
+	unsigned long n = df.size();
+	
+	// Translate the 'dcDataFrame' into a R list
+	// (convert to data frame in R, I don't know how to do it here in Rcpp):
+	Rcpp::List rcpplist;
+
+	for(unsigned long i=0; i<n; i++)
+		rcpplist.push_back(to_list(df[i],addRowName));
+
+	return rcpplist;
+}
+
+
+
+
 void set_parameter(modelParam &MP, string prm_name, string prm_type, List params){
-    
+	
     bool found = false;
     
     if (prm_type=="double") {
@@ -130,7 +150,6 @@ List naf_run(List params,
     unsigned int rnd_seed   = simulParams["rnd_seed"];
     unsigned int i0         = simulParams["initial_latent"];
     double horizon          = simulParams["horizon"];
-    unsigned int nt         = simulParams["nt"];
     unsigned int popexport  = simulParams["popexport"];
     
     
@@ -279,9 +298,12 @@ List naf_run(List params,
     // epidemic time series
     dcDataFrame ts = sim.timeseries();
     dcDataFrame ts_census = sim.get_ts_census_by_SP();
+	
+	vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
     
     // Return R-formatted result:
     return List::create(Named("population_final") = to_list(pop_final,false),
+						Named("world") = to_list_vector(W, false),
                         Named("time_series") = to_list(ts, false),
                         Named("time_series_census") = to_list(ts_census, false));
 }

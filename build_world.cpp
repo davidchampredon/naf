@@ -106,7 +106,7 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                 indiv[cnt].set_id_sp(sp_type, tmp);
                 
                 //DEBUG
-                cout << SPtype2string(sp_type) << ": Link SP_"<<first_id_sp + k << " with indiv_" <<first_id_indiv + cnt << endl;
+                // cout << SPtype2string(sp_type) << ": Link SP_"<<first_id_sp + k << " with indiv_" <<first_id_indiv + cnt << endl;
                 
                 record = true;
                 linked++;

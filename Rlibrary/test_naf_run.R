@@ -60,11 +60,13 @@ prm[['vax_frail_incr']] <- 0.2
 prm[['vax_lag_full_efficacy']] <- 12
 
 
+
+
 ### ==== Simulation parameters ====
 
 simul.prm[['rnd_seed']] <- 1234
 simul.prm[['horizon']] <- 300
-simul.prm[['initial_latent']] <- 2
+simul.prm[['initial_latent']] <- 8
 simul.prm[['popexport']] <- 1
 
 ###  ==== World parameters ====
@@ -74,16 +76,26 @@ world.prm[['name_au']] <- c("AUone", "AUtwo")
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-world.prm[['n_hh']]     <- c(8, 7)
-world.prm[['n_wrk']]    <- c(30, 33)
-world.prm[['n_pubt']]   <- c(40, 30)
-world.prm[['n_school']] <- c(20, 20)
+mult <- 5
+world.prm[['n_hh']]     <- c(1200, 1100) * mult
+world.prm[['n_wrk']]    <- c(300, 330) * mult
+world.prm[['n_pubt']]   <- c(400, 300) * mult
+world.prm[['n_school']] <- c(200, 200) * mult
 world.prm[['n_hosp']]   <- c(1,1)
-world.prm[['n_other']]  <- c(100, 50)
+world.prm[['n_other']]  <- c(1000, 500) * mult
 
-age.adults   <- c(22,33,44)
+age.adults   <- c(22,33,44,55) #seq(18,70,by=1)
 age.children <- c(11)
 age.all      <- c(age.children, age.adults) 
+
+# xx <- seq(18,70,by=1)
+# yy <- seq(1,18,by=1)
+n.age.adults <- length(age.adults)
+n.age.all <- length(age.all)
+p.adult <- rep(1/n.age.adults, n.age.adults)
+p.all <- rep(1/n.age.all, n.age.all)
+p.all.child <- 1/age.all 
+p.all.child <- p.all.child/sum(p.all.child)
 
 world.prm[['pr_age_hh_00_val']] <- age.adults
 world.prm[['pr_age_hh_10_val']] <- age.adults
@@ -92,24 +104,24 @@ world.prm[['pr_age_hh_20_val']] <- age.adults
 world.prm[['pr_age_hh_21_val']] <- age.adults
 world.prm[['pr_age_hh_22_val']] <- age.all
 
-world.prm[['pr_age_hh_00_proba']] <- c(0.2, 0.5, 0.3)
-world.prm[['pr_age_hh_10_proba']] <- c(0.2, 0.5, 0.3)
-world.prm[['pr_age_hh_11_proba']] <- c(0.2,0.1, 0.6, 0.1)
-world.prm[['pr_age_hh_20_proba']] <- c(0.2, 0.5, 0.3)
-world.prm[['pr_age_hh_21_proba']] <- c(0.2, 0.5, 0.3)
-world.prm[['pr_age_hh_22_proba']] <- c(0.8,0.1, 0.05, 0.05)
+world.prm[['pr_age_hh_00_proba']] <- p.adult
+world.prm[['pr_age_hh_10_proba']] <- p.adult
+world.prm[['pr_age_hh_11_proba']] <- p.all
+world.prm[['pr_age_hh_20_proba']] <- p.adult
+world.prm[['pr_age_hh_21_proba']] <- p.adult
+world.prm[['pr_age_hh_22_proba']] <- p.all.child
 
 world.prm[['hh_size']] <- c(1,2,3)
-world.prm[['hh_size_proba']] <- c(0.3, 0.5, 0.2)
+world.prm[['hh_size_proba']] <- c(0.2, 0.4, 0.4)
 world.prm[['wrk_size']] <- c(5,20,40,60)
 world.prm[['wrk_size_proba']] <- c(0.55, 0.3, 0.1, 0.05)
-world.prm[['pubt_size']] <- c(20,50,60)
+world.prm[['pubt_size']] <- c(30,60,120)
 world.prm[['pubt_size_proba']] <- c(0.3,0.4,0.3)
-world.prm[['school_size']] <- c(6, 8, 9)
+world.prm[['school_size']] <- c(100, 200, 300)
 world.prm[['school_size_proba']] <- c(0.7,0.2,0.1)
 world.prm[['hosp_size']] <- c(10000)
 world.prm[['hosp_size_proba']] <- c(1)
-world.prm[['other_size']] <- c(10,50,100)
+world.prm[['other_size']] <- c(100,200,300)
 world.prm[['other_size_proba']] <- c(0.4,0.4,0.2)
 
 sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)
@@ -135,30 +147,46 @@ res <- naf_run(prm,
 			   world.prm, 
 			   sched.prm)
 
+t1 <- as.numeric(Sys.time())
+
 ts <- as.data.frame(res[['time_series']])
 ts_census <- as.data.frame(res[['time_series_census']])
-pop <- as.data.frame(res[['population_final']])
 
+# JUST ONE SOCIAL PLACE: pop <- as.data.frame(res[['population_final']])
+world0 <- res[['world']]
+z <- lapply(world0, as.data.frame)
+pop <- do.call('rbind',z)
+
+ws <- ddply(pop, c('id_au','sp_type'), summarize, 
+			n_sp = length(id_sp),
+			n_indiv = length(id_indiv))
+ws
+
+length(unique(pop$id_indiv))
+length(unique(pop$id_sp))
 
 ### ==== PLOTS ==== 
 
 if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
 
-plot.population(pop)
+try(plot.population(pop),silent = T)
 
-plot.epi.timeseries(ts)
+try(plot.epi.timeseries(ts), silent = T)
 
-g <- ggplot(ts_census)
-g <- g + geom_point(aes(x=time, y=pop_present), size=1) 
-g <- g + geom_step(aes(x=time, y=nS), colour='green4') 
-g <- g + geom_step(aes(x=time, y=nE), colour='orange') 
-g <- g + geom_step(aes(x=time, y=nIs), colour='red')
-g <- g + geom_step(aes(x=time, y=nR), colour='blue') 
-g <- g + facet_wrap(~id_sp)
-plot(g)
+plot.tmp <- function() {
+	g <- ggplot(ts_census)
+	g <- g + geom_point(aes(x=time, y=pop_present), size=1) 
+	g <- g + geom_step(aes(x=time, y=nS), colour='green4') 
+	g <- g + geom_step(aes(x=time, y=nE), colour='orange') 
+	g <- g + geom_step(aes(x=time, y=nIs), colour='red')
+	g <- g + geom_step(aes(x=time, y=nR), colour='blue') 
+	g <- g + facet_wrap(~id_sp)
+	plot(g)
+}
+
+try(plot.tmp()	, silent =T)
 
 
-t1 <- as.numeric(Sys.time())
 message(paste("time elapsed:",round(t1-t0,1),"sec"))
 
 if (save.plot.to.file) dev.off()
