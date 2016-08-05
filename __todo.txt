@@ -2,11 +2,7 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
-
-((create_world has bugs))
-
-- Build realistic worlds from size distributions
-- 'other' social place movements
+- make world construction more robust (better handle link mismatch)
 
 - Draw contact rate from distributions
 - Treatment: prophylaxis to do.
@@ -18,5 +14,5 @@ TO DO LIST:
 
 === MINOR ITEMS ===
 
-- helper function to convert AUTOMATICALLY R input param list to _modelParam 
+- try/throw/catch in order to avoid crashing RStudio
 - _id_Is and _indiv_Is redundant
