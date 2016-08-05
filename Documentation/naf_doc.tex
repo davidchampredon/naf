@@ -3,7 +3,7 @@
 
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage[a4paper, margin=1.75cm]{geometry}
+\usepackage[a4paper, margin=2.25cm]{geometry}
 %\usepackage{mathtools}
 \usepackage{graphicx}
 
@@ -17,6 +17,7 @@
 \usepackage{lscape}
 
 \usepackage{xspace}
+\usepackage[labelfont=bf,font={small,sl},labelsep=period,justification=raggedright]{caption}
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -83,12 +84,20 @@ The size of a social place, that is the number of linked individuals, is pre-spe
 Individuals are uniquely identified in the model with an identification number (ID). The modelled features of an individual are its age, immunity to the disease and frailty. Immunity and frailty are modelled as real number between 0 and 1. They determine respectively the risk of acquiring the disease and of hospitalization. Immunity and frailty can be changed by vaccination and  treatment.
 
 These individuals are ``linked'' to social places. A link means that the individual will eventually visit and have contacts in this social place (according to its schedule, see details later).
-All individuals are linked to a social place of type ``household''. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace. 
+All individuals are linked to a social place of type ``household''. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace (Figure \ref{fig:SP_indiv}. 
+
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.99\textwidth]{figures/SP_indiv.png}
+\caption{Individual and their linked social places. This is a simple illustration of how linkage between individuals and social places is modelled. All individuals are linked to social places of type ``household'' (solid link). Links to other social places depends on the individual's features, like age. For rxample, individual 1 is an employed adult and hence is linked to a workplace, but not a school.}
+\label{fig:SP_indiv}
+\end{figure}
 
 
 \subsection{Population construction}
 
-The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All household have at least an individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child.
+The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All household have at least an individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child. There cannot be an empty household or an individual without a link to a household.
 
 Construction of other social places is more straightforward. Individuals are assigned randomly to workplaces, schools, public transportation, etc. based on their features (\eg age, distance from household \note{not implemented yet}). 
 
@@ -105,30 +114,52 @@ Every individual is assigned a daily ``schedule'' that will determine which soci
 There is little mixing if an individual would just go back and forth between its household and workplace for example. But social places like ``other'' or ``public transportation'' are supposed to bring some external mixing.
 
 
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.99\textwidth]{figures/schedule.png}
+\caption{Schedules. Simple illustration of different schedules for two individuals. In this example, a day is divided into 4 unequal time slices. Each time slice has the same duration for all individuals, but the social place destination can be different. For example, in this illustration individual $j$ visits its household and school for the first two time slices of the day. Then visit an other social place, randomly chosen. Then finishes the day backin its household.}
+\label{fig:SP_indiv}
+\end{figure}
+
+
 \subsection{Transmission process}
 
 Individuals visit a social place during a period that is determined by the time slice of their schedule. During this visit, interaction with other individuals are modelled only if it involves a potential transmission. 
 
 When an infectious individual is present in a social place, a pre-specified contact rate will determine the number of contacts it will have during its time in that social place. The contact rate is drawn from a Poisson distribution with a density itself also drawn from an exponential distribution. The fact the intensity is exponentially distributed allows for super-spreading events. The intensity distribution is also parameterized based on the features of individual and of the social place (for example, larger for young ages and in public transports).
 
-Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts. The probability of actual transmission is the product of two probabilities. The probability the contact from the infectious individual is infectious enough depends on the symptomatic status. The probability the susceptible contact acquires the disease is based on its immunity index. 
+Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts. The probability of actual transmission is the product of two probabilities. The probability the contact from the infectious individual is infectious enough depends on the symptomatic status. The probability the susceptible contact acquires the disease is based on its immunity index. The probability the infection will be symptomatic can be a function of both frailty and immunity (\note{exact functional form not decided yet}). See Figure \ref{fig:transmission}.
+
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.99\textwidth]{figures/transmission.jpg}
+\caption{Transmission. Simplified illustration of the transmission process for an infectious individual in a given social place. DoL: duration of latency; DoI: duration of infectiousness.}
+\label{fig:transmission}
+\end{figure}
+
+
+\subsection{Disease progression}
+
+Once a individual has acquired the disease, durations of latency and infectiousness are drawn from a probability distribution. Hospitalization, the duration of hospitalization and disease-induced death are also determined stochastically at acquisition time.
+Probabilities to be hospitalized and disease-induced death are based on frailty only.
+Deciding these events and durations at acquisition time is more computationally efficient than at each time step of the simulation.
+
+If an individual is hospitalized, it is moved to its linked social place labelled ``hospital'' and stays there for the duration of its hospitalization (movements to other social places directed by its schedule are ignored during hospitalization). Disease-induced death can only occur for hospitalized individuals.
+
 
 
 \section{Interventions}
 
-Antiviral treatment and vaccination are implemented. 
+Antiviral treatment and vaccination are implemented as part of ``interventions''. There can be several simultaneous interventions of different nature.
+Effect of treatment and vaccination is modelled based on a summary of evidence (see section \ref{sec:antiviral})
+
+Treatment reduces the duration of infection and has no impact on frailty or immunity. Vaccine decreases frailty and increases immunity, both stochastically. The change on both immunity and frailty triggered by vaccination has a (stochastic) time lag and their values change exponentially to the new values drawn at time of vaccination.
+
+\note{prophylactic treatment will be implemented if needed.}
 
 
 
-
-
-
-\section{Tests performed}
-
-\begin{itemize}
-\item \textbf{SEIR ODEs.} One unique spatial location, homogeneous mixing. Compare solutions of the standard ODE model with \naf. Test passed, see figure xxx.
-\item \textbf{Migrations between social places.} Only two social places, no epidemic. Check if migrations occur as specified by schedule. Test passed. 
-\end{itemize}
 
 
 \section{Literature on influenza disease parameters}
@@ -163,12 +194,11 @@ Fatality rate in hospital is typically 1-3\% in wealthy countries, but is higher
 
 
 \subsection{Antiviral Treatments}
-
+\label{sec:antiviral}
 Ressources:
 \begin{itemize}
 \item  CDC recommendations offer a nice overview \cite{CDC:2011wq}.
 \item Reviews: Ebell\cite{Ebell:2014ic},  Jefferson 2014 \cite{Jefferson:2014ei}, Jackson 2011 \cite{Jackson:2011ff}
-\item 
 \end{itemize}
 
 Four drugs: 
@@ -199,13 +229,14 @@ Influenza vaccine seems to be effective at reducing disease symptoms and severit
 
 
 
+\section{Tests performed}
 
-%\begin{figure}[!ht]
-%\centering
-%    \includegraphics[angle=0,width=0.9\textwidth]{figures/hazard_death.pdf}
-%\caption{Death hazard. The red dot represents the age of HIV acquisition. Vertical dashed lines are set at 5, 7 and 10 years after HIV acquisition.}
-%\label{fig:deathHazard}
-%\end{figure}
+\note{this section is not completed...}
+
+\begin{itemize}
+\item \textbf{SEIR ODEs.} One unique spatial location, homogeneous mixing. Compare solutions of the standard ODE model with \naf. Test passed, see figure xxx.
+\item \textbf{Migrations between social places.} Only two social places, no epidemic. Check if migrations occur as specified by schedule. Test passed. 
+\end{itemize}
 
 
 \bibliography{papers}
