@@ -408,6 +408,7 @@ ID individual::find_dest(uint idx_timeslice){
     
     if(sptype == SP_other)		id_dest = __LARGE_ID;
     
+    if (id_dest == __UNDEFINED_ID) cerr<<"Undefined destination of type " << SPtype2string(sptype)<<endl;
     
     return id_dest;
 }

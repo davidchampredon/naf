@@ -93,7 +93,8 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
              linked < size_sp[k] &&
              cnt < n_indiv; )
         {
-            float age = indiv[first_id_indiv + cnt].get_age();
+            //float age = indiv[first_id_indiv + cnt].get_age();
+            float age = indiv[cnt].get_age(); // <-- no 'first_id_indiv' for the index of vector ('first_id_indiv' is just for ID)
             
             // DEBUG
             //cout << SPtype2string(sp_type) << ": SP_"<<first_id_sp + k <<"  ; first_id_sp = "<<first_id_sp << " k = "<<k << endl;
@@ -185,8 +186,19 @@ void assign_age_in_households(vector<socialPlace>& hh,
             uint age = pr.sample(1, seed++)[0];
             
             // Assign the age to the linked individual:
+
+            // 1) Retrieve the ID of the ith individual in this household
             ID id_tmp = hh[k].get_linked_indiv_id(i);
-            indiv[id_tmp].set_age(age); // <-- at the moment of construction, ID=position in vector (no need to find the position of the ID)
+            
+            // 2) Retrieve its position in the 'indiv' vector
+            uint pos  = 0;
+            while (indiv[pos].get_id() != id_tmp && pos<indiv.size()) {
+                pos++;
+            }
+            stopif(pos==indiv.size(),"Individual ID "+ to_string(id_tmp) +" not found.");
+
+            // 3) assign age
+            indiv[pos].set_age(age);
         }
     }
 }
@@ -253,7 +265,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         // get rid of excess individuals:
         keep_indiv_with_household(indiv);
         
-        first_id_sp += (uint) sp_hh.size();
+        first_id_sp += (uint) sp_hh.size(); // <-- make sure ID of social places do not overlap within _and_ across area units
         
         float age_min_wrk = 18.0;
         float age_max_wrk = 70.0;
@@ -294,13 +306,10 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                  age_min_school,
                                                                  age_max_school);
         
-        first_id_sp += (uint) sp_school.size() ;
-        vector<socialPlace> sp_other = create_other_socialPlaces(n_other[a],
-                                                                 first_id_sp,
-                                                                 D_size_other,
-                                                                 AU[a]);
+       
         
-        first_id_sp += (uint) sp_other.size();
+        first_id_sp += (uint) sp_school.size();
+        
         vector<socialPlace> sp_hosp = create_socialPlaces_size(SP_hospital,
                                                                n_hosp[a],
                                                                first_id_sp,
@@ -308,13 +317,22 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                D_size_hosp,
                                                                AU[a],
                                                                indiv);
-        first_id_sp += (uint) sp_hosp.size() ; // <-- makes sure sp_ids are incremented for the next AU iteration.
+        
+        first_id_sp += (uint) sp_hosp.size() ;
+        
+        vector<socialPlace> sp_other = create_other_socialPlaces(n_other[a],
+                                                                 first_id_sp,
+                                                                 D_size_other,
+                                                                 AU[a]);
+        
+        first_id_sp += (uint) sp_other.size() ; // <-- makes sure sp_ids are incremented for the next AU iteration.
 
         
         populate_households(sp_hh, indiv);
         
+        // Put all social places of
+        // the area unit into one container:
         vector<vector<socialPlace> > tmp;
-        
         tmp.push_back(sp_hh);
         tmp.push_back(sp_wrk);
         tmp.push_back(sp_pubt);
@@ -322,17 +340,22 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         tmp.push_back(sp_hosp);
         tmp.push_back(sp_other);
         
+        // Transform the container into one tall vector:
         vector<socialPlace> tmp2 = melt(tmp);
         check_sp_integrity(tmp2);
 
+        // Increase the starting value of IDs for
+        // individuals of the next area unit:
         first_id_indiv_au += indiv.size();
         
-        
+        // store the tall containers for each area unit:
         y.push_back(tmp2);
     }
+    // Transform the container of all social places in
+    // all area units into one tall vector:
     vector<socialPlace> x = melt(y);
-    
     check_sp_integrity(x);
+    
     return x;
 }
 
@@ -383,9 +406,7 @@ void assign_schedules(vector<socialPlace> & W,
             if (3.0 < age && age < 18.0) {
                 W[k].set_schedule_indiv(i,sched[s_student]);
             }
-            else if (age > 18.0){
-
-                
+            else if (age > 18.0){                
                 W[k].set_schedule_indiv(i,sched[s_worker_sed]);
             }
         }

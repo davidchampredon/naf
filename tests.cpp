@@ -27,7 +27,7 @@ void main_run_test(){
     MP.add_prm_string("doh_distrib", "exp");
     
     MP.add_prm_double ("dol_mean", 2.0);
-    MP.add_prm_double ("doi_mean", 3.789);
+    MP.add_prm_double ("doi_mean", 4.789);
     MP.add_prm_double ("doh_mean", 4.123);
     
     MP.add_prm_double ("proba_move", 1.0);
@@ -37,7 +37,7 @@ void main_run_test(){
     MP.add_prm_double ("proba_death_prm_3", 0.80);
     
     MP.add_prm_bool   ("homogeneous_contact", false);
-    MP.add_prm_double ("contact_rate", 2.0);
+    MP.add_prm_double ("contact_rate", 2.9);
     MP.add_prm_uint   ("nt", 3);
     MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
     MP.add_prm_double ("treat_doi_reduc", 1.123);
@@ -47,7 +47,7 @@ void main_run_test(){
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
-    uint i0 = 2;
+    uint i0 = 20;
     
     _RANDOM_GENERATOR.seed(123);
     
@@ -67,15 +67,15 @@ void main_run_test(){
     // ================================================================
     
     // Area Units
-    vector<ID> id_au {0}; //2,3};
-    vector<string> name_au {"AUone"}; //, "AUtwo"}; //, "AUthree", "AUfour"};
+    vector<ID> id_au {0,1}; //2,3};
+    vector<string> name_au {"AUone", "AUtwo"}; //, "AUthree", "AUfour"};
     ID id_region = 0;
     string regionName = "RegionOne";
     vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
     
     // Households sizes
     vector<uint> hh_size {1,2,3};
-    vector<double> hh_size_proba {0.3, 0.5, 0.2};
+    vector<double> hh_size_proba {0.2, 0.5, 0.30};
     discrete_prob_dist<uint> D_size_hh(hh_size, hh_size_proba);
     D_size_hh.display();
     
@@ -155,12 +155,17 @@ void main_run_test(){
     };
     
     // number of each social place type
-    vector<uint> n_hh       {50}; //, 20};     //{5000,2500,1000,900};
-    vector<uint> n_wrk      {30}; //, 33};         //{10, 5, 3, 2};
-    vector<uint> n_pubt     {40}; //,30};          //{7,2,1,0};
-    vector<uint> n_school   {20}; //,20};
-    vector<uint> n_hosp     {1}; //,1};
-    vector<uint> n_other    {100}; //,50};       //{1000,500,250,200};
+    vector<uint> n_hh       {800, 300};     //{5000,2500,1000,900};
+    // WARNING:
+    // make sure there are enough social places
+    // of type different from 'household',
+    // else some individual will not have destinations
+    // and the code will crash.
+    vector<uint> n_wrk      {800, 300};         //{10, 5, 3, 2};
+    vector<uint> n_pubt     {800,300};          //{7,2,1,0};
+    vector<uint> n_school   {80,40};
+    vector<uint> n_hosp     {1,1};
+    vector<uint> n_other    {300,100};       //{1000,500,250,200};
     
     
     // ================================================================
@@ -226,8 +231,17 @@ Simulation run_test(vector<areaUnit> auvec,
     
     sim.create_world(auvec,
                      D_size_hh, pr_age_hh,
-                     D_size_wrk, D_size_pubt, D_size_school,D_size_school, D_size_other,
-                     n_hh, n_wrk, n_pubt, n_school, n_hosp, n_other,
+                     D_size_wrk,
+                     D_size_pubt,
+                     D_size_school,
+                     D_size_hosp,
+                     D_size_other,
+                     n_hh,
+                     n_wrk,
+                     n_pubt,
+                     n_school,
+                     n_hosp,
+                     n_other,
                      sched);
     
     sim.set_horizon(horizon);
@@ -247,13 +261,22 @@ Simulation run_test(vector<areaUnit> auvec,
     
     // Seed infection(s) in world:
     vector<ID> id_pres = at_least_one_indiv_present(sim.get_world());
-    vector<ID> sp_initially_infected {id_pres[0]};
-    vector<uint> I0 {i0};
+
+    vector<ID> sp_initially_infected;
+    vector<uint> I0;
+    for(uint m=0; m<i0; m++){
+        // Randomly select where infections are seeded
+        std::uniform_int_distribution<uint> unif(0,(uint)id_pres.size());
+        uint idx_rnd = unif(_RANDOM_GENERATOR);
+        sp_initially_infected.push_back(id_pres[idx_rnd]);
+        I0.push_back(1);
+    }
     sim.define_all_id_tables();
     sim.seed_infection(sp_initially_infected, I0);
     
+    // DELETE WHEN SURE:
     // Assign hospitals for all individuals:
-    sim.assign_hospital_to_individuals();
+    // sim.assign_hospital_to_individuals();
     
     // Interventions:
     sim.add_intervention(interv);

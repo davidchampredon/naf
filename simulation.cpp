@@ -64,7 +64,11 @@ void Simulation::create_world(vector<areaUnit> AU,
     // Create social places:
     
     world W = build_world(AU, D_size_hh, pr_age_hh,
-                          D_size_wrk, D_size_pubt, D_size_school, D_size_hosp, D_size_other,
+                          D_size_wrk,
+                          D_size_pubt,
+                          D_size_school,
+                          D_size_hosp,
+                          D_size_other,
                           n_hh, n_wrk, n_pubt, n_school, n_hosp, n_other);
     
     set_world(W);
@@ -874,11 +878,6 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
                 {
                     // Retrieve its actual destination
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
-                    
-                    //DEBUG
-                    if(id_dest==72){
-                        double dum=0;
-                    }
                       
                     stopif(id_dest==__UNDEFINED_ID,
                            "Undefined destination for indiv ID_" + to_string(_world[k].get_indiv(i).get_id()));
@@ -1837,38 +1836,43 @@ void Simulation::hospitalize(){
     
     for (uint k=0; k<_world.size(); k++)
     {
-        uint nIs = _world[k].get_n_Is();
-        
-        stopif(nIs != _world[k]._indiv_Is.size(), "Book keeping issue with Is!");
-        
-        // * * * IMPORTANT * * *
-        // Must run this loop
-        // in _descending_ order, else
-        // it messes up the pointers vector deletion
-        for (uint i=nIs;  (i--) >0;) {
+        if(_world[k].get_type() != SP_hospital)
+        {
+            uint nIs = _world[k].get_n_Is();
             
-            // If time to hospitalize:
-            if (!_world[k]._indiv_Is[i]-> is_hosp() &&
-                _world[k]._indiv_Is[i]-> willbe_hosp() &&
-                _world[k]._indiv_Is[i]-> time_to_hospitalize() &&
-                !_world[k]._indiv_Is[i]->is_discharged())
-            {
-                // set the hospitalization flag for this individual
-                _world[k]._indiv_Is[i]->set_is_hosp(true);
-                _world[k]._indiv_Is[i]->set_doh(SUPERTINY);
+            stopif(nIs != _world[k]._indiv_Is.size(), "Book keeping issue with Is!");
+            
+            // * * * IMPORTANT * * *
+            // Must run this loop
+            // in _descending_ order, else
+            // it messes up the pointers vector deletion
+            for (uint i=nIs;  (i--) >0;) {
                 
-                ID id_sp_hospital = _world[k]._indiv_Is[i]->get_id_sp_hospital();
-                ID id_indiv = _world[k]._indiv_Is[i]->get_id();
-                uint pos_indiv = _world[k].find_indiv_pos(id_indiv);
-                
-                // update counters
-                _n_H++;
-                _world[id_sp_hospital].increment_n_H();
-                
-                
-                // Move individual to its linked SP_hospital
-                move_one_individual(pos_indiv, k, id_sp_hospital);
-                //                cout <<" DEBUG: indiv ID_"<<to_string(id_indiv)<<"  hospitalized" <<endl;
+                // If time to hospitalize:
+                if (!_world[k]._indiv_Is[i]-> is_hosp() &&
+                    _world[k]._indiv_Is[i]-> willbe_hosp() &&
+                    _world[k]._indiv_Is[i]-> time_to_hospitalize() &&
+                    !_world[k]._indiv_Is[i]->is_discharged())
+                {
+                    // set the hospitalization flag for this individual
+                    _world[k]._indiv_Is[i]->set_is_hosp(true);
+                    _world[k]._indiv_Is[i]->set_doh(SUPERTINY);
+                    
+                    ID id_sp_hospital = _world[k]._indiv_Is[i]->get_id_sp_hospital();
+                    ID id_indiv = _world[k]._indiv_Is[i]->get_id();
+                    uint pos_indiv = _world[k].find_indiv_pos(id_indiv);
+                    
+                    stopif(id_sp_hospital==__UNDEFINED_ID,
+                           "Individual ID "+to_string(id_indiv)+" not linked to a hospital.");
+                    
+                    // update counters
+                    _n_H++;
+                    _world[id_sp_hospital].increment_n_H();
+                    
+                    // Move individual to its linked SP_hospital
+                    move_one_individual(pos_indiv, k, id_sp_hospital);
+                    // cout <<" DEBUG: indiv ID_"<<to_string(id_indiv)<<"  hospitalized" <<endl;
+                }
             }
         }
     }
@@ -1922,7 +1926,7 @@ void Simulation::discharge_hospital(uint idx_timeslice){
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
                     
                     stopif(id_dest==__UNDEFINED_ID,
-                           "Undefined destination for indiv ID_" + to_string(id_indiv));
+                           "Discharge hopital: Undefined destination for indiv ID_" + to_string(id_indiv));
                     
                     if ( id_dest!=k )
                     { move_one_individual(pos_indiv, k, id_dest); }
