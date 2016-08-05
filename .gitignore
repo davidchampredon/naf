@@ -24,3 +24,7 @@ Rlibrary/Rplots.pdf
 *.bbl
 
 *.blg
+
+*.zip
+
+Documentation/figures/*.key/Data/*
