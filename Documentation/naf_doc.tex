@@ -3,7 +3,7 @@
 
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage[a4paper, margin=1.5cm]{geometry}
+\usepackage[a4paper, margin=1.75cm]{geometry}
 %\usepackage{mathtools}
 \usepackage{graphicx}
 
@@ -34,8 +34,8 @@
 \newcommand{\one}[1]{\textbf{\large{1}}_{#1}}
 \newcommand{\warning}[1]{\textbf{\textcolor{OrangeRed}{#1}}}
 \newcommand{\note}[1]{\textit{\textcolor{Grey}{Note: #1}}}
-\newcommand{\eg}{\textit{e.g.}}
-\newcommand{\ie}{\textit{i.e.}}
+\newcommand{\eg}{\textit{e.g.}\xspace}
+\newcommand{\ie}{\textit{i.e.}\xspace}
 \newcommand{\naf}{\textsf{NAF}\xspace}
 
 
@@ -73,21 +73,53 @@ The programming language for the model is C++. The executable is wrapped in R, m
 \naf is implemented with a spatial structure, and its fundamental spatial unit is called a ``social place''. It represents real world locations where individuals may have relevant contacts for disease transmission (\eg households, schools, public transportations, etc). Because all types of such social places cannot be explicitly described in the model, a social place typed ``other'' is used for all other real-world locations.
 In order to have a similar hierarchical structure as real world data, social places are gathered in ``area units'', which are themselves gathered in ``regions''.
 
+The size of a social place, that is the number of linked individuals, is pre-specified with a distribution given as an input. The size distribution is typically a histogram taken from national statistics, when available. 
+
+
 
 
 \subsection{Individuals}
 
-Individuals are uniquely identified in the model with an identification number (ID). These individuals are ``linked'' to social places. A link means that the individual will eventually visit and have contacts in this social place (according to its schedule, see details later).
-All individuals are linked to a social place of type  household. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace. 
+Individuals are uniquely identified in the model with an identification number (ID). The modelled features of an individual are its age, immunity to the disease and frailty. Immunity and frailty are modelled as real number between 0 and 1. They determine respectively the risk of acquiring the disease and of hospitalization. Immunity and frailty can be changed by vaccination and  treatment.
+
+These individuals are ``linked'' to social places. A link means that the individual will eventually visit and have contacts in this social place (according to its schedule, see details later).
+All individuals are linked to a social place of type ``household''. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace. 
+
+
+\subsection{Population construction}
+
+The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All household have at least an individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child.
+
+Construction of other social places is more straightforward. Individuals are assigned randomly to workplaces, schools, public transportation, etc. based on their features (\eg age, distance from household \note{not implemented yet}). 
+
+Only social places tagged as ``other'' do not have individuals linked to them, because their purpose is to be visited randomly. 
+
 
 
 \section{Simulator}
 
-\subsection{Spatial movements}
+\subsection{Schedules and Spatial movements}
+
+Every individual is assigned a daily ``schedule'' that will determine which social place the individual should visit at a given time of the day. There is a pre-specified probability that the visit actually occurs (based on the individual features, \eg symptomatic infection will reduce the probability \note{not fully implemented yet}).
+
+There is little mixing if an individual would just go back and forth between its household and workplace for example. But social places like ``other'' or ``public transportation'' are supposed to bring some external mixing.
+
 
 \subsection{Transmission process}
 
+Individuals visit a social place during a period that is determined by the time slice of their schedule. During this visit, interaction with other individuals are modelled only if it involves a potential transmission. 
+
+When an infectious individual is present in a social place, a pre-specified contact rate will determine the number of contacts it will have during its time in that social place. The contact rate is drawn from a Poisson distribution with a density itself also drawn from an exponential distribution. The fact the intensity is exponentially distributed allows for super-spreading events. The intensity distribution is also parameterized based on the features of individual and of the social place (for example, larger for young ages and in public transports).
+
+Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts. The probability of actual transmission is the product of two probabilities. The probability the contact from the infectious individual is infectious enough depends on the symptomatic status. The probability the susceptible contact acquires the disease is based on its immunity index. 
+
+
 \section{Interventions}
+
+Antiviral treatment and vaccination are implemented. 
+
+
+
 
 
 
