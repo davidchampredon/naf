@@ -97,7 +97,7 @@ All individuals are linked to a social place of type ``household''. Link to othe
 
 \subsection{Population construction}
 
-The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All household have at least an individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child. There cannot be an empty household or an individual without a link to a household.
+The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All household have at least one individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child. There cannot be an empty household or an individual without a link to a household.
 
 Construction of other social places is more straightforward. Individuals are assigned randomly to workplaces, schools, public transportation, etc. based on their features (\eg age, distance from household \note{not implemented yet}). 
 
@@ -228,8 +228,30 @@ Adherence to treatment -- especially for long treatment durations -- is an issue
 Influenza vaccine seems to be effective at reducing disease symptoms and severity, if infected later (at least 10 days later?).
 
 
+\section{Performance}
 
-\section{Tests performed}
+\note{this section is not completed...}
+
+
+\begin{table}[htdp]
+\caption{Computing time on one CPU (3.2 GHz, 8GB memory) }
+\begin{center}
+\begin{tabular}{|ccc|}
+\hline
+Num. Indiv. & Num. SP & time\\
+\hline
+4600 & 67 & 11 sec\\
+9200 & 137 & 21 sec\\
+
+\hline
+\end{tabular}
+\end{center}
+\label{default}
+\end{table}%
+
+
+
+\section{Tests}
 
 \note{this section is not completed...}
 
