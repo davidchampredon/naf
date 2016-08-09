@@ -15,11 +15,17 @@ void stopif(bool condition, string error_msg,
 {
 	if (condition)
 	{
-		cerr << endl << " *=*=*=*=*=*=* ERROR *=*=*=*=*=*=* " << endl<<endl;
+        cerr << endl;
+		cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* ";
+        cerr << endl << " *=*=*=*=*=*=*  NAF ERROR  *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* ";
+        cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* ";
+        cerr << endl << endl;
 		cerr<<"In function: "<<string(ff)<<endl<<endl;
 		cerr << error_msg <<endl;
-		cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* " << endl;
-		exit(error_code);
+		cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* ";
+        cerr <<	endl <<	" *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=* " << endl;
+        throw error_code;
+		//exit(error_code);
 	}
 }
 

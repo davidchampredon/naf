@@ -855,13 +855,7 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
     std::uniform_real_distribution<double> unif(0.0,1.0);
     
     for (int k=0; k<N; k++)
-    {
-        // DEBUG
-        if (k==72){
-            double dummy = 0;
-        }
-        
-        
+    {        
         uint n = (uint)_world[k].get_size();
         if(n>0){
             

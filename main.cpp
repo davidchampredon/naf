@@ -34,11 +34,15 @@ int main(int argc, const char * argv[]) {
     
     system("pwd");
     
-    main_run_test();
-    
-    // main_test_naf();
-    
+    try{
+        main_run_test();
+    }
+    catch (...) {
+        std::cout << endl <<  "   ~~~~~ Standard C++ exception caught ~~~~~ "<<endl <<endl;
+    }
+
     // Previous tests:
+    // main_test_naf(); 
     // main_test_SEIR_vs_ODE();
     // main_test_move_2_sp();
     

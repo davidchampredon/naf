@@ -126,10 +126,12 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
     }
     if(sp_not_linked>0){
         cout << endl;
-        cout << "* * WARNING * * \n Not enough individuals supplied to create ";
-        cout << sp_not_linked <<" social places of type ";
-        cout << SPtype2string(sp_type) ;
-        cout << " of the "<< num_sp <<" requested."<< endl;
+        cout << "* * WARNING * * \n ";
+        cout << sp_not_linked;
+        cout << " out of the "<< num_sp <<" ";
+        cout << SPtype2string(sp_type) << " social places requested";
+        cout <<" were not created/completed because of lack of individuals.";
+        cout << endl;
     }
     
     cout << "Social places of type " + SPtype2string(sp_type) + " completed." <<endl;
@@ -242,7 +244,6 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
     
     // Variables that make sure id (sp & indiv) do not overlap across Area Units!
     uint first_id_sp = 0;       // make sure no overlap for id_sp _within_ an Area Unit
-    uint first_id_sp_au = 0;    // make sure no overlap for id_sp _across_ Area Units
     uint first_id_indiv_au = 0;    // make sure no overlap for id_indiv _across_ Area Units
     
     for (uint a=0; a<AU.size(); a++)

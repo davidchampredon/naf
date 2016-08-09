@@ -30,7 +30,7 @@ LINK_LIB_GPP :=    #-lgsl -lgslcblas # <--- For Earnservs
 
 SOURCE_LIST := areaUnit.cpp build_world.cpp population.cpp\
 discrete_prob_dist.cpp \
-simulation.cpp dcDataFrame.cpp\
+simulator.cpp dcDataFrame.cpp\
 dcMatrix.cpp dcTools.cpp\
 disease.cpp globalvar.cpp\
 intervention.cpp\

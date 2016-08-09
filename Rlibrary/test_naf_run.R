@@ -124,7 +124,7 @@ world.prm[['hosp_size_proba']] <- c(1)
 world.prm[['other_size']] <- c(100,200,300)
 world.prm[['other_size_proba']] <- c(0.4,0.4,0.2)
 
-sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)
+sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 13.0/24)
 
 
 ###  ==== Intervention parameters ====
@@ -140,19 +140,19 @@ interv.prm[['interv_cvg_max_prop']] <- 0.9999
 
 ### ==== Run Simulation ====
 
-
-res <- naf_run(prm, 
-			   simul.prm, 
-			   interv.prm, 
-			   world.prm, 
-			   sched.prm)
-
+try(
+	res <- naf_run(prm, 
+				   simul.prm, 
+				   interv.prm, 
+				   world.prm, 
+				   sched.prm)
+)
 t1 <- as.numeric(Sys.time())
 
 ts <- as.data.frame(res[['time_series']])
 ts_census <- as.data.frame(res[['time_series_census']])
 
-# JUST ONE SOCIAL PLACE: pop <- as.data.frame(res[['population_final']])
+# JUST ONE SOCIAL PLACE--->   pop <- as.data.frame(res[['population_final']])
 world0 <- res[['world']]
 z <- lapply(world0, as.data.frame)
 pop <- do.call('rbind',z)
