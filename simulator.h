@@ -1,5 +1,5 @@
 //
-//  simulation.h
+//  simulator.h
 //  naf
 //
 //  Created by David CHAMPREDON on 2016-07-06.
@@ -22,7 +22,7 @@
 using world = vector<socialPlace>;
 
 
-class Simulation{
+class Simulator{
 
 protected:
 	
@@ -71,7 +71,7 @@ public:
 	
 	// Constructors
 	void base_constructor();
-	Simulation();
+	Simulator();
 
 	// Pseudo constructors:
     

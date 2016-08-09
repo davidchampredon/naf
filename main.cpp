@@ -17,7 +17,7 @@
 
 #include "individual.h"
 #include "socialPlace.h"
-#include "simulation.h"
+#include "simulator.h"
 #include "dcTools.h"
 #include "discrete_prob_dist.h"
 

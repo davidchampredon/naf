@@ -129,7 +129,7 @@ string individual::_disease_status_update(double dt){
     // because hospitalization requires
     // moving the individual to an
     // 'hospital' social place,
-    // so that's dealt with at the 'Simulation' level.
+    // so that's dealt with at the 'Simulator' level.
     
     
     // From 'I' to 'R'

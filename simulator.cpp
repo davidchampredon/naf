@@ -6,10 +6,10 @@
 //  Copyright (c) 2016 David CHAMPREDON. All rights reserved.
 //
 
-#include "simulation.h"
+#include "simulator.h"
 
 
-void Simulation::base_constructor(){
+void Simulator::base_constructor(){
     
     _n_E  = 0;
     _n_Ia = 0;
@@ -36,12 +36,12 @@ void Simulation::base_constructor(){
 }
 
 
-Simulation::Simulation(){
+Simulator::Simulator(){
     base_constructor();
 }
 
 
-void Simulation::create_world(vector<areaUnit> AU,
+void Simulator::create_world(vector<areaUnit> AU,
                               discrete_prob_dist<uint> D_size_hh,     // Households sizes
                               vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
                               discrete_prob_dist<uint> D_size_wrk,
@@ -89,7 +89,7 @@ void Simulation::create_world(vector<areaUnit> AU,
 
 
 
-void Simulation::build_single_world(uint n_indiv){
+void Simulator::build_single_world(uint n_indiv){
     /// Build a very simple world:
     /// one social place with 'n_indiv' individuals.
     /// USED FOR TEST
@@ -183,7 +183,7 @@ void Simulation::build_single_world(uint n_indiv){
 }
 
 
-void Simulation::build_test_2_sp(uint n_indiv){
+void Simulator::build_test_2_sp(uint n_indiv){
     /// Build a world with only 2 social places
     /// to test movements
     
@@ -292,7 +292,7 @@ void Simulation::build_test_2_sp(uint n_indiv){
 
 
 
-void Simulation::build_test_hospitalization(uint n_indiv){
+void Simulator::build_test_hospitalization(uint n_indiv){
     /// Build a world
     /// to test hospitalization and movements
     
@@ -423,7 +423,7 @@ void Simulation::build_test_hospitalization(uint n_indiv){
 
 
 
-void Simulation::build_test(uint n_indiv){
+void Simulator::build_test(uint n_indiv){
     /// Build a world for test
     
     cout << endl << "Building test world..."<<endl;
@@ -553,7 +553,7 @@ void Simulation::build_test(uint n_indiv){
 
 
 
-void Simulation::build_test_world(double sizereduction){
+void Simulator::build_test_world(double sizereduction){
     
     /// Build a test world with individuals LINKED and PRESENT to social places.
     /// NOTE: this function is for test, it will eventually be useless...
@@ -675,7 +675,7 @@ void Simulation::build_test_world(double sizereduction){
 }
 
 
-void Simulation::time_update(double dt){
+void Simulator::time_update(double dt){
     /// Make all relevant updates when time is advanced by 'dt'
     
     // Main timer:
@@ -689,14 +689,14 @@ void Simulation::time_update(double dt){
 }
 
 
-void Simulation::test(){
+void Simulator::test(){
     
     //    _world[0]._indiv_S[0]->set_immunity(0.12345);
     
 }
 
 
-void Simulation::run(){
+void Simulator::run(){
     /// Run the simulated epidemic
     
     
@@ -799,7 +799,7 @@ void Simulation::run(){
     }
     
     if(debug_mode){
-        cout << endl << endl << "Simulation completed."<< endl;
+        cout << endl << endl << "Simulator completed."<< endl;
         
         cout << "time series of incidence:"<<endl;
         displayVector(_ts_incidence);
@@ -815,12 +815,12 @@ void Simulation::run(){
 }
 
 
-void Simulation::set_world(world w){
+void Simulator::set_world(world w){
     _world = w;
     update_pop_count();
 }
 
-void Simulation::set_disease(const disease &d){
+void Simulator::set_disease(const disease &d){
     /// Set the disease 'd' to all individuals in all social places
     for (uint k=0; k<_world.size(); k++) {
         _world[k].set_disease_to_all_indiv(d);
@@ -828,7 +828,7 @@ void Simulation::set_disease(const disease &d){
 }
 
 
-void Simulation::move_one_individual(uint pos_indiv, ID from, ID to){
+void Simulator::move_one_individual(uint pos_indiv, ID from, ID to){
     /// Move the individual in position "pos_indiv" in thevector "_indiv"
     /// from one social place to another.
     /// (social places are identified by their IDs/position)
@@ -846,7 +846,7 @@ void Simulation::move_one_individual(uint pos_indiv, ID from, ID to){
 }
 
 
-void Simulation::move_individuals_sched(uint idx_timeslice,
+void Simulator::move_individuals_sched(uint idx_timeslice,
                                         double proba){
     /// Move individuals across social places according to their schedule
     
@@ -912,7 +912,7 @@ void Simulation::move_individuals_sched(uint idx_timeslice,
 } // end-function
 
 
-void Simulation::move_individuals(const SPtype sptype, double proba){
+void Simulator::move_individuals(const SPtype sptype, double proba){
     
     /// Move individuals across social places
     
@@ -954,7 +954,7 @@ void Simulation::move_individuals(const SPtype sptype, double proba){
 }
 
 
-vector<uint> Simulation::draw_n_contacts(uint k,
+vector<uint> Simulator::draw_n_contacts(uint k,
                                          double dt,
                                          string infectious_type){
     /// Draw the (random) number of contacts
@@ -997,7 +997,7 @@ vector<uint> Simulation::draw_n_contacts(uint k,
 
 
 
-void Simulation::set_sp_other(){
+void Simulator::set_sp_other(){
     /// Make the inventory of all 'sp_other'
     /// social places and record in '_sp_other'
     
@@ -1009,7 +1009,7 @@ void Simulation::set_sp_other(){
 }
 
 
-socialPlace* Simulation::pick_rnd_sp_other(){
+socialPlace* Simulator::pick_rnd_sp_other(){
     /// Choose randomly a social place
     /// of type 'other'
     
@@ -1019,7 +1019,7 @@ socialPlace* Simulation::pick_rnd_sp_other(){
     return _sp_other[rnd_idx];
 }
 
-double Simulation::calc_proba_transmission(individual *infectious,
+double Simulator::calc_proba_transmission(individual *infectious,
                                            individual *susceptible){
     /// Calculate probability of transmission given contact
     /// between an infectious and susceptible individuals
@@ -1052,7 +1052,7 @@ double Simulation::calc_proba_transmission(individual *infectious,
 
 
 
-double Simulation::calc_proba_symptomatic(float immunity, float frailty){
+double Simulator::calc_proba_symptomatic(float immunity, float frailty){
     /// Probability to be symptomatic given
     /// an individual's immunity and frailty
     
@@ -1062,7 +1062,7 @@ double Simulation::calc_proba_symptomatic(float immunity, float frailty){
 }
 
 
-double Simulation::calc_proba_hospitalized(float frailty){
+double Simulator::calc_proba_hospitalized(float frailty){
     /// Probability to be symptomatic given
     /// an individual's frailty
     
@@ -1072,7 +1072,7 @@ double Simulation::calc_proba_hospitalized(float frailty){
 }
 
 
-double Simulation::calc_proba_death(float frailty){
+double Simulator::calc_proba_death(float frailty){
     /// Probability to die at the end of hospitalization period.
     
     // TO DO: more sophisticated!
@@ -1085,7 +1085,7 @@ double Simulation::calc_proba_death(float frailty){
 
 
 
-vector< vector<uint> > Simulation::draw_contacted_S(uint k,
+vector< vector<uint> > Simulator::draw_contacted_S(uint k,
                                                     vector<uint> n_contacts,
                                                     string infectious_type){
     /// Randomly select the positions in '_indiv_S'
@@ -1119,7 +1119,7 @@ vector< vector<uint> > Simulation::draw_contacted_S(uint k,
 }
 
 
-vector< vector<uint> > Simulation::transmission_attempts(uint k,
+vector< vector<uint> > Simulator::transmission_attempts(uint k,
                                                          vector< vector<uint> > selected_S,
                                                          string infectious_type){
     /// Attempts transmission on all selected susceptible individuals
@@ -1171,7 +1171,7 @@ vector< vector<uint> > Simulation::transmission_attempts(uint k,
 }
 
 
-void Simulation::transmission_wiw(int k,
+void Simulator::transmission_wiw(int k,
                                   vector<vector<uint> > selected_S,
                                   vector<vector<uint> > transm_success,
                                   string infectious_type){
@@ -1204,7 +1204,7 @@ void Simulation::transmission_wiw(int k,
     } //end-for-i
 }
 
-uint Simulation::transmission_activation(int k,
+uint Simulator::transmission_activation(int k,
                                          vector< vector<uint> > selected_S,
                                          vector< vector<uint> > transm_success){
     /// Activate the succesful transmission attempts:
@@ -1286,7 +1286,7 @@ uint Simulation::transmission_activation(int k,
 
 
 
-uint Simulation::transmission_process(uint k, double dt, string infectious_type){
+uint Simulator::transmission_process(uint k, double dt, string infectious_type){
     /// Full transmission process:
     /// draw number of contacts, identify susceptible contacted,
     /// attempts transmission, activate successful attempts.
@@ -1327,7 +1327,7 @@ uint Simulation::transmission_process(uint k, double dt, string infectious_type)
 }
 
 
-uint Simulation::transmission_oneSP(uint k,
+uint Simulator::transmission_oneSP(uint k,
                                     double dt){
     /// Performs transmission within the k^th social place.
     /// Returns incidence for _this_ social place, during the time step 'dt'.
@@ -1358,7 +1358,7 @@ uint Simulation::transmission_oneSP(uint k,
 }
 
 
-void Simulation::transmission_world(double timeslice){
+void Simulator::transmission_world(double timeslice){
     /// Simulates disease transmissions in the whole world (all social places)
     
     uint incidence = 0;
@@ -1369,7 +1369,7 @@ void Simulation::transmission_world(double timeslice){
 }
 
 
-uint Simulation::census_total_alive(){
+uint Simulator::census_total_alive(){
     /// Counts all individuals that are alive
     uint cnt = 0;
     for(int k=0; k<_world.size(); k++) cnt += _world[k].census_alive();
@@ -1377,7 +1377,7 @@ uint Simulation::census_total_alive(){
 }
 
 
-uint Simulation::prevalence(){
+uint Simulator::prevalence(){
     /// Prevalence in the whole world
     
     uint cnt = 0;
@@ -1386,7 +1386,7 @@ uint Simulation::prevalence(){
 }
 
 
-uint Simulation::population_size(){
+uint Simulator::population_size(){
     
     uint s = 0;
     for(int i=0; i<_world.size(); i++) s+=_world[i].get_size();
@@ -1394,7 +1394,7 @@ uint Simulation::population_size(){
 }
 
 
-void Simulation::display_split_pop_present(){
+void Simulator::display_split_pop_present(){
     
     cout<<endl<<"------------"<<endl;
     uint s = 0;
@@ -1411,7 +1411,7 @@ void Simulation::display_split_pop_present(){
     
 }
 
-void Simulation::display_split_pop_linked(){
+void Simulator::display_split_pop_linked(){
     cout<<endl<<"------------"<<endl;
     uint s = 0;
     for(int i=0;i<_world.size();i++){
@@ -1424,7 +1424,7 @@ void Simulation::display_split_pop_linked(){
 }
 
 
-void Simulation::seed_infection(vector<ID> id_sp, vector<uint> I0){
+void Simulator::seed_infection(vector<ID> id_sp, vector<uint> I0){
     /// Seed infection in specified socialplaces, with specified initial number of infectious indiv
     
     stopif(id_sp.size() != I0.size(), "vectors must be same size");
@@ -1457,7 +1457,7 @@ void Simulation::seed_infection(vector<ID> id_sp, vector<uint> I0){
 }
 
 
-void Simulation::displayInfo_indiv(){
+void Simulator::displayInfo_indiv(){
     /// Display informations on all individuals, in all social places:
     
     for (uint k=0; k<_world.size(); k++) {
@@ -1468,7 +1468,7 @@ void Simulation::displayInfo_indiv(){
 }
 
 
-dcDataFrame Simulation::timeseries(){
+dcDataFrame Simulator::timeseries(){
     
     dcDataFrame df(_ts_times,"time");
     
@@ -1488,7 +1488,7 @@ dcDataFrame Simulation::timeseries(){
 
 
 
-void Simulation::update_ts_census_by_SP(){
+void Simulator::update_ts_census_by_SP(){
     /// Update the data frame recording
     /// the number of individuals in each
     /// disease stage, for every social places.
@@ -1569,7 +1569,7 @@ void Simulation::update_ts_census_by_SP(){
 }
 
 
-void Simulation::update_pop_count(){
+void Simulator::update_pop_count(){
     /// Update the count of individuals in a all
     /// stages of the disease at the 'simulation' level
     /// (social places were updated during transmission).
@@ -1592,7 +1592,7 @@ void Simulation::update_pop_count(){
 }
 
 
-void Simulation::check_book_keeping(){
+void Simulator::check_book_keeping(){
     /// Check consistency of book keeping.
     /// WARNING: FOR DEBUG ONLY, SLOWS DOWN EXECUTION!
     
@@ -1725,7 +1725,7 @@ void Simulation::check_book_keeping(){
 
 
 
-void Simulation::define_all_id_tables(){
+void Simulator::define_all_id_tables(){
     /// Define all IDs and pointers
     /// of tracked individuals
     /// in all social places.
@@ -1771,7 +1771,7 @@ void Simulation::define_all_id_tables(){
 }
 
 
-double  Simulation::draw_contact_rate(individual* indiv, uint k){
+double  Simulator::draw_contact_rate(individual* indiv, uint k){
     /// Draw the contact rate for an infectious individual
     /// in a given social place.
     
@@ -1805,7 +1805,7 @@ double  Simulation::draw_contact_rate(individual* indiv, uint k){
 
 
 
-void Simulation::assign_hospital_to_individuals(){
+void Simulator::assign_hospital_to_individuals(){
     /// Assign hospitals to individuals
     
     // TO DO: implement something more elaborated
@@ -1828,7 +1828,7 @@ void Simulation::assign_hospital_to_individuals(){
 }
 
 
-void Simulation::hospitalize(){
+void Simulator::hospitalize(){
     /// Scan all infectious symptomatic individuals
     /// and hospitalize them if they were meant to and if it's time to do so.
     
@@ -1879,7 +1879,7 @@ void Simulation::hospitalize(){
 }
 
 
-void Simulation::discharge_hospital(uint idx_timeslice){
+void Simulator::discharge_hospital(uint idx_timeslice){
     /// Scan all infectious hospitalized individuals
     /// and discharge them if duration of hospitalization > than the one drawn (_doh_drawn)
     
@@ -1938,7 +1938,7 @@ void Simulation::discharge_hospital(uint idx_timeslice){
     }
 }
 
-void Simulation::death_hospital(){
+void Simulator::death_hospital(){
     
     /// Scan all infectious hospitalized individuals
     /// and trigger death if meant to die (see '_will_die')
@@ -1994,7 +1994,7 @@ void Simulation::death_hospital(){
 
 
 
-vector<individual*> Simulation::draw_targeted_individuals(uint i,
+vector<individual*> Simulator::draw_targeted_individuals(uint i,
                                                           ID id_sp,
                                                           double dt){
     /// Draw the targeted individuals of the ith intervention,
@@ -2063,7 +2063,7 @@ vector<individual*> Simulation::draw_targeted_individuals(uint i,
 }
 
 
-void Simulation::activate_interventions(ID id_sp, double dt){
+void Simulator::activate_interventions(ID id_sp, double dt){
     /// Activate all interventions for social place 'id_sp'
     
     float treat_doi_reduc   = _modelParam.get_prm_double("treat_doi_reduc");
@@ -2097,7 +2097,7 @@ void Simulation::activate_interventions(ID id_sp, double dt){
     }
 }
 
-void Simulation::update_immunity_frailty() {
+void Simulator::update_immunity_frailty() {
     /// Update immunity and frailty of vaccinated individuals
     /// at each time step. Because vaccine takes some time
     /// to reach its full efficacy, both immunity and frailty
@@ -2136,7 +2136,7 @@ void Simulation::update_immunity_frailty() {
 
 
 
-bool Simulation::at_least_one_vaccination_intervention(){
+bool Simulator::at_least_one_vaccination_intervention(){
     /// Check if there is at least one vaccination among all
     /// interventions defined for this Simulator
     
@@ -2149,7 +2149,7 @@ bool Simulation::at_least_one_vaccination_intervention(){
 
 
 
-bool Simulation::at_least_one_infected(){
+bool Simulator::at_least_one_infected(){
     /// Check if there is at least one infected individual
     /// in the whole population.
     bool res = false;
@@ -2164,7 +2164,7 @@ bool Simulation::at_least_one_infected(){
 
 
 
-void Simulation::assign_dox_distribution(string dol_distrib,
+void Simulator::assign_dox_distribution(string dol_distrib,
                                          string doi_distrib,
                                          string doh_distrib){
     
@@ -2180,7 +2180,7 @@ void Simulation::assign_dox_distribution(string dol_distrib,
 }
 
 
-void Simulation::assign_immunity(){
+void Simulator::assign_immunity(){
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();
@@ -2192,7 +2192,7 @@ void Simulation::assign_immunity(){
     }
 }
 
-void Simulation::assign_frailty(){
+void Simulator::assign_frailty(){
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();

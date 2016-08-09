@@ -172,7 +172,7 @@ void main_run_test(){
     //     RUN SIMULATION
     // ================================================================
 
-    Simulation sim = run_test(auvec,
+    Simulator sim = run_test(auvec,
                               D_size_hh,
                               D_size_wrk,
                               D_size_pubt,
@@ -197,7 +197,7 @@ void main_run_test(){
 }
 
 
-Simulation run_test(vector<areaUnit> auvec,
+Simulator run_test(vector<areaUnit> auvec,
                     discrete_prob_dist<uint> D_size_hh,
                     discrete_prob_dist<uint> D_size_wrk,
                     discrete_prob_dist<uint> D_size_pubt,
@@ -226,7 +226,7 @@ Simulation run_test(vector<areaUnit> auvec,
            auvec.size() != n_other.size(),
            "Inconsistent inputs.");
     
-    Simulation sim;
+    Simulator sim;
     sim.set_modelParam(MP);
     
     sim.create_world(auvec,
@@ -290,7 +290,7 @@ Simulation run_test(vector<areaUnit> auvec,
 
 
 
-Simulation test_naf(modelParam MP,
+Simulator test_naf(modelParam MP,
                     double horizon,
                     uint n_indiv,
                     uint i0,
@@ -309,7 +309,7 @@ Simulation test_naf(modelParam MP,
     
     // Build simulation:
     
-    Simulation sim;
+    Simulator sim;
     sim.set_modelParam(MP);
     
     sim.build_test_hospitalization(n_indiv);
@@ -396,7 +396,7 @@ void main_test_naf(){
     
     // Run simulations:
     
-    Simulation sim1 = test_naf(MP, horizon, n_indiv, i0,interv_test);
+    Simulator sim1 = test_naf(MP, horizon, n_indiv, i0,interv_test);
     
     dcDataFrame pop_final = sim1.get_world()[2].export_dcDataFrame();
     pop_final.display();
@@ -408,7 +408,7 @@ void main_test_naf(){
 
 
 
-Simulation test_SEIR_vs_ODE(modelParam MP,
+Simulator test_SEIR_vs_ODE(modelParam MP,
                             double horizon,
                             uint n_indiv,
                             uint i0){
@@ -424,7 +424,7 @@ Simulation test_SEIR_vs_ODE(modelParam MP,
     
     // Build simulation:
     
-    Simulation sim;
+    Simulator sim;
     sim.set_modelParam(MP);
     sim.build_single_world(n_indiv);
     sim.set_horizon(horizon);
@@ -475,7 +475,7 @@ void main_test_SEIR_vs_ODE(){
     uint i0 = 5;
     
     _RANDOM_GENERATOR.seed(123);
-    Simulation sim1 = test_SEIR_vs_ODE(MP,horizon,n_indiv,i0);
+    Simulator sim1 = test_SEIR_vs_ODE(MP,horizon,n_indiv,i0);
     
     sim1.get_world()[0].export_dcDataFrame().display();
     sim1.timeseries().display();
@@ -484,7 +484,7 @@ void main_test_SEIR_vs_ODE(){
 
 
 
-Simulation test_move_2_sp(modelParam MP,
+Simulator test_move_2_sp(modelParam MP,
                           double horizon,
                           uint n_indiv,
                           uint i0){
@@ -500,7 +500,7 @@ Simulation test_move_2_sp(modelParam MP,
     
     // Build simulation:
     
-    Simulation sim;
+    Simulator sim;
     sim.set_modelParam(MP);
     
     sim.build_test_2_sp(n_indiv);
@@ -554,13 +554,13 @@ void main_test_move_2_sp(){
     
     
     _RANDOM_GENERATOR.seed(123);
-    Simulation sim1 = test_move_2_sp(MP, horizon, n_indiv, i0);
+    Simulator sim1 = test_move_2_sp(MP, horizon, n_indiv, i0);
 }
 
 
 
 
-Simulation test_hospitalization(modelParam MP,
+Simulator test_hospitalization(modelParam MP,
                                 double horizon,
                                 uint n_indiv,
                                 uint i0){
@@ -590,7 +590,7 @@ Simulation test_hospitalization(modelParam MP,
     
     // Build simulation:
     
-    Simulation sim;
+    Simulator sim;
     sim.set_modelParam(MP);
     sim.build_test_hospitalization(n_indiv);
     sim.set_horizon(horizon);
@@ -650,7 +650,7 @@ void main_test_hospitalization(){
     
     
     _RANDOM_GENERATOR.seed(123);
-    Simulation sim1 = test_hospitalization(MP, horizon, n_indiv, i0);
+    Simulator sim1 = test_hospitalization(MP, horizon, n_indiv, i0);
     
     dcDataFrame pop_final = sim1.get_world()[2].export_dcDataFrame();
     pop_final.display();
@@ -666,7 +666,7 @@ void test_move_transmission(){
     double horizon = 20;
     double sizereduction = 0.002; // Scale down world size compared to real world one
     
-    Simulation sim;
+    Simulator sim;
     sim.build_test_world(sizereduction);
     
     auto t1 = std::chrono::system_clock::now();

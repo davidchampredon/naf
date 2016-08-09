@@ -16,7 +16,7 @@
 #include "discrete_prob_dist.h"
 #include "globalvar.h"
 #include "individual.h"
-#include "simulation.h"
+#include "simulator.h"
 
 using namespace std;
 

@@ -11,7 +11,7 @@
 
 #include "individual.h"
 #include "socialPlace.h"
-#include "simulation.h"
+#include "simulator.h"
 #include "dcTools.h"
 #include "discrete_prob_dist.h"
 #include "disease.h"
@@ -19,7 +19,7 @@
 #include "build_world.h"
 
 
-Simulation run_test(vector<areaUnit> auvec,
+Simulator run_test(vector<areaUnit> auvec,
                     discrete_prob_dist<uint> D_size_hh,
                     discrete_prob_dist<uint> D_size_wrk,
                     discrete_prob_dist<uint> D_size_pubt,
@@ -44,7 +44,7 @@ void main_run_test();
 
 // -----------------------------------------
 void main_test_naf();
-Simulation test_naf(modelParam MP,
+Simulator test_naf(modelParam MP,
                     double horizon,
                     uint n_indiv,
                     uint i0,
@@ -55,7 +55,7 @@ Simulation test_naf(modelParam MP,
 
 // --- One single world, SEIR model -------------------
 
-Simulation test_SEIR_vs_ODE(modelParam MP,
+Simulator test_SEIR_vs_ODE(modelParam MP,
                             double horizon,
                             uint n_indiv,
                             uint i0);
@@ -66,7 +66,7 @@ void main_test_SEIR_vs_ODE();
 
 
 // --- Two SP, test movements -------------------
-Simulation test_move_2_sp(modelParam MP,
+Simulator test_move_2_sp(modelParam MP,
                           double horizon,
                           uint n_indiv,
                           uint i0);
@@ -79,7 +79,7 @@ void main_test_move_2_sp();
 
 // --- Test Hospitalization -------------------
 
-Simulation test_hospitalization(modelParam MP,
+Simulator test_hospitalization(modelParam MP,
                           double horizon,
                           uint n_indiv,
                           uint i0);

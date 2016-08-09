@@ -652,7 +652,7 @@ void socialPlace::time_update(double dt){
             // because hospitalization requires
             // moving the individual to an
             // 'hospital' social place,
-            // so that's dealt with at the 'Simulation' level.
+            // so that's dealt with at the 'Simulator' level.
         }
         
         else if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
@@ -677,12 +677,12 @@ void socialPlace::time_update(double dt){
             // because leaving hospital requires
             // moving the individual from an
             // 'hospital' social place to its scheduled social place,
-            // so that's dealt with at the 'Simulation' level.
+            // so that's dealt with at the 'Simulator' level.
         }
         else if (event == "DEATH") {
             // * * * WARNING * * *
             // DO NOT DO ANYTHING HERE (unlike other 'if' cases)
-            // because leaving hospital is dealt with at the 'Simulation' level.
+            // because leaving hospital is dealt with at the 'Simulator' level.
         }
     }
 }
