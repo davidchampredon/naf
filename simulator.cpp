@@ -750,7 +750,7 @@ void Simulator::run(){
             }
         }
         
-        //update_ts_census_by_SP();
+        // TOO SLOW: update_ts_census_by_SP();
         
         discharge_hospital(idx_timeslice);
         define_all_id_tables(); // <-- check if this is necessary here
