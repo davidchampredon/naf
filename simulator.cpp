@@ -699,7 +699,6 @@ void Simulator::test(){
 void Simulator::run(){
     /// Run the simulated epidemic
     
-    
     // Retrieve all model parameters:
     double p_move   = _modelParam.get_prm_double("proba_move");
     bool debug_mode = _modelParam.get_prm_bool("debug_mode");
@@ -719,12 +718,19 @@ void Simulator::run(){
     if(debug_mode) check_book_keeping();
     define_all_id_tables();
     
+    // Interventions
+    
+    float treat_doi_reduc   = _modelParam.get_prm_double("treat_doi_reduc");
+    float vax_imm_incr      = _modelParam.get_prm_double("vax_imm_incr");
+    float vax_frail_incr    = _modelParam.get_prm_double("vax_frail_incr");
+    float vax_lag           = _modelParam.get_prm_double("vax_lag_full_efficacy");
+    
     
     // ----- MAIN LOOP FOR TIME ------
     
     for (_current_time = 0.0; _current_time < _horizon; ) {
         
-        // Check is the is at least one infected or susceptible indivual.
+        // Check if there is at least one infected or susceptible indivual.
         // If not, stop the simulation.
         // * * WARNING * *
         // This test must be changed if immigration of cases is implemented
@@ -753,10 +759,9 @@ void Simulator::run(){
         // TOO SLOW: update_ts_census_by_SP();
         
         discharge_hospital(idx_timeslice);
-        define_all_id_tables(); // <-- check if this is necessary here
-        
+        define_all_id_tables();
         death_hospital();
-        define_all_id_tables(); // <-- check if this is necessary here
+        // DELETE WHEN SURE : define_all_id_tables(); // <-- check if this is necessary here
         
         if(p_move>0) {
             move_individuals_sched(idx_timeslice, p_move);
@@ -771,27 +776,22 @@ void Simulator::run(){
         define_all_id_tables(); // <-- check if this is necessary here
         update_pop_count(); // <-- check if this is necessary here
         
-        // Interventions
+       
+        // interventions:
+        
         for (uint k=0; k<_world.size(); k++) {
-            activate_interventions(k, dt);
+            activate_interventions(k, dt,
+                                   treat_doi_reduc,
+                                   vax_imm_incr,
+                                   vax_frail_incr,
+                                   vax_lag);
         }
         
         if(at_least_one_vaccination_intervention())
             update_immunity_frailty();
         
         // Record for time series:
-        _ts_times.push_back(_current_time);
-        _ts_incidence.push_back(_incidence);
-        _ts_prevalence.push_back(_prevalence);
-        _ts_S.push_back(_n_S);
-        _ts_E.push_back(_n_E);
-        _ts_Ia.push_back(_n_Ia);
-        _ts_Is.push_back(_n_Is);
-        _ts_H.push_back(_n_H);
-        _ts_R.push_back(_n_R);
-        _ts_D.push_back(_n_D);
-        _ts_n_treated.push_back(_n_treated);
-        _ts_n_vaccinated.push_back(_n_vaccinated);
+        timeseries_update();
         
         // Advance time:
         time_update(dt);
@@ -802,15 +802,12 @@ void Simulator::run(){
     
     if(debug_mode){
         cout << endl << endl << "Simulator completed."<< endl;
-        
         cout << "time series of incidence:"<<endl;
         displayVector(_ts_incidence);
         
         cout <<"Final size: " << sumElements(_ts_incidence)<<endl;
-        
         cout << endl << "time series of hospitalizations:"<<endl;
         displayVector(_ts_H);
-        
         cout << endl << "time series of deaths:"<<endl;
         displayVector(_ts_D);
     }
@@ -2061,13 +2058,13 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
 }
 
 
-void Simulator::activate_interventions(ID id_sp, double dt){
+void Simulator::activate_interventions(ID id_sp, double dt,
+                                       float treat_doi_reduc,
+                                       float vax_imm_incr,
+                                       float vax_frail_incr,
+                                       float vax_lag){
     /// Activate all interventions for social place 'id_sp'
     
-    float treat_doi_reduc   = _modelParam.get_prm_double("treat_doi_reduc");
-    float vax_imm_incr      = _modelParam.get_prm_double("vax_imm_incr");
-    float vax_frail_incr    = _modelParam.get_prm_double("vax_frail_incr");
-    float vax_lag           = _modelParam.get_prm_double("vax_lag_full_efficacy");
     
     for (uint i=0; i<_intervention.size(); i++) {
         
@@ -2204,7 +2201,23 @@ void Simulator::assign_frailty(){
 
 
 
-
+void Simulator::timeseries_update(){
+    /// Update eipidemiological time series
+    /// (at each time step)
+    
+    _ts_times.push_back(_current_time);
+    _ts_incidence.push_back(_incidence);
+    _ts_prevalence.push_back(_prevalence);
+    _ts_S.push_back(_n_S);
+    _ts_E.push_back(_n_E);
+    _ts_Ia.push_back(_n_Ia);
+    _ts_Is.push_back(_n_Is);
+    _ts_H.push_back(_n_H);
+    _ts_R.push_back(_n_R);
+    _ts_D.push_back(_n_D);
+    _ts_n_treated.push_back(_n_treated);
+    _ts_n_vaccinated.push_back(_n_vaccinated);
+}
 
 
 

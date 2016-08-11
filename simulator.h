@@ -131,6 +131,7 @@ public:
 	
 	void	time_update(double dt);
 	void	update_pop_count();
+    void    timeseries_update();
 	
 	// Migration
 
@@ -192,7 +193,15 @@ public:
     // Interventions
     
     void    add_intervention(intervention x) {_intervention.push_back(x);}
-    void    activate_interventions(ID id_sp, double dt);
+    void    activate_interventions(ID id_sp, double dt,
+                                   float treat_doi_reduc,
+                                   float vax_imm_incr,
+                                   float vax_frail_incr,
+                                   float vax_lag);
+    
+   
+    
+    
     void    update_immunity_frailty();
     bool    at_least_one_vaccination_intervention();
     

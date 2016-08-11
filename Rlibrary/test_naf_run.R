@@ -150,7 +150,6 @@ try(
 t1 <- as.numeric(Sys.time())
 
 ts <- as.data.frame(res[['time_series']])
-ts_census <- as.data.frame(res[['time_series_census']])
 
 # JUST ONE SOCIAL PLACE--->   pop <- as.data.frame(res[['population_final']])
 world0 <- res[['world']]
@@ -172,17 +171,6 @@ if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
 try(plot.population(pop),silent = T)
 
 try(plot.epi.timeseries(ts), silent = T)
-
-plot.tmp <- function() {
-	g <- ggplot(ts_census)
-	g <- g + geom_point(aes(x=time, y=pop_present), size=1) 
-	g <- g + geom_step(aes(x=time, y=nS), colour='green4') 
-	g <- g + geom_step(aes(x=time, y=nE), colour='orange') 
-	g <- g + geom_step(aes(x=time, y=nIs), colour='red')
-	g <- g + geom_step(aes(x=time, y=nR), colour='blue') 
-	g <- g + facet_wrap(~id_sp)
-	plot(g)
-}
 
 try(plot.tmp()	, silent =T)
 
