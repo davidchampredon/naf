@@ -119,12 +119,12 @@ world.prm[['pubt_size']] <- c(30,60,120)
 world.prm[['pubt_size_proba']] <- c(0.3,0.4,0.3)
 world.prm[['school_size']] <- c(100, 200, 300)
 world.prm[['school_size_proba']] <- c(0.7,0.2,0.1)
-world.prm[['hosp_size']] <- c(10000)
+world.prm[['hosp_size']] <- c(50000)
 world.prm[['hosp_size_proba']] <- c(1)
 world.prm[['other_size']] <- c(100,200,300)
 world.prm[['other_size_proba']] <- c(0.4,0.4,0.2)
 
-sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 13.0/24)
+sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)
 
 
 ###  ==== Intervention parameters ====

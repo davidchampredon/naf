@@ -47,7 +47,7 @@ void main_run_test(){
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
-    uint i0 = 20;
+    uint i0 = 10;
     
     _RANDOM_GENERATOR.seed(123);
     
@@ -104,25 +104,25 @@ void main_run_test(){
     
     
     // Workplace sizes
-    vector<uint> wrk_size {5,8,9,12};
+    vector<uint> wrk_size {5,20,40,60};
     vector<double> wrk_size_proba {0.55, 0.3, 0.1, 0.05};
     discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
     D_size_wrk.display();
     
     // Public transport sizes
-    vector<uint> pubt_size {7,8,9};
+    vector<uint> pubt_size {30,60,120};
     vector<double> pubt_size_proba {0.3,0.4,0.3};
     discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
     D_size_pubt.display();
     
     // School sizes
-    vector<uint> school_size {6, 8, 9};
+    vector<uint> school_size {100, 200, 300};
     vector<double> school_size_proba {0.7,0.2,0.1};
     discrete_prob_dist<uint> D_size_school(school_size, school_size_proba);
     D_size_school.display();
     
     // Hospital sizes
-    vector<uint> hosp_size {10000};
+    vector<uint> hosp_size {50000};
     vector<double> hosp_size_proba {1};
     discrete_prob_dist<uint> D_size_hosp(hosp_size, hosp_size_proba);
     D_size_hosp.display();
@@ -154,18 +154,20 @@ void main_run_test(){
         sched_student
     };
     
+    uint mult = 5;
+    
     // number of each social place type
-    vector<uint> n_hh       {800, 300};     //{5000,2500,1000,900};
+    vector<uint> n_hh       {1200*mult, 1100*mult};     //{5000,2500,1000,900};
     // WARNING:
     // make sure there are enough social places
     // of type different from 'household',
     // else some individual will not have destinations
     // and the code will crash.
-    vector<uint> n_wrk      {800, 300};         //{10, 5, 3, 2};
-    vector<uint> n_pubt     {800,300};          //{7,2,1,0};
-    vector<uint> n_school   {80,40};
+    vector<uint> n_wrk      {300*mult, 300*mult};         //{10, 5, 3, 2};
+    vector<uint> n_pubt     {400*mult, 300*mult};          //{7,2,1,0};
+    vector<uint> n_school   {200*mult, 200*mult};
     vector<uint> n_hosp     {1,1};
-    vector<uint> n_other    {300,100};       //{1000,500,250,200};
+    vector<uint> n_other    {1000*mult, 500*mult};       //{1000,500,250,200};
     
     
     // ================================================================

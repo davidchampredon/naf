@@ -735,11 +735,13 @@ void Simulator::run(){
         double dt = timeslice[idx_timeslice];
         
         if(debug_mode){
+            cout.precision(3);
             cout << "iter = " << k;
             cout << " ; time = " << _current_time;
             cout << " ; sched idx = " << idx_timeslice;
             cout << " ; sched length = " << dt;
             cout <<endl;
+            cout.precision(15);
         }
         else{
             if(k % 5 == 0){
@@ -1857,7 +1859,9 @@ void Simulator::hospitalize(){
                     uint pos_indiv = _world[k].find_indiv_pos(id_indiv);
                     
                     stopif(id_sp_hospital==__UNDEFINED_ID,
-                           "Individual ID "+to_string(id_indiv)+" not linked to a hospital.");
+                           "Individual ID "+to_string(id_indiv)+
+                           " is not linked to a hospital. " +
+                           "Consider increasing the size of the hospital(s).");
                     
                     // update counters
                     _n_H++;
