@@ -299,18 +299,19 @@ List naf_run(List params,
 		dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
 		// epidemic time series
 		dcDataFrame ts = sim.timeseries();
-		dcDataFrame ts_census = sim.get_ts_census_by_SP();
+//		dcDataFrame ts_census = sim.get_ts_census_by_SP();  // <-- TOO SLOW
 		
 		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
 		
 		// Return R-formatted result:
 		return List::create(Named("population_final") = to_list(pop_final,false),
 							Named("world") = to_list_vector(W, false),
-							Named("time_series") = to_list(ts, false),
-							Named("time_series_census") = to_list(ts_census, false));
+							Named("time_series") = to_list(ts, false)
+							);
 	}
 	catch (...){
-		std::cout << endl <<  "   ~~~~~ Standard C++ exception caught ~~~~~ "<<endl <<endl;
+		::Rf_error("c++ exception (unknown reason)");
+		return NULL;
 	}
 }
 
