@@ -11,7 +11,7 @@
 C_GPP   := g++
 C_CLANG := clang++
 
-C_GPP_OPT   := -Wall -O3 -std=c++11 -Wno-predefined-identifier-outside-function
+C_GPP_OPT   := -Wall -O3 -std=c++11 -Wno-predefined-identifier-outside-function -Wno-sign-compare
 C_CLANG_OPT := -Wall -O3 -std=c++11 -Wno-predefined-identifier-outside-function
 # -Wno-sign-compare
 # -Wno-deprecated
