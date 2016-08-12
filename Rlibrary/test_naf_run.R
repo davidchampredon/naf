@@ -172,7 +172,6 @@ try(plot.population(pop),silent = T)
 
 try(plot.epi.timeseries(ts), silent = T)
 
-try(plot.tmp()	, silent =T)
 
 
 message(paste("time elapsed:",round(t1-t0,1),"sec"))

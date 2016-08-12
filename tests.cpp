@@ -154,7 +154,7 @@ void main_run_test(){
         sched_student
     };
     
-    uint mult = 5;
+    uint mult = 1;
     
     // number of each social place type
     vector<uint> n_hh       {1200*mult, 1100*mult};     //{5000,2500,1000,900};
