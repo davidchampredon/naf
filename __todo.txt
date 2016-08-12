@@ -2,8 +2,7 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
-- make world construction more robust (better handle link mismatch)
-
+- Performance tests
 - Draw contact rate from distributions
 - Treatment: prophylaxis to do.
 - Age contact matrix
@@ -14,5 +13,4 @@ TO DO LIST:
 
 === MINOR ITEMS ===
 
-- try/throw/catch in order to avoid crashing RStudio
 - _id_Is and _indiv_Is redundant
