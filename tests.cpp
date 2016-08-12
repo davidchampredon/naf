@@ -86,12 +86,21 @@ void main_run_test(){
     // Age distribution inside households
     vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
     
-    discrete_prob_dist<uint> pr_age_hh_00({22,33,44},{0.2, 0.5, 0.3});
-    discrete_prob_dist<uint> pr_age_hh_10({22,33,44},{0.2, 0.5, 0.3});
-    discrete_prob_dist<uint> pr_age_hh_11({11,22,33,44},{0.2,0.1, 0.6, 0.1});
-    discrete_prob_dist<uint> pr_age_hh_20({22,33,44},{0.2, 0.5, 0.3});
-    discrete_prob_dist<uint> pr_age_hh_21({22,33,44},{0.2, 0.5, 0.3});
-    discrete_prob_dist<uint> pr_age_hh_22({11,22,33,44},{0.8,0.1, 0.05, 0.05});
+    vector<uint> age_adult = {22, 33, 44, 55};
+    vector<uint> age_child = {5, 11};
+    vector<uint> age_all = age_child;
+    age_all.insert(age_all.end(), age_adult.begin(),age_adult.end());
+    
+    vector<double> p_age_adult = {0.2, 0.5, 0.2, 0.1};
+    vector<double> p_age_all_1 = {0.1, 0.1, 0.2, 0.3, 0.2, 0.1};
+    vector<double> p_age_all_2 = {0.4, 0.3, 0.1, 0.1, 0.05, 0.05};
+    
+    discrete_prob_dist<uint> pr_age_hh_00(age_adult, p_age_adult);
+    discrete_prob_dist<uint> pr_age_hh_10(age_adult, p_age_adult);
+    discrete_prob_dist<uint> pr_age_hh_11(age_all,   p_age_all_1);
+    discrete_prob_dist<uint> pr_age_hh_20(age_adult, p_age_adult);
+    discrete_prob_dist<uint> pr_age_hh_21(age_adult, p_age_adult);
+    discrete_prob_dist<uint> pr_age_hh_22(age_all,   p_age_all_2);
     
     vector<discrete_prob_dist<uint> > tmp;
     

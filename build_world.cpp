@@ -268,8 +268,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         
         first_id_sp += (uint) sp_hh.size(); // <-- make sure ID of social places do not overlap within _and_ across area units
         
-        float age_min_wrk = 18.0;
-        float age_max_wrk = 70.0;
+        float age_min_wrk = 17.9;
+        float age_max_wrk = _AGE_MAX; // <-- TO DO: change that!
         vector<socialPlace> sp_wrk = create_socialPlaces_size(SP_workplace,
                                                               n_wrk[a],
                                                               first_id_sp,
@@ -282,8 +282,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         
         first_id_sp += (uint) sp_wrk.size()  ;
         
-        float age_min_pubt = 5.0;
-        float age_max_pubt = 80.0;
+        float age_min_pubt = 0.0;
+        float age_max_pubt = _AGE_MAX;
         vector<socialPlace> sp_pubt = create_socialPlaces_size(SP_pubTransp,
                                                                n_pubt[a],
                                                                first_id_sp,
@@ -295,8 +295,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                age_max_pubt);
         first_id_sp += (uint) sp_pubt.size() ;
         
-        float age_min_school = 3.0;
-        float age_max_school = 19.0;
+        float age_min_school = 0.5;
+        float age_max_school = 18.1;
         vector<socialPlace> sp_school = create_socialPlaces_size(SP_school,
                                                                  n_school[a],
                                                                  first_id_sp,
@@ -404,10 +404,10 @@ void assign_schedules(vector<socialPlace> & W,
         for (uint i=0; i< nk; i++) {
             float age = W[k].get_indiv(i).get_age();
 
-            if (3.0 < age && age < 18.0) {
+            if (0.01 < age && age < 18.0) {
                 W[k].set_schedule_indiv(i,sched[s_student]);
             }
-            else if (age > 18.0){                
+            else if (age >= 18.0){
                 W[k].set_schedule_indiv(i,sched[s_worker_sed]);
             }
         }

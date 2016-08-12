@@ -800,7 +800,7 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
     
     vector<individual> indivvec;
     
-    std::uniform_real_distribution<double> unif(1.0,80.0);
+    std::uniform_real_distribution<double> unif(1.0, _AGE_MAX);
     std::uniform_int_distribution<unsigned long> unif_int(0,sched.size()-1);
     std::uniform_int_distribution<unsigned long> unif_int_sp(0,sp.size()-1);
     

@@ -397,7 +397,7 @@ vector<individual> build_individuals(uint n,
     
     vector<individual> x(n);
     
-    std::uniform_real_distribution<double> unif_age(1.0, 80.0);
+    std::uniform_real_distribution<double> unif_age(1.0, _AGE_MAX);
     std::uniform_real_distribution<double> unif_01(0.0, 1.0);
     std::uniform_int_distribution<unsigned long> unif_int(0.0, sched.size()-1);
     

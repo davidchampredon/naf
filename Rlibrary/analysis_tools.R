@@ -3,6 +3,21 @@ library(plyr)
 library(gridExtra)
 
 
+synthetic_age_adult <- function(age.adult){
+	# Create a synthetic age distribution for adults.
+
+	age.thres <- 60
+	age.max <- 90
+	idx <- which(age.adult > age.thres)
+	# Decline of older adults:
+	rel.prop <- (age.max - age.adult[idx])/(age.max - age.thres)
+	
+	p.adult <- c( rep(1.0, idx[1]-1) , rel.prop)
+	p.adult <- p.adult/sum(p.adult)
+	return(p.adult)
+}
+
+
 plot.binomial.regression <- function(dat, xvar, binomial_response, title) {
 	g <- ggplot(dat) + geom_point(aes_string(x=xvar,y=binomial_response), alpha=0.3) 
 	g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response), 

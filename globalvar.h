@@ -29,7 +29,13 @@ extern std::mt19937_64	_RANDOM_GENERATOR;
 // ==== File Directories ====
 
 
-const std::string    _DIR_INPUT = "./INPUT/";
+const std::string   _DIR_INPUT = "./INPUT/";
+
+
+// ==== Global constants ====
+
+const uint          _AGE_MAX = 99;
+
 
 
 

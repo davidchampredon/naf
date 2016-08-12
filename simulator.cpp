@@ -78,7 +78,9 @@ void Simulator::create_world(vector<areaUnit> AU,
     string dol_distrib = _modelParam.get_prm_string("dol_distrib");
     string doi_distrib = _modelParam.get_prm_string("doi_distrib");
     string doh_distrib = _modelParam.get_prm_string("doh_distrib");
-    assign_dox_distribution(dol_distrib,  doi_distrib,  doh_distrib);
+    assign_dox_distribution(dol_distrib,
+                            doi_distrib,
+                            doh_distrib);
     
     assign_immunity();
     assign_frailty();
@@ -747,9 +749,10 @@ void Simulator::run(){
         if(debug_mode){
             cout.precision(3);
             cout << "iter = " << k;
-            cout << " ; time = " << _current_time;
             cout << " ; sched idx = " << idx_timeslice;
-            cout << " ; sched length = " << dt;
+            cout << " (length=" << dt << ")";
+            cout << " ; time = " << _current_time;
+            cout << " ; prev = " << _prevalence;
             cout <<endl;
             cout.precision(15);
         }
@@ -817,6 +820,7 @@ void Simulator::run(){
         cout << endl << "time series of deaths:"<<endl;
         displayVector(_ts_D);
     }
+    cout << endl;
 }
 
 
@@ -877,9 +881,13 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                 {
                     // Retrieve its actual destination
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
-                      
-                    stopif(id_dest==__UNDEFINED_ID,
-                           "Undefined destination for indiv ID_" + to_string(_world[k].get_indiv(i).get_id()));
+                    
+                    string errmsg = "Undefined destination for indiv ID_";
+                    errmsg += to_string(_world[k].get_indiv(i).get_id());
+                    errmsg += " who is currently in SP_id_";
+                    errmsg += to_string(k);
+                    
+                    stopif(id_dest==__UNDEFINED_ID,errmsg);
                     
                     
                     if ( (id_dest!=k && id_dest!=__LARGE_ID) )

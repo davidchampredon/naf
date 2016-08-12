@@ -130,6 +130,10 @@ List naf_run(List params,
 		set_parameter(MP, "doi_mean", "double", params);
 		set_parameter(MP, "doh_mean", "double", params);
 		
+		set_parameter(MP, "dol_var", "double", params);
+		set_parameter(MP, "doi_var", "double", params);
+		set_parameter(MP, "doh_var", "double", params);
+		
 		set_parameter(MP, "proba_move", "double", params);
 		set_parameter(MP, "contact_rate", "double", params);
 		

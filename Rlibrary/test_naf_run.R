@@ -35,14 +35,16 @@ R0 <- cr * doi_mean
 prm[['debug_mode']] <- F
 
 prm[['dol_distrib']] <- "lognorm"
-prm[['doi_distrib']] <- "exp"
+prm[['doi_distrib']] <- "lognorm"
 prm[['doh_distrib']] <- "exp"
 
 prm[['dol_mean']] <- 2.0
 prm[['doi_mean']] <- doi_mean
 prm[['doh_mean']] <- 5.0
 
-prm[['dol_var']] <- 0.8
+prm[['dol_var']] <- 2.1
+prm[['doi_var']] <- 2.5
+prm[['doh_var']] <- 1.00
 
 prm[['proba_move']] <- 1
 
@@ -64,7 +66,7 @@ prm[['vax_lag_full_efficacy']] <- 12
 
 ### ==== Simulation parameters ====
 
-simul.prm[['rnd_seed']] <- 1234
+simul.prm[['rnd_seed']] <- 123
 simul.prm[['horizon']] <- 300
 simul.prm[['initial_latent']] <- 8
 simul.prm[['popexport']] <- 1
@@ -76,7 +78,7 @@ world.prm[['name_au']] <- c("AUone", "AUtwo")
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-mult <- 1
+mult <- 2
 
 world.prm[['n_hh']]     <- c(1200, 1100) * mult
 world.prm[['n_wrk']]    <- c(300, 330) * mult
@@ -85,24 +87,24 @@ world.prm[['n_school']] <- c(200, 200) * mult
 world.prm[['n_hosp']]   <- c(1,1)
 world.prm[['n_other']]  <- c(1000, 500) * mult
 
-age.adults   <- c(22,33,44,55) #seq(18,70,by=1)
-age.children <- c(11)
-age.all      <- c(age.children, age.adults) 
+age.adult   <- seq(19,98,by=1)
+age.children <- seq(1,18,by=1)
+age.all      <- c(age.children, age.adult) 
 
-# xx <- seq(18,70,by=1)
-# yy <- seq(1,18,by=1)
-n.age.adults <- length(age.adults)
+n.age.adult <- length(age.adult)
 n.age.all <- length(age.all)
-p.adult <- rep(1/n.age.adults, n.age.adults)
+p.adult <- synthetic_age_adult(age.adult)   #rep(1/n.age.adult, n.age.adult)
+
 p.all <- rep(1/n.age.all, n.age.all)
+
 p.all.child <- 1/age.all 
 p.all.child <- p.all.child/sum(p.all.child)
 
-world.prm[['pr_age_hh_00_val']] <- age.adults
-world.prm[['pr_age_hh_10_val']] <- age.adults
+world.prm[['pr_age_hh_00_val']] <- age.adult
+world.prm[['pr_age_hh_10_val']] <- age.adult
 world.prm[['pr_age_hh_11_val']] <- age.all
-world.prm[['pr_age_hh_20_val']] <- age.adults
-world.prm[['pr_age_hh_21_val']] <- age.adults
+world.prm[['pr_age_hh_20_val']] <- age.adult
+world.prm[['pr_age_hh_21_val']] <- age.adult
 world.prm[['pr_age_hh_22_val']] <- age.all
 
 world.prm[['pr_age_hh_00_proba']] <- p.adult
@@ -133,7 +135,7 @@ sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)
 interv.prm[['interv_name']] <- 'interv_test'
 interv.prm[['interv_type']] <- 'vaccination'  # treatment cure vaccination
 interv.prm[['interv_target']] <- 'susceptible'  # symptomatic  susceptible
-interv.prm[['interv_start']] <- 15
+interv.prm[['interv_start']] <- 998
 interv.prm[['interv_end']] <- 999
 interv.prm[['interv_cvg_rate']] <- 0.05
 interv.prm[['interv_cvg_max_prop']] <- 0.9999
@@ -148,8 +150,8 @@ try(
 				   world.prm, 
 				   sched.prm)
 )
-t1 <- as.numeric(Sys.time())
 
+t1 <- as.numeric(Sys.time())
 
 # ==== Process results ====
 
@@ -180,5 +182,5 @@ if (save.plot.to.file) dev.off()
 
 
 # End
-message(paste("Time elapsed:",round(t1-t0,1),"sec"))
+message(paste("Simulation computing time:",round(t1-t0,1),"sec"))
 
