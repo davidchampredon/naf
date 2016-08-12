@@ -48,7 +48,7 @@ public:
     
     // Get functions
     
-    string get_type_intervention()     const {return _type_intervention;}
+    string get_type_intervention()  const {return _type_intervention;}
     string get_type_indiv_targeted()const {return _type_indiv_targeted;}
     float get_time_start()          const {return _time_start;}
     float get_time_end()            const {return _time_end;}
@@ -72,6 +72,8 @@ public:
     
     void    treat(vector<individual*> x, float doi_reduction);
     void    cure(vector<individual*> x);
+    
+    void    display_info();
     
 };
 

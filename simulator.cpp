@@ -725,6 +725,10 @@ void Simulator::run(){
     float vax_frail_incr    = _modelParam.get_prm_double("vax_frail_incr");
     float vax_lag           = _modelParam.get_prm_double("vax_lag_full_efficacy");
     
+    // Display simulator's information
+    // before running simulation:
+    display_summary_info();
+    
     
     // ----- MAIN LOOP FOR TIME ------
     
@@ -1384,6 +1388,47 @@ uint Simulator::population_size(){
     uint s = 0;
     for(int i=0; i<_world.size(); i++) s+=_world[i].get_size();
     return s;
+}
+
+
+void Simulator::display_summary_info(){
+    
+    
+    cout << endl << endl;
+    cout << " =======  SIMULATOR INFO ======= " << endl << endl;
+    
+    // Simulation parameters:
+    
+    tabcout("Simulation horizon (days)",_horizon);
+    
+    // Number of socal places by type:
+    
+    vector<uint> cnt(SP_MAX,0);
+    for(uint k=0; k<_world.size(); k++){
+        uint spt = _world[k].get_type();
+        cnt[spt]++;
+    }
+    cout << endl << "Number of social places by type:" <<endl;
+    for (uint i=0; i<SP_MAX; i++){
+        tabcout(SPtype2string((SPtype)i), cnt[i]);
+    }
+    stopif(sumElements(cnt) != _world.size(),
+           "Total number of social places not consistent.");
+    tabcout("TOTAL", _world.size());
+    
+    // Number of individuals:
+    cout << endl;
+    tabcout("Total number of individuals",world_size(_world));
+    
+    // Interventions
+    cout << endl << "Number of interventions : " << _intervention.size() <<endl;
+    for(int i=0; i<_intervention.size(); i++) {
+        cout << " Intervention["<<i<<"]";
+     _intervention[i].display_info();
+    }
+    
+    cout << endl;
+    cout << " = (end of simulator info) = " << endl << endl;
 }
 
 

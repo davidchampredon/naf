@@ -100,7 +100,18 @@ void intervention::act_on_individual(vector<individual*> x,
 
 
 
-
+void intervention::display_info(){
+    
+    cout << endl << "Intervention info:"<<endl;
+    tabcout(" Name", _name);
+    tabcout(" Type", _type_intervention);
+    tabcout(" Targeted individuals", _type_indiv_targeted);
+    tabcout(" Start intervention", _time_start);
+    tabcout(" End intervention", _time_end);
+    tabcout(" Coverage rate", _cvg_rate);
+    tabcout(" Coverage max proportion", _cvg_max_proportion);
+    cout << endl;
+}
 
 
 

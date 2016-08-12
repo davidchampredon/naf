@@ -73,7 +73,16 @@ void stopif(bool condition, string error_msg,
 
 void	coutline(uint n);
 
-
+template <class T> void tabcout(string label, T value, uint left_length = 30){
+    // Tabulated cout
+    unsigned long x = label.length();
+    string space_bck = "";
+    
+    while (x+space_bck.length() < left_length) {
+        space_bck += " ";
+    }
+    cout << label << space_bck << ": " << value <<endl;
+}
 
 
 // ===================================================

@@ -226,9 +226,9 @@ public:
     // Miscelleanous
 
 	uint	population_size();
+    void    display_summary_info();
 	void	display_split_pop_present();
 	void	display_split_pop_linked();
-	
 	void	displayInfo_indiv();
 	
 	void test();
