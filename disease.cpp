@@ -45,3 +45,20 @@ disease::disease(string name,
     _doh_mean = doh_mean;
 }
 
+disease::disease(string name,
+                 float dol_mean,
+                 float doi_mean,
+                 float doh_mean,
+                 float dol_var,
+                 float doi_var,
+                 float doh_var){
+    base_constructor();
+    _name = name;
+    _dol_mean = dol_mean;
+    _doi_mean = doi_mean;
+    _doh_mean = doh_mean;
+    _dol_var  = dol_var;
+    _doi_var  = doi_var;
+    _doh_var  = doh_var;
+}
+

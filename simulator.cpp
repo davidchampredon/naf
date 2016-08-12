@@ -754,10 +754,12 @@ void Simulator::run(){
             cout.precision(15);
         }
         else{
+            cout.precision(3);
             if(k % 5 == 0){
-                cout << " simulation time: " << _current_time << "    "<< '\r';
+                cout << "simulation time: " << _current_time << "    "<< '\r';
                 fflush(stdout);
             }
+            cout.precision(15);
         }
         
         // TOO SLOW: update_ts_census_by_SP();
@@ -2247,7 +2249,7 @@ void Simulator::assign_frailty(){
 
 
 void Simulator::timeseries_update(){
-    /// Update eipidemiological time series
+    /// Update epidemiological time series
     /// (at each time step)
     
     _ts_times.push_back(_current_time);

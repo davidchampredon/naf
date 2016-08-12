@@ -34,13 +34,15 @@ R0 <- cr * doi_mean
 
 prm[['debug_mode']] <- F
 
-prm[['dol_distrib']] <- "exp"
+prm[['dol_distrib']] <- "lognorm"
 prm[['doi_distrib']] <- "exp"
 prm[['doh_distrib']] <- "exp"
 
 prm[['dol_mean']] <- 2.0
 prm[['doi_mean']] <- doi_mean
 prm[['doh_mean']] <- 5.0
+
+prm[['dol_var']] <- 0.8
 
 prm[['proba_move']] <- 1
 
@@ -60,8 +62,6 @@ prm[['vax_frail_incr']] <- 0.2
 prm[['vax_lag_full_efficacy']] <- 12
 
 
-
-
 ### ==== Simulation parameters ====
 
 simul.prm[['rnd_seed']] <- 1234
@@ -76,7 +76,8 @@ world.prm[['name_au']] <- c("AUone", "AUtwo")
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-mult <- 5
+mult <- 1
+
 world.prm[['n_hh']]     <- c(1200, 1100) * mult
 world.prm[['n_wrk']]    <- c(300, 330) * mult
 world.prm[['n_pubt']]   <- c(400, 300) * mult
@@ -149,6 +150,11 @@ try(
 )
 t1 <- as.numeric(Sys.time())
 
+
+# ==== Process results ====
+
+message("Processing results...")
+
 ts <- as.data.frame(res[['time_series']])
 
 # JUST ONE SOCIAL PLACE--->   pop <- as.data.frame(res[['population_final']])
@@ -159,24 +165,20 @@ pop <- do.call('rbind',z)
 ws <- ddply(pop, c('id_au','sp_type'), summarize, 
 			n_sp = length(id_sp),
 			n_indiv = length(id_indiv))
-ws
 
-length(unique(pop$id_indiv))
-length(unique(pop$id_sp))
 
 ### ==== PLOTS ==== 
 
+message("Plotting results...")
+
 if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
-
 try(plot.population(pop),silent = T)
-
 try(plot.epi.timeseries(ts), silent = T)
-
-
-
-message(paste("time elapsed:",round(t1-t0,1),"sec"))
-
 if (save.plot.to.file) dev.off()
 
 
+
+
+# End
+message(paste("Time elapsed:",round(t1-t0,1),"sec"))
 

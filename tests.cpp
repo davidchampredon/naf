@@ -22,13 +22,17 @@ void main_run_test(){
     
     MP.add_prm_bool("debug_mode", true);
     
-    MP.add_prm_string("dol_distrib", "exp");
-    MP.add_prm_string("doi_distrib", "exp");
+    MP.add_prm_string("dol_distrib", "lognorm");
+    MP.add_prm_string("doi_distrib", "lognorm");
     MP.add_prm_string("doh_distrib", "exp");
     
     MP.add_prm_double ("dol_mean", 2.0);
     MP.add_prm_double ("doi_mean", 4.789);
     MP.add_prm_double ("doh_mean", 4.123);
+    
+    MP.add_prm_double ("dol_var", 2.1);
+    MP.add_prm_double ("doi_var", 2.5);
+    MP.add_prm_double ("doh_var", 0.2);
     
     MP.add_prm_double ("proba_move", 1.0);
     
@@ -248,8 +252,14 @@ Simulator run_test(vector<areaUnit> auvec,
     double dol_mean = MP.get_prm_double("dol_mean");
     double doi_mean = MP.get_prm_double("doi_mean");
     double doh_mean = MP.get_prm_double("doh_mean");
+    double dol_var  = MP.get_prm_double("dol_var");
+    double doi_var  = MP.get_prm_double("doi_var");
+    double doh_var  = MP.get_prm_double("doh_var");
+    
     bool debug_mode = MP.get_prm_bool("debug_mode");
-    disease flu("Influenza", dol_mean, doi_mean, doh_mean);
+    disease flu("Influenza",
+                dol_mean, doi_mean, doh_mean,
+                dol_var, doi_var, doh_var);
     sim.set_disease(flu);
     
     if(debug_mode){

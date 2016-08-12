@@ -305,10 +305,30 @@ plot.epi.timeseries <- function(ts){
 	g.inf <- g.inf + geom_step(aes(y=death_incidence), colour='black', linetype = 1)
 	g.inf <- g.inf + ggtitle("All latent (nE, orange), Infectious (Ia & Is[bold])\n treated, vaccinated (dashed) and death (black)") + ylab("")
 	
+	# incidence 
+	
+	g.inc <- ggplot(ts, aes(x=time))
+	g.inc <- g.inc + geom_step(aes(y=incidence), colour='grey') + geom_point(aes(y=incidence),size=1)
+	g.inc <- g.inc + ggtitle("Raw Incidence") + ylab("")
+	
+	ts$cuminc <- cumsum(ts$incidence)
+	g.cuminc <- ggplot(ts, aes(x=time))
+	g.cuminc <- g.cuminc + geom_step(aes(y=cuminc)) 
+	g.cuminc <- g.cuminc + ggtitle("Cumulative Incidence") + ylab("")
+	
+	ts$timeround <- floor(ts$time)
+	ts2 <- ddply(ts, c('timeround'), summarize,
+				 dailyinc=sum(incidence))
+	g.dailyinc <- ggplot(ts2, aes(x=timeround))
+	g.dailyinc <- g.dailyinc + geom_step(aes(y=dailyinc))
+	# g.dailyinc <- g.dailyinc + geom_point(aes(y=dailyinc))
+	g.dailyinc <- g.dailyinc + ggtitle('Daily incidence') + xlab('day')+ylab('')
+
+	g.dailyinc.log <- g.dailyinc + scale_y_log10()
+	
 	g.prev <- ggplot(ts, aes(x=time))
 	g.prev <- g.prev + geom_step(aes(y=prevalence))
 	g.prev <- g.prev + ggtitle("Prevalence") + ylab("")
-	
 	g.prev.log <- g.prev + scale_y_log10()
 	
 	g.death <- ggplot(ts, aes(x=time))
@@ -322,6 +342,10 @@ plot.epi.timeseries <- function(ts){
 	
 	grid.arrange(g.SR ,
 				 g.inf, 
+				 g.inc,
+				 g.cuminc,
+				 g.dailyinc,
+				 g.dailyinc.log,
 				 g.prev,
 				 g.prev.log,
 				 g.death,

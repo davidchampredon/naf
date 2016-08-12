@@ -256,24 +256,70 @@ void individual::acquireDisease(){
     
     _dol = SUPERTINY;
     
+    
+    
     // Draws the durations THIS individual
     // will experience:
     
     // TO DO: implement something more sophisticated!
     
-    if (_dol_distrib == "dirac") _dol_drawn = _disease.get_dol_mean();
-    if (_dol_distrib == "exp") {
+    // Latency:
+    
+    bool found = false;
+    
+    if (_dol_distrib == "dirac") {
+        _dol_drawn = _disease.get_dol_mean();
+        found = true;
+    }
+    else if (_dol_distrib == "exp") {
         float dol_mean = _disease.get_dol_mean();
         std::exponential_distribution<float> d(1.0/dol_mean);
         _dol_drawn = d(_RANDOM_GENERATOR);
+        found = true;
     }
+    else if (_dol_distrib == "lognorm") {
+        float dol_mean = _disease.get_dol_mean();
+        float dol_var  = _disease.get_dol_var();
+        float dol_mean2 = dol_mean*dol_mean;
+        
+        float mu = log(dol_mean2/sqrt(dol_var+dol_mean2));
+        float sigma = log(1.0 + dol_var/dol_mean2);
+        
+        std::lognormal_distribution<float> d(mu,sigma);
+        _dol_drawn = d(_RANDOM_GENERATOR);
+//        cout << "DEBUG: DOL drawn = "<< _dol_drawn <<endl;
+        found = true;
+    }
+    stopif(!found, "Unknown distribution for DOL.");
     
-    if (_doi_distrib == "dirac") _doi_drawn = _disease.get_doi_mean();
-    if (_doi_distrib == "exp") {
+    
+    // Infectiousness
+    
+    found = false;
+    
+    if (_doi_distrib == "dirac") {
+        _doi_drawn = _disease.get_doi_mean();
+        found = true;
+    }
+    else if (_doi_distrib == "exp") {
         float doi_mean = _disease.get_doi_mean();
         std::exponential_distribution<float> d(1.0/doi_mean);
         _doi_drawn = d(_RANDOM_GENERATOR);
+        found = true;
     }
+    else if (_doi_distrib == "lognorm") {
+        float doi_mean = _disease.get_doi_mean();
+        float doi_var  = _disease.get_doi_var();
+        float doi_mean2 = doi_mean*doi_mean;
+        
+        float mu = log(doi_mean2/sqrt(doi_var+doi_mean2));
+        float sigma = log(1.0 + doi_var/doi_mean2);
+        
+        std::lognormal_distribution<float> d(mu,sigma);
+        _doi_drawn = d(_RANDOM_GENERATOR);
+        found = true;
+    }
+    stopif(!found, "Unknown distribution for DOI.");
 }
 
 void individual::futureHospitalization(){
