@@ -156,11 +156,13 @@ void main_run_test(){
     
     schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
     schedule sched_student(student, timeslice, "student");
+    schedule sched_unemployed(unemployed, timeslice, "unemployed");
     
     // Schedules used in the simulation:
     vector<schedule> sched {
         sched_worker_sed,
-        sched_student
+        sched_student,
+        sched_unemployed
     };
     
     uint mult = 1;

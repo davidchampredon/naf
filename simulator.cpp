@@ -72,6 +72,7 @@ void Simulator::create_world(vector<areaUnit> AU,
                           n_hh, n_wrk, n_pubt, n_school, n_hosp, n_other);
     
     set_world(W);
+    set_sp_other();
     
     // Define individuals' features:
     
@@ -84,7 +85,9 @@ void Simulator::create_world(vector<areaUnit> AU,
     
     assign_immunity();
     assign_frailty();
-    assign_schedules(_world, sched, {9.99999,9.9999});
+
+    float unemplyed_prop = 0.10;
+    assign_schedules(_world, sched, unemplyed_prop);
     
     cout << "... world created. " << endl;
 }
@@ -890,7 +893,7 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                     stopif(id_dest==__UNDEFINED_ID,errmsg);
                     
                     
-                    if ( (id_dest!=k && id_dest!=__LARGE_ID) )
+                    if ( id_dest!=k )
                     {
                         // if destination is 'other',
                         // then pick randomly a social place of type 'other'
@@ -1428,9 +1431,16 @@ void Simulator::display_summary_info(){
     
     // Number of individuals:
     cout << endl;
-    tabcout("Total number of individuals",world_size(_world));
+    tabcout("Total number of individuals", world_size(_world));
     
-    // Interventions
+    
+    // Schedules used:
+    cout << endl;
+    tabcout("Individuals with schedule worker_sed", census_schedule(_world, "worker_sed"), 40);
+    tabcout("Individuals with schedule student", census_schedule(_world, "student"), 40);
+    tabcout("Individuals with schedule unemployed", census_schedule(_world, "unemployed"), 40);
+    
+    // Interventions:
     cout << endl << "Number of interventions : " << _intervention.size() <<endl;
     for(int i=0; i<_intervention.size(); i++) {
         cout << " Intervention["<<i<<"]";

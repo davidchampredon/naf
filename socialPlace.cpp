@@ -615,6 +615,20 @@ vector<ID> socialPlace::census_disease_stage_ID(string stage){
 }
 
 
+uint socialPlace::census_schedule(string name){
+    /// Counts the number of the individuals
+    /// present in this social place, using a given schedule
+    
+    uint cnt = 0;
+    
+    for (uint i=0; i<_indiv.size(); i++) {
+        if (_indiv[i].get_schedule().get_name() == name) cnt++;
+    }
+    
+    return cnt;
+}
+
+
 
 void socialPlace::time_update(double dt){
     /// Update clock of all individuals in this social place
@@ -1057,7 +1071,17 @@ uint world_size(const vector<socialPlace>& w){
 }
 
 
-
+uint census_schedule(vector<socialPlace> w, string name){
+    /// Count the number of individuals using a given schedule
+    
+    uint cnt = 0;
+    
+    for (uint k=0; k<w.size(); k++) {
+        cnt += w[k].census_schedule(name);
+    }
+    
+    return cnt;
+}
 
 
 

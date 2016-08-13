@@ -70,7 +70,7 @@ vector<socialPlace> build_world(vector<areaUnit> auvec,
 
 void assign_schedules(vector<socialPlace> & W,
                       const vector<schedule> & sched,
-                      vector<float> prop_sched);
+                      float prop_unemployed);
 
 void assign_dox_distribution(vector<socialPlace> & W,
                              string dol_distrib,

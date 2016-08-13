@@ -184,6 +184,7 @@ public:
     uint	census_infectious();
     uint	census_disease_stage(string stage);
     vector<ID>		census_disease_stage_ID(string stage);
+    uint    census_schedule(string name);
     
     
     // Exports
@@ -231,6 +232,8 @@ void displayPopulationSize(const vector<socialPlace>& sp);
 
 uint world_size(const vector<socialPlace>& sp);
 
+
+uint census_schedule(vector<socialPlace> w, string name);
 
 
 
