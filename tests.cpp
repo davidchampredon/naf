@@ -20,7 +20,7 @@ void main_run_test(){
     double horizon = 300.0;
     modelParam MP;
     
-    MP.add_prm_bool("debug_mode", true);
+    MP.add_prm_bool("debug_mode", false);
     
     MP.add_prm_string("dol_distrib", "lognorm");
     MP.add_prm_string("doi_distrib", "lognorm");
@@ -35,6 +35,7 @@ void main_run_test(){
     MP.add_prm_double ("doh_var", 0.2);
     
     MP.add_prm_double ("proba_move", 1.0);
+    MP.add_prm_double ("proba_change_sp_other", 0.01);
     
     MP.add_prm_double ("proba_death_prm_1", 0.59999999999999); // <-- TEST!
     MP.add_prm_double ("proba_death_prm_2", 0.85);
@@ -154,9 +155,9 @@ void main_run_test(){
     vector<SPtype> student      {SP_pubTransp, SP_school,    SP_school,    SP_pubTransp, SP_other, SP_household};
     vector<SPtype> unemployed   {SP_household, SP_other,     SP_other,     SP_other,     SP_other, SP_household};
     
-    schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
-    schedule sched_student(student, timeslice, "student");
-    schedule sched_unemployed(unemployed, timeslice, "unemployed");
+    schedule sched_worker_sed (worker_sed, timeslice, "worker_sed");
+    schedule sched_student    (student,    timeslice, "student");
+    schedule sched_unemployed (unemployed, timeslice, "unemployed");
     
     // Schedules used in the simulation:
     vector<schedule> sched {
@@ -165,20 +166,20 @@ void main_run_test(){
         sched_unemployed
     };
     
-    uint mult = 1;
+    uint mult = 2;
     
     // number of each social place type
-    vector<uint> n_hh       {1200*mult, 1001*mult};     //{5000,2500,1000,900};
+    vector<uint> n_hh       {1200*mult, 1001*mult};
     // WARNING:
     // make sure there are enough social places
     // of type different from 'household',
     // else some individual will not have destinations
     // and the code will crash.
-    vector<uint> n_wrk      {300*mult, 301*mult};         //{10, 5, 3, 2};
-    vector<uint> n_pubt     {400*mult, 301*mult};          //{7,2,1,0};
+    vector<uint> n_wrk      {300*mult, 301*mult};
+    vector<uint> n_pubt     {400*mult, 301*mult};
     vector<uint> n_school   {200*mult, 201*mult};
     vector<uint> n_hosp     {1,1};
-    vector<uint> n_other    {1000*mult, 501*mult};       //{1000,500,250,200};
+    vector<uint> n_other    {1000*mult, 501*mult};
     
     
     // ================================================================

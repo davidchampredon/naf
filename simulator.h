@@ -114,6 +114,7 @@ public:
 	void set_horizon(double h) {_horizon = h;}
 	void set_modelParam(modelParam mp) {_modelParam = mp;}
     void set_sp_other();
+    void set_sp_other_link(uint k, uint pos_indiv, socialPlace &sp);
 	
 	// Get functions
 	
@@ -139,6 +140,7 @@ public:
 	void move_individuals(const SPtype sptype, double proba);
 	void move_one_individual(uint pos_indiv, ID from, ID to);
     void assign_hospital_to_individuals();
+    void change_rnd_sp_other();
     
     socialPlace* pick_rnd_sp_other();
     

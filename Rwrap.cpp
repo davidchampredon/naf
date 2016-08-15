@@ -135,6 +135,7 @@ List naf_run(List params,
 		set_parameter(MP, "doh_var", "double", params);
 		
 		set_parameter(MP, "proba_move", "double", params);
+		set_parameter(MP, "proba_change_sp_other", "double", params);
 		set_parameter(MP, "contact_rate", "double", params);
 		
 		set_parameter(MP, "asymptom_infectiousness_ratio", "double", params);
@@ -265,13 +266,15 @@ List naf_run(List params,
 		vector<SPtype> student      {SP_pubTransp, SP_school,    SP_school,    SP_pubTransp, SP_other, SP_household};
 		vector<SPtype> unemployed   {SP_household, SP_other,     SP_other,     SP_other,     SP_other, SP_household};
 		
-		schedule sched_worker_sed(worker_sed, timeslice, "worker_sed");
-		schedule sched_student(student, timeslice, "student");
+		schedule sched_worker_sed (worker_sed, timeslice, "worker_sed");
+		schedule sched_student    (student,    timeslice, "student");
+		schedule sched_unemployed (unemployed, timeslice, "unemployed");
 		
 		// Schedules used in the simulation:
 		vector<schedule> sched {
 			sched_worker_sed,
-			sched_student
+			sched_student,
+			sched_unemployed
 		};
 		
 		// === Call C++ function ===

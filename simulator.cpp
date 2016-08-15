@@ -788,6 +788,8 @@ void Simulator::run(){
         define_all_id_tables(); // <-- check if this is necessary here
         update_pop_count(); // <-- check if this is necessary here
         
+        change_rnd_sp_other();
+        define_all_id_tables();
        
         // interventions:
         
@@ -892,18 +894,18 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                     
                     stopif(id_dest==__UNDEFINED_ID,errmsg);
                     
-                    
                     if ( id_dest!=k )
                     {
-                        // if destination is 'other',
-                        // then pick randomly a social place of type 'other'
-                        // for the destination:
-                        if (id_dest == __LARGE_ID){
-                            id_dest = pick_rnd_sp_other()->get_id_sp();
-                            //DEBUG
-                            cout << "DEBUG: other dest --> sp_id = " << id_dest << endl;
-                        }
-                        
+// CHANGE sp-other-linked:
+//                        // if destination is 'other',
+//                        // then pick randomly a social place of type 'other'
+//                        // for the destination:
+//                        if (id_dest == __LARGE_ID){
+//                            id_dest = pick_rnd_sp_other()->get_id_sp();
+//                            //DEBUG
+//                            cout << "DEBUG: other dest --> sp_id = " << id_dest << endl;
+//                        }
+//                        
                         
                         // take a copy of the individual
                         individual tmp = _world[k].get_indiv(i);
@@ -1019,6 +1021,14 @@ void Simulator::set_sp_other(){
 }
 
 
+void Simulator::set_sp_other_link(uint k, uint pos_indiv, socialPlace &sp){
+    /// link social place 'other' whose ID is 'id_sp'
+    /// with the individual in _position_ 'pos' currently in kth social place
+    
+    _world[k].set_sp_other_link(pos_indiv, sp);
+}
+
+
 socialPlace* Simulator::pick_rnd_sp_other(){
     /// Choose randomly a social place
     /// of type 'other'
@@ -1029,8 +1039,9 @@ socialPlace* Simulator::pick_rnd_sp_other(){
     return _sp_other[rnd_idx];
 }
 
+
 double Simulator::calc_proba_transmission(individual *infectious,
-                                           individual *susceptible){
+                                          individual *susceptible){
     /// Calculate probability of transmission given contact
     /// between an infectious and susceptible individuals
     
@@ -1823,7 +1834,6 @@ void Simulator::define_all_id_tables(){
             if  (indiv[i].is_vaccinated()){
                 _world[k]._indiv_vax.push_back(_world[k].get_mem_indiv(i));
             }
-            
         }
     }
 }
@@ -2283,6 +2293,46 @@ void Simulator::timeseries_update(){
     _ts_n_treated.push_back(_n_treated);
     _ts_n_vaccinated.push_back(_n_vaccinated);
 }
+
+
+void Simulator::change_rnd_sp_other(){
+    /// Change randomly the link with SP_other for all individuals
+    
+    // Probability to change 'other' social place
+    // during a time slice:
+    double p = _modelParam.get_prm_double("proba_change_sp_other");
+    
+    for (uint k=0; k<_world.size(); k++) {
+        unsigned long n_indiv = _world[k].get_size();
+        for (uint i=0; i<n_indiv; i++)
+        {
+            if (_world[k].get_type() != SP_other)  // <-- do not change link while present in this SP
+            {
+                std::uniform_real_distribution<> unif01(0.0, 1.0);
+                if(unif01(_RANDOM_GENERATOR) < p)
+                {
+                    // Old link to be removed:
+                    ID id_sp_other_old = _world[k].get_indiv(i).get_id_sp_other();
+                    ID id_indiv        = _world[k].get_indiv(i).get_id();
+                    _world[id_sp_other_old].remove_linked_indiv(id_indiv);
+                    // (nothing to remove for the individual
+                    //  bc the 'set_sp_other_link' will overwrite individual's linked 'other' social place
+                    
+                    // New link to be added:
+                    socialPlace *sp_other_new = pick_rnd_sp_other();
+                    set_sp_other_link(k, i, *sp_other_new);
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
 
 
 

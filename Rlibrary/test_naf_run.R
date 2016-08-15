@@ -47,6 +47,7 @@ prm[['doi_var']] <- 2.5
 prm[['doh_var']] <- 1.00
 
 prm[['proba_move']] <- 1
+prm[['proba_change_sp_other']] <- 0.01
 
 prm[['proba_death_prm_1']] <- 0.08
 prm[['proba_death_prm_2']] <- 0.75
@@ -78,7 +79,7 @@ world.prm[['name_au']] <- c("AUone", "AUtwo")
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-mult <- 2
+mult <- 5
 
 world.prm[['n_hh']]     <- c(1200, 1100) * mult
 world.prm[['n_wrk']]    <- c(300, 330) * mult
