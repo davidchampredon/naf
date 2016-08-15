@@ -101,6 +101,8 @@ public:
     void set_immunity(uint pos, float val) {_indiv[pos].set_immunity(val);}
     void set_frailty(uint pos, float val)  {_indiv[pos].set_frailty(val);}
     
+    void set_sp_other_link(uint pos, socialPlace &sp){_indiv[pos].set_id_sp_other(sp);}
+    
     // Get functions:
     
     SPtype			get_type()		const {return _type;}

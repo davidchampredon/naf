@@ -451,10 +451,10 @@ ID individual::find_dest(uint idx_timeslice){
     if(sptype == SP_school)		id_dest = get_id_sp_school();
     if(sptype == SP_hospital)	id_dest = get_id_sp_hospital();
     if(sptype == SP_pubTransp)	id_dest = get_id_sp_pubTransp();
+    if(sptype == SP_other)		id_dest = get_id_sp_other(); //__LARGE_ID;
     
-    if(sptype == SP_other)		id_dest = __LARGE_ID;
-    
-    if (id_dest == __UNDEFINED_ID) cerr<<"Undefined destination of type " << SPtype2string(sptype)<<endl;
+    if (id_dest == __UNDEFINED_ID)
+        cerr<<"Undefined destination of type " << SPtype2string(sptype)<<endl;
     
     return id_dest;
 }

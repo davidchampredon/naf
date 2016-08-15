@@ -321,10 +321,18 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         
         first_id_sp += (uint) sp_hosp.size() ;
         
-        vector<socialPlace> sp_other = create_other_socialPlaces(n_other[a],
-                                                                 first_id_sp,
-                                                                 D_size_other,
-                                                                 AU[a]);
+        // CHANGE sp-other-linked:
+//        vector<socialPlace> sp_other = create_other_socialPlaces(n_other[a],
+//                                                                 first_id_sp,
+//                                                                 D_size_other,
+//                                                                 AU[a]);
+        vector<socialPlace> sp_other = create_socialPlaces_size(SP_other,
+                                                                n_other[a],
+                                                                first_id_sp,
+                                                                first_id_indiv_au,
+                                                                D_size_other,
+                                                                AU[a],
+                                                                indiv);
         
         first_id_sp += (uint) sp_other.size() ; // <-- makes sure sp_ids are incremented for the next AU iteration.
 
