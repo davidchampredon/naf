@@ -7,7 +7,7 @@
 //
 
 #include "simulator.h"
-
+#include "shapeFct.h"
 
 void Simulator::base_constructor(){
     
@@ -2251,6 +2251,8 @@ void Simulator::assign_dox_distribution(string dol_distrib,
 
 
 void Simulator::assign_immunity(){
+    /// Calculate immunity index for all individuals
+    
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();
@@ -2263,13 +2265,31 @@ void Simulator::assign_immunity(){
 }
 
 void Simulator::assign_frailty(){
+    /// Calculate frailty index for all individuals
+    
+    // Retrieve model parameters for frailty:
+    float f0         = _modelParam.get_prm_double("frailty_0");
+    float fmin       = _modelParam.get_prm_double("frailty_min");
+    float agemin     = _modelParam.get_prm_double("frailty_agemin");
+    float agepivot   = _modelParam.get_prm_double("frailty_agepivot");
+    float fpivot     = _modelParam.get_prm_double("frailty_pivot");
+    float powerChild = _modelParam.get_prm_double("frailty_powerChild");
+    float frail_sd   = _modelParam.get_prm_double("frailty_sd");
+    
+    // loop through all indviduals:
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();
-        std::uniform_real_distribution<float> unif01(0,1);
-        
         for (uint i=0; i< nk; i++) {
-            _world[k].set_frailty(i, unif01(_RANDOM_GENERATOR));
+            float age = _world[k].get_indiv(i).get_age();
+            float frail_mean = frailty_mean(age, f0, fmin, agemin, agepivot, fpivot, powerChild);
+            std::normal_distribution<> norm(frail_mean,frail_sd);
+            
+            float frail = norm(_RANDOM_GENERATOR);
+            if(frail<0) frail = 0.0;
+            else if(frail>1) frail = 1.0;
+            
+            _world[k].set_frailty(i, frail);
         }
     }
 }

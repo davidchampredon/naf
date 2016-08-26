@@ -53,6 +53,14 @@ prm[['proba_death_prm_1']] <- 0.08
 prm[['proba_death_prm_2']] <- 0.75
 prm[['proba_death_prm_3']] <- 9.999
 
+prm[['frailty_0']] <- 0.60
+prm[['frailty_min']] <- 0.15
+prm[['frailty_agemin']] <- 30.0
+prm[['frailty_agepivot']] <- 60
+prm[['frailty_pivot']] <- 0.50
+prm[['frailty_powerChild']] <- 3
+prm[['frailty_sd']] <- 0.1
+
 
 prm[['homogeneous_contact']] <- FALSE
 prm[['contact_rate']] <- cr
@@ -88,7 +96,7 @@ world.prm[['n_school']] <- c(200, 200) * mult
 world.prm[['n_hosp']]   <- c(1,1)
 world.prm[['n_other']]  <- c(1000, 500) * mult
 
-age.adult   <- seq(19,98,by=1)
+age.adult    <- seq(19,98,by=1)
 age.children <- seq(1,18,by=1)
 age.all      <- c(age.children, age.adult) 
 

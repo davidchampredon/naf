@@ -170,11 +170,12 @@ plot.population <- function(pop) {
 	### ==== Secondary cases distribution ==== 
 	
 	R0 <- mean(pop.transm$n_secondary_cases)
-	
+	nsmax <- max(pop.transm$n_secondary_cases)
 	g.R <- ggplot(pop.transm) + geom_histogram(aes(n_secondary_cases), 
 											   fill = 'red3',
 											   colour = 'red4',
-											   binwidth = 1)
+											   breaks = seq(0,nsmax+1,by=1))
+	g.R <- g.R + scale_x_continuous(breaks =  seq(0,nsmax+1,by=1))
 	g.R <- g.R + geom_vline(aes(xintercept=R0), linetype = 2, size = 2)
 	g.R <- g.R + ggtitle(paste0("Secondary cases distribution (R0=",
 								round(R0,2),")"))

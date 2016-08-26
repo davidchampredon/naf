@@ -143,14 +143,22 @@ List naf_run(List params,
 		set_parameter(MP, "treat_doi_reduc", "double", params);
 		set_parameter(MP, "treat_reduc_infect_mean", "double", params);
 		
-		set_parameter(MP, "vax_imm_incr", "double", params);
-		set_parameter(MP, "vax_frail_incr", "double", params);
+		set_parameter(MP, "vax_imm_incr",          "double", params);
+		set_parameter(MP, "vax_frail_incr",        "double", params);
 		set_parameter(MP, "vax_lag_full_efficacy", "double", params);
 		
 		set_parameter(MP, "proba_death_prm_1", "double", params);
 		set_parameter(MP, "proba_death_prm_2", "double", params);
 		set_parameter(MP, "proba_death_prm_3", "double", params);
 		
+		set_parameter(MP, "frailty_0",         "double", params);
+		set_parameter(MP, "frailty_min",       "double", params);
+		set_parameter(MP, "frailty_agemin",    "double", params);
+		set_parameter(MP, "frailty_agepivot",  "double", params);
+		set_parameter(MP, "frailty_pivot",     "double", params);
+		set_parameter(MP, "frailty_powerChild","double", params);
+		set_parameter(MP, "frailty_sd","double", params);
+				
 		
 		// ==== Simulator parameters ====
 		

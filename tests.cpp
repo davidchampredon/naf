@@ -41,6 +41,14 @@ void main_run_test(){
     MP.add_prm_double ("proba_death_prm_2", 0.85);
     MP.add_prm_double ("proba_death_prm_3", 0.80);
     
+    MP.add_prm_double("frailty_0", 0.60);
+    MP.add_prm_double("frailty_min", 0.15);
+    MP.add_prm_double("frailty_agemin", 30.0);
+    MP.add_prm_double("frailty_agepivot", 60);
+    MP.add_prm_double("frailty_pivot", 0.50);
+    MP.add_prm_double("frailty_powerChild", 3);
+    MP.add_prm_double("frailty_sd", 0.1);
+    
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_double ("contact_rate", 2.9);
     MP.add_prm_uint   ("nt", 3);
