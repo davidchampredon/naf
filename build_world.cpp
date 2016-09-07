@@ -180,8 +180,8 @@ void assign_age_in_households(vector<socialPlace>& hh,
         uint hh_size = hh[k].n_linked_indiv();
         uint idx = hh_size -1; // <-- warning '-1'
         stopif(idx >= n_ad, "Age distribution within households not defined for all cases.");
+        
         for (uint i=0; i<hh_size; i++) {
-            
             // Retrieve the age distribution
             // appropriate for the size of this social place:
             discrete_prob_dist<uint> pr = age_distrib[idx][i];
@@ -391,7 +391,6 @@ void check_sp_integrity(const vector<socialPlace>& x){
         displayVector(tmp);
     }
     stopif(tmp.size()<id_indiv.size(), "individual IDs not uniques");
-    
 }
 
 
@@ -428,8 +427,6 @@ void assign_schedules(vector<socialPlace> & W,
                 else{
                     W[k].set_schedule_indiv(i, sched[s_worker_sed]);
                 }
-                
-                
             }
         }
     }

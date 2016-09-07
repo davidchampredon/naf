@@ -75,7 +75,7 @@ prm[['vax_lag_full_efficacy']] <- 12
 
 ### ==== Simulation parameters ====
 
-simul.prm[['rnd_seed']] <- 123
+simul.prm[['rnd_seed']] <- 1234561
 simul.prm[['horizon']] <- 300
 simul.prm[['initial_latent']] <- 8
 simul.prm[['popexport']] <- 1
@@ -87,7 +87,7 @@ world.prm[['name_au']] <- c("AUone", "AUtwo")
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-mult <- 5
+mult <- 4
 
 world.prm[['n_hh']]     <- c(1200, 1100) * mult
 world.prm[['n_wrk']]    <- c(300, 330) * mult

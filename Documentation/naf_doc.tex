@@ -90,14 +90,14 @@ All individuals are linked to a social place of type ``household''. Link to othe
 \begin{figure}[!ht]
 \centering
     \includegraphics[angle=0,width=0.99\textwidth]{figures/SP_indiv.png}
-\caption{Individual and their linked social places. This is a simple illustration of how linkage between individuals and social places is modelled. All individuals are linked to social places of type ``household'' (solid link). Links to other social places depends on the individual's features, like age. For rxample, individual 1 is an employed adult and hence is linked to a workplace, but not a school.}
+\caption{Individual and their linked social places. This is a simple illustration of how linkage between individuals and social places is modelled. All individuals are linked to social places of type ``household'' (solid link). Links to other social places depends on the individual's features, like age. For example, individual 1 is an employed adult and hence is linked to a workplace, but not a school.}
 \label{fig:SP_indiv}
 \end{figure}
 
 
 \subsection{Population construction}
 
-The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All household have at least one individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child. There cannot be an empty household or an individual without a link to a household.
+The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All households have at least one individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child. There cannot be an empty household or an individual without a link to a household.
 
 Construction of other social places is more straightforward. Individuals are assigned randomly to workplaces, schools, public transportation, etc. based on their features (\eg age, distance from household \note{not implemented yet}). 
 
