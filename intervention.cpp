@@ -12,12 +12,12 @@
 
 intervention::intervention(){
     _time_start = __UNDEFINED_FLOAT;
-    _time_end = __UNDEFINED_FLOAT;
+    _time_end   = __UNDEFINED_FLOAT;
     
     _cvg_rate = 0.0;
     _cvg_max_proportion = 0.0;
     _name = "UNDEFINED INTERVENTION";
-    _type_intervention = "UNDEFINED INTERVENTION";
+    _type_intervention   = "UNDEFINED INTERVENTION";
     _type_indiv_targeted = "UNDEFINED INTERVENTION";
 }
 

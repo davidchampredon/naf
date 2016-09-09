@@ -10,6 +10,11 @@
 #include <math.h>
 
 
+double linear_interpol(double x, double x1, double y1, double x2, double y2){
+    return (x-x1)/(x2-x1)*y2 + (x-x2)/(x1-x2)*y1;
+}
+
+
 float frailty_mean(float age,
                    float f0,
                    float fmin,

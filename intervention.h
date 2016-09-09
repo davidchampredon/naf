@@ -28,8 +28,8 @@ private:
     string _type_intervention;
     string _type_indiv_targeted;
 
-    float   _cvg_rate;
-    float   _cvg_max_proportion;
+    float  _cvg_rate;
+    float  _cvg_max_proportion;
     
     
 public:

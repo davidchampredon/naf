@@ -478,7 +478,8 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     vector<double> id_indiv(n);
     vector<double> age(n);
     vector<double> is_alive(n);
-    vector<double> immunity(n);
+    vector<double> immunity_hum(n);
+    vector<double> immunity_cell(n);
     vector<double> frailty(n);
     vector<double> is_infected(n);
     vector<double> is_infectious(n);
@@ -504,7 +505,8 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
         id_indiv[i]      = _indiv[i].get_id();
         age[i]           = _indiv[i].get_age();
         is_alive[i]      = _indiv[i].is_alive();
-        immunity[i]      = _indiv[i].get_immunity();
+        immunity_hum[i]  = _indiv[i].get_immunity_hum();
+        immunity_cell[i] = _indiv[i].get_immunity_cell();
         frailty[i]       = _indiv[i].get_frailty();
         is_infected[i]   = _indiv[i].is_infected();
         is_infectious[i] = _indiv[i].is_infectious();
@@ -530,7 +532,8 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     df.addcol("id_indiv", id_indiv);
     df.addcol("age", age);
     df.addcol("is_alive", is_alive);
-    df.addcol("immunity", immunity);
+    df.addcol("immunity_hum", immunity_hum);
+    df.addcol("immunity_cell", immunity_cell);
     df.addcol("frailty", frailty);
     df.addcol("is_infected", is_infected);
     df.addcol("is_infectious", is_infectious);
@@ -844,7 +847,8 @@ void populate_random_with_indiv(vector<socialPlace> & sp,
         tmp.set_id_sp_other(sp[id_rnd]);
         
         
-        tmp.set_immunity(0.0);
+        tmp.set_immunity_hum(0.0);
+        tmp.set_immunity_cell(0.0);
         tmp.set_frailty(1.0);
         
         tmp.set_schedule(sched[unif_int(_RANDOM_GENERATOR)]);

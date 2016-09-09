@@ -83,7 +83,8 @@ void Simulator::create_world(vector<areaUnit> AU,
                             doi_distrib,
                             doh_distrib);
     
-    assign_immunity();
+    assign_immunity_hum();
+    assign_immunity_cell();
     assign_frailty();
 
     float unemplyed_prop = 0.10;
@@ -802,7 +803,7 @@ void Simulator::run(){
         }
         
         if(at_least_one_vaccination_intervention())
-            update_immunity_frailty();
+            update_immunities();
         
         // Record for time series:
         timeseries_update();
@@ -1048,7 +1049,7 @@ double Simulator::calc_proba_transmission(individual *infectious,
     // TO DO: implement something more elaborate!
     
     // Susceptible side (acquisition risk):
-    double p_susc = susceptible->get_frailty() * (1 - susceptible->get_immunity());
+    double p_susc = 1.0 - susceptible->get_immunity_hum();
     
     // infectious side (transmission risk):
     double p_inf = 1.0;
@@ -1265,9 +1266,9 @@ uint Simulator::transmission_activation(int k,
         _world[k]._indiv_S[SS_melt_success[m]]->acquireDisease();
         
         // determine if symptomatic:
-        float immunity = _world[k]._indiv_S[SS_melt_success[m]]->get_immunity();
+        float imm_cell = _world[k]._indiv_S[SS_melt_success[m]]->get_immunity_cell();
         float frailty  = _world[k]._indiv_S[SS_melt_success[m]]->get_frailty();
-        double p_sympt = calc_proba_symptomatic(immunity, frailty);
+        double p_sympt = calc_proba_symptomatic(imm_cell, frailty);
         
         bool is_symptomatic = ( unif_01(_RANDOM_GENERATOR) < p_sympt );
         if (is_symptomatic) {
@@ -2073,8 +2074,8 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
     vector<individual*> indiv_drawn;
     bool found = false;
     
-    float cvg_rate  = _intervention[i].get_cvg_rate();
-    string type_target = _intervention[i].get_type_indiv_targeted();
+    float cvg_rate         = _intervention[i].get_cvg_rate();
+    string type_target     = _intervention[i].get_type_indiv_targeted();
     float interv_intensity = cvg_rate * _world[id_sp].get_size() * dt;
     
     if(type_target == "symptomatic"){
@@ -2167,7 +2168,7 @@ void Simulator::activate_interventions(ID id_sp, double dt,
     }
 }
 
-void Simulator::update_immunity_frailty() {
+void Simulator::update_immunities() {
     /// Update immunity and frailty of vaccinated individuals
     /// at each time step. Because vaccine takes some time
     /// to reach its full efficacy, both immunity and frailty
@@ -2182,23 +2183,22 @@ void Simulator::update_immunity_frailty() {
             
             if (_current_time < t_vax+lag_vax){
                 
-                float target_imm =  _world[k]._indiv_vax[i]->get_vax_target_immunity();
-                float target_fra =  _world[k]._indiv_vax[i]->get_vax_target_frailty();
-                float imm0       =  _world[k]._indiv_vax[i]->get_imm_when_recv_vax();
-                float frail0     =  _world[k]._indiv_vax[i]->get_frail_when_recv_vax();
+                float imm_hum0   =  _world[k]._indiv_vax[i]->get_imm_hum_when_recv_vax();
+                float imm_cell0  =  _world[k]._indiv_vax[i]->get_imm_cell_when_recv_vax();
                 
-                // Exponential growth to target level:
-                float tmp_i_b = log(target_imm/imm0) / lag_vax;
-                float tmp_i_a = imm0 * exp(-tmp_i_b * t_vax);
-                float tmp_i   = tmp_i_a * exp( tmp_i_b * _current_time);
-                
-                float tmp_f_b = log(target_fra/frail0) / lag_vax;
-                float tmp_f_a = frail0 * exp(-tmp_f_b * t_vax);
-                float tmp_f   = tmp_f_a * exp( tmp_f_b * _current_time);
-                
+                float target_imm_hum  =  _world[k]._indiv_vax[i]->get_vax_target_immunity_hum();
+                float target_imm_cell =  _world[k]._indiv_vax[i]->get_vax_target_immunity_cell();
+
+                // Linear growth to target level:
+                float curr_imm_hum   = linear_interpol(_current_time,
+                                                       t_vax, imm_hum0,
+                                                       t_vax+lag_vax, target_imm_hum);
+                float curr_imm_cell  = linear_interpol(_current_time,
+                                                       t_vax, imm_cell0,
+                                                       t_vax+lag_vax, target_imm_cell);
                 // update levels:
-                _world[k]._indiv_vax[i]->set_immunity(tmp_i);
-                _world[k]._indiv_vax[i]->set_frailty(tmp_f);
+                _world[k]._indiv_vax[i]->set_immunity_hum(curr_imm_hum);
+                _world[k]._indiv_vax[i]->set_immunity_cell(curr_imm_cell);
             }
         }
     }
@@ -2235,9 +2235,10 @@ bool Simulator::at_least_one_infected(){
 
 
 void Simulator::assign_dox_distribution(string dol_distrib,
-                                         string doi_distrib,
-                                         string doh_distrib){
-    
+                                        string doi_distrib,
+                                        string doh_distrib){
+    /// Assign distributions for duration of latency,
+    /// infectiousness and hospitalization
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();
@@ -2249,9 +2250,8 @@ void Simulator::assign_dox_distribution(string dol_distrib,
     }
 }
 
-
-void Simulator::assign_immunity(){
-    /// Calculate immunity index for all individuals
+void Simulator::assign_immunity_hum(){
+    /// Calculate humoral immunity index for all individuals
     
     for (uint k=0; k< _world.size(); k++)
     {
@@ -2259,7 +2259,22 @@ void Simulator::assign_immunity(){
         std::uniform_real_distribution<float> unif01(0,1);
         
         for (uint i=0; i< nk; i++) {
-            _world[k].set_immunity(i, unif01(_RANDOM_GENERATOR));
+            _world[k].set_immunity_hum(i, unif01(_RANDOM_GENERATOR));
+        }
+    }
+}
+
+
+void Simulator::assign_immunity_cell(){
+    /// Calculate cellular immunity index for all individuals
+    
+    for (uint k=0; k< _world.size(); k++)
+    {
+        unsigned long nk = _world[k].get_size();
+        std::uniform_real_distribution<float> unif01(0,1);
+        
+        for (uint i=0; i< nk; i++) {
+            _world[k].set_immunity_cell(i, unif01(_RANDOM_GENERATOR));
         }
     }
 }

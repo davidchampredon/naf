@@ -14,6 +14,8 @@
 #endif /* defined(__naf__shapeFct__) */
 
 
+double linear_interpol(double x, double x1, double y1, double x2, double y2);
+
 
 float frailty_mean(float age,
                    float f0,

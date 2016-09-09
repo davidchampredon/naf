@@ -73,19 +73,32 @@ plot.population <- function(pop) {
 												binomial_response = 'is_alive',
 												title='Death and Frailty')
 	
-	g.death.imm <- plot.binomial.regression(dat = pop, 
-											xvar='immunity',
+	g.death.imm.hum <- plot.binomial.regression(dat = pop, 
+											xvar='immunity_hum',
 											binomial_response = 'is_alive',
-											title='Death and Immunity')
+											title='Death and Humoral Immunity')
+	
+	g.death.imm.cell <- plot.binomial.regression(dat = pop, 
+											xvar='immunity_cell',
+											binomial_response = 'is_alive',
+											title='Death and Cellular Immunity')
+	
 	
 	g.death.frailty.dist <- plot.density.categ(dat = pop, 
 											   xvar='frailty',
 											   categ = 'is_alive',
 											   title='Frailty distribution (by survival)')
-	g.death.imm.dist <- plot.density.categ(dat = pop, 
-										   xvar='immunity',
-										   categ = 'is_alive',
-										   title='Immunity distribution (by survival)')
+	
+	g.death.imm.hum.dist <- plot.density.categ(dat = pop, 
+											   xvar='immunity_hum',
+											   categ = 'is_alive',
+											   title='Humoral Immunity distribution (by survival)')
+	
+	g.death.imm.cell.dist <- plot.density.categ(dat = pop, 
+												xvar='immunity_cell',
+												categ = 'is_alive',
+												title='Cellular Immunity distribution (by survival)')
+	
 	
 	
 	
@@ -93,12 +106,19 @@ plot.population <- function(pop) {
 	
 	pop$age.round <- round(pop$age,0)
 	
-	age.imm.fra <- ddply(pop,c('age.round'),summarize, imm = mean(immunity), fra = mean(frailty))
+	age.imm.fra <- ddply(pop,c('age.round'),summarize, 
+						 imm.hum = mean(immunity_hum), 
+						 imm.cell = mean(immunity_cell), 
+						 fra = mean(frailty))
 	age.imm.fra
 	
-	g.age.imm <- ggplot(age.imm.fra)+geom_line(aes(x=age.round,y=imm)) +coord_cartesian(ylim = c(0,1))
-	g.age.imm <- g.age.imm + ggtitle('Immunity by age') + xlab('age') + ylab('immunity')
-	g.age.imm <- g.age.imm + geom_smooth(aes(x=age.round,y=imm), colour='red3',size=2,se = F)
+	g.age.imm.hum <- ggplot(age.imm.fra)+geom_line(aes(x=age.round,y=imm.hum)) +coord_cartesian(ylim = c(0,1))
+	g.age.imm.hum <- g.age.imm.hum + ggtitle('Humoral Immunity by age') + xlab('age') + ylab('immunity')
+	g.age.imm.hum <- g.age.imm.hum + geom_smooth(aes(x=age.round,y=imm.hum), colour='red3',size=2,se = F)
+	
+	g.age.imm.cell <- ggplot(age.imm.fra)+geom_line(aes(x=age.round,y=imm.cell)) +coord_cartesian(ylim = c(0,1))
+	g.age.imm.cell <- g.age.imm.cell + ggtitle('Cellular Immunity by age') + xlab('age') + ylab('immunity')
+	g.age.imm.cell <- g.age.imm.cell + geom_smooth(aes(x=age.round,y=imm.cell), colour='red3',size=2,se = F)
 	
 	g.age.fra <- ggplot(age.imm.fra)+geom_line(aes(x=age.round,y=fra)) +coord_cartesian(ylim = c(0,1))
 	g.age.fra <- g.age.fra + ggtitle('Frailty by age') + xlab('age') + ylab('frailty')
@@ -142,9 +162,14 @@ plot.population <- function(pop) {
 											 binomial_response = 'hosp',
 											 title = 'Hospitalization and frailty')
 	
-	g.imm.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity',
+	g.imm.hum.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_hum',
 											 binomial_response = 'hosp',
-											 title = 'Hospitalization and immunity')
+											 title = 'Hospitalization and humoral immunity')
+	
+	g.imm.cell.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_cell',
+											   binomial_response = 'hosp',
+											   title = 'Hospitalization and cellular immunity')
+	
 	
 	g.age.hosp <- plot.binomial.regression(dat = pop, xvar = 'age',
 										   binomial_response = 'hosp',
@@ -262,6 +287,17 @@ plot.population <- function(pop) {
 													")"))
 	
 	### ==== Symptomatics ====
+
+	g.sympt.imm.hum.dist <- plot.density.categ(dat = pop, 
+											   xvar ='immunity_hum',
+											   categ = 'was_symptomatic',
+											   title ='Humoral Immunity distribution\n(by symptomatic status)')
+	
+	g.sympt.imm.cell.dist <- plot.density.categ(dat = pop, 
+												xvar ='immunity_cell',
+												categ = 'was_symptomatic',
+												title ='Cellular Immunity distribution\n(by symptomatic status)')
+	
 	
 	sympt.vax <- ddply(pop.inf,c("is_vaccinated","was_symptomatic"), summarize, n=length(id_indiv))
 	sympt.vax
@@ -270,32 +306,39 @@ plot.population <- function(pop) {
 												  stat='identity', position='dodge')
 	g.sympt.vax <- g.sympt.vax + ggtitle('Symptomatic infection and vaccination')
 	
-	
+
 	### ==== Final ====
 	
 	grid.arrange(g.age, 
-				 g.age.imm,
+				 g.age.imm.hum,
+				 g.age.imm.cell,
 				 g.age.fra,
 				 g.age.death.dist,
 				 g.death.frailty,
-				 g.death.imm,
+				 g.death.imm.hum,
+				 g.death.imm.cell,
 				 g.death.frailty.dist,
-				 g.death.imm.dist,
-				 g.dol.drawn, 
-				 g.doi.drawn,
-				 g.dobh.drawn,
-				 g.doh.drawn,
-				 g.imm.hosp,
+				 g.death.imm.hum.dist,
+				 g.death.imm.cell.dist,
+				 g.imm.hum.hosp,
+				 g.imm.cell.hosp,
 				 g.frail.hosp,
 				 g.age.hosp, 
 				 g.treat.hosp,
 				 g.vax.hosp,
 				 g.sympt.vax,
-				 g.R,
-				 g.R.symptom,
-				 g.R.treat,
-				 g.gibck,
-				 g.gibck.sympt)
+				 g.sympt.imm.hum.dist,
+				 g.sympt.imm.cell.dist
+				)
+	
+	grid.arrange( g.dol.drawn, 
+				  g.doi.drawn,
+				  g.dobh.drawn,
+				  g.doh.drawn, g.R,
+				  g.R.symptom,
+				  g.R.treat,
+				  g.gibck,
+				  g.gibck.sympt)
 	
 }
 

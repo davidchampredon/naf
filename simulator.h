@@ -100,7 +100,8 @@ public:
     void assign_dox_distribution(string dol_distrib,
                                  string doi_distrib,
                                  string doh_distrib);
-    void assign_immunity();
+    void assign_immunity_hum();
+    void assign_immunity_cell();
     void assign_frailty();
     
 	// Simulate
@@ -204,7 +205,7 @@ public:
    
     
     
-    void    update_immunity_frailty();
+    void    update_immunities();
     bool    at_least_one_vaccination_intervention();
     
     vector<individual*> draw_targeted_individuals(uint i_intervention,

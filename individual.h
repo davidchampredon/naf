@@ -37,7 +37,8 @@ protected:
 	bool	_is_alive;
 	
 	// Medical
-	float	_immunity;		// between 0 and 1.0 (1=completely immune)
+	float	_immunity_hum;  // humoral immunity index - between 0 and 1.0 (1=completely immune)
+    float	_immunity_cell; // cellular immunity index - between 0 and 1.0 (1=completely immune)
 	float	_frailty;		// between 0 and 1.0 (1=extremely weak)
 	
 	// Disease
@@ -95,10 +96,12 @@ protected:
     // reached at the end of that period:
     float   _vax_time_received;
     float   _vax_lag_full_efficacy; // <-- lag b/w time vax recvd and full efficacy
-    float   _vax_target_immunity;
+    float   _vax_target_immunity_hum;
+    float   _vax_target_immunity_cell;
     float   _vax_target_frailty;
-    float   _imm_when_recv_vax;     // immunity when vaccinated
-    float   _frail_when_recv_vax;   // frailty when vaccinated
+    float   _imm_hum_when_recv_vax;      // humoral immunity when vaccinated
+    float   _imm_cell_when_recv_vax;     // cellular immunity when vaccinated
+    float   _frail_when_recv_vax;        // frailty when vaccinated
     
 	// Social spaces linked
 	// to this individual
@@ -145,7 +148,8 @@ public:
 
 	void forget_id_sp_household(){_id_sp_household = __UNDEFINED_ID;}
 	
-	void set_immunity(float x)          {_immunity = x;}
+	void set_immunity_hum(float x)      {_immunity_hum = x;}
+    void set_immunity_cell(float x)     {_immunity_cell = x;}
 	void set_frailty(float x)           {_frailty = x;}
 	
 	void set_schedule(schedule s)       {_schedule = s;}
@@ -192,7 +196,8 @@ public:
 	ID get_id_sp_pubTransp()    const {return _id_sp_pubTransp;}
 	
     double	get_age()           const {return _age;}
-    float	get_immunity()      const {return _immunity;}
+    float	get_immunity_hum()  const {return _immunity_hum;}
+    float	get_immunity_cell() const {return _immunity_cell;}
     float	get_frailty()       const {return _frailty;}
     float	get_dol_drawn()     const {return _dol_drawn;}
     float	get_doi_drawn()     const {return _doi_drawn;}
@@ -205,9 +210,11 @@ public:
     
     float get_vax_time_received()       const {return _vax_time_received;}
     float get_vax_lag_full_efficacy()   const {return _vax_lag_full_efficacy;}
-    float get_vax_target_immunity()     const {return _vax_target_immunity;}
+    float get_vax_target_immunity_hum() const {return _vax_target_immunity_hum;}
+    float get_vax_target_immunity_cell()const {return _vax_target_immunity_cell;}
     float get_vax_target_frailty()      const {return _vax_target_frailty;}
-    float get_imm_when_recv_vax()       const {return _imm_when_recv_vax;}
+    float get_imm_hum_when_recv_vax()   const {return _imm_hum_when_recv_vax;}
+    float get_imm_cell_when_recv_vax()  const {return _imm_cell_when_recv_vax;}
     float get_frail_when_recv_vax()     const {return _frail_when_recv_vax;}
 	
     float get_acquisition_time()            const{return _acquisition_time;}
