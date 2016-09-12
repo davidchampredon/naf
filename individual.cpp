@@ -445,7 +445,7 @@ ID individual::find_dest(uint idx_timeslice){
     
     SPtype sptype = get_schedule_sp_type(idx_timeslice);
     
-    //			Retrieve the actual destination:
+    // Retrieve the actual destination:
     
     ID id_dest = __UNDEFINED_ID;
     if(sptype == SP_household)	id_dest = get_id_sp_household();

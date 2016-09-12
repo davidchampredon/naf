@@ -61,7 +61,11 @@ protected:
     vector<uint>    _ts_n_treated;
     vector<uint>    _ts_n_vaccinated;
 
-    dcDataFrame     _ts_census_by_SP;
+    vector<double>  _ts_census_sp_time;
+    vector<uint>    _ts_census_sp_id;
+    vector<string>  _ts_census_sp_type;
+    vector<uint>    _ts_census_sp_nS;
+    vector<uint>    _ts_census_sp_nE;
 
     vector<intervention> _intervention;
     
@@ -124,7 +128,12 @@ public:
 	double			get_current_time()   const {return _current_time;}
 	vector<double>	get_ts_times()       const {return _ts_times;}
 	vector<uint>	get_ts_incidence()   const {return _ts_incidence;}
-    dcDataFrame     get_ts_census_by_SP()const {return _ts_census_by_SP;}
+    
+    vector<double>  get_ts_census_sp_time()  const{return _ts_census_sp_time;}
+    vector<uint>    get_ts_census_sp_id()    const{return _ts_census_sp_id;}
+    vector<string>  get_ts_census_sp_type()  const{return _ts_census_sp_type;}
+    vector<uint>    get_ts_census_sp_nS()    const{return _ts_census_sp_nS;}
+    vector<uint>    get_ts_census_sp_nE()    const{return _ts_census_sp_nE;}
 
     uint            get_id_sp_other(uint pos) const {return _sp_other[pos]->get_id_sp();}
     
@@ -217,7 +226,7 @@ public:
     
     bool    at_least_one_infected();
     uint    census_total_alive();
-    void    update_ts_census_by_SP();
+    void    update_ts_census_SP();
 
     
 	// Exports

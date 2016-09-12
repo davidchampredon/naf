@@ -47,19 +47,19 @@ prm[['doi_var']] <- 2.5
 prm[['doh_var']] <- 1.00
 
 prm[['proba_move']] <- 1
-prm[['proba_change_sp_other']] <- 0.01
+prm[['proba_change_sp_other']] <- 0.11
 
 prm[['proba_death_prm_1']] <- 0.08
 prm[['proba_death_prm_2']] <- 0.75
 prm[['proba_death_prm_3']] <- 9.999
 
-prm[['frailty_0']] <- 0.60
-prm[['frailty_min']] <- 0.15
-prm[['frailty_agemin']] <- 30.0
+prm[['frailty_0']]        <- 0.60
+prm[['frailty_min']]      <- 0.15
+prm[['frailty_agemin']]   <- 30.0
 prm[['frailty_agepivot']] <- 60
-prm[['frailty_pivot']] <- 0.50
+prm[['frailty_pivot']]    <- 0.50
+prm[['frailty_sd']]       <- 0.1
 prm[['frailty_powerChild']] <- 3
-prm[['frailty_sd']] <- 0.1
 
 
 prm[['homogeneous_contact']] <- FALSE
@@ -141,12 +141,12 @@ sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)
 
 ###  ==== Intervention parameters ====
 
-interv.prm[['interv_name']] <- 'interv_test'
-interv.prm[['interv_type']] <- 'vaccination'  # treatment cure vaccination
-interv.prm[['interv_target']] <- 'susceptible'  # symptomatic  susceptible
-interv.prm[['interv_start']] <- 998
-interv.prm[['interv_end']] <- 999
-interv.prm[['interv_cvg_rate']] <- 0.05
+interv.prm[['interv_name']]         <- 'interv_test'
+interv.prm[['interv_type']]         <- 'vaccination'  # treatment cure vaccination
+interv.prm[['interv_target']]       <- 'susceptible'  # symptomatic  susceptible
+interv.prm[['interv_start']]        <- 1
+interv.prm[['interv_end']]          <- 999
+interv.prm[['interv_cvg_rate']]     <- 0.05
 interv.prm[['interv_cvg_max_prop']] <- 0.9999
 
 
@@ -185,6 +185,9 @@ message("Plotting results...")
 if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
 try(plot.population(pop),silent = T)
 try(plot.epi.timeseries(ts), silent = T)
+try(grid.arrange(plot.ts.sp(res$time_series_sp),
+				 plot.ts.sp(res$time_series_sp, facets = T)), 
+	silent = T)
 if (save.plot.to.file) dev.off()
 
 

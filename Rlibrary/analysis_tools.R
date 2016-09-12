@@ -410,3 +410,27 @@ plot.epi.timeseries <- function(ts){
 				 g.death,
 				 g.death.inc)
 }
+
+plot.ts.sp <- function(ts, facets=FALSE){
+
+	zz <- data.frame(matrix(unlist(ts),ncol = length(ts)))
+	names(zz) <- names(ts)
+	
+	myconv <- function(x) {
+		return(as.numeric(as.character(x)))
+	}
+	zz$time <- myconv(zz$time)
+	zz$id_sp<- myconv(zz$id_sp)
+	zz$nS <- myconv(zz$nS)
+	zz$nE <- myconv(zz$nE)
+	
+	zz$timeround <- floor(zz$time)
+	df <- ddply(zz,c('timeround','type'),summarize, n=sum(nE))
+	
+	g <- ggplot(df,aes(x=timeround, y=n, colour=type, shape=type))
+	g <- g + geom_point()+geom_line(size=0.2)
+	if(facets) g <- g +facet_wrap(~type)
+	g <- g + ggtitle("Exposed individuals, by SP types") + xlab('day')
+	g <- g + scale_y_log10()
+	return(g)
+}

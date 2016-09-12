@@ -28,7 +28,12 @@ void Simulator::base_constructor(){
     _ts_Is.clear();
     _ts_R.clear();
     _ts_D.clear();
-    _ts_census_by_SP.clear();
+    _ts_census_sp_time.clear();
+    _ts_census_sp_id.clear();
+    _ts_census_sp_type.clear();
+    _ts_census_sp_nS.clear();
+    _ts_census_sp_nE.clear();
+    
     _ts_n_treated.clear();
     _ts_n_vaccinated.clear();
     
@@ -738,15 +743,11 @@ void Simulator::run(){
     
     // ----- MAIN LOOP FOR TIME ------
     
-    for (_current_time = 0.0; _current_time < _horizon; ) {
-        
-        // Check if there is at least one infected or susceptible indivual.
-        // If not, stop the simulation.
-        // * * WARNING * *
-        // This test must be changed if immigration of cases is implemented
-        if (!at_least_one_infected()) break;
-        
-        
+    _current_time = 0.0;
+    
+    while (_current_time < _horizon &&
+           at_least_one_infected()  )  // <-- WARNING: This test must be changed if immigration of cases is implemented
+    {
         uint idx_timeslice = k % nts;
         double dt = timeslice[idx_timeslice];
         
@@ -769,12 +770,11 @@ void Simulator::run(){
             cout.precision(15);
         }
         
-        // TOO SLOW: update_ts_census_by_SP();
+        update_ts_census_SP();
         
         discharge_hospital(idx_timeslice);
         define_all_id_tables();
         death_hospital();
-        // DELETE WHEN SURE : define_all_id_tables(); // <-- check if this is necessary here
         
         if(p_move>0) {
             move_individuals_sched(idx_timeslice, p_move);
@@ -835,6 +835,7 @@ void Simulator::set_world(world w){
     update_pop_count();
 }
 
+
 void Simulator::set_disease(const disease &d){
     /// Set the disease 'd' to all individuals in all social places
     for (uint k=0; k<_world.size(); k++) {
@@ -865,7 +866,7 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                                         double proba){
     /// Move individuals across social places according to their schedule
     
-    unsigned long N          = _world.size();
+    unsigned long N = _world.size();
     
     std::uniform_real_distribution<double> unif(0.0,1.0);
     
@@ -897,17 +898,6 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                     
                     if ( id_dest!=k )
                     {
-// CHANGE sp-other-linked:
-//                        // if destination is 'other',
-//                        // then pick randomly a social place of type 'other'
-//                        // for the destination:
-//                        if (id_dest == __LARGE_ID){
-//                            id_dest = pick_rnd_sp_other()->get_id_sp();
-//                            //DEBUG
-//                            cout << "DEBUG: other dest --> sp_id = " << id_dest << endl;
-//                        }
-//                        
-                        
                         // take a copy of the individual
                         individual tmp = _world[k].get_indiv(i);
                         
@@ -1558,85 +1548,22 @@ dcDataFrame Simulator::timeseries(){
 
 
 
-void Simulator::update_ts_census_by_SP(){
+void Simulator::update_ts_census_SP(){
     /// Update the data frame recording
     /// the number of individuals in each
     /// disease stage, for every social places.
     
     unsigned long n = _world.size();
     
-    if (_ts_census_by_SP.get_nrows() == 0)
-    {
-        // Create data frame with time
-        vector<double> t(n, 0.0);
-        dcDataFrame tmp(t,"time");
-        _ts_census_by_SP = tmp;
-        
-        vector<double> id_sp(n);
-        vector<double> pop_present(n);
-        vector<double> nS(n);
-        vector<double> nE(n);
-        vector<double> nIs(n);
-        vector<double> nIa(n);
-        vector<double> nR(n);
-        
-        for (uint k=0; k<n; k++) {
-            id_sp[k]        = _world[k].get_id_sp();
-            pop_present[k]  = _world[k].get_size();
-            nS[k]           = _world[k].get_n_S();
-            nE[k]           = _world[k].get_n_E();
-            nIs[k]          = _world[k].get_n_Is();
-            nIa[k]          = _world[k].get_n_Ia();
-            nR[k]           = _world[k].get_n_R();
-        }
-        
-        _ts_census_by_SP.addcol("id_sp", id_sp);
-        _ts_census_by_SP.addcol("pop_present", pop_present);
-        _ts_census_by_SP.addcol("nS", nS);
-        _ts_census_by_SP.addcol("nE", nE);
-        _ts_census_by_SP.addcol("nIs", nIs);
-        _ts_census_by_SP.addcol("nIa", nIa);
-        _ts_census_by_SP.addcol("nR", nR);
+    for (uint k=0; k<n; k++) {
+        _ts_census_sp_time.push_back(_current_time);
+        _ts_census_sp_id.push_back(_world[k].get_id_sp());
+        _ts_census_sp_type.push_back( SPtype2string(_world[k].get_type()));
+        _ts_census_sp_nS.push_back(_world[k].get_n_S());
+        _ts_census_sp_nE.push_back(_world[k].get_n_E());
     }
-    
-    if (_ts_census_by_SP.get_nrows() > 0)
-    {
-        // Create data frame with time
-        vector<double> t(n, _current_time);
-        dcDataFrame tmp(t,"time");
-        
-        vector<double> id_sp(n);
-        vector<double> pop_present(n);
-        vector<double> nS(n);
-        vector<double> nE(n);
-        vector<double> nIs(n);
-        vector<double> nIa(n);
-        vector<double> nR(n);
-        
-        for (uint k=0; k<n; k++) {
-            id_sp[k]        = _world[k].get_id_sp();
-            pop_present[k]  = _world[k].get_size();
-            nS[k]           = _world[k].get_n_S();
-            nE[k]           = _world[k].get_n_E();
-            nIs[k]          = _world[k].get_n_Is();
-            nIa[k]          = _world[k].get_n_Ia();
-            nR[k]           = _world[k].get_n_R();
-        }
-        
-        tmp.addcol("id_sp", id_sp);
-        tmp.addcol("pop_present", pop_present);
-        tmp.addcol("nS", nS);
-        tmp.addcol("nE", nE);
-        tmp.addcol("nIs", nIs);
-        tmp.addcol("nIa", nIa);
-        tmp.addcol("nR", nR);
-        
-        _ts_census_by_SP = rbind(_ts_census_by_SP, tmp);
-    }
-    
-    // DEBUG
-    //    _ts_census_by_SP.display();
 }
+
 
 
 void Simulator::update_pop_count(){
@@ -2009,6 +1936,7 @@ void Simulator::discharge_hospital(uint idx_timeslice){
     }
 }
 
+
 void Simulator::death_hospital(){
     
     /// Scan all infectious hospitalized individuals
@@ -2157,9 +2085,9 @@ void Simulator::activate_interventions(ID id_sp, double dt,
             
             if (_intervention[i].get_type_intervention()=="treatment")
                 _n_treated += x.size();
-            else if (_intervention[i].get_type_intervention()=="vaccination"){
+            else if (_intervention[i].get_type_intervention()=="vaccination")
+            {
                 _n_vaccinated += x.size();
-                
                 _world[id_sp]._indiv_vax.insert(_world[id_sp]._indiv_vax.end(),
                                                 x.begin(),
                                                 x.end());
@@ -2167,6 +2095,7 @@ void Simulator::activate_interventions(ID id_sp, double dt,
         }
     }
 }
+
 
 void Simulator::update_immunities() {
     /// Update immunity and frailty of vaccinated individuals
@@ -2250,6 +2179,7 @@ void Simulator::assign_dox_distribution(string dol_distrib,
     }
 }
 
+
 void Simulator::assign_immunity_hum(){
     /// Calculate humoral immunity index for all individuals
     
@@ -2278,6 +2208,7 @@ void Simulator::assign_immunity_cell(){
         }
     }
 }
+
 
 void Simulator::assign_frailty(){
     /// Calculate frailty index for all individuals
@@ -2350,8 +2281,10 @@ void Simulator::change_rnd_sp_other(){
                     ID id_sp_other_old = _world[k].get_indiv(i).get_id_sp_other();
                     ID id_indiv        = _world[k].get_indiv(i).get_id();
                     _world[id_sp_other_old].remove_linked_indiv(id_indiv);
-                    // (nothing to remove for the individual
-                    //  bc the 'set_sp_other_link' will overwrite individual's linked 'other' social place
+
+                    // Note: nothing to remove for the individual
+                    //  bc the 'set_sp_other_link' will overwrite
+                    // individual's linked 'other' social place.
                     
                     // New link to be added:
                     socialPlace *sp_other_new = pick_rnd_sp_other();
@@ -2361,8 +2294,6 @@ void Simulator::change_rnd_sp_other(){
         }
     }
 }
-
-
 
 
 

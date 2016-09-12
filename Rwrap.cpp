@@ -314,14 +314,25 @@ List naf_run(List params,
 		dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
 		// epidemic time series
 		dcDataFrame ts = sim.timeseries();
-//		dcDataFrame ts_census = sim.get_ts_census_by_SP();  // <-- TOO SLOW
+
+		// Time series of census for every social places:
+		Rcpp::List census_sp;
+		census_sp.push_back(sim.get_ts_census_sp_time());
+		census_sp.push_back(sim.get_ts_census_sp_id());
+		census_sp.push_back(sim.get_ts_census_sp_type());
+		census_sp.push_back(sim.get_ts_census_sp_nS());
+		census_sp.push_back(sim.get_ts_census_sp_nE());
+		vector<string> tmp_names = {"time","id_sp","type","nS","nE"};
+		census_sp.attr("names") = tmp_names;
+		
 		
 		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
 		
 		// Return R-formatted result:
 		return List::create(Named("population_final") = to_list(pop_final,false),
-							Named("world") = to_list_vector(W, false),
-							Named("time_series") = to_list(ts, false)
+							Named("world")            = to_list_vector(W, false),
+							Named("time_series")      = to_list(ts, false),
+							Named("time_series_sp")   = census_sp
 							);
 	}
 	catch (...){
@@ -456,115 +467,14 @@ List naf_run(List params,
 		dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
 		// epidemic time series
 		dcDataFrame ts = sim.timeseries();
-		dcDataFrame ts_census = sim.get_ts_census_by_SP();
 		
 		// Return R-formatted result:
 		return List::create(Named("population_final") = to_list(pop_final,false),
 							Named("time_series") = to_list(ts, false),
-							Named("time_series_census") = to_list(ts_census, false));
+							Named("time_series_census") = 0);
 	}
 	
-	/*
-	 // [[Rcpp::export]]
-	 List build_world(List params){
-	 
-	 
-	 vector<ID> id_au = params["id_au"];
-	 vector<string> name_au = params["name_au"];
-	 
-	 ID id_region = 0;
-	 string regionName = "RegionOne";
-	 vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
-	 
-	 // Households sizes
-	 vector<uint> hh_size			= params["hh_size"];
-	 vector<double> hh_size_proba	= params["hh_size_proba"];
-	 discrete_prob_dist<uint> D_size_hh(hh_size, hh_size_proba);
-	 D_size_hh.display();
-	 
-	 // Age distribution inside households
-	 vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
-	 
-	 discrete_prob_dist<uint> pr_age_hh_00(params["age_hh_00"],params["age_hh_00_proba"]);
-	 discrete_prob_dist<uint> pr_age_hh_10(params["age_hh_10"],params["age_hh_10_proba"]);
-	 discrete_prob_dist<uint> pr_age_hh_11(params["age_hh_11"],params["age_hh_11_proba"]);
-	 discrete_prob_dist<uint> pr_age_hh_20(params["age_hh_20"],params["age_hh_20_proba"]);
-	 discrete_prob_dist<uint> pr_age_hh_21(params["age_hh_21"],params["age_hh_21_proba"]);
-	 discrete_prob_dist<uint> pr_age_hh_22(params["age_hh_22"],params["age_hh_22_proba"]);
-	 
-	 vector<discrete_prob_dist<uint> > tmp;
-	 
-	 tmp.push_back(pr_age_hh_00);
-	 pr_age_hh.push_back(tmp);
-	 
-	 tmp.clear();
-	 tmp = {pr_age_hh_10,pr_age_hh_11};
-	 pr_age_hh.push_back(tmp);
-	 
-	 tmp.clear();
-	 tmp = {pr_age_hh_20,pr_age_hh_21,pr_age_hh_22};
-	 pr_age_hh.push_back(tmp);
-	 
-	 
-	 // Workplace sizes
-	 vector<uint> wrk_size			= params["wrk_size"];
-	 vector<double> wrk_size_proba	= params["wrk_size_proba"];
-	 discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
-	 D_size_wrk.display();
-	 
-	 // Public transport sizes
-	 vector<uint> pubt_size			= params["pubt_size"];
-	 vector<double> pubt_size_proba	= params["pubt_size_proba"];
-	 discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
-	 D_size_pubt.display();
-	 
-	 // School sizes
-	 vector<uint> school_size			= params["school_size"];
-	 vector<double> school_size_proba	= params["school_size_proba"];
-	 discrete_prob_dist<uint> D_size_school(school_size, school_size_proba);
-	 D_size_school.display();
-	 
-	 
-	 
-	 // === Create world ===
-	 
-	 // number of each social place type
-	 vector<uint> n_hh       = params["n_hh"];
-	 vector<uint> n_wrk      = params["n_wrk"];
-	 vector<uint> n_pubt     = params["n_pubt"];
-	 vector<uint> n_school   = params["n_school"];
-	 
-	 vector<socialPlace> W = build_world(auvec,
-	 D_size_hh,      // Households sizes
-	 pr_age_hh,      // Age distribution inside households
-	 D_size_wrk,
-	 D_size_pubt,
-	 D_size_school,
-	 n_hh,           // number of households
-	 n_wrk,
-	 n_pubt,
-	 n_school);
-	 
-	 //DEBUG
-	 cout << "DEBUG: W.size = "<< W.size() << endl;
-	 
-	 vector<dcDataFrame> df = export_dcDataFrame(W);
-	 
-	 Rcpp::List rcpplist;
-	 
-	 for(unsigned int i=0; i< df.size(); i++)
-	 rcpplist.push_back( to_list(df[i], false) );
-	 
-	 return rcpplist;
-	 
-	 }
-	 */
-	
-	
-	
-	
-	
-	
+
 	
 	// [[Rcpp::export]]
 	List naf_test_SEIR_vs_ODE(List params, List simulParams){
@@ -678,11 +588,11 @@ List naf_run(List params,
 		dcDataFrame pop_final = sim.get_world()[0].export_dcDataFrame();
 		// epidemic time series
 		dcDataFrame ts = sim.timeseries();
-		dcDataFrame ts_census = sim.get_ts_census_by_SP();
+
 		// Return R-formatted result:
 		return List::create(Named("population_final") = to_list(pop_final,false),
 							Named("time_series") = to_list(ts, false),
-							Named("time_series_census") = to_list(ts_census, false));
+							Named("time_series_census") = 0);
 	}
 	
 	
@@ -754,11 +664,11 @@ List naf_run(List params,
 		dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
 		// epidemic time series
 		dcDataFrame ts = sim.timeseries();
-		dcDataFrame ts_census = sim.get_ts_census_by_SP();
+
 		// Return R-formatted result:
 		return List::create(Named("population_final") = to_list(pop_final,false),
 							Named("time_series") = to_list(ts, false),
-							Named("time_series_census") = to_list(ts_census, false));
+							Named("time_series_census") = 0);
 	}
 	
 	
