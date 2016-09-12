@@ -10,12 +10,12 @@ library(Rcpp)
 mypackage <- "naf"
 
 # path to the model code:
-code.model.folder <- "../"
+code.model.folder <- "../src/"
 
 # Retrieve all relevant C++ files:
 cppfiles <- system(paste0("ls ",code.model.folder,"*.cpp"),intern = TRUE)
+hfiles   <- system(paste0("ls ",code.model.folder,"*.h"),  intern = TRUE)
 cppfiles <- cppfiles[!grepl(pattern = "main",x = cppfiles)]   # <-- Remove "main" files
-hfiles <- system(paste0("ls ",code.model.folder,"*.h"),intern = TRUE)
 c.path <- c(cppfiles, hfiles)
 
 # This generates all the necessary files 
