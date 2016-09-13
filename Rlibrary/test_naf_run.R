@@ -63,7 +63,17 @@ prm[['frailty_powerChild']] <- 3
 
 
 prm[['homogeneous_contact']] <- FALSE
-prm[['contact_rate']] <- cr
+prm[['contact_rate_mean']]   <- cr
+prm[['contact_rate_stddev']] <- 0.4
+
+prm[['contact_ratio_age_1_10']]     <- 2.0
+prm[['contact_ratio_age_10_16']]    <- 1.5
+prm[['contact_ratio_age_over_65']]  <- 0.8
+
+prm[['contact_ratio_sp_household']]     <- 2.0
+prm[['contact_ratio_sp_pubTransport']]  <- 1.75
+
+
 prm[['asymptom_infectiousness_ratio']] <- 0.8
 prm[['treat_doi_reduc']] <- 1.1123
 prm[['treat_reduc_infect_mean']] <- 0.1
@@ -144,7 +154,7 @@ sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)
 interv.prm[['interv_name']]         <- 'interv_test'
 interv.prm[['interv_type']]         <- 'vaccination'  # treatment cure vaccination
 interv.prm[['interv_target']]       <- 'susceptible'  # symptomatic  susceptible
-interv.prm[['interv_start']]        <- 1
+interv.prm[['interv_start']]        <- 20
 interv.prm[['interv_end']]          <- 999
 interv.prm[['interv_cvg_rate']]     <- 0.05
 interv.prm[['interv_cvg_max_prop']] <- 0.9999
@@ -184,6 +194,7 @@ message("Plotting results...")
 
 if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
 try(plot.population(pop),silent = T)
+try(plot.n.contacts(res$track_n_contacts),silent = T)
 try(plot.epi.timeseries(ts), silent = T)
 try(grid.arrange(plot.ts.sp(res$time_series_sp),
 				 plot.ts.sp(res$time_series_sp, facets = T)), 
@@ -194,5 +205,7 @@ if (save.plot.to.file) dev.off()
 
 
 # End
+t2 <- as.numeric(Sys.time())
 message(paste("Simulation computing time:",round(t1-t0,1),"sec"))
+message(paste("Total elapsed time:",round(t2-t0,1),"sec"))
 

@@ -69,6 +69,14 @@ protected:
 
     vector<intervention> _intervention;
     
+    double  select_contact_rate_ratio(double age, SPtype sp_type);
+    
+    // trackers (mostly used for debugging)
+    vector<uint>    _track_n_contacts;
+    vector<uint>    _track_n_contacts_time;
+    vector<uint>    _track_n_contacts_uid;
+    
+    
 public:
 	
 	modelParam _modelParam;
@@ -136,6 +144,10 @@ public:
     vector<uint>    get_ts_census_sp_nE()    const{return _ts_census_sp_nE;}
 
     uint            get_id_sp_other(uint pos) const {return _sp_other[pos]->get_id_sp();}
+    
+    vector<uint>    get_track_n_contacts()      const {return _track_n_contacts;}
+    vector<uint>    get_track_n_contacts_time() const {return _track_n_contacts_time;}
+    vector<uint>    get_track_n_contacts_uid()  const {return _track_n_contacts_uid;}
     
     
 	// Time updates

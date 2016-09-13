@@ -38,6 +38,10 @@ void Simulator::base_constructor(){
     _ts_n_vaccinated.clear();
     
     _intervention.clear();
+    
+    _track_n_contacts.clear();
+    _track_n_contacts_time.clear();
+    _track_n_contacts_uid.clear();
 }
 
 
@@ -958,8 +962,8 @@ void Simulator::move_individuals(const SPtype sptype, double proba){
 
 
 vector<uint> Simulator::draw_n_contacts(uint k,
-                                         double dt,
-                                         string infectious_type){
+                                        double dt,
+                                        string infectious_type){
     /// Draw the (random) number of contacts
     /// for all infectious individuals of a given type.
     
@@ -984,6 +988,17 @@ vector<uint> Simulator::draw_n_contacts(uint k,
         // Draw the actual number of contacts
         std::poisson_distribution<> poiss(cr * dt);
         uint rnd_contact = poiss(_RANDOM_GENERATOR);
+        
+        // tracking (used for debug)
+        _track_n_contacts.push_back(rnd_contact);
+        _track_n_contacts_time.push_back(_current_time);
+        if(infectious_type == "Is")       _track_n_contacts_uid.push_back(_world[k]._indiv_Is[i]->get_id());
+        else if (infectious_type == "Ia") _track_n_contacts_uid.push_back(_world[k]._indiv_Ia[i]->get_id());
+        
+        //DEBUG:
+//        cout<<"base_cr = "<<_modelParam.get_prm_double("contact_rate_mean");
+//        cout << " ; cr = "<< cr << " ; cr*dt = "<<cr*dt << " ; nc = " << rnd_contact <<endl;
+        
         
         // If too many contact drawn,
         // reduce the latest one drawn,
@@ -1303,7 +1318,7 @@ uint Simulator::transmission_process(uint k, double dt, string infectious_type){
     /// draw number of contacts, identify susceptible contacted,
     /// attempts transmission, activate successful attempts.
     
-    stopif(k >= _world.size(), "Asking for an inexistent social place");
+    stopif(k >= _world.size(), "Asking for an inexistent social place.");
     
     // If there are no susceptibles
     // or no infectious individuals
@@ -1766,6 +1781,25 @@ void Simulator::define_all_id_tables(){
     }
 }
 
+double Simulator::select_contact_rate_ratio(double age,
+                                            SPtype sp_type){
+    /// Calculate the contact rate ratio based on features of individual and social place.
+    
+    double ratio_indiv = 1.0;
+    double ratio_sp    = 1.0;
+    
+    // age:
+    if (1 <   age && age < 10) ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_1_10");
+    if (10 <= age && age < 16) ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_10_16");
+    if (65 <= age)             ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_over_65");
+    
+    // social place:
+    if (sp_type == SP_household) ratio_sp = ratio_sp * _modelParam.get_prm_double("contact_ratio_sp_household");
+    if (sp_type == SP_pubTransp) ratio_sp = ratio_sp * _modelParam.get_prm_double("contact_ratio_sp_pubTransport");
+    
+    return ratio_indiv * ratio_sp;
+}
+
 
 double  Simulator::draw_contact_rate(individual* indiv, uint k){
     /// Draw the contact rate for an infectious individual
@@ -1773,28 +1807,40 @@ double  Simulator::draw_contact_rate(individual* indiv, uint k){
     
     bool homog = _modelParam.get_prm_bool("homogeneous_contact");
     
-    double cr = -999.99;
+    double cr = __UNDEFINED_DOUBLE;
     
     if(homog){
         // Homogeneous contacts.
         // Used for testing purposes (e.g. compare to ODE models).
         uint ns = _world[k].get_n_S();
         uint n  = (uint)_world[k].get_size();
-        cr = _modelParam.get_prm_double("contact_rate") * ns / n;
+        cr      = _modelParam.get_prm_double("contact_rate_mean") * ns / n;
     }
     
     if(!homog){
-        // TO DO: implement something better. Test for now...
-        double mult_indiv = 1.0;
-        double mult_sp = 1.0;
+        // Contact rate depends on features of
+        // both individual and social place
         SPtype sp_type = _world[k].get_type();
+        double age     = indiv->get_age();
         
-        double age = indiv->get_age();
-        if (age <30.0) mult_indiv = 2.0;
-        if (sp_type == SP_household) mult_sp = 1.9;
-        if (sp_type == SP_pubTransp) mult_sp = 1.5;
+        double ratio = select_contact_rate_ratio(age, sp_type);
         
-        cr = mult_indiv * mult_sp * _modelParam.get_prm_double("contact_rate");
+        // The contact rate is drawn from another distribution
+        // in order to allow for super-spreading events
+        double cr_mean = ratio * _modelParam.get_prm_double("contact_rate_mean");
+        double cr_sd   = _modelParam.get_prm_double("contact_rate_stddev");
+        
+        //DELETE: std::exponential_distribution<double> expdist(1.0 / (ratio * cr_baseline));
+        double tmp  = 1 + cr_sd*cr_sd/cr_mean/cr_mean;
+        double m_ln = log(cr_mean/sqrt(tmp));
+        double s_ln = sqrt(log(tmp));
+        std::lognormal_distribution<double> lndist(m_ln, s_ln);
+        
+        cr = lndist(_RANDOM_GENERATOR);
+        
+        
+        //DEBUG:
+        //cout<<"cr_mean= " << cr_mean << " ; ratio = "<< ratio << " ; cr = " << cr << endl;
     }
     return cr;
 }

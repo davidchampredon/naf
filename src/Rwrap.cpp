@@ -136,7 +136,14 @@ List naf_run(List params,
 		
 		set_parameter(MP, "proba_move", "double", params);
 		set_parameter(MP, "proba_change_sp_other", "double", params);
-		set_parameter(MP, "contact_rate", "double", params);
+		
+		set_parameter(MP, "contact_rate_mean",             "double", params);
+		set_parameter(MP, "contact_rate_stddev",           "double", params);
+		set_parameter(MP, "contact_ratio_age_1_10",        "double", params);
+		set_parameter(MP, "contact_ratio_age_10_16",       "double", params);
+		set_parameter(MP, "contact_ratio_age_over_65",     "double", params);
+		set_parameter(MP, "contact_ratio_sp_household",    "double", params);
+		set_parameter(MP, "contact_ratio_sp_pubTransport", "double", params);
 		
 		set_parameter(MP, "asymptom_infectiousness_ratio", "double", params);
 		
@@ -325,6 +332,14 @@ List naf_run(List params,
 		vector<string> tmp_names = {"time","id_sp","type","nS","nE"};
 		census_sp.attr("names") = tmp_names;
 		
+		// Number of contacts tracker
+		Rcpp::List track_n_contacts;
+		track_n_contacts.push_back(sim.get_track_n_contacts_time());
+		track_n_contacts.push_back(sim.get_track_n_contacts_uid());
+		track_n_contacts.push_back(sim.get_track_n_contacts());
+		tmp_names = {"time","uid","nContacts"};
+		track_n_contacts.attr("names") = tmp_names;
+
 		
 		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
 		
@@ -332,7 +347,8 @@ List naf_run(List params,
 		return List::create(Named("population_final") = to_list(pop_final,false),
 							Named("world")            = to_list_vector(W, false),
 							Named("time_series")      = to_list(ts, false),
-							Named("time_series_sp")   = census_sp
+							Named("time_series_sp")   = census_sp,
+							Named("track_n_contacts") = track_n_contacts
 							);
 	}
 	catch (...){

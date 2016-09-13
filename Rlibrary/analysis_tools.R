@@ -47,6 +47,25 @@ plot.density.categ <- function(dat, xvar, categ, title) {
 }
 
 
+plot.n.contacts <- function(nc){
+	df0 <- data.frame(time=nc$time, uid=nc$uid, n=nc$nContacts)
+	df0$timeround <- ceiling(df0$time)
+	
+	df <- ddply(df0, c('timeround','uid'),summarize, ncontacts = sum(n))
+	
+	m <- mean(df$ncontacts)
+	ci <- 0.95
+	qlo <- quantile(df$ncontacts, probs=(1-ci)/2)
+	qhi <- quantile(df$ncontacts, probs=0.5 + ci/2)
+	
+	g <- ggplot(df,aes(x=ncontacts)) + geom_histogram(binwidth=1,fill='gold2',colour='gold3') 
+	g <- g + ggtitle(paste0('Number of contacts distribution (mean = ',round(m,2),' ; ',
+							ci*100,'%CI: ',round(qlo,2),' -- ',round(qhi,2),')'))
+	g <- g + xlab('Contacts per day, per individual')#+scale_y_log10()
+	g <- g + geom_vline(xintercept=m, linetype=2, colour='gold3', size=2)
+	return(g)
+}
+
 plot.population <- function(pop) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )

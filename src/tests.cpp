@@ -50,8 +50,17 @@ void main_run_test(){
     MP.add_prm_double("frailty_sd", 0.1);
     
     MP.add_prm_bool   ("homogeneous_contact", false);
-    MP.add_prm_double ("contact_rate", 2.9);
+    MP.add_prm_double ("contact_rate_mean", 4.98);
+    MP.add_prm_double ("contact_rate_stddev", 1);
+    MP.add_prm_double ("contact_ratio_age_1_10", 2.0);
+    MP.add_prm_double ("contact_ratio_age_10_16", 1.5);
+    MP.add_prm_double ("contact_ratio_age_over_65", 0.8);
+    MP.add_prm_double ("contact_ratio_sp_household", 2.2);
+    MP.add_prm_double ("contact_ratio_sp_pubTransport", 1.75);
+    
+    
     MP.add_prm_uint   ("nt", 3);
+    
     MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
     MP.add_prm_double ("treat_doi_reduc", 1.123);
     MP.add_prm_double ("treat_reduc_infect_mean",0.1);
@@ -219,6 +228,7 @@ void main_run_test(){
     // ================================================================
     
     // insert code here ...
+//    displayVector(sim.get_track_n_contacts());
 }
 
 
