@@ -42,6 +42,9 @@ void Simulator::base_constructor(){
     _track_n_contacts.clear();
     _track_n_contacts_time.clear();
     _track_n_contacts_uid.clear();
+    
+    _wiw_ages.clear();
+    _wiw_ages.resize(2);
 }
 
 
@@ -1113,8 +1116,8 @@ double Simulator::calc_proba_death(float frailty){
 
 
 vector< vector<uint> > Simulator::draw_contacted_S(uint k,
-                                                    vector<uint> n_contacts,
-                                                    string infectious_type){
+                                                   vector<uint> n_contacts,
+                                                   string infectious_type){
     /// Randomly select the positions in '_indiv_S'
     /// for susceptibles that will be
     /// contacted by infectious individuals of a
@@ -1209,6 +1212,8 @@ void Simulator::transmission_wiw(int k,
             // if transmission is successful:
             if (transm_success[i][s])
             {
+                // Generation intervals
+                
                 _world[k]._indiv_S[selected_S[i][s]]->set_acquisition_time(_current_time);
                 ID id_S = _world[k]._indiv_S[selected_S[i][s]]->get_id();
                 float ti = __UNDEFINED_FLOAT;
@@ -1224,8 +1229,15 @@ void Simulator::transmission_wiw(int k,
                     _world[k]._indiv_Ia[i]->push_ID_secondary_cases(id_S);
                     ti = _world[k]._indiv_Ia[i]->get_acquisition_time();
                 }
-                
                 _world[k]._indiv_S[selected_S[i][s]]->set_acquisition_time_infector(ti);
+                
+                // Ages:
+                
+                if(infectious_type=="Is") _wiw_ages[0].push_back(_world[k]._indiv_Is[i]->get_age());
+                if(infectious_type=="Ia") _wiw_ages[0].push_back(_world[k]._indiv_Ia[i]->get_age());
+                _wiw_ages[1].push_back(_world[k]._indiv_S[selected_S[i][s]]->get_age());
+                
+                
             } // end-if-transmission-success
         } //end-for-s
     } //end-for-i

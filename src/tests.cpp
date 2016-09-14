@@ -229,6 +229,7 @@ void main_run_test(){
     
     // insert code here ...
 //    displayVector(sim.get_track_n_contacts());
+    displayVector(sim.get_wiw_ages());
 }
 
 

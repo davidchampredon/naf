@@ -7,7 +7,7 @@ synthetic_age_adult <- function(age.adult){
 	# Create a synthetic age distribution for adults.
 
 	age.thres <- 60
-	age.max <- 90
+	age.max <- max(age.adult)
 	idx <- which(age.adult > age.thres)
 	# Decline of older adults:
 	rel.prop <- (age.max - age.adult[idx])/(age.max - age.thres)
@@ -47,23 +47,59 @@ plot.density.categ <- function(dat, xvar, categ, title) {
 }
 
 
+plot.age.contact.matrix <- function(x) {
+	# x <- res$wiw_ages
+	m <- matrix(unlist(x), ncol=length(x))
+	
+	hist(m[,1],breaks=100, ylim=c(0,2000))
+	
+	m.max <- ceiling(max(m))
+	
+	A <- matrix(nrow = m.max, ncol=m.max, data = 0)
+	ages <- 1:m.max
+	row.names(A) <- ages
+	colnames(A)  <- ages
+	
+	for(q in 1:nrow(m)){
+		i <- ceiling(m[q,1])
+		j <- ceiling(m[q,2])
+		A[i,j] <- A[i,j] + 1
+	}
+	A <- log(A+1)
+	
+	
+	image(A,x = 1:m.max, y=1:m.max, zlim = c(0,max(A)), 
+		  ylab = 'infector\'s age',
+		  xlab = 'infectee\'s age',
+		  main = 'Age-contact matrix',
+		  col  = topo.colors(12))
+	
+}
+
+
 plot.n.contacts <- function(nc){
 	df0 <- data.frame(time=nc$time, uid=nc$uid, n=nc$nContacts)
 	df0$timeround <- ceiling(df0$time)
 	
-	df <- ddply(df0, c('timeround','uid'),summarize, ncontacts = sum(n))
+	df    <- ddply(df0, c('timeround','uid'),summarize, ncontacts = sum(n))
+	df.ts <- ddply(df0, c('timeround'),summarize, tot.contacts = sum(n))
 	
+	gts <- ggplot(df.ts, aes(x=timeround, y=tot.contacts))+ geom_step()
+	gts <- gts + scale_y_log10() + ggtitle('Total number of contacts')+xlab('time')+ylab('')
+	
+	# Distribution
 	m <- mean(df$ncontacts)
 	ci <- 0.95
 	qlo <- quantile(df$ncontacts, probs=(1-ci)/2)
 	qhi <- quantile(df$ncontacts, probs=0.5 + ci/2)
 	
 	g <- ggplot(df,aes(x=ncontacts)) + geom_histogram(binwidth=1,fill='gold2',colour='gold3') 
-	g <- g + ggtitle(paste0('Number of contacts distribution (mean = ',round(m,2),' ; ',
+	g <- g + ggtitle(paste0('Distribution for the number of contacts (mean = ',round(m,2),' ; ',
 							ci*100,'%CI: ',round(qlo,2),' -- ',round(qhi,2),')'))
 	g <- g + xlab('Contacts per day, per individual')#+scale_y_log10()
 	g <- g + geom_vline(xintercept=m, linetype=2, colour='gold3', size=2)
-	return(g)
+	
+	grid.arrange(gts,g)	
 }
 
 plot.population <- function(pop) {

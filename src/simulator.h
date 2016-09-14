@@ -76,6 +76,9 @@ protected:
     vector<uint>    _track_n_contacts_time;
     vector<uint>    _track_n_contacts_uid;
     
+    vector< vector<float> > _wiw_ages;  // Nx2 matrix where col[1]=age infector, col[2]=age infectee
+    
+    
     
 public:
 	
@@ -148,6 +151,8 @@ public:
     vector<uint>    get_track_n_contacts()      const {return _track_n_contacts;}
     vector<uint>    get_track_n_contacts_time() const {return _track_n_contacts_time;}
     vector<uint>    get_track_n_contacts_uid()  const {return _track_n_contacts_uid;}
+    
+    vector<vector<float> > get_wiw_ages() const {return _wiw_ages;}
     
     
 	// Time updates

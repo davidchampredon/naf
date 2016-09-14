@@ -348,7 +348,8 @@ List naf_run(List params,
 							Named("world")            = to_list_vector(W, false),
 							Named("time_series")      = to_list(ts, false),
 							Named("time_series_sp")   = census_sp,
-							Named("track_n_contacts") = track_n_contacts
+							Named("track_n_contacts") = track_n_contacts,
+							Named("wiw_ages")         = sim.get_wiw_ages()
 							);
 	}
 	catch (...){

@@ -179,7 +179,8 @@ void assign_age_in_households(vector<socialPlace>& hh,
     for (uint k=0; k<hh.size(); k++) {
         uint hh_size = hh[k].n_linked_indiv();
         uint idx = hh_size -1; // <-- warning '-1'
-        stopif(idx >= n_ad, "Age distribution within households not defined for all cases.");
+        stopif(idx >= n_ad,
+               "Age distribution within households needed (but not defined) for sizes larger than " + to_string(n_ad)+".");
         
         for (uint i=0; i<hh_size; i++) {
             // Retrieve the age distribution
