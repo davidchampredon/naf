@@ -128,10 +128,23 @@ There is little mixing if an individual would just go back and forth between its
 
 Individuals visit a social place during a period that is determined by the time slice of their schedule. During this visit, interaction with other individuals are modelled only if it involves a potential transmission. 
 
-When an infectious individual is present in a social place, a pre-specified contact rate will determine the number of contacts it will have during its time in that social place. The contact rate is drawn from a Poisson distribution with a density itself also drawn from an exponential distribution. The fact the intensity is exponentially distributed allows for super-spreading events. The intensity distribution is also parameterized based on the features of individual and of the social place (for example, larger for young ages and in public transports).
+\subsubsection*{Number of contacts}
 
-Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts. The probability of actual transmission is the product of two probabilities. 
-The probability the contact from the infectious individual is infectious enough depends on its symptomatic status: a symptomatic infection results in a probability value of 1 (certainty), and an asymptomatic one in a value smaller than one. 
+When an infectious individual is present in a social place, a pre-specified contact rate $r_c$ will determine the number of contacts $n_c$ it will have during its time in that social place. For an individual $i$ in a social place $s$, the contact rate is drawn from a Poisson distribution with a rate itself also drawn from a lognormal distribution. 
+\begin{eqnarray}
+n_c & \sim & \text{Poisson}(r_c)\\
+r_c & \sim & \text{LN}(\lambda(i,s), \sigma)
+\end{eqnarray}
+
+The fact the intensity is log-normally distributed allows for super-spreading events. The mean $\lambda$ is parameterized based on the features of individual and of the social place (for example, larger for young ages and in public transports). The standard deviation $\sigma$ is assumed constant.
+
+\subsubsection*{Contacts selection}
+
+Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts. In particular, age assortativity is not explicitly implemented.
+
+\subsubsection*{Transmission probabilities}
+
+The probability of actual transmission is the product of two probabilities. The probability the contact from the infectious individual is infectious enough depends on its symptomatic status: a symptomatic infection results in a probability value of 1 (certainty), and an asymptomatic one in a value smaller than one. 
 
 The probability the susceptible contact acquires the disease is based on its \emph{humoral} immunity index $\immh$ which is simply interpreted as the probability infection fails to be established inside the host (thanks to antibodies activity). Humoral immunity is assumed age-dependent. Hence, the probability to acquire infection, conditional on infectious contact is
 \begin{equation}
