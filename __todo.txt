@@ -2,7 +2,7 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
-- Implied Age contact matrix not great: explicit implementation?
+- Implied Age contact matrix not great: explicit implementation? (see Mossong 2008)
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
 - Performance tests
