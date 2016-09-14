@@ -2,14 +2,11 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
-- Performance tests
-- Draw contact rate from distributions
-- Treatment: prophylaxis to do.
-- Age contact matrix
+- Implied Age contact matrix not great: explicit implementation?
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
+- Performance tests
 
-- track where transmissions occur (in which social place)
 
 === MINOR ITEMS ===
 
