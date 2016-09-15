@@ -207,7 +207,8 @@ ws <- ddply(pop, c('id_au','sp_type'), summarize,
 
 message("Plotting results...")
 
-if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
+if (save.plot.to.file) pdf('plot_TEST_naf.pdf', 
+						   width = 30, height = 20)
 
 try( plot.population(pop),  silent = T)
 try( plot.n.contacts(res$track_n_contacts),  silent = T)
@@ -222,6 +223,6 @@ if (save.plot.to.file) dev.off()
 
 # End
 t2 <- as.numeric(Sys.time())
-message(paste("Simulation computing time:",round((t1-t0)/60,1),"min"))
-message(paste("Total elapsed time:       ",round((t2-t0)/60,1),"min"))
+print(paste("Simulation computing time:",round((t1-t0)/60,1),"min"))
+print(paste("Total elapsed time:       ",round((t2-t0)/60,1),"min"))
 
