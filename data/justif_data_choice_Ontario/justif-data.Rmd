@@ -1,0 +1,185 @@
+---
+title: "Justifiction of data choices for Ontario"
+author: "David Champredon"
+date: "September 19, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plyr)
+library(ggplot2)
+```
+
+## Introduction
+
+The purpose of this document is to justify using size distributions at the provincial (Ontario) level instead of taking distinct individual distribution for every census division.
+
+Using one distribution for all census divisions simplifies a lot the data structure, but one must check the distributions are not too heterogeneous.
+
+
+## Age distribution
+
+First, let's visually check that age distributions across all census divisions are similar to Ontaraio globally.
+
+```{r load-age-data, echo=FALSE}
+load('../ages/size-distrib-ages-ontario.RData')
+df <- df.ontario
+df$geo.label <- trimws(df$geo.label)
+df$sex <- as.character(df$sex)
+df <- subset(df, sex=='1')
+
+df.size <- ddply(df,c('geo','geo.label'),summarize,
+				 n = sum(val),
+				 m = sum(age*val)/sum(val),
+				 v = sqrt(sum(age^2*val)/sum(val)- (sum(age*val)/sum(val))^2))
+
+m.ontario <- df.size$m[df.size$geo.label=='Ontario']
+v.ontario <- df.size$v[df.size$geo.label=='Ontario']
+
+df.size <- subset(df.size,nchar(geo)==7)
+
+df.prov    <- subset(df, geo.label == 'Ontario')
+df.toronto <- subset(df, geo.label == 'Toronto' & nchar(geo)==4)
+df.cd <- subset(df,  nchar(geo)==4)
+
+yy <- df.prov$val/sum(df.prov$val)
+plot(df.prov$age, yy,typ='l',lwd=4,ylim=range(1.5*yy),
+	 yaxt='n',ylab='',xlab='age')
+
+cdvec <- unique(df.cd$geo)
+for(i in seq_along(cdvec)){
+	tmp <- subset(df.cd, geo==cdvec[i])
+	lines(tmp$age,tmp$val/sum(tmp$val), typ='l', col=rgb(0,0,0,0.2), lwd=0.8)
+}
+lines(df.toronto$age,df.toronto$val/sum(df.toronto$val), typ='l', col='blue',cex=0.5)
+legend(x = 'topleft', legend = c('Ontario','Toronto','other'), col=c('black','blue','lightgrey'),
+	   lwd = c(4,1,0.7))
+```
+
+The distributions seem similar. Toronto has a slightly different shape with a more pronounced bump around age 30.
+But in this plot we cannot see the population size that weights in the provincial average. 
+
+Looking at the mean and variance of distributions, with the circle size proportional to the population size of the census division, we see that the most populous areas are tightly concentrated around the Ontario average: 
+
+```{r age-mean-var}
+plot(df.size$m,
+	 df.size$v,
+	 cex=sqrt(df.size$n)/300,
+	 pch = 16,
+	 col=rgb(0,0,1,0.4),
+	 main = 'Means and variances of ages distribution\n in Ontario',
+	 xlab = 'mean age', ylab='stddev age')
+points(df.size$m,df.size$v, cex=0.7, col=rgb(0,0,0,0.2))
+points(m.ontario, v.ontario,col='red',pch=16)
+
+ci <- 0.80
+m.lo <- quantile(df.size$m, probs = (1-ci)/2)
+m.hi <- quantile(df.size$m, probs = 0.5 +ci/2)
+abline(v=c(m.lo,m.hi),lty=2,col='grey')
+v.lo <- quantile(df.size$v, probs = (1-ci)/2)
+v.hi <- quantile(df.size$v, probs = 0.5 +ci/2)
+abline(h=c(v.lo,v.hi),lty=2,col='grey')
+legend(x='topleft',legend = c('Ontario','other'),col=c('red','lightgrey'),pch=c(16,1))
+```
+
+
+Most of the means and variances of age distributions are within the `r ci` quantile interval (dash lines).
+
+
+## Households size distribution
+
+
+Again, let's first visually check all distributions of households size in Ontario and the provincial average:
+```{r data-hh}
+# Load data:
+
+load('../households/statCanada-census-households.RData')
+if(exists('list.to.save')) obj.to.save <- list.to.save
+df <- obj.to.save[[2]]
+
+# Avoid too long names:
+df$GEO.label <- substr(df$GEO.label,1,15)
+
+# Select only total of hh types:
+df <- subset(df, hhtype.id=='1')
+
+# Province information:
+df$prov.id <- substr(df$GEO,1,2)
+prov <- subset(df, nchar(GEO)==2 & hhsize==1)
+prov <- prov[,c('prov.id','GEO.label')]
+names(prov)[2] <- 'province'
+df <- join(df,prov,by='prov.id')
+
+# Select only one province
+geo.select <- '35' 
+
+df.ont <- subset(df, province=='Ontario' & nchar(GEO)<7)
+
+z <- ddply(df.ont, c('GEO.label'), summarize, pop=sum(obsValue))
+
+df.ont <- join(df.ont, z, by='GEO.label')
+df.ont$prop <- df.ont$obsValue/df.ont$pop
+
+g <- ggplot()+geom_line(dat=df.ont, aes(x=hhsize,y=prop,dummy=GEO.label),alpha=0.3)
+g <- g + xlab('household size')
+plot(g)
+
+```
+
+Looking at the ratio of households of size $n$ over households of size 2 for every census division:
+ 
+```{r ratio-hh}
+
+# ==== Distributio Ratios ====
+df <- df[order(df$GEO,df$hhsize),]
+
+df$ratio.to.2 <- NA
+for(i in 1:nrow(df)){
+	if(df$hhsize[i]==2){
+		for( j in 0:5){
+			df$ratio.to.2[i-1+j] <- df$obsValue[i-1+j]/df$obsValue[i]
+		}
+	}
+}
+
+ratio.x <- 1
+ratio.y <- 3
+df.rx <- subset(df, hhsize == ratio.x)
+df.ry <- subset(df, hhsize == ratio.y)
+
+df.plot <- data.frame(rx = df.rx$ratio.to.2, 
+					  ry = df.ry$ratio.to.2, 
+					  GEO = df.rx$GEO,
+					  GEO.label= df.rx$GEO.label,
+					  province = df.rx$province,
+					  prov.id = df.rx$prov.id)
+df.plot$GEO <- as.character(df.plot$GEO)
+
+
+
+df.ontario <- subset(df.plot, province=='Ontario')
+df.ontario <- join(df.ontario, z, by='GEO.label')
+
+dplot <- df.ontario
+xy.ont <- dplot[dplot$GEO.label=='Ontario',]
+dplot <- subset(dplot, GEO.label!='Ontario')
+
+plot(dplot$rx, dplot$ry, cex=sqrt(dplot$pop)/1e2, 
+	 pch=16, 
+	 xlim=c(0,1), ylim=c(0,1),
+	 xlab = paste('ratio hh size',ratio.x,'/ hh size 2'),
+	 ylab = paste('ratio hh size',ratio.y,'/ hh size 2'),
+	 col=rgb(0,0,1,0.3))
+points(dplot$rx, dplot$ry, cex=0.7, pch=1, col=rgb(0,0,0,0.4))
+points(xy.ont$rx,xy.ont$ry,pch=15, col='red',cex=2)
+grid()
+legend(x='topleft',legend=c('Ontario','other'), col=c('red','grey'), pch=c(15,1),pt.cex=c(2,1))
+
+
+```
+
+Again, the Ontario average is fairly representative of most census divisions. 
+
+
+
