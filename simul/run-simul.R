@@ -9,12 +9,15 @@
 
 t0 <- as.numeric(Sys.time())
 
+R.library.dir    <- '../Rlibrary/lib'
+param.model.dir  <- '../param-model/'
+
 library(ggplot2)
 library(plyr)
-
-library(naf,lib.loc = "../Rlibrary/lib")
+library(naf,lib.loc = R.library.dir)
 
 source('analysis_tools.R')
+source(paste0(param.model.dir,'read-prm.R'))
 
 save.plot.to.file <- T
 
@@ -25,70 +28,14 @@ world.prm <- list()
 sched.prm <- list()
 
 
-
 ### ==== Model Parameters ====
 
 cr <- 2.1
-doi_mean <- 4
-R0 <- cr * doi_mean
 
 prm[['debug_mode']] <- F
+prm       <- read.prm(filename = paste0(param.model.dir,'prm-epi.csv'), prm = prm)
+simul.prm <- read.prm(filename = paste0(param.model.dir,'prm-simul.csv'), prm = simul.prm)
 
-prm[['dol_distrib']] <- "lognorm"
-prm[['doi_distrib']] <- "lognorm"
-prm[['doh_distrib']] <- "exp"
-
-prm[['dol_mean']] <- 2.0
-prm[['doi_mean']] <- doi_mean
-prm[['doh_mean']] <- 5.0
-
-prm[['dol_var']] <- 2.1
-prm[['doi_var']] <- 2.5
-prm[['doh_var']] <- 1.00
-
-prm[['proba_move']] <- 1
-prm[['proba_change_sp_other']] <- 0.11
-
-prm[['proba_death_prm_1']] <- 0.08
-prm[['proba_death_prm_2']] <- 0.75
-prm[['proba_death_prm_3']] <- 9.999
-
-prm[['frailty_0']]        <- 0.60
-prm[['frailty_min']]      <- 0.15
-prm[['frailty_agemin']]   <- 30.0
-prm[['frailty_agepivot']] <- 60
-prm[['frailty_pivot']]    <- 0.50
-prm[['frailty_sd']]       <- 0.1
-prm[['frailty_powerChild']] <- 3
-
-
-prm[['homogeneous_contact']] <- FALSE
-prm[['contact_rate_mean']]   <- cr
-prm[['contact_rate_stddev']] <- 0.4
-
-prm[['contact_ratio_age_1_10']]     <- 2.0
-prm[['contact_ratio_age_10_16']]    <- 1.5
-prm[['contact_ratio_age_over_65']]  <- 0.8
-
-prm[['contact_ratio_sp_household']]     <- 2.0
-prm[['contact_ratio_sp_pubTransport']]  <- 1.75
-
-
-prm[['asymptom_infectiousness_ratio']] <- 0.8
-prm[['treat_doi_reduc']] <- 1.1123
-prm[['treat_reduc_infect_mean']] <- 0.1
-
-prm[['vax_imm_incr']]   <- 0.4
-prm[['vax_frail_incr']] <- 0.2
-prm[['vax_lag_full_efficacy']] <- 12
-
-
-### ==== Simulation parameters ====
-
-simul.prm[['rnd_seed']] <- 1234561
-simul.prm[['horizon']] <- 300
-simul.prm[['initial_latent']] <- 8
-simul.prm[['popexport']] <- 1
 
 ###  ==== World parameters ====
 
@@ -97,7 +44,7 @@ world.prm[['name_au']] <- c("AUone", "AUtwo")
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-mult <- 4
+mult <- 2
 
 # Number of social places in each area unit:
 world.prm[['n_hh']]     <- c(1200, 1100) * mult
@@ -205,20 +152,23 @@ ws <- ddply(pop, c('id_au','sp_type'), summarize,
 
 ### ==== PLOTS ==== 
 
-message("Plotting results...")
+do.plot <- FALSE 
 
-if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
-
-try( plot.population(pop),  silent = T)
-try( plot.n.contacts(res$track_n_contacts),  silent = T)
-try( plot.epi.timeseries(ts),  silent = T)
-try( grid.arrange(plot.ts.sp(res$time_series_sp),
-				 plot.ts.sp(res$time_series_sp, facets = T)), 
-	 silent = T)
-try( plot.age.contact.matrix(res$wiw_ages),  silent = T)
-
-if (save.plot.to.file) dev.off()
-
+if(do.plot){
+	message("Plotting results...")
+	
+	if (save.plot.to.file) pdf('plot_TEST_naf.pdf', width = 30,height = 20)
+	
+	try( plot.population(pop),  silent = T)
+	try( plot.n.contacts(res$track_n_contacts),  silent = T)
+	try( plot.epi.timeseries(ts),  silent = T)
+	try( grid.arrange(plot.ts.sp(res$time_series_sp),
+					  plot.ts.sp(res$time_series_sp, facets = T)), 
+		 silent = T)
+	try( plot.age.contact.matrix(res$wiw_ages),  silent = T)
+	
+	if (save.plot.to.file) dev.off()
+}
 
 # End
 t2 <- as.numeric(Sys.time())
