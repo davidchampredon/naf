@@ -75,7 +75,8 @@ void Simulator::create_world(vector<areaUnit> AU,
     
     // Create social places:
     
-    world W = build_world(AU, D_size_hh, pr_age_hh,
+    world W = build_world(AU,
+                          D_size_hh, pr_age_hh,
                           D_size_wrk,
                           D_size_pubt,
                           D_size_school,

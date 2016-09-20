@@ -74,6 +74,8 @@ void main_run_test(){
     _RANDOM_GENERATOR.seed(123);
     
     // Define intervention
+    vector<intervention> interv_vec;
+    
     float time_start = 2;
     float time_end = 999;
     float cvg_rate = 0.01;
@@ -83,6 +85,10 @@ void main_run_test(){
                         "interv_test",
                         time_start, time_end,
                         cvg_rate, cvg_max_prop);
+    
+    interv_vec.push_back(interv);
+    
+    
 
     // ================================================================
     //     WORLD PARAMETERS
@@ -221,7 +227,7 @@ void main_run_test(){
                               MP,
                               horizon,
                               i0,
-                              interv);
+                              interv_vec);
     
     // ================================================================
     //     MANIPULATE RESULTS
@@ -251,7 +257,7 @@ Simulator run_test(vector<areaUnit> auvec,
                     modelParam MP,
                     double horizon,
                     uint i0,
-                    const intervention &interv){
+                    const vector<intervention> &interv){
     
     
     stopif(auvec.size() != n_hh.size() ||
@@ -321,7 +327,8 @@ Simulator run_test(vector<areaUnit> auvec,
     // sim.assign_hospital_to_individuals();
     
     // Interventions:
-    sim.add_intervention(interv);
+    for(int i=0; i<interv.size(); i++)
+        sim.add_intervention(interv[i]);
     
     // Run the simulation:
     sim.run();

@@ -37,7 +37,7 @@ Simulator run_test(vector<areaUnit> auvec,
                     modelParam MP,
                     double horizon,
                     uint i0,
-                    const intervention &interv);
+                    const vector<intervention> &interv);
 
 void main_run_test();
 

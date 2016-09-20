@@ -1,0 +1,5 @@
+rnd_seed, 1234561
+horizon, 300
+initial_latent, 8
+popexport, 1
+

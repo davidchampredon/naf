@@ -164,7 +164,7 @@ List naf_run(List params,
 		set_parameter(MP, "frailty_agepivot",  "double", params);
 		set_parameter(MP, "frailty_pivot",     "double", params);
 		set_parameter(MP, "frailty_powerChild","double", params);
-		set_parameter(MP, "frailty_sd","double", params);
+		set_parameter(MP, "frailty_sd",        "double", params);
 				
 		
 		// ==== Simulator parameters ====
@@ -192,6 +192,9 @@ List naf_run(List params,
 							interv_end,
 							interv_cvg_rate,
 							interv_cvg_max_prop);
+		
+		vector<intervention> interv_vec;
+		interv_vec.push_back(interv);
 		
 		
 		// === World population parameters ===
@@ -314,7 +317,7 @@ List naf_run(List params,
 								  MP,
 								  horizon,
 								  i0,
-								  interv);
+								  interv_vec);
 		
 		// Retrieve all results from simulation:
 		// populations:
