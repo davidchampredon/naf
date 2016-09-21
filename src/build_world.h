@@ -53,13 +53,14 @@ void assign_age_in_households(vector<socialPlace>& hh,
 
 
 vector<socialPlace> build_world(vector<areaUnit> auvec,
-                                discrete_prob_dist<uint> D_size_hh,     // Households sizes
+                                vector<discrete_prob_dist<uint> > D_size_hh,     // Households sizes
                                 vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
-                                discrete_prob_dist<uint> D_size_wrk,
-                                discrete_prob_dist<uint> D_size_pubt,
-                                discrete_prob_dist<uint> D_size_school,
-                                discrete_prob_dist<uint> D_size_hosp,
-                                discrete_prob_dist<uint> D_size_other,
+                                
+                                vector<discrete_prob_dist<uint> > D_size_wrk,
+                                vector<discrete_prob_dist<uint> > D_size_pubt,
+                                vector<discrete_prob_dist<uint> > D_size_school,
+                                vector<discrete_prob_dist<uint> > D_size_hosp,
+                                vector<discrete_prob_dist<uint> > D_size_other,
                                 vector<uint> n_hh,
                                 vector<uint> n_wrk,
                                 vector<uint> n_pubt,

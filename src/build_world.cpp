@@ -226,13 +226,15 @@ void populate_households(vector<socialPlace>& sp_hh,
 
 
 vector<socialPlace> build_world(vector<areaUnit> AU,
-                                discrete_prob_dist<uint> D_size_hh,     // Households sizes
+                                vector<discrete_prob_dist<uint> > D_size_hh,     // Households sizes
                                 vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
-                                discrete_prob_dist<uint> D_size_wrk,
-                                discrete_prob_dist<uint> D_size_pubt,
-                                discrete_prob_dist<uint> D_size_school,
-                                discrete_prob_dist<uint> D_size_hosp,
-                                discrete_prob_dist<uint> D_size_other,
+                                
+                                vector<discrete_prob_dist<uint> > D_size_wrk,
+                                vector<discrete_prob_dist<uint> > D_size_pubt,
+                                vector<discrete_prob_dist<uint> > D_size_school,
+                                vector<discrete_prob_dist<uint> > D_size_hosp,
+                                vector<discrete_prob_dist<uint> > D_size_other,
+                            
                                 vector<uint> n_hh,
                                 vector<uint> n_wrk,
                                 vector<uint> n_pubt,
@@ -245,7 +247,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
     
     // Variables that make sure id (sp & indiv)
     // do not overlap across Area Units!
-    uint first_id_sp = 0;       // make sure no overlap for id_sp _within_ an Area Unit
+    uint first_id_sp       = 0; // make sure no overlap for id_sp _within_ an Area Unit
     uint first_id_indiv_au = 0; // make sure no overlap for id_indiv _across_ Area Units
     
     for (uint a=0; a<AU.size(); a++)
@@ -256,7 +258,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         // First, make sure there are enough individuals created,
         // by taking the maxing value of the support of the
         // distribution of households sizes:
-        vector<uint> ds          = D_size_hh.get_value();
+        vector<uint> ds          = D_size_hh[a].get_value();
         uint nmax                = *std::max_element(ds.begin(), ds.end());
         vector<individual> indiv = create_individuals(n_hh[a]*nmax, first_id_indiv_au);
 
@@ -267,7 +269,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                n_hh[a],
                                                                first_id_sp,
                                                                first_id_indiv_au,
-                                                               D_size_hh,
+                                                               D_size_hh[a],
                                                                AU[a],
                                                                indiv);
         // Assign individuals' age based on the size of
@@ -301,7 +303,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                               n_wrk[a],
                                                               first_id_sp,
                                                               first_id_indiv_au,
-                                                              D_size_wrk,
+                                                              D_size_wrk[a],
                                                               AU[a],
                                                               indiv,
                                                               age_min_wrk,
@@ -315,7 +317,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                n_pubt[a],
                                                                first_id_sp,
                                                                first_id_indiv_au,
-                                                               D_size_pubt,
+                                                               D_size_pubt[a],
                                                                AU[a],
                                                                indiv,
                                                                age_min_pubt,
@@ -337,7 +339,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                  n_school[a],
                                                                  first_id_sp,
                                                                  first_id_indiv_au,
-                                                                 D_size_school,
+                                                                 D_size_school[a],
                                                                  AU[a],
                                                                  indiv,
                                                                  age_min_school,
@@ -352,7 +354,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                n_hosp[a],
                                                                first_id_sp,
                                                                first_id_indiv_au,
-                                                               D_size_hosp,
+                                                               D_size_hosp[a],
                                                                AU[a],
                                                                indiv);
         
@@ -362,7 +364,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                                                 n_other[a],
                                                                 first_id_sp,
                                                                 first_id_indiv_au,
-                                                                D_size_other,
+                                                                D_size_other[a],
                                                                 AU[a],
                                                                 indiv);
         

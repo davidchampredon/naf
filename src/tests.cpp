@@ -101,11 +101,25 @@ void main_run_test(){
     string regionName = "RegionOne";
     vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
     
+    // Vector of size distributions
+    // (vector size is the number of AU,
+    //  bc each AU has its own size distribution)
+    vector<discrete_prob_dist<uint> > D_size_hh_vec;
+    vector<discrete_prob_dist<uint> > D_size_wrk_vec;
+    vector<discrete_prob_dist<uint> > D_size_school_vec;
+    vector<discrete_prob_dist<uint> > D_size_pubt_vec;
+    vector<discrete_prob_dist<uint> > D_size_hosp_vec;
+    vector<discrete_prob_dist<uint> > D_size_other_vec;
+    
     // Households sizes
     vector<uint> hh_size {1,2,3};
     vector<double> hh_size_proba {0.2, 0.5, 0.30};
     discrete_prob_dist<uint> D_size_hh(hh_size, hh_size_proba);
-    D_size_hh.display();
+
+    // in this test file, assume both AU have same size distributions:
+    D_size_hh_vec.push_back(D_size_hh);
+    D_size_hh_vec.push_back(D_size_hh);
+
     
     // Age distribution inside households
     vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
@@ -144,27 +158,41 @@ void main_run_test(){
     vector<uint> wrk_size {5,20,40,60};
     vector<double> wrk_size_proba {0.55, 0.3, 0.1, 0.05};
     discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
+    // in this test file, assume both AU have same size distributions:
+    D_size_wrk_vec.push_back(D_size_wrk);
+    D_size_wrk_vec.push_back(D_size_wrk);
     
     // Public transport sizes
     vector<uint> pubt_size {30,60,120};
     vector<double> pubt_size_proba {0.3,0.4,0.3};
     discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
+    // in this test file, assume both AU have same size distributions:
+    D_size_pubt_vec.push_back(D_size_pubt);
+    D_size_pubt_vec.push_back(D_size_pubt);
     
     // School sizes
     vector<uint> school_size {100, 200, 300};
     vector<double> school_size_proba {0.7,0.2,0.1};
     discrete_prob_dist<uint> D_size_school(school_size, school_size_proba);
+    // in this test file, assume both AU have same size distributions:
+    D_size_school_vec.push_back(D_size_school);
+    D_size_school_vec.push_back(D_size_school);
     
     // Hospital sizes
     vector<uint> hosp_size {50000};
     vector<double> hosp_size_proba {1};
     discrete_prob_dist<uint> D_size_hosp(hosp_size, hosp_size_proba);
+    // in this test file, assume both AU have same size distributions:
+    D_size_hosp_vec.push_back(D_size_hosp);
+    D_size_hosp_vec.push_back(D_size_hosp);
     
     // other public placed sizes
     vector<uint> other_size {5,6,7};
     vector<double> other_size_proba {0.4,0.4,0.2};
     discrete_prob_dist<uint> D_size_other(other_size, other_size_proba);
-
+    // in this test file, assume both AU have same size distributions:
+    D_size_other_vec.push_back(D_size_other);
+    D_size_other_vec.push_back(D_size_other);
     
     
     // === Schedules definition ===
@@ -210,12 +238,12 @@ void main_run_test(){
     // ================================================================
 
     Simulator sim = run_test(auvec,
-                              D_size_hh,
-                              D_size_wrk,
-                              D_size_pubt,
-                              D_size_school,
-                              D_size_hosp,
-                              D_size_other,
+                              D_size_hh_vec,
+                              D_size_wrk_vec,
+                              D_size_pubt_vec,
+                              D_size_school_vec,
+                              D_size_hosp_vec,
+                              D_size_other_vec,
                               pr_age_hh,
                               n_hh ,
                               n_wrk,
@@ -240,12 +268,12 @@ void main_run_test(){
 
 
 Simulator run_test(vector<areaUnit> auvec,
-                    discrete_prob_dist<uint> D_size_hh,
-                    discrete_prob_dist<uint> D_size_wrk,
-                    discrete_prob_dist<uint> D_size_pubt,
-                    discrete_prob_dist<uint> D_size_school,
-                    discrete_prob_dist<uint> D_size_hosp,
-                    discrete_prob_dist<uint> D_size_other,
+                    vector<discrete_prob_dist<uint> > D_size_hh,
+                    vector<discrete_prob_dist<uint> > D_size_wrk,
+                    vector<discrete_prob_dist<uint> > D_size_pubt,
+                    vector<discrete_prob_dist<uint> > D_size_school,
+                    vector<discrete_prob_dist<uint> > D_size_hosp,
+                    vector<discrete_prob_dist<uint> > D_size_other,
                     vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
                     vector<uint> n_hh ,
                     vector<uint> n_wrk,

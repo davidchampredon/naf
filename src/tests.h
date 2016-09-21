@@ -20,24 +20,24 @@
 
 
 Simulator run_test(vector<areaUnit> auvec,
-                    discrete_prob_dist<uint> D_size_hh,
-                    discrete_prob_dist<uint> D_size_wrk,
-                    discrete_prob_dist<uint> D_size_pubt,
-                    discrete_prob_dist<uint> D_size_school,
-                    discrete_prob_dist<uint> D_size_hosp,
-                    discrete_prob_dist<uint> D_size_other,
-                    vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
-                    vector<uint> n_hh ,
-                    vector<uint> n_wrk,
-                    vector<uint> n_pubt ,
-                    vector<uint> n_school,
-                    vector<uint> n_hosp,
-                    vector<uint> n_other,
-                    vector<schedule> sched ,
-                    modelParam MP,
-                    double horizon,
-                    uint i0,
-                    const vector<intervention> &interv);
+                   vector<discrete_prob_dist<uint> > D_size_hh,
+                   vector<discrete_prob_dist<uint> > D_size_wrk,
+                   vector<discrete_prob_dist<uint> > D_size_pubt,
+                   vector<discrete_prob_dist<uint> > D_size_school,
+                   vector<discrete_prob_dist<uint> > D_size_hosp,
+                   vector<discrete_prob_dist<uint> > D_size_other,
+                   vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
+                   vector<uint> n_hh ,
+                   vector<uint> n_wrk,
+                   vector<uint> n_pubt ,
+                   vector<uint> n_school,
+                   vector<uint> n_hosp,
+                   vector<uint> n_other,
+                   vector<schedule> sched ,
+                   modelParam MP,
+                   double horizon,
+                   uint i0,
+                   const vector<intervention> &interv);
 
 void main_run_test();
 
