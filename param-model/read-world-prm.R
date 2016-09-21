@@ -32,4 +32,65 @@ read.prm.au <- function(filename) {
 	return(big.list)
 }
 
-prm.w <- read.prm.au(filename = 'prm-au.csv')
+
+read.size.distrib <- function(filename){
+	x <- read.csv(filename)
+	stopifnot(nrow(x)>0 | 
+			  	names(x)==c('size','prop') |
+			  	abs(sum(x$prop) - 1.0)<1E-8	)
+	return(x)
+}
+
+
+get.distrib.type <- function(filename){
+	d.type <- NA
+	if(grepl('hh',filename))          d.type <- 'hh_size'
+	else if(grepl('wrk',filename))    d.type <- 'wrk_size'
+	else if(grepl('school',filename)) d.type <- 'school_size'
+	else if(grepl('pubt',filename))   d.type <- 'pubt_size'
+	else if(grepl('hosp',filename))   d.type <- 'hosp_size'
+	else if(grepl('other',filename))  d.type <- 'other_size'
+	if(is.na(d.type)){
+		print(paste('Cannot determine size distribution type from file name',filename))
+		stop()
+	}
+	return(d.type)
+}
+
+
+
+load.all.size.distrib <- function(filenames, prm.world) {
+	for(i in seq_along(filenames)){
+		x <- read.size.distrib(filenames[i])
+		d.type <- get.distrib.type(filenames[i])
+		n <- length(prm.world)
+		prm.world[[n+1]] <- x$size
+		names(prm.world)[n+1] <- d.type
+		prm.world[[n+2]] <- x$prop
+		names(prm.world)[n+2] <- paste0(d.type,'_proba')
+	}
+	return(prm.world)
+}
+
+
+
+
+
+filename <- 'prm-au.csv'
+load.all.world.prm <- function(filename) {
+	x <- read.prm.au(filename)
+	
+}
+
+
+
+if(TRUE){
+	prm.w <- read.prm.au(filename = 'prm-au.csv')
+	filename <- 'prm-size-hh-ontario.csv'
+	aa <- read.size.distrib(filename)
+
+	filenames <- c('prm-size-hh-ontario.csv', 'prm-size-school-ontario.csv')
+	prm.world <- list()
+	prm.world <- load.all.size.distrib(filenames,prm.world)
+	prm.world
+}
