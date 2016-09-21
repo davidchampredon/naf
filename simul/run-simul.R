@@ -42,22 +42,11 @@ simul.prm <- read.prm(filename = paste0(param.model.dir,'prm-simul.csv'), prm = 
 world.prm <- load.world.prm(paste0(param.model.dir,'prm-au.csv'), 
 							path.prm = param.model.dir)
 
-# world.prm[['id_au']] <- c(0,1)
-# world.prm[['name_au']] <- c("AUone", "AUtwo")
-
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
 scale.factor <- 2
 world.prm <- scale.world(scale.factor, world.prm)
-
-# Number of social places in each area unit:
-# world.prm[['n_hh']]     <- c(1200, 1100) * mult
-# world.prm[['n_wrk']]    <- c(300, 330) * mult
-# world.prm[['n_pubt']]   <- c(400, 300) * mult
-# world.prm[['n_school']] <- c(200, 200) * mult
-# world.prm[['n_hosp']]   <- c(1,1)
-# world.prm[['n_other']]  <- c(1000, 500) * mult
 
 # define coarse age groups and their distributions:
 age.adult    <- seq(19,98,by=1)
@@ -97,20 +86,6 @@ world.prm[['pr_age_hh_11_proba']] <- p.all      # <-- age distribution of 2nd ol
 world.prm[['pr_age_hh_20_proba']] <- p.adult
 world.prm[['pr_age_hh_21_proba']] <- p.adult
 world.prm[['pr_age_hh_22_proba']] <- p.all.child
-
-# size distribution of all social places:
-# world.prm[['hh_size']] <- c(1,2,3)
-# world.prm[['hh_size_proba']] <- c(0.2, 0.4, 0.4)
-# world.prm[['wrk_size']] <- c(5,20,40,60)
-# world.prm[['wrk_size_proba']] <- c(0.55, 0.3, 0.1, 0.05)
-# world.prm[['pubt_size']] <- c(30,60,120)
-# world.prm[['pubt_size_proba']] <- c(0.3,0.4,0.3)
-# world.prm[['school_size']] <- c(100, 200, 300)
-# world.prm[['school_size_proba']] <- c(0.7,0.2,0.1)
-# world.prm[['hosp_size']] <- c(50000)
-# world.prm[['hosp_size_proba']] <- c(1)
-# world.prm[['other_size']] <- c(100,200,300)
-# world.prm[['other_size_proba']] <- c(0.4,0.4,0.2)
 
 # schedule time slices:
 sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24)

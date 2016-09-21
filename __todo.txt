@@ -2,8 +2,10 @@ TO DO LIST:
 
 === MAJOR ITEMS ===
 
+- simplify code for age size conditional on households size
+
 - Implied Age contact matrix not great: explicit implementation? (see Mossong 2008)
-- size distribution are the same for _all_ area units --> vectorize!
+
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
 - Performance tests
