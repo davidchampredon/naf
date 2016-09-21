@@ -31,7 +31,7 @@ sched.prm <- list()
 
 ### ==== Model Parameters ====
 
-prm[['debug_mode']] <- TRUE
+prm[['debug_mode']] <- FALSE
 
 prm       <- read.prm(filename = paste0(param.model.dir,'prm-epi.csv'), prm = prm)
 simul.prm <- read.prm(filename = paste0(param.model.dir,'prm-simul.csv'), prm = simul.prm)
@@ -48,7 +48,8 @@ world.prm <- load.world.prm(paste0(param.model.dir,'prm-au.csv'),
 world.prm[['id_region']] <- 0
 world.prm[['regionName']] <- "Region1"
 
-mult <- 2
+scale.factor <- 2
+world.prm <- scale.world(scale.factor, world.prm)
 
 # Number of social places in each area unit:
 # world.prm[['n_hh']]     <- c(1200, 1100) * mult
@@ -156,7 +157,7 @@ ws <- ddply(pop, c('id_au','sp_type'), summarize,
 
 ### ==== PLOTS ==== 
 
-do.plot <- FALSE 
+do.plot <- TRUE 
 
 if(do.plot){
 	message("Plotting results...")

@@ -160,3 +160,10 @@ load.world.prm <- function(filename, path.prm){
 }
 
 
+scale.world <- function(scale.factor, world.prm) {
+	# Scale (up or down) the size of the world.
+	
+	idx <- which(substr(names(world.prm),1,2)=='n_')
+	for (i in idx) world.prm[[i]] <- ceiling(world.prm[[i]]*scale.factor)
+	return(world.prm)
+}
