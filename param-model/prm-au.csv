@@ -1,0 +1,32 @@
+id, name, value
+1, name_au,  au_one
+1, n_hh,     1200
+1, n_wrk,    300
+1, n_pubt,   400
+1, n_school, 200
+1, n_hosp,   1
+1, n_other,  1000
+1, pr_age_hh,         filenamewheretheinfois
+1, hh_size_distrib,   prm-size-hh-ontario.csv
+1, hh_work_distrib,   prm-size-wrk-ontario.csv
+1, hh_school_distrib, prm-size-school-ontario.csv
+1, hh_pubt_distrib,   filenamewheretheinfois
+1, hh_hosp_distrib,   filenamewheretheinfois
+1, hh_other_distrib,  filenamewheretheinfois
+
+2, name_au,  au_two
+2, n_hh,     600
+2, n_wrk,    150
+2, n_pubt,   200
+2, n_school, 100
+2, n_hosp,   1
+2, n_other,  500
+2, pr_age_hh,         filenamewheretheinfois
+2, hh_size_distrib,   prm-size-hh-ontario.csv
+2, hh_work_distrib,   prm-size-wrk-ontario.csv
+2, hh_school_distrib, prm-size-school-ontario.csv
+2, hh_pubt_distrib,   filenamewheretheinfois
+2, hh_hosp_distrib,   filenamewheretheinfois
+2, hh_other_distrib,  filenamewheretheinfois
+
+

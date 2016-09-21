@@ -30,8 +30,6 @@ sched.prm <- list()
 
 ### ==== Model Parameters ====
 
-cr <- 2.1
-
 prm[['debug_mode']] <- F
 prm       <- read.prm(filename = paste0(param.model.dir,'prm-epi.csv'), prm = prm)
 simul.prm <- read.prm(filename = paste0(param.model.dir,'prm-simul.csv'), prm = simul.prm)
