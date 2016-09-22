@@ -37,11 +37,14 @@ for(i in 1:nrow(df)){
 	}
 }
 
-
 ratio.x <- 1
 ratio.y <- 3
 df.rx <- subset(df, hhsize == ratio.x)
 df.ry <- subset(df, hhsize == ratio.y)
+
+# ==== PLOTS ==== 
+
+pdf('plot_hh.pdf', height = 12, width = 20)
 
 df.plot <- data.frame(rx = df.rx$ratio.to.2, 
 					  ry = df.ry$ratio.to.2, 
@@ -86,3 +89,5 @@ g <- g + xlab(paste('ratio size',ratio.x,'/','size 2'))+ ylab(paste('ratio size'
 g <- g + scale_fill_manual(values=tol14rainbow)
 g <- g + ggtitle('Distribution size ratios - Ontario')
 plot(g)
+
+dev.off()
