@@ -1,8 +1,13 @@
-TO DO LIST: 
+===========================
+=== T O   D O   L I S T ===
+===========================
+
 
 === MAJOR ITEMS ===
 
-- simplify code for age size conditional on households size
+- There are implicit consistency issues with the number of indiv linked to various SP. Becuase the size distrib are not perfectly known, some indiv cannot be linked to some SPs because they are full. One solution could be to simply increase the numberof SPs that are missing, but then, the new increased number will not be consistent with 'official' data anymore... ==> Need to find an elegant fix.
+
+- put age determinant for schedule as model parameters (currently hard coded)
 
 - Implied Age contact matrix not great: explicit implementation? (see Mossong 2008)
 
