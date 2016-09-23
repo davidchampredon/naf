@@ -25,14 +25,60 @@ void keep_indiv_with_household(vector<individual>& x){
     /// Keep individuals in this vector that are linked to a household.
     /// Individuals who are _not_ linked, are deleted.
     cout << endl<<" Removing individuals w/o households..."; fflush(stdout);
+    uint cnt = 0;
     for (uint i=0; i<x.size(); i++) {
         if (x[i].get_id_sp_household() == __UNDEFINED_ID) {
             x.erase(x.begin()+i);
             i--;
+            cnt++;
         }
     }
-    cout<<" done."<<endl;
+    cout<<" done: "<<cnt<< " individuals removed out of a total of "<<x.size()<<" ("<< (int)((double)(cnt)/x.size()*100) <<"%)."<<endl;
 }
+
+
+
+void keep_indiv_with_relevant_links(vector<individual>& x){
+    /// Keep individuals in this vector that are linked to a scheduled SP type.
+    /// Individuals who are _not_ linked, are deleted.
+    cout << endl<<" Removing individuals w/o link to scheduled SP..."; fflush(stdout);
+    uint cnt = 0;
+    for (uint i=0; i<x.size(); i++) {
+        if (x[i].get_id_sp_household() == __UNDEFINED_ID) {
+            x.erase(x.begin()+i);
+            i--;
+            cnt++;
+        }
+        else if(x[i].get_id_sp_hospital() == __UNDEFINED_ID){
+            x.erase(x.begin()+i);
+            i--;
+            cnt++;
+        }
+        else if(x[i].get_id_sp_other() == __UNDEFINED_ID){
+            x.erase(x.begin()+i);
+            i--;
+            cnt++;
+        }
+        else if(x[i].get_id_sp_pubTransp() == __UNDEFINED_ID){
+            x.erase(x.begin()+i);
+            i--;
+            cnt++;
+        }
+        else if(x[i].get_id_sp_school() == __UNDEFINED_ID){
+            x.erase(x.begin()+i);
+            i--;
+            cnt++;
+        }
+        else if(x[i].get_id_sp_workplace() == __UNDEFINED_ID){
+            x.erase(x.begin()+i);
+            i--;
+            cnt++;
+        }
+    }
+    cout <<" done: "<<cnt<< " individuals removed out of a total of "<<x.size();
+    cout <<" ("<< (int)((double)(cnt)/x.size()*100) <<"%)."<<endl;
+}
+
 
 
 vector<areaUnit> create_area_unit(const vector<ID>& id_au,
@@ -73,6 +119,7 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
     
     vector<socialPlace> x;
     unsigned long n_indiv = indiv.size();
+    
     uint seed = 1234;
     
     // Draw the size for each social place:
@@ -93,21 +140,16 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
              linked < size_sp[k] &&
              cnt < n_indiv; )
         {
-            //float age = indiv[first_id_indiv + cnt].get_age();
             float age = indiv[cnt].get_age(); // <-- no 'first_id_indiv' for the index of vector ('first_id_indiv' is just for ID)
             
             // DEBUG
             //cout << SPtype2string(sp_type) << ": SP_"<<first_id_sp + k <<"  ; first_id_sp = "<<first_id_sp << " k = "<<k << endl;
             
-            if(age_min<age && age<age_max)
+            if(age_min <= age && age<age_max)
             {
-                // Link both individual and social place ('set_id_sp' does both)
-                //                indiv[first_id_indiv + cnt].set_id_sp(sp_type, tmp); DELETE
+                // Link both individual and social place
+                // ('set_id_sp' does both):
                 indiv[cnt].set_id_sp(sp_type, tmp);
-                
-                //DEBUG
-                // cout << SPtype2string(sp_type) << ": Link SP_"<<first_id_sp + k << " with indiv_" <<first_id_indiv + cnt << endl;
-                
                 record = true;
                 linked++;
             }
@@ -116,7 +158,6 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
         // Record the links
         if(record)
             x.push_back(tmp);
-        
 
         if(cnt == n_indiv){
             // end of indiv vector reached
@@ -176,15 +217,17 @@ void assign_age_in_households(vector<socialPlace>& hh,
     
     unsigned long n_ad = age_distrib.size();
     
-    for (uint k=0; k<hh.size(); k++) {
+    for (uint k=0; k<hh.size(); k++)
+    {
         uint hh_size = hh[k].n_linked_indiv();
-        uint idx = hh_size -1; // <-- warning '-1'
+        uint idx     = hh_size -1; // <-- warning '-1'
+        
         stopif(idx >= n_ad,
                "Age distribution within households needed (but not defined) for sizes larger than " + to_string(n_ad)+".");
         
-        for (uint i=0; i<hh_size; i++) {
-            // Retrieve the age distribution
-            // appropriate for the size of this social place:
+        for (uint i=0; i<hh_size; i++) {            
+            // Retrieve the appropriate age distribution
+            // for the size of this social place:
             discrete_prob_dist<uint> pr = age_distrib[idx][i];
             uint age = pr.sample(1, seed++)[0];
             
@@ -277,9 +320,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         assign_age_in_households(sp_hh, indiv, pr_age_hh);
         
         // Get rid of excess individuals:
-        // (because not all of them could be allocated
-        // a household, unless the hh size distribution
-        // has all its weight on the max value)
+        // (because not all of them could
+        //  be allocateda scheduled SP)
         keep_indiv_with_household(indiv);
         
         // Make sure ID of social places do not
@@ -333,7 +375,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         // - University students are linked to a standard workplace, this
         //  is justified by the fact they tend to mix more like adults at that age.
         
-        float age_min_school = 0.5;
+        float age_min_school = 0.0;
         float age_max_school = 18.1;
         vector<socialPlace> sp_school = create_socialPlaces_size(SP_school,
                                                                  n_school[a],
@@ -436,6 +478,9 @@ void check_sp_integrity(const vector<socialPlace>& x){
 void assign_schedules(vector<socialPlace> & W,
                       const vector<schedule>& sched,
                       float prop_unemployed){
+    /// Assign schedule for all individual in the world.
+    /// For each individual, schedule chosen based on
+    /// age, employment status, etc.
     
     
     uint s_student      = pos_schedname("student", sched);
@@ -451,7 +496,7 @@ void assign_schedules(vector<socialPlace> & W,
         {
             float age = W[k].get_indiv(i).get_age();
 
-            if (0.01 < age && age < 18.0) {
+            if (0.0 <= age && age < 18.0) {
                 W[k].set_schedule_indiv(i, sched[s_student]);
             }
             else if (age >= 18.0){
@@ -466,6 +511,9 @@ void assign_schedules(vector<socialPlace> & W,
                     W[k].set_schedule_indiv(i, sched[s_worker_sed]);
                 }
             }
+            bool check = (W[k].get_indiv(i).get_schedule().get_sp_type().size()==0);
+            if(check) W[k].get_indiv(i).displayInfo();
+            stopif(check, "Schedule not assigned for indiv_"+ to_string(i)+ " (currently in SP_"+to_string(k)+").");
         }
     }
 }
