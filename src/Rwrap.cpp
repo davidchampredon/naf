@@ -287,46 +287,36 @@ List naf_run(List params,
             D_size_other_vec.push_back(D_size_other);
         }
         
-        
-        cout << "DEBUG: "<< D_size_hh_vec.size() << endl;
-        
-        // within households age conditional distributions:
-        
-        vector<uint> pr_age_hh_00_val = worldParams["pr_age_hh_00_val"];
-        vector<uint> pr_age_hh_10_val = worldParams["pr_age_hh_10_val"];
-        vector<uint> pr_age_hh_11_val = worldParams["pr_age_hh_11_val"];
-        vector<uint> pr_age_hh_20_val = worldParams["pr_age_hh_20_val"];
-        vector<uint> pr_age_hh_21_val = worldParams["pr_age_hh_21_val"];
-        vector<uint> pr_age_hh_22_val = worldParams["pr_age_hh_22_val"];
-        
-        vector<double> pr_age_hh_00_proba = worldParams["pr_age_hh_00_proba"];
-        vector<double> pr_age_hh_10_proba = worldParams["pr_age_hh_10_proba"];
-        vector<double> pr_age_hh_11_proba = worldParams["pr_age_hh_11_proba"];
-        vector<double> pr_age_hh_20_proba = worldParams["pr_age_hh_20_proba"];
-        vector<double> pr_age_hh_21_proba = worldParams["pr_age_hh_21_proba"];
-        vector<double> pr_age_hh_22_proba = worldParams["pr_age_hh_22_proba"];
-        
-        vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
-        
-        discrete_prob_dist<uint> pr_age_hh_00(pr_age_hh_00_val, pr_age_hh_00_proba);
-        discrete_prob_dist<uint> pr_age_hh_10(pr_age_hh_10_val, pr_age_hh_10_proba);
-        discrete_prob_dist<uint> pr_age_hh_11(pr_age_hh_11_val, pr_age_hh_11_proba);
-        discrete_prob_dist<uint> pr_age_hh_20(pr_age_hh_20_val, pr_age_hh_20_proba);
-        discrete_prob_dist<uint> pr_age_hh_21(pr_age_hh_21_val, pr_age_hh_21_proba);
-        discrete_prob_dist<uint> pr_age_hh_22(pr_age_hh_22_val, pr_age_hh_22_proba);
-        
-        vector<discrete_prob_dist<uint> > tmp;
-        tmp.push_back(pr_age_hh_00);
-        pr_age_hh.push_back(tmp);
-        tmp.clear();
-        tmp = {pr_age_hh_10,pr_age_hh_11};
-        pr_age_hh.push_back(tmp);
-        tmp.clear();
-        tmp = {pr_age_hh_20,pr_age_hh_21,pr_age_hh_22};
-        pr_age_hh.push_back(tmp);
-        
-        
-        
+        // Within households age conditional distributions:
+		
+		// Retrieve the maximum houshold size across all AU:
+		vector<uint> hms = worldParams["max_hh_size"];
+		uint hh_mxsz = *max_element(hms.begin(), hms.end());
+		
+		vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
+		
+		
+		for(uint h=0; h<hh_mxsz; h++){
+			
+			vector<discrete_prob_dist<uint> > tmp;
+			
+			for(uint i=0; i<=h; i++){
+				string n_v = "pr_age_hh_"+ to_string(h)+to_string(i)+"_val";
+				string n_p = "pr_age_hh_"+ to_string(h)+to_string(i)+"_proba";
+				
+				vector<uint>   pr_age_hh_val   = worldParams[n_v];
+				vector<double> pr_age_hh_proba = worldParams[n_p];
+				
+				discrete_prob_dist<uint> dist(pr_age_hh_val,
+											  pr_age_hh_proba);
+				
+				tmp.push_back(dist);
+			}
+			pr_age_hh.push_back(tmp);
+		}
+		
+		cout << "all parameters loaded." << endl;
+		
         // === Schedules definition ===
         
         // Define the time slices
