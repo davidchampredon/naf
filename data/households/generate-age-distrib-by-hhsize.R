@@ -1,10 +1,15 @@
+###
+###   GENERATE SYNTHETIC AGE DISTRIBUTIONS 
+###   CONDITIONAL ON HOUSEHOLD SIZE
+###
+
 
 gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 	
 	agemean <- prm[['agemean']]
-	agemin <- prm[['agemin']]
-	agemax <- prm[['agemax']]
-	a <- prm[['a']]
+	agemin  <- prm[['agemin']]
+	agemax  <- prm[['agemax']]
+	a       <- prm[['a']]
 	
 	qv <- vector()
 	pv <- c(0.05, 0.50,0.95,0.99,0.999)
@@ -68,9 +73,10 @@ M[[6]] <- list(M[[5]][[1]] + shift.mean,
 
 
 
-save.ad <- function(hh,indiv,fname,...) {
-	z <- gen.ad(M[[hh]][[indiv]],...)
+save.ad <- function(M, hh, indiv, fname,...) {
+	z <- gen.ad(prm = M[[hh]][[indiv]] )#, ...)
 	zz <- matrix(unlist(z),ncol = 2)
+	zz <- zz[!is.infinite(zz[,2]),]
 	zz[,2] <- zz[,2]/sum(zz[,2])
 	write.table(zz,
 				file=paste0(paste(fname,hh-1,indiv-1,sep="_"),'.csv'), # '-1' to be consistent with C++ code
@@ -88,7 +94,7 @@ for(i in 1:6){
 		if(j >= i) {
 			ptt <- paste0('HH size=',j,' ; indiv #',i)
 			#gen.ad(M[[j]][[i]],plot.title = ptt)
-			save.ad(j,i,'hh_size_ad',plot.title=ptt)
+			save.ad(M, j, i, 'hh_size_ad', plot.title=ptt)
 		}
 	}
 }
