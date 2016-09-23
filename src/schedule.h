@@ -51,7 +51,12 @@ public:
 	
 	// Get functions:
 	vector<SPtype>	get_sp_type()           const {return _sp_type;}
-    SPtype          get_sp_type(uint i)     const {return _sp_type[i];}
+    SPtype          get_sp_type(uint i)     const
+    {
+        stopif(i >= _sp_type.size(), "Schedule "+_name+": _sp_type["+to_string(i)+"] not defined, _sp_type.size()="+to_string(_sp_type.size()));
+        return _sp_type[i];
+    }
+    
 	string			get_name()              const {return _name;}
 	vector<double>	get_timeslice()         const {return _timeslice;}
 };

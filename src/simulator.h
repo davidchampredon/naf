@@ -176,6 +176,7 @@ public:
 
     void    check_book_keeping();
     void    define_all_id_tables();
+    void    check_schedules_consistency();
 	
 	// Epidemic
 	

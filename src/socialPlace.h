@@ -184,6 +184,7 @@ public:
     // WARNING: brute force counting, hence slow!
     
     uint	census_alive();
+    uint	census_alive_age(double age_lo, double age_hi);
     uint	census_infectious();
     uint	census_disease_stage(string stage);
     vector<ID>		census_disease_stage_ID(string stage);

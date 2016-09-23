@@ -65,15 +65,13 @@ plot.age.contact.matrix <- function(x) {
 		j <- ceiling(m[q,2])
 		A[i,j] <- A[i,j] + 1
 	}
-	A <- log(A+1)
-	
+	A <- sqrt(A) #log(A+1)
 	
 	image(A,x = 1:m.max, y=1:m.max, zlim = c(0,max(A)), 
 		  ylab = 'infector\'s age',
 		  xlab = 'infectee\'s age',
 		  main = 'Age-contact matrix',
 		  col  = topo.colors(12))
-	
 }
 
 

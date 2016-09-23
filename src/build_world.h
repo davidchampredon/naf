@@ -30,6 +30,8 @@ vector<areaUnit> create_area_unit(const vector<ID>& id_au,
 
 void keep_indiv_with_household(vector<individual>& x);
 
+void keep_indiv_with_relevant_links(vector<individual>& x);
+
 
 vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              uint num_sp,

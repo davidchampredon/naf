@@ -53,7 +53,6 @@ enum SPtype {
 	SP_MAX = 6	// count how many above (except SP_RANDOM)
 };
 
-
 // Global constants
 
 const ID        __UNDEFINED_ID     = 999999999;

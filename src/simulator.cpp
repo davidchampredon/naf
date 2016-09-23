@@ -101,11 +101,49 @@ void Simulator::create_world(vector<areaUnit> AU,
     assign_immunity_cell();
     assign_frailty();
 
-    float unemplyed_prop = 0.10;
+    float unemplyed_prop = 0.10; // TO DO: read as model parameter!
     assign_schedules(_world, sched, unemplyed_prop);
+    
+    check_schedules_consistency();
     
     cout << "... world created. " << endl;
 }
+
+
+
+void Simulator::check_schedules_consistency(){
+    /// Check that all individuals who have a
+    /// given SP type in their schedule, are
+    /// indeed linked to a SP of this type.
+    
+    vector<uint> cnt(SP_MAX, 0);
+    
+    for(uint k=0; k<_world.size(); k++){
+        uint nk = (uint)_world[k].get_size();
+        
+        for(uint i=0; i<nk; i++){
+            schedule sched =_world[k].get_indiv(i).get_schedule();
+            uint n = (uint) sched.get_timeslice().size();
+            for(uint s=0; s<n; s++){
+                if(_world[k].get_indiv(i).find_dest(s,false) == __UNDEFINED_ID ){
+                    SPtype q = sched.get_sp_type(s);
+                    cnt[q]++;
+                }
+            }
+        }
+    }
+    
+    // display checks results:
+    cout << endl <<  " === Schedules consistency === " <<endl<<endl;
+    cout << " Number of individuals without\n a link to relevant SP type\n in its schedule (should be 0):  " <<endl<<endl;
+    for(uint i=0; i<cnt.size(); i++){
+        tabcout(SPtype2string(int2SPtype(i)), cnt[i],22);
+
+    }
+    cout<<endl;
+    //stopif(sumElements(cnt) > 0, "Some individuals have no link to relevant SP.");
+}
+
 
 
 
@@ -780,26 +818,36 @@ void Simulator::run(){
         }
         
         update_ts_census_SP();
+        if(debug_mode) cout << "update_ts_census_SP done." <<endl;
         
         discharge_hospital(idx_timeslice);
         define_all_id_tables();
         death_hospital();
+        if(debug_mode) cout << "hospitalization stuff done." <<endl;
         
         if(p_move>0) {
             move_individuals_sched(idx_timeslice, p_move);
+            if(debug_mode) cout << "movements done."<<endl;
             define_all_id_tables();
-            if(debug_mode) check_book_keeping();
+            if(debug_mode) {
+                cout << "id tables updated done."<<endl;
+                check_book_keeping();
+                cout << "book keeping checks done."<<endl;
+            }
         }
         
         transmission_world(dt);
         update_pop_count();
+        if(debug_mode) cout << "transmissions done." <<endl;
         
         hospitalize();
         define_all_id_tables(); // <-- check if this is necessary here
         update_pop_count(); // <-- check if this is necessary here
+        if(debug_mode) cout << "hospitalization(2) done." <<endl;
         
         change_rnd_sp_other();
         define_all_id_tables();
+        if(debug_mode) cout << "change other SP done." <<endl;
        
         // interventions:
         
@@ -810,9 +858,11 @@ void Simulator::run(){
                                    vax_frail_incr,
                                    vax_lag);
         }
+        if(debug_mode) cout << "interventions done." <<endl;
         
         if(at_least_one_vaccination_intervention())
             update_immunities();
+        if(debug_mode) cout << "immunity update done." <<endl;
         
         // Record for time series:
         timeseries_update();
@@ -821,7 +871,10 @@ void Simulator::run(){
         time_update(dt);
         k++;
         
-        if(debug_mode) check_book_keeping();
+        if(debug_mode) {
+            check_book_keeping();
+            cout << "all actions for this time step done." << endl<<endl;
+        }
     }
     
     if(debug_mode){
@@ -875,13 +928,15 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                                         double proba){
     /// Move individuals across social places according to their schedule
     
+    bool debug_mode = _modelParam.get_prm_bool("debug_mode");
     unsigned long N = _world.size();
-    
     std::uniform_real_distribution<double> unif(0.0,1.0);
     
     for (int k=0; k<N; k++)
-    {        
+    {
+        if(debug_mode) cout<<"moving indiv in SP "<<k<<"/"<< N <<" ... ";
         uint n = (uint)_world[k].get_size();
+        if(debug_mode && n==0) cout << " (empty)."<<endl;
         if(n>0){
             
             // * * * IMPORTANT * * *
@@ -897,19 +952,20 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                 {
                     // Retrieve its actual destination
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
-                    
+
                     string errmsg = "Undefined destination for indiv ID_";
                     errmsg += to_string(_world[k].get_indiv(i).get_id());
                     errmsg += " who is currently in SP_id_";
                     errmsg += to_string(k);
                     
+                    if(id_dest==__UNDEFINED_ID) _world[k].get_indiv(i).displayInfo();
                     stopif(id_dest==__UNDEFINED_ID,errmsg);
                     
                     if ( id_dest!=k )
                     {
                         // take a copy of the individual
                         individual tmp = _world[k].get_indiv(i);
-                        
+
                         // Draw the chance move will actually happen:
                         // TO DO: make this proba individual-dependent
                         double u = unif(_RANDOM_GENERATOR);
@@ -920,6 +976,7 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                 } // end-if-not-hospitalized
             }
         }
+        if(debug_mode) cout<<" done." << endl;
     } // end-for-k-socialPlace
 } // end-function
 
@@ -1445,13 +1502,20 @@ void Simulator::display_summary_info(){
     
     tabcout("Simulation horizon (days)",_horizon);
     
-    // Number of socal places by type:
-    
+    // Number of social places by type and
+    // number of indiv linked to these SP:
+
     vector<uint> cnt(SP_MAX,0);
+    vector<uint> cnt_indiv(SP_MAX,0);
+    uint cnt_children = 0;
+    
     for(uint k=0; k<_world.size(); k++){
         uint spt = _world[k].get_type();
         cnt[spt]++;
+        cnt_indiv[spt] += (uint)_world[k].get_linked_indiv_id().size();
+        cnt_children   += _world[k].census_alive_age(0, 18.0);
     }
+    
     cout << endl << "Number of social places by type:" <<endl;
     for (uint i=0; i<SP_MAX; i++){
         tabcout(SPtype2string((SPtype)i), cnt[i]);
@@ -1461,14 +1525,18 @@ void Simulator::display_summary_info(){
     tabcout("TOTAL", _world.size());
     
     // Number of individuals:
+    cout << endl << "Number of individual linked to social place type:" <<endl;
+    for (uint i=0; i<SP_MAX; i++){
+        tabcout(SPtype2string((SPtype)i), cnt_indiv[i]);
+    }
     cout << endl;
     tabcout("Total number of individuals", world_size(_world));
-    
+    tabcout("Total number of children", cnt_children);
     
     // Schedules used:
     cout << endl;
     tabcout("Individuals with schedule worker_sed", census_schedule(_world, "worker_sed"), 40);
-    tabcout("Individuals with schedule student", census_schedule(_world, "student"), 40);
+    tabcout("Individuals with schedule student",    census_schedule(_world, "student"), 40);
     tabcout("Individuals with schedule unemployed", census_schedule(_world, "unemployed"), 40);
     
     // Interventions:

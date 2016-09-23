@@ -383,11 +383,23 @@ void socialPlace::set_schedule_indiv(uint pos, schedule sched){
 
 
 uint socialPlace::census_alive(){
-    /// Counts all individuals alive
+    /// Counts all individuals alive.
     
     uint cnt = 0;
     for(int i=0; i<_indiv.size(); i++){
         if(_indiv[i].is_alive()) cnt++;
+    }
+    return cnt;
+}
+
+uint socialPlace::census_alive_age(double age_lo, double age_hi){
+    /// Counts all individuals alive aged between given bounds.
+    uint cnt = 0;
+    for(int i=0; i<_indiv.size(); i++){
+        double age = _indiv[i].get_age();
+        if(_indiv[i].is_alive() &&
+           age_lo <= age &&
+           age    <= age_hi) cnt++;
     }
     return cnt;
 }
@@ -420,6 +432,8 @@ ID socialPlace::find_dest(uint pos, uint idx_timeslice){
     /// Find the ID of the social place the individual is supposed to move to
     /// at the timeslice 'idx_timeslice' of the schedule.
     /// (individual is in position 'pos' in the vector '_indiv')
+
+    stopif(pos >= _indiv.size(), "Indiv #"+to_string(pos)+"doesn't exist in SP_"+to_string(_id_sp) );
     
     return _indiv[pos].find_dest(idx_timeslice);
 }

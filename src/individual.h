@@ -264,7 +264,7 @@ public:
     void    receive_cure();
 	
 	// Miscellenaous
-	ID find_dest(uint idx_timeslice);
+	ID find_dest(uint idx_timeslice, bool print_error = false);
 	void displayInfo();
 };
 

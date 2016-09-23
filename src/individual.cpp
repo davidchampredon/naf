@@ -439,7 +439,7 @@ individual get_indiv_with_ID(ID id,
 
 
 
-ID individual::find_dest(uint idx_timeslice){
+ID individual::find_dest(uint idx_timeslice, bool print_error){
     /// Find the ID of the social place this
     /// individual is supposed to go at a given times slice.
     
@@ -455,7 +455,7 @@ ID individual::find_dest(uint idx_timeslice){
     if(sptype == SP_pubTransp)	id_dest = get_id_sp_pubTransp();
     if(sptype == SP_other)		id_dest = get_id_sp_other(); //__LARGE_ID;
     
-    if (id_dest == __UNDEFINED_ID)
+    if (print_error && id_dest == __UNDEFINED_ID)
         cerr<<"Undefined destination of type " << SPtype2string(sptype)<<endl;
     
     return id_dest;

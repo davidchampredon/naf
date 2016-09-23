@@ -141,7 +141,7 @@ void main_run_test(){
     discrete_prob_dist<uint> pr_age_hh_22(age_all,   p_age_all_2);
     
     vector<discrete_prob_dist<uint> > tmp;
-    
+
     tmp.push_back(pr_age_hh_00);
     pr_age_hh.push_back(tmp);
     
