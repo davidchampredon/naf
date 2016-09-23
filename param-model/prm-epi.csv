@@ -35,7 +35,7 @@ contact_ratio_sp_household     , 2.0
 contact_ratio_sp_pubTransport  , 1.75
 
 proba_move, 0.98
-proba_change_sp_other, 0.11
+proba_change_sp_other, 0.0
 
 asymptom_infectiousness_ratio , 0.8
 

@@ -15,7 +15,8 @@ read.prm.au <- function(filename) {
 		
 		# if 'id' changes, then store previous parameter
 		# list in the big list, reset, and carry on scanning:
-		num.prm <- ( sum(sapply(letters, grepl, x$value[i]))==0 )
+		char.test <- c(letters,LETTERS)
+		num.prm <- ( sum(sapply(char.test, grepl, x$value[i]))==0 )
 		if(num.prm)  y <- as.numeric(as.character(x$value[i]))
 		if(!num.prm) y <- trimws(as.character(x$value[i]))
 		names(y) <- trimws(as.character(x$name[i]))
@@ -101,6 +102,8 @@ merge.lists.into.one.list <- function(L){
 	# the ith element of the k input lists.
 	
 	N <- length(L)
+	if(N <= 1) return(L)
+	
 	n <- length(L[[1]])
 	for(k in 1:N) stopifnot(n==length(L[[k]]))
 	
@@ -122,6 +125,8 @@ merge.lists.into.one.list.vec <- function(L){
 	# returned unique list is itself a list made of 
 	# the ith element of the k input lists.
 	N <- length(L)
+	if(N <= 1) return(L)
+	
 	n <- length(L[[1]])
 	for(k in 1:N) stopifnot(n==length(L[[k]]))
 	
@@ -154,8 +159,8 @@ load.world.prm <- function(filename, path.prm){
 	}
 	
 	prm.sz.dst <- merge.lists.into.one.list(sz.dst.list)
-	prm.au.2 <- merge.lists.into.one.list.vec(prm.au)
-	world.prm <- c(prm.sz.dst, prm.au.2)
+	prm.au.2   <- merge.lists.into.one.list.vec(prm.au)
+	world.prm  <- c(prm.sz.dst, prm.au.2)
 	return(world.prm)
 }
 
@@ -167,3 +172,25 @@ scale.world <- function(scale.factor, world.prm) {
 	for (i in idx) world.prm[[i]] <- ceiling(world.prm[[i]]*scale.factor)
 	return(world.prm)
 }
+
+
+
+
+load.age.hh <- function(base.fname, max.hh.size){
+	# Load age distribution conditional on household size
+	tmp.list <- list()
+	for(hh in 0:(max.hh.size-1)){
+		for(i in 0:hh){
+			fn <- paste0(base.fname,'_',hh,'_',i,'.csv')
+			x <- read.csv(fn, header = FALSE)
+			
+			n.v <- paste0('pr_age_hh_',hh,i,'_val')
+			n.p <- paste0('pr_age_hh_',hh,i,'_proba')
+			tmp.list[[n.v]] <- x[,1]
+			tmp.list[[n.p]] <- x[,2]
+		}
+	}
+	return(tmp.list)
+}
+
+
