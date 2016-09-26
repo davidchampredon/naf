@@ -19,7 +19,10 @@ synthetic_age_adult <- function(age.adult){
 
 
 plot.binomial.regression <- function(dat, xvar, binomial_response, title) {
-	g <- ggplot(dat) + geom_point(aes_string(x=xvar,y=binomial_response), alpha=0.3) 
+	n <- nrow(dat)
+	
+	g <- ggplot(dat) 
+	if(n<1000) g <- g + geom_point(aes_string(x=xvar,y=binomial_response), alpha=0.3) 
 	g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response), 
 						 method = "glm", 
 						 method.args = list(family = "binomial"), 
@@ -119,7 +122,6 @@ plot.population <- function(pop) {
 										   title='Age distribution (by survival)')
 	
 	# ==== Death ====
-	
 	
 	g.death.frailty <- plot.binomial.regression(dat = pop, 
 												xvar='frailty',
