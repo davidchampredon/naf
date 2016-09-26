@@ -24,7 +24,10 @@ vector<individual> create_individuals(uint n, uint first_id_indiv){
 void keep_indiv_with_household(vector<individual>& x){
     /// Keep individuals in this vector that are linked to a household.
     /// Individuals who are _not_ linked, are deleted.
+    
     cout << endl<<" Removing individuals w/o households..."; fflush(stdout);
+    
+    unsigned long initial_size = x.size();
     uint cnt = 0;
     for (uint i=0; i<x.size(); i++) {
         if (x[i].get_id_sp_household() == __UNDEFINED_ID) {
@@ -33,7 +36,8 @@ void keep_indiv_with_household(vector<individual>& x){
             cnt++;
         }
     }
-    cout<<" done: "<<cnt<< " individuals removed out of a total of "<<x.size()<<" ("<< (int)((double)(cnt)/x.size()*100) <<"%)."<<endl;
+    cout << " done: "<<cnt<< " individuals removed out of a total of ";
+    cout << initial_size<<" ("<< (int)((double)(cnt)/initial_size*100) <<"%)."<<endl;
 }
 
 
@@ -41,7 +45,10 @@ void keep_indiv_with_household(vector<individual>& x){
 void keep_indiv_with_relevant_links(vector<individual>& x){
     /// Keep individuals in this vector that are linked to a scheduled SP type.
     /// Individuals who are _not_ linked, are deleted.
+
     cout << endl<<" Removing individuals w/o link to scheduled SP..."; fflush(stdout);
+    
+    unsigned long initial_size = x.size();
     uint cnt = 0;
     for (uint i=0; i<x.size(); i++) {
         if (x[i].get_id_sp_household() == __UNDEFINED_ID) {
@@ -75,8 +82,8 @@ void keep_indiv_with_relevant_links(vector<individual>& x){
             cnt++;
         }
     }
-    cout <<" done: "<<cnt<< " individuals removed out of a total of "<<x.size();
-    cout <<" ("<< (int)((double)(cnt)/x.size()*100) <<"%)."<<endl;
+    cout <<" done: "<<cnt<< " individuals removed out of a total of "<<initial_size;
+    cout <<" ("<< (int)((double)(cnt)/initial_size*100) <<"%)."<<endl;
 }
 
 
@@ -304,6 +311,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         vector<uint> ds          = D_size_hh[a].get_value();
         uint nmax                = *std::max_element(ds.begin(), ds.end());
         vector<individual> indiv = create_individuals(n_hh[a]*nmax, first_id_indiv_au);
+        
+        cout << indiv.size() << " individuals provided to build area unit ID_"<< a << endl;
 
         // Create households and link existing individuals to them.
         // The size of the households is driven by the

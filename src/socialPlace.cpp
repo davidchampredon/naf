@@ -25,17 +25,20 @@ string SPtype2string(SPtype x){
 }
 
 
+
 SPtype int2SPtype(uint i){
-    // warning: order matters!
+    // WARNING: order matters!
+    // MUST be same order as enum SPType definition.
     SPtype res = SP_MAX;
     
     if (i==0) res = SP_household;
-    if (i==1) res = SP_school;
-    if (i==2) res = SP_hospital;
-    if (i==3) res = SP_workplace;
-    if (i==4) res = SP_other;
+    if (i==1) res = SP_workplace; ;
+    if (i==2) res = SP_school;
+    if (i==3) res = SP_other;
+    if (i==4) res = SP_hospital;
     if (i==5) res = SP_pubTransp;
-    
+    // [add here newly defined SPs...]
+    // if(i==6) res = SP_xxx;
     return res;
 }
 
