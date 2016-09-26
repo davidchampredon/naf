@@ -2,7 +2,7 @@ id, name, value
 0, name_au,  ontario
 0, id_au,    0
 0, n_hh,     4887505
-0, n_wrk,    389116
+0, n_wrk,    689116
 0, n_pubt,   500000
 0, n_school, 4893
 0, n_hosp,   1
@@ -19,7 +19,7 @@ id, name, value
 1, name_au,  ontario2
 1, id_au,    1
 1, n_hh,     4887505
-1, n_wrk,    389116
+1, n_wrk,    689116
 1, n_pubt,   500000
 1, n_school, 4893
 1, n_hosp,   1
