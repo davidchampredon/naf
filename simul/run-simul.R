@@ -26,7 +26,7 @@ fname.prm.epi    <- 'prm-epi.csv'
 fname.prm.simul  <- 'prm-simul.csv'
 fname.prm.au     <- 'prm-au-ontario.csv'
 
-scale.factor     <- 1/1000
+scale.factor     <- 1/5000
 
 do.plot           <- TRUE 
 save.plot.to.file <- TRUE
@@ -124,6 +124,7 @@ if(do.plot){
 	try( plot.population(pop),  silent = T)
 	try( plot.n.contacts(res$track_n_contacts),  silent = T)
 	try( plot.age.contact.matrix(res$wiw_ages),  silent = T)
+	try(plot.sp.sz.distrib(pop,world.prm) , silent = T)
 	if (save.plot.to.file) dev.off()
 	
 	# Time series:
@@ -136,7 +137,7 @@ if(do.plot){
 	
 	message("Plotting done.")
 }
-
+	
 # End
 t2 <- as.numeric(Sys.time())
 message(paste("Simulation computing time:",round((t1-t0)/60,1),"min"))

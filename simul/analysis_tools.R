@@ -5,7 +5,7 @@ library(gridExtra)
 
 synthetic_age_adult <- function(age.adult){
 	# Create a synthetic age distribution for adults.
-
+	
 	age.thres <- 60
 	age.max <- max(age.adult)
 	idx <- which(age.adult > age.thres)
@@ -129,14 +129,14 @@ plot.population <- function(pop) {
 												title='Death and Frailty')
 	
 	g.death.imm.hum <- plot.binomial.regression(dat = pop, 
-											xvar='immunity_hum',
-											binomial_response = 'is_alive',
-											title='Death and Humoral Immunity')
+												xvar='immunity_hum',
+												binomial_response = 'is_alive',
+												title='Death and Humoral Immunity')
 	
 	g.death.imm.cell <- plot.binomial.regression(dat = pop, 
-											xvar='immunity_cell',
-											binomial_response = 'is_alive',
-											title='Death and Cellular Immunity')
+												 xvar='immunity_cell',
+												 binomial_response = 'is_alive',
+												 title='Death and Cellular Immunity')
 	
 	
 	g.death.frailty.dist <- plot.density.categ(dat = pop, 
@@ -186,7 +186,7 @@ plot.population <- function(pop) {
 	alpha = 0.8
 	m_dol_drawn = mean(pop.inf$dol_drawn)
 	m_doi_drawn = mean(pop.inf$doi_drawn)
-
+	
 	g <- ggplot(pop.inf)
 	
 	g.dol.drawn <- g + geom_histogram(aes(x=dol_drawn), fill='orange',colour='orange', size=linew, alpha=alpha, binwidth = 0.5)
@@ -218,18 +218,18 @@ plot.population <- function(pop) {
 											 title = 'Hospitalization and frailty')
 	
 	g.imm.hum.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_hum',
-											 binomial_response = 'hosp',
-											 title = 'Hospitalization and humoral immunity')
+											   binomial_response = 'hosp',
+											   title = 'Hospitalization and humoral immunity')
 	
 	g.imm.cell.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_cell',
-											   binomial_response = 'hosp',
-											   title = 'Hospitalization and cellular immunity')
+												binomial_response = 'hosp',
+												title = 'Hospitalization and cellular immunity')
 	
 	
 	g.age.hosp <- plot.binomial.regression(dat = pop, xvar = 'age',
 										   binomial_response = 'hosp',
 										   title = 'Hospitalization and age')
-
+	
 	
 	pop.treat.hosp <- ddply(pop,c('hosp','is_treated'),summarize, n=length(id_indiv))
 	g.treat.hosp <- ggplot(pop.treat.hosp) + geom_bar(aes(x = factor(hosp), 
@@ -260,7 +260,7 @@ plot.population <- function(pop) {
 	g.R <- g.R + ggtitle(paste0("Secondary cases distribution (R0=",
 								round(R0,2),")"))
 	
-
+	
 	# R0 symptomatic or not
 	pop.transm.sum <- ddply(pop.transm,"was_symptomatic",
 							summarize,
@@ -275,8 +275,8 @@ plot.population <- function(pop) {
 														colour = factor(was_symptomatic)),
 													alpha = 0.2)
 	g.R.symptom <- g.R.symptom + geom_vline(data = pop.transm.sum, 
-										aes(xintercept=m, colour=factor(was_symptomatic)),
-										linetype=2)
+											aes(xintercept=m, colour=factor(was_symptomatic)),
+											linetype=2)
 	g.R.symptom <- g.R.symptom + ggtitle(paste0("Secondary cases distribution\n (R0_asympt=",
 												round(pop.transm.sum$m[1],2),
 												" ; R0_sympt=",
@@ -286,17 +286,17 @@ plot.population <- function(pop) {
 	# R0 treated or not
 	
 	pop.transm.sum2 <- ddply(pop.transm,"is_treated",
-							summarize,
-							m = mean(n_secondary_cases),
-							q.lo = quantile(n_secondary_cases,probs = 0.5-0.80/2),
-							q.hi = quantile(n_secondary_cases,probs = 0.5+0.80/2))
+							 summarize,
+							 m = mean(n_secondary_cases),
+							 q.lo = quantile(n_secondary_cases,probs = 0.5-0.80/2),
+							 q.hi = quantile(n_secondary_cases,probs = 0.5+0.80/2))
 	
 	pop.transm.sum2
 	
 	g.R.treat <- ggplot(pop.transm) +geom_density(aes(x=n_secondary_cases,
-													   fill = factor(is_treated),
-													   colour = factor(is_treated)),
-												   alpha = 0.2)
+													  fill = factor(is_treated),
+													  colour = factor(is_treated)),
+												  alpha = 0.2)
 	g.R.treat <- g.R.treat + geom_vline(data = pop.transm.sum2, 
 										aes(xintercept=m, colour=factor(is_treated)),
 										linetype=2)
@@ -305,7 +305,7 @@ plot.population <- function(pop) {
 											" ; R0_treated=",
 											round(pop.transm.sum2$m[2],2),
 											")"))
-
+	
 	
 	### ==== Generation interval ====
 	
@@ -313,9 +313,9 @@ plot.population <- function(pop) {
 	mean.gibck <- mean(pop2$gi_bck)
 	sd.gibck <- sd(pop2$gi_bck)
 	g.gibck <- ggplot(pop2) + geom_histogram(aes(gi_bck),
-											   fill = 'skyblue1',
-											   colour = 'skyblue3',
-											   binwidth = 1)
+											 fill = 'skyblue1',
+											 colour = 'skyblue3',
+											 binwidth = 1)
 	g.gibck <- g.gibck + geom_vline(xintercept=mean.gibck, 
 									linetype = 2, size = 2)
 	g.gibck <- g.gibck + ggtitle(paste0("Backward GI (mean=",
@@ -327,13 +327,13 @@ plot.population <- function(pop) {
 					  m = mean(gi_bck))
 	
 	g.gibck.sympt <- ggplot(pop2) + geom_density(aes(gi_bck,
-												 fill = factor(was_symptomatic),
-												 colour = factor(was_symptomatic)),
+													 fill = factor(was_symptomatic),
+													 colour = factor(was_symptomatic)),
 												 alpha = 0.2)
 	g.gibck.sympt <- g.gibck.sympt + geom_vline(data = pop2.sum , 
-								aes(xintercept=m,
-									colour = factor(was_symptomatic)), 
-								linetype=2)
+												aes(xintercept=m,
+													colour = factor(was_symptomatic)), 
+												linetype=2)
 	
 	g.gibck.sympt <- g.gibck.sympt + ggtitle(paste0("Backward GI (mean_asympt=",
 													round(pop2.sum$m[1],2),
@@ -342,7 +342,7 @@ plot.population <- function(pop) {
 													")"))
 	
 	### ==== Symptomatics ====
-
+	
 	g.sympt.imm.hum.dist <- plot.density.categ(dat = pop, 
 											   xvar ='immunity_hum',
 											   categ = 'was_symptomatic',
@@ -358,10 +358,10 @@ plot.population <- function(pop) {
 	sympt.vax
 	
 	g.sympt.vax <- ggplot(sympt.vax)+geom_bar(aes(x=factor(is_vaccinated), y=n, fill=factor(was_symptomatic)),
-												  stat='identity', position='dodge')
+											  stat='identity', position='dodge')
 	g.sympt.vax <- g.sympt.vax + ggtitle('Symptomatic infection and vaccination')
 	
-
+	
 	### ==== Final ====
 	
 	grid.arrange(g.age, 
@@ -384,7 +384,7 @@ plot.population <- function(pop) {
 				 g.sympt.vax,
 				 g.sympt.imm.hum.dist,
 				 g.sympt.imm.cell.dist
-				)
+	)
 	
 	grid.arrange( g.dol.drawn, 
 				  g.doi.drawn,
@@ -437,7 +437,7 @@ plot.epi.timeseries <- function(ts){
 	g.dailyinc <- g.dailyinc + geom_step(aes(y=dailyinc))
 	# g.dailyinc <- g.dailyinc + geom_point(aes(y=dailyinc))
 	g.dailyinc <- g.dailyinc + ggtitle('Daily incidence') + xlab('day')+ylab('')
-
+	
 	g.dailyinc.log <- g.dailyinc + scale_y_log10()
 	
 	g.prev <- ggplot(ts, aes(x=time))
@@ -467,7 +467,7 @@ plot.epi.timeseries <- function(ts){
 }
 
 plot.ts.sp <- function(ts, facets=FALSE){
-
+	
 	zz <- data.frame(matrix(unlist(ts),ncol = length(ts)))
 	names(zz) <- names(ts)
 	
@@ -489,3 +489,54 @@ plot.ts.sp <- function(ts, facets=FALSE){
 	g <- g + scale_y_log10()
 	return(g)
 }
+
+
+
+
+plot.sp.one <- function(pop, world.prm, name.in, name.out){
+	
+	for(id.au in unique(pop$id_au))
+	{
+		colnum <- which(names(pop)==name.out)
+		pop.au <- subset(pop, id_au==id.au)
+		df <- ddply(pop, name.out, summarise, sz=length(get(name.out)))
+		df <- ddply(df,'sz',summarise, n=length(sz))
+		
+		sz.out <- df$sz
+		pr.out <- df$n/sum(df$n)
+		sz.in <- world.prm[[name.in]][[id.au+1]]
+		pr.in <- world.prm[[paste0(name.in,'_proba')]][[id.au+1]]
+		
+		plot(x = sz.out, 
+			 y = pr.out, 
+			 main = paste0('AU ',id.au),
+			 ylim = range(pr.out, pr.in),
+			 xlab = name.in, ylab='prop', las=1,
+			 typ ='h', lwd = 2)
+		
+		points(x = sz.in, 
+			   y = pr.in, 
+			   pch = 3, cex=2, lwd=2,
+			   col='red')
+		points(x = sz.out, y = pr.out, 
+			   pch=1, lwd = 2, cex=1.5)
+		
+		legend(x='topright', pch=c(3,1), col=c('red','black'), 
+			   pt.lwd = 3,pt.cex=1,
+			   legend=c('Target','Realized'))
+	}
+}
+
+
+
+plot.sp.sz.distrib <- function(pop,world.prm) {
+	
+	name.in  <- c('hh_size','wrk_size', 'school_size', 'pubt_size', 'other_size')
+	name.out <- c('id_hh',  'id_wrk',   'id_school',   'id_pubTr',  'id_other')
+	
+	par(mfrow=c(4,3))
+	for(i in seq_along(name.out)){
+		plot.sp.one(pop, world.prm, name.in[i], name.out[i])
+	}
+}
+

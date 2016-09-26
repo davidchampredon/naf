@@ -149,9 +149,6 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
         {
             float age = indiv[cnt].get_age(); // <-- no 'first_id_indiv' for the index of vector ('first_id_indiv' is just for ID)
             
-            // DEBUG
-            //cout << SPtype2string(sp_type) << ": SP_"<<first_id_sp + k <<"  ; first_id_sp = "<<first_id_sp << " k = "<<k << endl;
-            
             if(age_min <= age && age<age_max)
             {
                 // Link both individual and social place
