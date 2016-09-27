@@ -1338,15 +1338,6 @@ vector< vector<uint> > Simulator::draw_contacted_S_age_constraint(uint k,
             uint rank = (uint)expdist(_RANDOM_GENERATOR);
             if (rank>= u.size()) rank = (uint)u.size()-1;
             
-
-//            cout << "DEBUG:: rank chosen = "<< rank << " ; pos_S = "<< u[rank];
-//            cout << " (ncontact = "<< n_contacts[i]<<", n_susc="<<n_susc<<")";
-//            cout << " Age_inf="<< age_inf << " age_s="<< (uint)susceptible[u[rank]]->get_age() << endl;
-//            cout << "other possible ages & scores:";
-//            displayVector(age_s);
-//            displayVector(scores);
-//            displayVector(u);
-            
             stopif(rank >= n_susc, "Susceptible selected for assortative mixing does not exist.");
             
             selected_S[i].push_back((uint)u[rank]);

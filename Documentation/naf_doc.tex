@@ -140,7 +140,24 @@ The fact the intensity is log-normally distributed allows for super-spreading ev
 
 \subsubsection*{Contacts selection}
 
-Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts. In particular, age assortativity is not explicitly implemented.
+Once the number of contacts from an infectious individual is determined, susceptible individuals in this social place are selected randomly as its contacts, with a constraint on age assortativity.
+
+A predefined function specify age assortativity for contacts. More specifically, a function $\phi(x,y)$ gives the likelihood (\emph{not} in the statistical sense) that an individual aged $x$ will contact another individual aged $y$.
+In a given social place and for a given number of predetermined contacts, all susceptible individuals are given a ``score'' to be contacted based on the assortativity function $\phi$. 
+The higher the score, the more likely the individual will be contacted. The selection is stochastic and a parameter $\lambda$ enables some deviation from the desired assortativity $\phi$.
+Indeed, the scores are sorted and the susceptible contact is selected by choosing the rank of the sorted scores from an exponential distribution. If $S_1, S_2, ...$ are the candidate susceptible individuals and $u$ is the indexes vector of the ranked score, the selected susceptible will be $S_{u[X]}$ with $ X \sim \text{Exp}(\lambda) $. The smaller $\lambda$, the more likely that the choice of the susceptible individual will comply to the predefined assortativity function $\phi$.
+
+An example of pre-specified function $\phi$ is shown in Figure \ref{fig:age_assortativity}. A reference for real-world data for $\phi$ is given in Mossong et al \cite{Mossong:2008vz}.
+
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.99\textwidth]{figures/age_assort.png}
+\caption{Age assortativity. Example of age assortativity function $\phi$ (left panel) and its realization after a simulation (right panel).}
+\label{fig:age_assortativity}
+\end{figure}
+
+
 
 \subsubsection*{Transmission probabilities}
 
