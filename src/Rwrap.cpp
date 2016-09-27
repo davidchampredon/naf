@@ -146,6 +146,8 @@ List naf_run(List params,
         set_parameter(MP, "contact_ratio_age_over_65",     "double", params);
         set_parameter(MP, "contact_ratio_sp_household",    "double", params);
         set_parameter(MP, "contact_ratio_sp_pubTransport", "double", params);
+		
+		set_parameter(MP, "contactAssort_lambda", "double", params);
         
         set_parameter(MP, "asymptom_infectiousness_ratio", "double", params);
         
@@ -396,7 +398,8 @@ List naf_run(List params,
                             Named("time_series")      = to_list(ts, false),
                             Named("time_series_sp")   = census_sp,
                             Named("track_n_contacts") = track_n_contacts,
-                            Named("wiw_ages")         = sim.get_wiw_ages()
+                            Named("wiw_ages")         = sim.get_wiw_ages(),
+							Named("contactAssort")    = sim.get_contactAssort()
                             );
     }
     catch (...){

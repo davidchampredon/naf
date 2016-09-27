@@ -17,6 +17,7 @@
 #include "disease.h"
 #include "globalvar.h"
 #include "build_world.h"
+#include "dcMatrix.h"
 
 
 Simulator run_test(vector<areaUnit> auvec,

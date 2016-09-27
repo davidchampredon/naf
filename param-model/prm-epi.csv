@@ -27,12 +27,14 @@ homogeneous_contact , 0
 contact_rate_mean   , 2.1
 contact_rate_stddev , 0.4
 
-contact_ratio_age_1_10     , 2.0
-contact_ratio_age_10_16    , 1.5
+contact_ratio_age_1_10     , 1.0
+contact_ratio_age_10_16    , 1.0
 contact_ratio_age_over_65  , 0.8
 
 contact_ratio_sp_household     , 2.0
 contact_ratio_sp_pubTransport  , 1.75
+
+contactAssort_lambda, 0.1
 
 proba_move, 0.98
 proba_change_sp_other, 0.0

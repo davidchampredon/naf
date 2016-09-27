@@ -30,6 +30,13 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     
+    
+//    vector<double> x = {3, 9.3, 8, 11.1, 0.009, 9.3};
+//    vector<size_t> r = sort_indexes(x);
+//    displayVector(x);
+//    displayVector(r);
+//    exit(888);
+    
     auto t0 = std::chrono::system_clock::now();
     
     system("pwd");

@@ -78,7 +78,7 @@ protected:
     
     vector< vector<float> > _wiw_ages;  // Nx2 matrix where col[1]=age infector, col[2]=age infectee
     
-    
+    dcMatrix        _contactAssort;
     
 public:
 	
@@ -155,6 +155,7 @@ public:
     
     vector<vector<float> > get_wiw_ages() const {return _wiw_ages;}
     
+    vector<vector<double> > get_contactAssort() const {return to_vector_vector(_contactAssort);}
     
 	// Time updates
 	
@@ -178,6 +179,13 @@ public:
     void    define_all_id_tables();
     void    check_schedules_consistency();
 	
+
+    // Demographics
+    
+    void    define_contactAssort();
+   
+    
+    
 	// Epidemic
 	
 	void	set_disease(const disease& d);
@@ -194,6 +202,11 @@ public:
     vector< vector<uint> > draw_contacted_S(uint k,
                                             vector<uint> n_contacts,
                                             string infectious_type);
+    
+    vector< vector<uint> > draw_contacted_S_age_constraint(uint k,
+                                                           vector<uint> n_contacts,
+                                                           string infectious_type);
+    
     
     double calc_proba_transmission(individual* infectious,
                                             individual* susceptible);
@@ -268,7 +281,7 @@ public:
 	
 };
 
-
+double age_contact_elem(double x,double y,double a,double b,double w,double q,double r);
 
 
 #endif /* defined(__naf__simulation__) */

@@ -1,28 +1,57 @@
-x <- y <- seq(0,100,by=1)
+x <- y <- seq(0,100,by=0.5)
 
 
-f <- function(x,y,p,q,r) {
-	exp(-p*(x-y-q)^2)*exp(-r*(x^2+y^2))    #/(1+r*(x^2+y^2))
+psi <- function(x,y,a,b,w,q,r) {
+	exp( -( ( (x-a) -(y-b) - q )^2  )/w^2 - ((x-a)^2+(y-b)^2)/r^2) 
 }
 
 z <- matrix(nrow = length(y), ncol = length(x))
-
-z <- z / sum(z)
-
 tmp <- vector()
 
 for(j in seq_along(x)){
 	for(i in seq_along((y))){
-		r <- 4*1e-4
-		tmp[1] <- f(x[j],y[i],p=1e-2,q=0, r)
-		tmp[2] <- f(x[j],y[i],p=3e-2,q=30, r)
-		tmp[3] <- f(x[j],y[i],p=3e-2,q=-30, r)
-		tmp[4] <- f(x[j],y[i],p=1e-2,q=60, r)
-		tmp[5] <- f(x[j],y[i],p=1e-2,q=-60, r)
+		tmp[1] <- psi(x[j],y[i],a=0,b=0,w=9,q=28, r=45)   # parents/children
+		tmp[2] <- psi(x[j],y[i],a=0,b=0,w=9,q=-28,r=45)   # parents/children
+		
+		tmp[3] <- psi(x[j],y[i],a=10,b=10,w=9,q=0,r=28)    # children/children
+		
+		tmp[4] <- psi(x[j],y[i],a=45,b=45,w=20,q=0,r=17)    # adults/adults
+		
+		tmp[5] <- psi(x[j],y[i],a=75,b=75,w=15,q=0,r=15)    # seniors
+		
+		tmp[6] <- psi(x[j],y[i],a=0,b=0,w=10,q=60,r=55)    # seniors/children
+		tmp[7] <- psi(x[j],y[i],a=0,b=0,w=10,q=-60,r=55)    # seniors/children
+		
 		z[i,j] <- sum(tmp)
 	}
-	
 }
+z <- z / sum(z)
 
-image(x=x, y=y, z=z, col = topo.colors(12,0.89))
-grid(lty=1, col=rgb(1,1,1,0.2))
+# PLOTS
+
+par(mfrow=c(2,2))
+
+image(x=x, y=y, z=z, 
+	  col = topo.colors(12,0.5),
+	  main = 'Age contact preference matrix', 
+	  las=1, xlab='age',ylab='')
+contour(x=x, y=y, z=z, add = TRUE,nlevels = 6)
+grid()
+abline(a=0,b=1,lty=2)
+
+col.b <- rgb(0,0,0,0.1)
+col.f <- rgb(0,0,0,0.1)
+
+persp(x=x, y=y, z=z,
+	  phi = 10, 
+	  theta = -45,
+	  col = col.f, border = col.b)
+
+persp(x=x, y=y, z=z,
+	  phi = 50, 
+	  theta = 0,
+	  col = col.f, border = col.b)
+persp(x=x, y=y, z=z,
+	  phi = 10, 
+	  theta = 45,
+	  col = col.f, border = col.b)

@@ -50,12 +50,17 @@ plot.density.categ <- function(dat, xvar, categ, title) {
 }
 
 
-plot.age.contact.matrix <- function(x) {
-	# x <- res$wiw_ages
+
+
+plot.age.contact.matrix <- function(res) {
+	
+	# Desired contact assortativity:
+	y <- res$contactAssort
+	D <- matrix(unlist(res$contactAssort), ncol = length(y))
+	
+	# Effective contacts from simulation:
+	x <- res$wiw_ages
 	m <- matrix(unlist(x), ncol=length(x))
-	
-	hist(m[,1],breaks=100, ylim=c(0,2000))
-	
 	m.max <- ceiling(max(m))
 	
 	A <- matrix(nrow = m.max, ncol=m.max, data = 0)
@@ -68,13 +73,28 @@ plot.age.contact.matrix <- function(x) {
 		j <- ceiling(m[q,2])
 		A[i,j] <- A[i,j] + 1
 	}
-	A <- sqrt(A) #log(A+1)
+	A.plot <- log(1+A)
 	
-	image(A,x = 1:m.max, y=1:m.max, zlim = c(0,max(A)), 
+	# -- PLOTS --
+	
+	par(mfrow = c(1,2))
+	
+	na <- ncol(A)
+	D.plot <- D[1:(na+1),1:(na+1)]
+	
+	image(x=0:na, y=0:na, z=D.plot, 
+		  col = topo.colors(12), 
+		  main='Input contact assortativity',
+		  xlab = 'age', ylab='age', las=1)
+	abline(a=0,b=1,lty=2); grid()
+	
+	image(A.plot,x = 1:m.max, y=1:m.max, zlim = c(0,max(A.plot)), 
 		  ylab = 'infector\'s age',
 		  xlab = 'infectee\'s age',
-		  main = 'Age-contact matrix',
+		  las = 1,
+		  main = 'Simulated effective contact age matrix',
 		  col  = topo.colors(12))
+	abline(a=0,b=1,lty=2); grid()
 }
 
 
@@ -495,11 +515,13 @@ plot.ts.sp <- function(ts, facets=FALSE){
 
 plot.sp.one <- function(pop, world.prm, name.in, name.out){
 	
+	undefined.id <- 999999999
+	
 	for(id.au in unique(pop$id_au))
 	{
-		colnum <- which(names(pop)==name.out)
 		pop.au <- subset(pop, id_au==id.au)
-		df <- ddply(pop, name.out, summarise, sz=length(get(name.out)))
+		pop.au <- pop.au[pop.au[,name.out] < undefined.id, ]
+		df <- ddply(pop.au, name.out, function(x){c(sz=length(x[,name.out]))})
 		df <- ddply(df,'sz',summarise, n=length(sz))
 		
 		sz.out <- df$sz
@@ -509,15 +531,16 @@ plot.sp.one <- function(pop, world.prm, name.in, name.out){
 		
 		plot(x = sz.out, 
 			 y = pr.out, 
-			 main = paste0('AU ',id.au),
+			 main = paste0('Size Distribution in AU_',id.au),
 			 ylim = range(pr.out, pr.in),
+			 xlim = range(sz.in, sz.out),
 			 xlab = name.in, ylab='prop', las=1,
-			 typ ='h', lwd = 2)
+			 typ ='l', lwd = 2)
 		
-		points(x = sz.in, 
+		lines(x = sz.in, 
 			   y = pr.in, 
 			   pch = 3, cex=2, lwd=2,
-			   col='red')
+			   col='red', typ='o')
 		points(x = sz.out, y = pr.out, 
 			   pch=1, lwd = 2, cex=1.5)
 		
@@ -531,12 +554,35 @@ plot.sp.one <- function(pop, world.prm, name.in, name.out){
 
 plot.sp.sz.distrib <- function(pop,world.prm) {
 	
-	name.in  <- c('hh_size','wrk_size', 'school_size', 'pubt_size', 'other_size')
-	name.out <- c('id_hh',  'id_wrk',   'id_school',   'id_pubTr',  'id_other')
+	name.in.vec  <- c('hh_size','wrk_size', 'school_size', 'pubt_size', 'other_size')
+	name.out.vec <- c('id_hh',  'id_wrk',   'id_school',   'id_pubTr',  'id_other')
 	
-	par(mfrow=c(4,3))
-	for(i in seq_along(name.out)){
-		plot.sp.one(pop, world.prm, name.in[i], name.out[i])
+	par(mfrow=c(5,2))
+	for(i in seq_along(name.out.vec)){
+		plot.sp.one(pop, world.prm, 
+					name.in  = name.in.vec[i], 
+					name.out = name.out.vec[i])
 	}
 }
 
+
+plot.share.same.hh <- function(pop) {
+	# Proportion of indiv from the _same_ household
+	# sharing the same social places (other than household!)
+	
+	same.hh.one <- function(sptype) {
+		pop$key <- paste(pop$id_hh, pop[,sptype], sep='_')
+		x <-ddply(pop, sptype, function(x){ c(  q = length(unique(x[,'key'])), 
+												n = length(x[,sptype])   )})
+		x <- subset(x, x[,sptype]<999999999)
+		x$ratio <- 1-x$q/x$n
+		return(data.frame(sptype,ratio=x$ratio))
+	}
+	sptype.vec <- c('id_wrk','id_pubTr','id_other','id_school')
+	y <- lapply(sptype.vec, same.hh.one)
+	yy <- do.call('rbind',y)
+	par(mfrow=c(1,1))
+	boxplot(ratio~sptype, data=yy, ylim=c(0,1), col='lightgrey',
+			main='Proportion of indiv sharing the same household\n(all AU combined)')
+	grid()
+}

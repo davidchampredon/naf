@@ -148,6 +148,8 @@ dcMatrix operator - (dcMatrix &A,dcMatrix &B);
 dcMatrix operator * (dcMatrix &A,dcMatrix &B);
 dcMatrix operator * (double a,dcMatrix &A);
 
+vector<vector<double> > to_vector_vector(dcMatrix M);
+
 dcMatrix Id(unsigned long n);
 
 dcMatrix power(dcMatrix A,unsigned long n);

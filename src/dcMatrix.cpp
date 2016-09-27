@@ -1007,12 +1007,25 @@ double Det(dcMatrix A)
             for(unsigned long i=0;i<nCol;i++)
                 for(unsigned long j=1;j<nCol;j++) 
                 { 
-                    if (i<k) B(i,j-1)=A(i,j);
-                    if (i>k) B(i-1,j-1)=A(i,j);
+                    if (i<k) B(i,j-1)  = A(i,j);
+                    if (i>k) B(i-1,j-1)= A(i,j);
                 }
-            s+=A(k,0)*Det(B)*pow (-1,k);
+            s += A(k,0)*Det(B)*pow(-1,k);
         } 
         return s;
     }
 }
+
+
+vector<vector<double> > to_vector_vector(dcMatrix M){
+    /// convert dcMatrix to vector of vector.
+    
+    vector<vector<double> > x;
+    unsigned long n = M.getNbCols();
+    for(unsigned long j=0; j<n;j++){
+        x.push_back(M.extractColumn(j));
+    }
+    return x;
+}
+
 

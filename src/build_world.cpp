@@ -135,6 +135,18 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
     uint cnt = 0; // <--- counts over the _whole_ vector of individuals supplied and make sure individual id do not overlap across AUs.
     uint sp_not_linked = 0;
     
+    // individuals are picked in random order.
+    // (else, it wil be too likely the
+    //  individuals from the same household
+    //  will share this same Social Place)
+    vector<uint> sel(n_indiv);
+    for (uint i=0; i<n_indiv; i++) sel[i]=i;
+    // no shuffle for households and school
+    if(sp_type != SP_household && sp_type != SP_school){
+        auto engine = std::default_random_engine{};
+        std::shuffle(std::begin(sel), std::end(sel), engine);
+    }
+    
     for (ID k=0; k < num_sp; k++) {
         
         // Create social place (empty shell):
@@ -147,15 +159,19 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
              linked < size_sp[k] &&
              cnt < n_indiv; )
         {
-            float age = indiv[cnt].get_age(); // <-- no 'first_id_indiv' for the index of vector ('first_id_indiv' is just for ID)
+            // Randomly selected individual:
+            uint sel_idx = sel[cnt];
+            float age    = indiv[sel_idx].get_age(); // <-- no 'first_id_indiv' for the index of vector ('first_id_indiv' is just for ID)
             
-            if(age_min <= age && age<age_max)
+            if(age_min <= age && age < age_max)
             {
                 // Link both individual and social place
-                // ('set_id_sp' does both):
-                indiv[cnt].set_id_sp(sp_type, tmp);
+                // ('set_id_sp' links both ways):
+                indiv[sel_idx].set_id_sp(sp_type, tmp);
                 record = true;
                 linked++;
+                
+                //cout << " DEBUG:: SP_"<<tmp.get_id_sp()<<" indiv_"<<indiv[sel_idx].get_id()<<" ; sel_idx="<<sel_idx<<endl;
             }
             cnt++;
         }
@@ -459,8 +475,9 @@ void check_sp_integrity(const vector<socialPlace>& x){
     
     vector<uint> id_sp(x.size());
     for(uint i=0;i<x.size();i++) id_sp[i]=x[i].get_id_sp();
+
     vector<uint> tmp = sort_remove_duplicate(id_sp, true);
-    stopif(tmp.size()<id_sp.size(), "SP IDs not uniques");
+    stopif(tmp.size()<id_sp.size(), "SP IDs not uniques inside an Area Unit.");
 
     vector<uint> id_indiv;
     for(uint i=0;i<x.size();i++) {
@@ -468,15 +485,15 @@ void check_sp_integrity(const vector<socialPlace>& x){
             id_indiv.push_back(x[i].get_indiv(j).get_id());
         }
     }
+    
     tmp.clear();
     tmp = sort_remove_duplicate(id_indiv, true);
     
-    // DEBUG
-    if(tmp.size()<id_indiv.size()){
+    if(false && tmp.size()<id_indiv.size()){
         displayVector(id_indiv);
         displayVector(tmp);
     }
-    stopif(tmp.size()<id_indiv.size(), "individual IDs not uniques");
+    stopif(tmp.size()<id_indiv.size(), "Individual IDs not uniques inside a SP.");
 }
 
 

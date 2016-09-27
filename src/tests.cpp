@@ -58,6 +58,7 @@ void main_run_test(){
     MP.add_prm_double ("contact_ratio_sp_household", 2.2);
     MP.add_prm_double ("contact_ratio_sp_pubTransport", 1.75);
     
+    MP.add_prm_double("contactAssort_lambda", 1.0/1.0);
     
     MP.add_prm_uint   ("nt", 3);
     
@@ -262,8 +263,7 @@ void main_run_test(){
     // ================================================================
     
     // insert code here ...
-//    displayVector(sim.get_track_n_contacts());
-    displayVector(sim.get_wiw_ages());
+
 }
 
 

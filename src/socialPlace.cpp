@@ -582,6 +582,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     df.addcol("is_discharged", is_discharged);
     df.addcol("n_secondary_cases", n_sec_cases);
     df.addcol("gi_bck", gi_bck);
+    df.addcol("was_symptomatic", was_symptomatic);
     df.addcol("id_hh", id_hh);
     df.addcol("id_wrk", id_wrk);
     df.addcol("id_school", id_school);

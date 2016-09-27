@@ -757,10 +757,7 @@ void Simulator::test(){
 void Simulator::run(){
     /// Run the simulated epidemic
     
-    // Retrieve all model parameters:
-    double p_move   = _modelParam.get_prm_double("proba_move");
     bool debug_mode = _modelParam.get_prm_bool("debug_mode");
-    
     if(debug_mode) cout << endl << endl << " ======= START SIMULATION ======" <<endl<<endl;
     
     _current_time = 0.0;
@@ -786,6 +783,10 @@ void Simulator::run(){
     // Display simulator's information
     // before running simulation:
     display_summary_info();
+    
+    // set-up before time loop:
+    double p_move   = _modelParam.get_prm_double("proba_move");
+    define_contactAssort(); 
     
     
     // ----- MAIN LOOP FOR TIME ------
@@ -1182,6 +1183,17 @@ vector< vector<uint> > Simulator::draw_contacted_S(uint k,
     /// contacted by infectious individuals of a
     /// given infectious type (e.g. symptomatic or not).
     
+    /// The returned format is a vector of vector, where
+    /// column i can be seen as the list of susceptible
+    /// contacted by the ith infector:
+    ///
+    /// infector_1     infector_2     infector_3    ...
+    /// --------------------------------------------------
+    /// indiv_S[.]     indiv_S[.]     indiv_S[.]    ...
+    /// indiv_S[.]                    indiv_S[.]    ...
+    /// indiv_S[.]                    indiv_S[.]    ...
+    /// indiv_S[.]                                  ...
+    
     uint n_inf = 0;
     if(infectious_type == "Is")         n_inf = (uint)_world[k]._indiv_Is.size();
     else if(infectious_type == "Ia")    n_inf = (uint)_world[k]._indiv_Ia.size();
@@ -1206,6 +1218,144 @@ vector< vector<uint> > Simulator::draw_contacted_S(uint k,
     }
     return selected_S;
 }
+
+
+double age_contact_elem(double x,double y,
+                        double a,double b,
+                        double w,double q,double r){
+    
+    double tmp1 = pow( (x-a)-(y-b)-q ,2)/w/w;
+    double tmp2 = (pow(x-a,2) + pow(y-b,2))/r/r ;
+    double res  = exp(-tmp1 -tmp2);
+    return res;
+}
+
+
+void Simulator::define_contactAssort(){
+    /// Defines the age assortativity for contacts
+    
+    _contactAssort.resize(101);
+    
+    for(uint i=0; i<=100; i++){
+        for(uint j=0; j<=i; j++){
+            double tmp = 0.0;
+            
+            tmp += age_contact_elem(i,j, 0,  0,  9,  28, 45);    // parents/children
+            tmp += age_contact_elem(i,j, 10, 10, 9,  0,  28);    // children/children
+            tmp += age_contact_elem(i,j, 45, 45, 20, 0,  17);    // adults/adults
+            tmp += age_contact_elem(i,j, 75, 75, 15, 0,  15);    // seniors
+            tmp += age_contact_elem(i,j, 0,  0,  10, 60, 55);    // seniors/children
+
+            // Symetrical matrix:
+            _contactAssort(i,j) = tmp;
+            _contactAssort(j,i) = tmp;
+        }
+    }
+    // Normalize:
+    double z = 1.0/_contactAssort.sumAllElements();
+    _contactAssort = z * _contactAssort;
+}
+
+
+
+
+vector< vector<uint> > Simulator::draw_contacted_S_age_constraint(uint k,
+                                                                  vector<uint> n_contacts,
+                                                                  string infectious_type){
+    /// Select the positions in '_indiv_S'
+    /// for susceptibles that will be
+    /// contacted by infectious individuals of a
+    /// given infectious type (e.g. symptomatic or not).
+    
+    /// Selection is random, but with a constraint on ages.
+    
+    /// The returned format is a vector of vector, where
+    /// column i can be seen as the list of susceptible
+    /// contacted by the ith infector:
+    ///
+    /// infector_1     infector_2     infector_3    ...
+    /// --------------------------------------------------
+    /// indiv_S[.]     indiv_S[.]     indiv_S[.]    ...
+    /// indiv_S[.]                    indiv_S[.]    ...
+    /// indiv_S[.]                    indiv_S[.]    ...
+    /// indiv_S[.]                                  ...
+    
+    
+    uint n_inf = 0;
+    vector<individual*> infector;
+    vector<individual*> susceptible = _world[k]._indiv_S;
+    
+    uint n_susc = (uint)susceptible.size();
+    
+    if(infectious_type == "Is"){
+        n_inf = (uint)_world[k]._indiv_Is.size();
+        infector = _world[k]._indiv_Is;
+    }
+    else if(infectious_type == "Ia"){
+        n_inf = (uint)_world[k]._indiv_Ia.size();
+        infector = _world[k]._indiv_Ia;
+    }
+    
+    // Some checks:
+    stopif(sumElements(n_contacts)>n_susc, "Asking to draw more susceptibles than it exists!");
+    stopif(n_contacts.size() != n_inf, "Number of contacts not consistent with number of infecious individuals.");
+    
+    vector< vector<uint> > selected_S(n_inf);
+    
+    double lambda = _modelParam.get_prm_double("contactAssort_lambda") ;
+    std::exponential_distribution<double> expdist(lambda);
+
+    
+    for(uint i=0; i<n_inf; i++){
+        
+        uint age_inf = (uint)infector[i]->get_age();
+        
+        // Retrieve age of all susceptibles
+        // and score them according to the
+        // desired assortativity in '_contactAssort':
+        vector<double> scores(n_susc);
+        vector<double> age_s(n_susc); // DELETE when finish debug
+        for(uint s=0; s<n_susc; s++)
+        {
+            uint age_susc = (uint)susceptible[s]->get_age();
+            scores[s]     = 1.0 - _contactAssort(age_inf, age_susc);
+            
+            age_s[s] = susceptible[s]->get_age();
+            
+        }
+        // Sort the scores (highest = better chance of contact)
+        // but return the _original_ vector indexes:
+        vector<size_t> u = sort_indexes(scores);
+        
+        // Pick randomly the rank (position in 'u').
+        // The closer we want to be from the desired
+        // contact pattern (given by _contactAssort)
+        // the larger should the intensity lambda be:
+        // (expected position = 1/lambda ; first position is prefered age)
+        
+        for(uint j=0; j<n_contacts[i]; j++)
+        {
+            uint rank = (uint)expdist(_RANDOM_GENERATOR);
+            if (rank>= u.size()) rank = (uint)u.size()-1;
+            
+
+//            cout << "DEBUG:: rank chosen = "<< rank << " ; pos_S = "<< u[rank];
+//            cout << " (ncontact = "<< n_contacts[i]<<", n_susc="<<n_susc<<")";
+//            cout << " Age_inf="<< age_inf << " age_s="<< (uint)susceptible[u[rank]]->get_age() << endl;
+//            cout << "other possible ages & scores:";
+//            displayVector(age_s);
+//            displayVector(scores);
+//            displayVector(u);
+            
+            stopif(rank >= n_susc, "Susceptible selected for assortative mixing does not exist.");
+            
+            selected_S[i].push_back((uint)u[rank]);
+        }
+    }
+    return selected_S;
+}
+
+
 
 
 vector< vector<uint> > Simulator::transmission_attempts(uint k,
@@ -1408,7 +1558,9 @@ uint Simulator::transmission_process(uint k, double dt, string infectious_type){
     // in this social place that will
     // be in contact: sampling _with_ replacement
     // (a S can be in contact with more than one I)
-    vector< vector<uint> > selected_S_Ix = draw_contacted_S(k, n_contacts_Ix, infectious_type);
+    
+    vector< vector<uint> > selected_S_Ix = draw_contacted_S_age_constraint(k, n_contacts_Ix, infectious_type);
+    //vector< vector<uint> > selected_S_Ix = draw_contacted_S(k, n_contacts_Ix, infectious_type);
     
     // Transmission attempts
     // (need to do this intermediary step

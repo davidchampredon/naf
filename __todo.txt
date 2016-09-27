@@ -5,11 +5,9 @@
 
 === MAJOR ITEMS ===
 
-- There are implicit consistency issues with the number of indiv linked to various SP. Becuase the size distrib are not perfectly known, some indiv cannot be linked to some SPs because they are full. One solution could be to simply increase the numberof SPs that are missing, but then, the new increased number will not be consistent with 'official' data anymore... ==> Need to find an elegant fix.
-
 - put age determinant for schedule as model parameters (currently hard coded)
 
-- Implied Age contact matrix not great: explicit implementation? (see Mossong 2008)
+- document age contact (see Mossong 2008)
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
