@@ -489,10 +489,10 @@ void check_sp_integrity(const vector<socialPlace>& x){
     tmp.clear();
     tmp = sort_remove_duplicate(id_indiv, true);
     
-    if(false && tmp.size()<id_indiv.size()){
-        displayVector(id_indiv);
-        displayVector(tmp);
-    }
+//    if(false && tmp.size()<id_indiv.size()){
+//        displayVector(id_indiv);
+//        displayVector(tmp);
+//    }
     stopif(tmp.size()<id_indiv.size(), "Individual IDs not uniques inside a SP.");
 }
 

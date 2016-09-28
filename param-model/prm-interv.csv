@@ -2,9 +2,9 @@ interv_name, variable, value
 
 interv_test, interv_type, vaccination
 interv_test, interv_target, susceptible
-interv_test, interv_start, 19
+interv_test, interv_start, -6
 interv_test, interv_end, 999
-interv_test, interv_cvg_rate, 0.05
+interv_test, interv_cvg_rate, 0.005
 interv_test, interv_cvg_max_prop, 0.999
 
 interv_dummy, interv_type, vaccination

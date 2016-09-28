@@ -11,6 +11,8 @@
 
 void Simulator::base_constructor(){
     
+    _start_time = -9999.99;
+    
     _n_E  = 0;
     _n_Ia = 0;
     _n_Is = 0;
@@ -753,14 +755,29 @@ void Simulator::test(){
     
 }
 
+void Simulator::initial_infections(uint i0){
+    
+    vector<ID> id_pres = at_least_one_indiv_present(_world);
+
+    vector<ID> sp_initially_infected;
+    vector<uint> I0;
+    for(uint m=0; m<i0; m++){
+        // Randomly select where infections are seeded
+        std::uniform_int_distribution<uint> unif(0,(uint)id_pres.size());
+        uint idx_rnd = unif(_RANDOM_GENERATOR);
+        sp_initially_infected.push_back(id_pres[idx_rnd]);
+        I0.push_back(1);
+    }
+    define_all_id_tables();
+    seed_infection(sp_initially_infected, I0);
+}
+
 
 void Simulator::run(){
     /// Run the simulated epidemic
     
     bool debug_mode = _modelParam.get_prm_bool("debug_mode");
     if(debug_mode) cout << endl << endl << " ======= START SIMULATION ======" <<endl<<endl;
-    
-    _current_time = 0.0;
     
     // TO DO: CHANGE THAT, IT's UGLY AND DANGEROUS
     ID ii = at_least_one_indiv_present(_world)[0];
@@ -791,11 +808,18 @@ void Simulator::run(){
     
     // ----- MAIN LOOP FOR TIME ------
     
-    _current_time = 0.0;
+    _current_time = _start_time;
     
-    while (_current_time < _horizon &&
-           at_least_one_infected()  )  // <-- WARNING: This test must be changed if immigration of cases is implemented
+    while (_current_time < _horizon )
     {
+        // If zero prevalence after the epidemic has starte, then stop.
+        if(!at_least_one_infected() && _current_time>0) {break;}
+        
+        // Epidemic starts at time t = 0.0:
+        if (fabs(_current_time-0.0)<1E-6){
+            initial_infections(_initial_prevalence);
+        }
+        
         uint idx_timeslice = k % nts;
         double dt = timeslice[idx_timeslice];
         
@@ -812,8 +836,8 @@ void Simulator::run(){
         else{
             cout.precision(3);
             if(k % 5 == 0){
-                cout << "simulation time: " << _current_time << "    "<< '\r';
-                fflush(stdout);
+                cout << "simulation time: " << _current_time;
+                cout << "  (prevalence = "<<_prevalence<<")"<< endl;
             }
             cout.precision(15);
         }
@@ -876,7 +900,7 @@ void Simulator::run(){
             check_book_keeping();
             cout << "all actions for this time step done." << endl<<endl;
         }
-    }
+    }// end-while
     
     if(debug_mode){
         cout << endl << endl << "Simulator completed."<< endl;
@@ -1725,32 +1749,31 @@ void Simulator::display_split_pop_linked(){
 
 
 void Simulator::seed_infection(vector<ID> id_sp, vector<uint> I0){
-    /// Seed infection in specified socialplaces, with specified initial number of infectious indiv
     
     stopif(id_sp.size() != I0.size(), "vectors must be same size");
     
     vector<vector<uint> > selected_S(1);
     vector<vector<uint> > transm_success(id_sp.size());
     
-    ID cnt = 0;
-    for(ID i=0; i<_world.size(); i++){
-        if (_world[i].get_id_sp() == id_sp[cnt]) {
-            
-            // check:
-            string errmsg =  "Cannot seed in SP_ID_" + to_string(i) + " because it has less individuals than intial infections requested!";
-            stopif(_world[i].get_size() < I0[cnt], errmsg);
-            
-            // seed infection in this social place:
-            //            for(uint k=0; k<I0[cnt]; k++)	_world[i].acquireDisease(k);
-            //            _world[i].set_n_E(I0[cnt]);
-            
-            for(uint j=0; j<I0[cnt]; j++) {
-                selected_S[0].push_back(j);
-                transm_success[0].push_back(true);
+    for(ID cnt=0; cnt<id_sp.size();cnt++)
+    {
+        for(ID i=0; i<_world.size(); i++)
+        {
+            if (_world[i].get_id_sp() == id_sp[cnt])
+            {
+                cout << " Seeding infection in SP_" << id_sp[cnt] << endl;
+                
+                // Consistency check:
+                string errmsg =  "Cannot seed in SP_ID_" + to_string(i) + " because it has less individuals than intial infections requested!";
+                stopif(_world[i].get_size() < I0[cnt], errmsg);
+                
+                // Infection:
+                for(uint j=0; j<I0[cnt]; j++) {
+                    selected_S[0].push_back(j);
+                    transm_success[0].push_back(true);
+                }
+                transmission_activation(id_sp[cnt], selected_S, transm_success);
             }
-            transmission_activation(id_sp[cnt], selected_S, transm_success);
-            
-            cnt++;
         }
     }
     update_pop_count();
@@ -1963,9 +1986,6 @@ void Simulator::check_book_keeping(){
 
 
 void Simulator::define_all_id_tables(){
-    /// Define all IDs and pointers
-    /// of tracked individuals
-    /// in all social places.
     
     for (uint k=0; k<_world.size(); k++)
     {

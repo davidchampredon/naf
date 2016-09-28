@@ -29,7 +29,9 @@ protected:
 	world	_world;
 	double	_horizon;
 	double	_current_time;
+    double  _start_time;
 
+    uint    _initial_prevalence;
 	uint	_incidence;
 	uint	_prevalence;
     
@@ -80,6 +82,12 @@ protected:
     
     dcMatrix        _contactAssort;
     
+    /**
+     * Set the 'i0' initial infectious individuals
+     * in randomly chosen social places.
+     */
+    void initial_infections(uint i0);
+    
 public:
 	
 	modelParam _modelParam;
@@ -126,6 +134,8 @@ public:
 	
 	// Set functions
 	
+    void set_start_time(double t) {_start_time = t;}
+    void set_initial_prevalence(uint i0) {_initial_prevalence = i0;}
 	void set_current_time(double t) {_current_time = t;}
 	void set_world(world w);
 	void set_horizon(double h) {_horizon = h;}
@@ -176,6 +186,12 @@ public:
     // Book keeping
 
     void    check_book_keeping();
+    
+    /**
+     * Define all IDs and pointers
+     * of tracked individuals
+     * in all social places.
+     */
     void    define_all_id_tables();
     void    check_schedules_consistency();
 	
@@ -185,10 +201,12 @@ public:
     void    define_contactAssort();
    
     
-    
 	// Epidemic
-	
+    
 	void	set_disease(const disease& d);
+    /**
+     * Seed infection in specified socialplaces, with specified initial number of infectious individuals.
+     */
 	void	seed_infection(vector<ID> id_sp, vector<uint> I0);
 	uint	transmission_oneSP(uint k, double dt);
 	void	transmission_world(double timeslice);

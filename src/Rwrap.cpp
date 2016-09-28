@@ -177,6 +177,7 @@ List naf_run(List params,
         unsigned int i0         = simulParams["initial_latent"];
         double horizon          = simulParams["horizon"];
         unsigned int popexport  = simulParams["popexport"];
+        double start_time       = simulParams["start_time"];
         
         
         // === Interventions ===
@@ -215,7 +216,6 @@ List naf_run(List params,
         }
         
         cout << endl << "Interventions loaded. " << endl;
-        
         
         
         // === World population parameters ===
@@ -378,6 +378,7 @@ List naf_run(List params,
                                  n_other,
                                  sched ,
                                  MP,
+                                 start_time,
                                  horizon,
                                  i0,
                                  interv_vec);
@@ -420,7 +421,7 @@ List naf_run(List params,
                             );
     }
     catch (...){
-        ::Rf_error("c++ exception (unknown reason)");
+        ::Rf_error(">>>> C++ exception (unknown reason) <<<<");
         return NULL;
     }
 }

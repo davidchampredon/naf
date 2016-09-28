@@ -224,6 +224,10 @@ void populate_random_with_indiv(vector<socialPlace>& v,
                                 uint total_indiv,
                                 vector<schedule> sched);
 
+/**
+ * Return the IDs of the social places that have
+ * at least one indivial present
+ */
 vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x);
 
 

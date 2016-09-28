@@ -36,6 +36,7 @@ Simulator run_test(vector<areaUnit> auvec,
                    vector<uint> n_other,
                    vector<schedule> sched ,
                    modelParam MP,
+                   double start_time,
                    double horizon,
                    uint i0,
                    const vector<intervention> &interv);

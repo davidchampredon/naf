@@ -1092,10 +1092,7 @@ vector<socialPlace> build_world_simple_2(vector<individual>& indiv,
 }
 
 
-
 vector<ID> at_least_one_indiv_present(const vector<socialPlace>& x){
-    /// Return the IDs of the social places that have
-    /// at least one indivial present
     
     vector<ID> res;
     for (ID k=0; k<x.size(); k++) {
