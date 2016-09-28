@@ -2265,8 +2265,8 @@ void Simulator::death_hospital(){
 
 
 vector<individual*> Simulator::draw_targeted_individuals(uint i,
-                                                          ID id_sp,
-                                                          double dt){
+                                                         ID id_sp,
+                                                         double dt){
     /// Draw the targeted individuals of the ith intervention,
     /// in sociale place with ID 'id_sp'
     

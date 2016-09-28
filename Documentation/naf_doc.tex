@@ -212,12 +212,26 @@ Vaccination has the effect, with a time lag, to increase (by a pre-specified amo
 
 \section{Interventions}
 
-Antiviral treatment and vaccination are implemented as part of ``interventions''. There can be several simultaneous interventions of different nature.
-Effect of treatment and vaccination is modelled based on a summary of evidence (see section \ref{sec:antiviral})
+Antiviral treatment and vaccination are implemented as part of ``interventions''. There can be several simultaneous interventions of different nature (\eg vaccination, antiviral treatment).
 
+Any intervention is modelled as having the following features:
+\begin{description}
+\item[type: ] defines the nature of the intervention: treatment, vaccination, behaviour change.
+\item[targeted population:] defines the individuals that can receive the intervention.
+\item[time range:] when the intervention begins and ends.
+\item[coverage rate:] defines the number of individuals receiving the intervention during a given amount of time
+\item[maximum coverage:] specifies if there is a limit to the total number of individuals receiving the intervention.
+\end{description}
+ 
+Although the targeted population and roll-out rate are determined deterministically, the actual number of individuals receiving an intervention is stochastic. If $T$ is the total number of individuals targeted to receive the intervention, $r$ is the coverage rate and $dt$ is the simulation time step, then the actual number $N_T$ of individuals receiving the intervention is
+\begin{equation}
+N_T \sim \text{Poisson}(r\,T\,dt)
+\end{equation}
+
+Effect of treatment and vaccination is modelled based on a summary of evidence (see section \ref{sec:antiviral})
 Treatment reduces the duration of infection and has no impact on frailty or immunity. Vaccine decreases frailty and increases immunity, both stochastically. The change on both immunity and frailty triggered by vaccination has a (stochastic) time lag and their values change exponentially to the new values drawn at time of vaccination.
 
-\note{prophylactic treatment will be implemented if needed.}
+
 
 
 
