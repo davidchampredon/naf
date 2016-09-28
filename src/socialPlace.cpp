@@ -525,6 +525,8 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     vector<double> id_hosp(n);
     vector<double> id_pubTr(n);
     
+    vector<double> sched_type(n);
+    
     for(ID i=0; i<n; i++){
         id_indiv[i]      = _indiv[i].get_id();
         age[i]           = _indiv[i].get_age();
@@ -556,6 +558,8 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
         id_other[i]      = _indiv[i].get_id_sp_other();
         id_hosp[i]       = _indiv[i].get_id_sp_hospital();
         id_pubTr[i]      = _indiv[i].get_id_sp_pubTransp();
+        
+        sched_type[i]    = _indiv[i].get_schedule().name_to_double();
     }
     df.addcol("sp_type", sp_type);
     df.addcol("n_linked", n_linked);
@@ -588,6 +592,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     df.addcol("id_school", id_school);
     df.addcol("id_other", id_other);
     df.addcol("id_pubTr", id_pubTr);
+    df.addcol("sched_type", sched_type);
     
     return df;
 }

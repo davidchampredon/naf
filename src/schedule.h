@@ -59,6 +59,10 @@ public:
     
 	string			get_name()              const {return _name;}
 	vector<double>	get_timeslice()         const {return _timeslice;}
+    
+    // Miscellaneous
+    double          name_to_double();
+    
 };
 
 uint pos_schedname(string name, vector<schedule> sched);

@@ -123,6 +123,21 @@ plot.n.contacts <- function(nc){
 	grid.arrange(gts,g)	
 }
 
+plot.sched <- function(pop){
+	
+	df <- ddply(pop,c('sched_type'), summarize, 
+				m = mean(n_secondary_cases),
+				sd = sd(n_secondary_cases))
+	
+	
+	g <- ggplot(df) + geom_point(aes(x=factor(sched_type), y=m), size=6)
+	g <- g + geom_segment(aes(x=sched_type,xend=sched_type, y=m-sd, yend=m+sd), size=2)
+	g <- g + ggtitle('Mean & sd of number secondary cases')
+	return(g)
+}
+
+
+
 plot.population <- function(pop) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
@@ -382,6 +397,10 @@ plot.population <- function(pop) {
 	g.sympt.vax <- g.sympt.vax + ggtitle('Symptomatic infection and vaccination')
 	
 	
+	# === Schedules ===
+	
+	g.sched.R <- plot.sched(pop)
+	
 	### ==== Final ====
 	
 	grid.arrange(g.age, 
@@ -403,7 +422,8 @@ plot.population <- function(pop) {
 				 g.vax.hosp,
 				 g.sympt.vax,
 				 g.sympt.imm.hum.dist,
-				 g.sympt.imm.cell.dist
+				 g.sympt.imm.cell.dist,
+				 g.sched.R
 	)
 	
 	grid.arrange( g.dol.drawn, 
@@ -586,3 +606,5 @@ plot.share.same.hh <- function(pop) {
 			main='Proportion of indiv sharing the same household\n(all AU combined)')
 	grid()
 }
+
+
