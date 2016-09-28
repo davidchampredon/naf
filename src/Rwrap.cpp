@@ -105,7 +105,7 @@ void set_parameter(modelParam &MP, string prm_name, string prm_type, List params
 // [[Rcpp::export]]
 List naf_run(List params,
              List simulParams,
-             List interventionParams,
+             List intervParams,
              List worldParams,
              List scheduleParams){
     
@@ -181,24 +181,41 @@ List naf_run(List params,
         
         // === Interventions ===
         
-        string	interv_name     = interventionParams["interv_name"];
-        string	interv_type     = interventionParams["interv_type"];
-        string	interv_target   = interventionParams["interv_target"];
-        double	interv_start    = interventionParams["interv_start"];
-        double	interv_end      = interventionParams["interv_end"];
-        double	interv_cvg_rate = interventionParams["interv_cvg_rate"];
-        double	interv_cvg_max_prop = interventionParams["interv_cvg_max_prop"];
-        
-        intervention interv(interv_type,
-                            interv_target,
-                            interv_name,
-                            interv_start,
-                            interv_end,
-                            interv_cvg_rate,
-                            interv_cvg_max_prop);
-        
         vector<intervention> interv_vec;
-        interv_vec.push_back(interv);
+        
+        unsigned long n_interv = intervParams.size();
+        
+        cout << "Loading "<< n_interv <<" intervention scenarios ... ";
+        
+        
+        for (unsigned long i=0; i<n_interv; i++) {
+            
+            Rcpp::List tmp_interv = intervParams[i];
+            
+            string	interv_name			= tmp_interv["interv_name"];
+            string	interv_type			= tmp_interv["interv_type"];
+            string	interv_target		= tmp_interv["interv_target"];
+            double	interv_start		= tmp_interv["interv_start"];
+            double	interv_end			= tmp_interv["interv_end"];
+            double	interv_cvg_rate		= tmp_interv["interv_cvg_rate"];
+            double	interv_cvg_max_prop = tmp_interv["interv_cvg_max_prop"];
+
+            intervention interv(interv_type,
+                                interv_target,
+                                interv_name,
+                                interv_start,
+                                interv_end,
+                                interv_cvg_rate,
+                                interv_cvg_max_prop);
+
+            // Add to the vector holding all interventions:
+            interv_vec.push_back(interv);
+            
+            cout << ","<<i;
+        }
+        
+        cout << endl << "Interventions loaded. " << endl;
+        
         
         
         // === World population parameters ===
@@ -214,12 +231,12 @@ List naf_run(List params,
                                                   id_region,
                                                   regionName);
         
-        vector<uint> n_hh		= worldParams["n_hh"];
-        vector<uint> n_wrk	= worldParams["n_wrk"];
-        vector<uint> n_pubt	= worldParams["n_pubt"];
-        vector<uint> n_school	= worldParams["n_school"];
-        vector<uint> n_hosp	= worldParams["n_hosp"];
-        vector<uint> n_other	= worldParams["n_other"];
+        vector<uint> n_hh       = worldParams["n_hh"];
+        vector<uint> n_wrk      = worldParams["n_wrk"];
+        vector<uint> n_pubt     = worldParams["n_pubt"];
+        vector<uint> n_school   = worldParams["n_school"];
+        vector<uint> n_hosp     = worldParams["n_hosp"];
+        vector<uint> n_other    = worldParams["n_other"];
         
         
         // Social place sizes distributions:

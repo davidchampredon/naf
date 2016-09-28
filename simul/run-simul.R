@@ -20,18 +20,16 @@ library(naf,lib.loc = R.library.dir)
 source('analysis_tools.R')
 source(paste0(param.model.dir,'read-prm.R'))
 source(paste0(param.model.dir,'read-world-prm.R'))
+source(paste0(param.model.dir,'read-interv.R'))
 
 # Parameter file names
 fname.prm.epi    <- 'prm-epi.csv'
 fname.prm.simul  <- 'prm-simul.csv'
 fname.prm.au     <- 'prm-au-ontario.csv'
-
-scale.factor     <- 1/1000
-print(paste('scale factor =',scale.factor))
+fname.prm.interv <- 'prm-interv.csv'
 
 do.plot           <- TRUE 
 save.plot.to.file <- TRUE
-
 
 prm        <- list()
 simul.prm  <- list()
@@ -57,8 +55,9 @@ world.prm <- load.world.prm(filename = paste0(param.model.dir,fname.prm.au),
 world.prm[['id_region']]  <- 0
 world.prm[['regionName']] <- "Canada"
 
-
-world.prm    <- scale.world(scale.factor, world.prm)
+world.prm    <- scale.world(as.numeric(simul.prm[['scale_factor']]),
+							world.prm)
+print(paste('scale factor =',simul.prm[['scale_factor']]))
 
 # age distributions, conditional on 
 # household composition:
@@ -74,13 +73,15 @@ sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24,
 
 ###  ==== Intervention parameters ====
 
-interv.prm[['interv_name']]         <- 'interv_test'
-interv.prm[['interv_type']]         <- 'vaccination'  # treatment cure vaccination
-interv.prm[['interv_target']]       <- 'susceptible'  # symptomatic  susceptible
-interv.prm[['interv_start']]        <- 20
-interv.prm[['interv_end']]          <- 999
-interv.prm[['interv_cvg_rate']]     <- 0.05
-interv.prm[['interv_cvg_max_prop']] <- 0.9999
+interv.prm <- load.interv.prm(paste0(param.model.dir,fname.prm.interv))
+
+# interv.prm[['interv_name']]         <- 'interv_test'
+# interv.prm[['interv_type']]         <- 'vaccination'  # treatment cure vaccination
+# interv.prm[['interv_target']]       <- 'susceptible'  # symptomatic  susceptible
+# interv.prm[['interv_start']]        <- 20
+# interv.prm[['interv_end']]          <- 999
+# interv.prm[['interv_cvg_rate']]     <- 0.05
+# interv.prm[['interv_cvg_max_prop']] <- 0.9999
 
 
 ### ==== Run Simulation ====
