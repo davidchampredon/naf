@@ -468,17 +468,7 @@ plot.epi.timeseries <- function(ts){
 
 plot.ts.sp <- function(ts, facets=FALSE){
 
-	zz <- data.frame(matrix(unlist(ts),ncol = length(ts)))
-	names(zz) <- names(ts)
-	
-	myconv <- function(x) {
-		return(as.numeric(as.character(x)))
-	}
-	zz$time <- myconv(zz$time)
-	zz$id_sp<- myconv(zz$id_sp)
-	zz$nS <- myconv(zz$nS)
-	zz$nE <- myconv(zz$nE)
-	
+	zz <- as.data.frame(ts)
 	zz$timeround <- floor(zz$time)
 	df <- ddply(zz,c('timeround','type'),summarize, n=sum(nE))
 	
