@@ -55,9 +55,9 @@ world.prm <- load.world.prm(filename = paste0(param.model.dir,fname.prm.au),
 world.prm[['id_region']]  <- 0
 world.prm[['regionName']] <- "Canada"
 
-world.prm    <- scale.world(as.numeric(simul.prm[['scale_factor']]),
-							world.prm)
-print(paste('scale factor =',simul.prm[['scale_factor']]))
+sf           <- as.numeric(simul.prm[['scale_factor']])
+world.prm    <- scale.world(1/sf, world.prm)
+print(paste('World size reduced by',sf))
 
 # age distributions, conditional on 
 # household composition:
@@ -74,14 +74,6 @@ sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24,
 ###  ==== Intervention parameters ====
 
 interv.prm <- load.interv.prm(paste0(param.model.dir,fname.prm.interv))
-
-# interv.prm[['interv_name']]         <- 'interv_test'
-# interv.prm[['interv_type']]         <- 'vaccination'  # treatment cure vaccination
-# interv.prm[['interv_target']]       <- 'susceptible'  # symptomatic  susceptible
-# interv.prm[['interv_start']]        <- 20
-# interv.prm[['interv_end']]          <- 999
-# interv.prm[['interv_cvg_rate']]     <- 0.05
-# interv.prm[['interv_cvg_max_prop']] <- 0.9999
 
 
 ### ==== Run Simulation ====
@@ -132,12 +124,13 @@ if(do.plot){
 	
 	# Time series:
 	if (save.plot.to.file) pdf('plot_ts.pdf', width = 25,height = 15)
+	
 	try( plot.epi.timeseries(ts),  silent = T)
 	try( grid.arrange(plot.ts.sp(res$time_series_sp),
 					  plot.ts.sp(res$time_series_sp, facets = T)), 
 		 silent = T)
-	if (save.plot.to.file) dev.off()
 	
+	if (save.plot.to.file) dev.off()
 	message("Plotting done.")
 }
 	

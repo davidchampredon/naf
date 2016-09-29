@@ -8,7 +8,6 @@ id, name, value
 0, n_hosp,   1
 0, n_other,  200000
 0, max_hh_size, 6
-0, pr_age_hh,           filenamewheretheinfois
 0, hh_size_distrib_file,     prm-size-hh-ontario.csv
 0, wrk_size_distrib_file,    prm-size-wrk-ontario.csv
 0, school_size_distrib_file, prm-size-school-ontario.csv
@@ -25,7 +24,6 @@ id, name, value
 1, n_hosp,   1
 1, n_other,  200000
 1, max_hh_size, 6
-1, pr_age_hh,           filenamewheretheinfois
 1, hh_size_distrib_file,     prm-size-hh-ontario.csv
 1, wrk_size_distrib_file,    prm-size-wrk-ontario.csv
 1, school_size_distrib_file, prm-size-school-ontario.csv

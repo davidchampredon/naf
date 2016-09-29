@@ -41,6 +41,14 @@ gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 
 
 
+if(0){
+	par(mfrow=c(1,1))
+	aa <- gen.ad(prm=c(agemin=0, agemax=70, agemean=10,   a=1.4),
+				 do.plot = TRUE, plot.title='')
+}
+
+
+
 M <- list()
 M[[1]] <- list(c(agemin=18,agemax=80, agemean=60,  a=1.5))
 
@@ -49,7 +57,7 @@ M[[2]] <- list(c(agemin=18,agemax=80, agemean=50,  a=2.5),
 
 M[[3]] <- list(c(agemin=18,agemax=65, agemean=35,  a=1.8),
 			   c(agemin=18,agemax=65, agemean=35,  a=1.8),
-			   c(agemin=0, agemax=40, agemean=6,   a=1.0))
+			   c(agemin=0, agemax=65, agemean=10,  a=1.4))
 
 shift.mean <-  c(agemin=0, agemax=0, agemean= 2.9,   a=0)
 
@@ -85,8 +93,9 @@ save.ad <- function(M, hh, indiv, fname,...) {
 				row.names = FALSE)
 }
 
+save.plot <- TRUE
 
-pdf('plot_age_distrib_hhsize.pdf', width=20,height = 20)
+if(save.plot) pdf('plot_age_distrib_hhsize.pdf', width=20,height = 20)
 par(mfrow=c(6,6), mar=rep(0.9,4))
 for(i in 1:6){
 	for(j in 1:6){
@@ -98,7 +107,7 @@ for(i in 1:6){
 		}
 	}
 }
-dev.off()
+if (save.plot) dev.off()
 
 
 
