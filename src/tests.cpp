@@ -205,21 +205,36 @@ void main_run_test(){
     // must be same for all schedules and must sum up to 1.0
     vector<double> timeslice {1.0/24, 4.0/24, 4.0/24, 1.0/24, 2.0/24, 12.0/24};
     
-    // type of schedules:
-    vector<SPtype> worker_sed   {SP_pubTransp, SP_workplace, SP_workplace, SP_pubTransp, SP_other, SP_household};
-    vector<SPtype> student      {SP_pubTransp, SP_school,    SP_school,    SP_pubTransp, SP_other, SP_household};
-    vector<SPtype> unemployed   {SP_household, SP_other,     SP_other,     SP_other,     SP_other, SP_household};
     
-    schedule sched_worker_sed (worker_sed, timeslice, "worker_sed");
-    schedule sched_student    (student,    timeslice, "student");
-    schedule sched_unemployed (unemployed, timeslice, "unemployed");
+    vector<vector<string> > sched_des;
+    vector<string> sched_nam;
     
-    // Schedules used in the simulation:
-    vector<schedule> sched {
-        sched_worker_sed,
-        sched_student,
-        sched_unemployed
-    };
+    sched_des.push_back({"SP_pubTransp", "SP_workplace", "SP_workplace", "SP_pubTransp", "SP_other", "SP_household"});
+    sched_des.push_back({"SP_pubTransp", "SP_school",    "SP_school",    "SP_pubTransp", "SP_other", "SP_household"});
+    sched_des.push_back({"SP_household", "SP_other",     "SP_other",     "SP_other",     "SP_other", "SP_household"});
+
+    sched_nam.push_back("worker_sed");
+    sched_nam.push_back("student");
+    sched_nam.push_back("unemployed");
+    
+    vector<schedule> sched = build_all_schedules(sched_des, sched_nam, timeslice);
+    
+    
+//    // type of schedules:
+//    vector<SPtype> worker_sed   {SP_pubTransp, SP_workplace, SP_workplace, SP_pubTransp, SP_other, SP_household};
+//    vector<SPtype> student      {SP_pubTransp, SP_school,    SP_school,    SP_pubTransp, SP_other, SP_household};
+//    vector<SPtype> unemployed   {SP_household, SP_other,     SP_other,     SP_other,     SP_other, SP_household};
+//    
+//    schedule sched_worker_sed (worker_sed, timeslice, "worker_sed");
+//    schedule sched_student    (student,    timeslice, "student");
+//    schedule sched_unemployed (unemployed, timeslice, "unemployed");
+//    
+//    // Schedules used in the simulation:
+//    vector<schedule> sched {
+//        sched_worker_sed,
+//        sched_student,
+//        sched_unemployed
+//    };
     
     uint mult = 2;
     

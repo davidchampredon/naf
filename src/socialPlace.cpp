@@ -1117,18 +1117,11 @@ uint census_schedule(vector<socialPlace> w, string name){
     /// Count the number of individuals using a given schedule
     
     uint cnt = 0;
-    
     for (uint k=0; k<w.size(); k++) {
         cnt += w[k].census_schedule(name);
     }
-    
     return cnt;
 }
-
-
-
-
-
 
 
 

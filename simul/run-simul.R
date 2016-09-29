@@ -21,12 +21,14 @@ source('analysis_tools.R')
 source(paste0(param.model.dir,'read-prm.R'))
 source(paste0(param.model.dir,'read-world-prm.R'))
 source(paste0(param.model.dir,'read-interv.R'))
+source(paste0(param.model.dir,'read-sched.R'))
 
 # Parameter file names
 fname.prm.epi    <- 'prm-epi.csv'
 fname.prm.simul  <- 'prm-simul.csv'
 fname.prm.au     <- 'prm-au-ontario.csv'
 fname.prm.interv <- 'prm-interv.csv'
+fname.schedules  <- 'schedules.csv'
 
 do.plot           <- TRUE 
 save.plot.to.file <- TRUE
@@ -67,9 +69,12 @@ world.prm   <- c(world.prm,
 				 			 max(world.prm[['max_hh_size']])) )
 
 # schedule time slices:
+
 sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 
 							  1.0/24, 2.0/24, 12.0/24)
 
+sched.prm[['sched_desc']]  <- read.schedules(paste0(param.model.dir,fname.schedules), return.names = FALSE)
+sched.prm[['sched_names']] <- read.schedules(paste0(param.model.dir,fname.schedules), return.names = TRUE)
 
 ###  ==== Intervention parameters ====
 
@@ -94,17 +99,13 @@ t1 <- as.numeric(Sys.time())
 # ==== Process results ====
 
 message("Processing results...")
-
-ts <- as.data.frame(res[['time_series']])
-
-# JUST ONE SOCIAL PLACE--->   pop <- as.data.frame(res[['population_final']])
+ts     <- as.data.frame(res[['time_series']])
 world0 <- res[['world']]
 z      <- lapply(world0, as.data.frame)
 pop    <- do.call('rbind',z)
-
-ws <- ddply(pop, c('id_au','sp_type'), summarize, 
-			n_sp    = length(id_sp),
-			n_indiv = length(id_indiv))
+ws     <- ddply(pop, c('id_au','sp_type'), summarize, 
+				n_sp    = length(id_sp),
+				n_indiv = length(id_indiv))
 message("Processing done.")
 
 
@@ -124,13 +125,12 @@ if(do.plot){
 	
 	# Time series:
 	if (save.plot.to.file) pdf('plot_ts.pdf', width = 25,height = 15)
-	
 	try( plot.epi.timeseries(ts),  silent = T)
 	try( grid.arrange(plot.ts.sp(res$time_series_sp),
 					  plot.ts.sp(res$time_series_sp, facets = T)), 
 		 silent = T)
-	
 	if (save.plot.to.file) dev.off()
+	
 	message("Plotting done.")
 }
 	

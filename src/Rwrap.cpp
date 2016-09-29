@@ -212,7 +212,7 @@ List naf_run(List params,
             // Add to the vector holding all interventions:
             interv_vec.push_back(interv);
             
-            cout << ","<<i;
+            if(i>0) cout << ","; cout<< i+1;
         }
         
         cout << endl << "Interventions loaded. " << endl;
@@ -340,26 +340,17 @@ List naf_run(List params,
         
         // Define the time slices
         // must be same for all schedules and must sum up to 1.0
-        vector<double> timeslice = scheduleParams["timeslice"];
-        
-        // type of schedules:
-        vector<SPtype> worker_sed   {SP_pubTransp, SP_workplace, SP_workplace, SP_pubTransp, SP_other, SP_household};
-        vector<SPtype> student      {SP_pubTransp, SP_school,    SP_school,    SP_pubTransp, SP_other, SP_household};
-        vector<SPtype> unemployed   {SP_household, SP_other,     SP_other,     SP_other,     SP_other, SP_household};
-        
-        schedule sched_worker_sed (worker_sed, timeslice, "worker_sed");
-        schedule sched_student    (student,    timeslice, "student");
-        schedule sched_unemployed (unemployed, timeslice, "unemployed");
-        
-        // Schedules used in the simulation:
-        vector<schedule> sched {
-            sched_worker_sed,
-            sched_student,
-            sched_unemployed
-        };
-        
+        vector<double> timeslice           = scheduleParams["timeslice"];
+		vector<string> sched_names         = scheduleParams["sched_names"];
+		vector<vector<string> > sched_desc = scheduleParams["sched_desc"];
+		
+		vector<schedule> sched = build_all_schedules(sched_desc, sched_names, timeslice);
+		
+		
+		// =========================
         // === Call C++ function ===
-        
+		// =========================
+		
         _RANDOM_GENERATOR.seed(rnd_seed);
         
         Simulator sim = run_test(auvec,
