@@ -70,7 +70,10 @@ protected:
     vector<uint>    _ts_census_sp_nE;
 
     vector<intervention> _intervention;
-    
+
+    /**
+     * Calculate the contact rate ratio based on features of individual and social place.
+     */
     double  select_contact_rate_ratio(double age, SPtype sp_type);
     
     // trackers (mostly used for debugging)
@@ -212,6 +215,10 @@ public:
 	void	transmission_world(double timeslice);
 	uint	prevalence();
 
+    /**
+     * Draw the contact rate for an infectious individual
+     * in a given social place.
+     */
     double          draw_contact_rate(individual* indiv, uint k);
     vector<uint>    draw_n_contacts(uint k,
                                     double dt,

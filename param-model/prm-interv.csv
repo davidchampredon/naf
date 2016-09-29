@@ -11,5 +11,12 @@ interv_dummy, interv_type, vaccination
 interv_dummy, interv_target, susceptible
 interv_dummy, interv_start, 29
 interv_dummy, interv_end, 999
-interv_dummy, interv_cvg_rate, 0.12
+interv_dummy, interv_cvg_rate, 0.11
 interv_dummy, interv_cvg_max_prop, 0.999
+
+avr, interv_type, treatment
+avr, interv_target, symptomatic
+avr, interv_start, 12
+avr, interv_end, 999
+avr, interv_cvg_rate, 0.12
+avr, interv_cvg_max_prop, 0.999

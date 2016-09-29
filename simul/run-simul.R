@@ -116,11 +116,14 @@ if(do.plot){
 	
 	# Population:
 	if (save.plot.to.file) pdf('plot_pop.pdf', width = 30,height = 18)
+	library(profvis)
+	profvis({
 	try( plot.population(pop),  silent = T)
 	try( plot.n.contacts(res$track_n_contacts),  silent = T)
 	try( plot.age.contact.matrix(res),  silent = T)
 	try( plot.sp.sz.distrib(pop,world.prm) , silent = T)
 	try( plot.share.same.hh(pop), silent = F)
+	})
 	if (save.plot.to.file) dev.off()
 	
 	# Time series:

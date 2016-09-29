@@ -1855,20 +1855,15 @@ void Simulator::update_pop_count(){
 void Simulator::check_book_keeping(){
     /// Check consistency of book keeping.
     /// WARNING: FOR DEBUG ONLY, SLOWS DOWN EXECUTION!
-    
-    
 
     check_sp_integrity(_world);
 
-    
     // more individual present than linked?
     for (ID k=0; k<_world.size(); k++) {
         unsigned long pres = _world[k].get_indiv().size();
         unsigned long linked = _world[k].get_linked_indiv_id().size();
         stopif(pres>linked, "More individuals present than linked in SP ID "+to_string(k));
     }
-    
-    
     
     // stage S
     uint nS=0;
@@ -1892,7 +1887,6 @@ void Simulator::check_book_keeping(){
     bool check_S = ( (_n_S == nS) && (nS == nS_census) );
     stopif(!check_S, "Book keeping error with S stage");
     
-    
     // stage E
     uint nE=0;
     uint nE_census=0;
@@ -1902,7 +1896,6 @@ void Simulator::check_book_keeping(){
     }
     bool check_E = ( (_n_E == nE) && (nE == nE_census) );
     stopif(!check_E, "Book keeping error with E stage");
-    
     
     // stage Is
     uint nIs=0;
@@ -1961,7 +1954,6 @@ void Simulator::check_book_keeping(){
     }
     bool check_R = ( (_n_R == nR) && (nR == nR_census) );
     stopif(!check_R, "Book keeping error with R stage");
-    
     
     // stage H
     uint nH=0;
@@ -2026,9 +2018,9 @@ void Simulator::define_all_id_tables(){
     }
 }
 
+
 double Simulator::select_contact_rate_ratio(double age,
                                             SPtype sp_type){
-    /// Calculate the contact rate ratio based on features of individual and social place.
     
     double ratio_indiv = 1.0;
     double ratio_sp    = 1.0;
@@ -2047,8 +2039,7 @@ double Simulator::select_contact_rate_ratio(double age,
 
 
 double  Simulator::draw_contact_rate(individual* indiv, uint k){
-    /// Draw the contact rate for an infectious individual
-    /// in a given social place.
+
     
     bool homog = _modelParam.get_prm_bool("homogeneous_contact");
     
@@ -2280,7 +2271,6 @@ void Simulator::death_hospital(){
         } // end-if-SP_hospital
     }
 }
-
 
 
 

@@ -305,10 +305,15 @@ plot.population <- function(pop) {
 	
 	pop.transm.sum
 	
-	g.R.symptom <- ggplot(pop.transm) +geom_density(aes(x=n_secondary_cases,
-														fill = factor(was_symptomatic),
-														colour = factor(was_symptomatic)),
-													alpha = 0.2)
+	g.R.symptom <- ggplot(pop.transm) +geom_histogram(aes(x=n_secondary_cases, ..density..,
+														  fill = factor(was_symptomatic),
+														  colour = factor(was_symptomatic)),
+													  position=position_dodge(width=0.8),
+													  binwidth = 1,
+													  alpha = 0.7)
+	
+	g.R.symptom <- g.R.symptom + scale_x_continuous(breaks =  seq(0,nsmax+1,by=1))
+	
 	g.R.symptom <- g.R.symptom + geom_vline(data = pop.transm.sum, 
 											aes(xintercept=m, colour=factor(was_symptomatic)),
 											linetype=2)
@@ -328,10 +333,15 @@ plot.population <- function(pop) {
 	
 	pop.transm.sum2
 	
-	g.R.treat <- ggplot(pop.transm) +geom_density(aes(x=n_secondary_cases,
-													  fill = factor(is_treated),
-													  colour = factor(is_treated)),
-												  alpha = 0.2)
+	g.R.treat <- ggplot(pop.transm) +geom_histogram(aes(x=n_secondary_cases, ..density..,
+														fill = factor(is_treated),
+														colour = factor(is_treated)),
+													position=position_dodge(width=0.8),
+													binwidth = 1,
+													alpha = 0.7)
+	
+	g.R.treat <- g.R.treat + scale_x_continuous(breaks =  seq(0,nsmax+1,by=1))
+	
 	g.R.treat <- g.R.treat + geom_vline(data = pop.transm.sum2, 
 										aes(xintercept=m, colour=factor(is_treated)),
 										linetype=2)
@@ -445,8 +455,9 @@ plot.epi.timeseries <- function(ts){
 	g.SR <- ggplot(ts, aes(x=time))
 	g.SR <- g.SR + geom_step(aes(y=nS),colour='springgreen3', size=2) 
 	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue', size=2)
-	g.SR <- g.SR + geom_step(aes(y=n_vaccinated),colour='springgreen2', linetype = 2)
-	g.SR <- g.SR + ggtitle("Susceptible, recovered, vaccinated") + ylab("")
+	g.SR <- g.SR + geom_step(aes(y=n_vaccinated),colour='springgreen2', linetype = 1)
+	g.SR <- g.SR + geom_step(aes(y=n_treated),colour='tomato', linetype = 1)
+	g.SR <- g.SR + ggtitle("Susceptible, recovered, vaccinated, treated") + ylab("")
 	
 	g.inf <- ggplot(ts, aes(x=time))
 	g.inf <- g.inf + geom_step(aes(y=nE),colour='orange',size=2) 
@@ -577,7 +588,7 @@ plot.sp.sz.distrib <- function(pop,world.prm) {
 	name.in.vec  <- c('hh_size','wrk_size', 'school_size', 'pubt_size', 'other_size')
 	name.out.vec <- c('id_hh',  'id_wrk',   'id_school',   'id_pubTr',  'id_other')
 	
-	par(mfrow=c(5,2))
+	par(mfrow=c(5,2), cex.lab=2, cex.axis=2)
 	for(i in seq_along(name.out.vec)){
 		plot.sp.one(pop, world.prm, 
 					name.in  = name.in.vec[i], 
@@ -601,7 +612,7 @@ plot.share.same.hh <- function(pop) {
 	sptype.vec <- c('id_wrk','id_pubTr','id_other','id_school')
 	y <- lapply(sptype.vec, same.hh.one)
 	yy <- do.call('rbind',y)
-	par(mfrow=c(1,1))
+	par(mfrow=c(1,1), cex.lab=2, cex.axis=2)
 	boxplot(ratio~sptype, data=yy, ylim=c(0,1), col='lightgrey',
 			main='Proportion of indiv sharing the same household\n(all AU combined)')
 	grid()

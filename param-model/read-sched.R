@@ -3,11 +3,9 @@
 ###
 
 
-filename <- 'schedules.csv'
-
 read.schedules <- function(filename, return.names) {
 	
-	x <- read.csv(filename, header = TRUE,as.is = TRUE)
+	x <- read.csv(filename, header = TRUE, as.is = TRUE)
 	y <- list()
 	for(i in seq_along(x)){
 		y[[i]] <- paste0('SP_',trimws(x[,i]))

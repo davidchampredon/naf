@@ -11,7 +11,7 @@ id, name, value
 0, pr_age_hh,           filenamewheretheinfois
 0, hh_size_distrib_file,     prm-size-hh-ontario-TEST.csv
 0, wrk_size_distrib_file,    prm-size-wrk-ontario.csv
-0, school_size_distrib_file, prm-size-school-ontario.csv
+0, school_size_distrib_file, prm-size-school-TEST.csv
 0, pubt_size_distrib_file,   prm-size-pubt-ontario.csv
 0, hosp_size_distrib_file,   prm-size-hosp-ontario.csv
 0, other_size_distrib_file,  prm-size-other-ontario.csv
@@ -28,7 +28,7 @@ id, name, value
 1, pr_age_hh,           filenamewheretheinfois
 1, hh_size_distrib_file,     prm-size-hh-ontario-TEST.csv
 1, wrk_size_distrib_file,    prm-size-wrk-ontario.csv
-1, school_size_distrib_file, prm-size-school-ontario.csv
+1, school_size_distrib_file, prm-size-school-TEST.csv
 1, pubt_size_distrib_file,   prm-size-pubt-ontario.csv
 1, hosp_size_distrib_file,   prm-size-hosp-ontario.csv
 1, other_size_distrib_file,  prm-size-other-ontario.csv
