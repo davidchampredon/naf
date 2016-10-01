@@ -53,7 +53,9 @@ void assign_age_in_households(vector<socialPlace>& hh,
                               vector<individual>& indiv,
                               vector<vector<discrete_prob_dist<uint> > > age_distrib);
 
-
+/**
+ * Build world before simulation runs.
+ */
 vector<socialPlace> build_world(vector<areaUnit> auvec,
                                 vector<discrete_prob_dist<uint> > D_size_hh,     // Households sizes
                                 vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
@@ -71,6 +73,11 @@ vector<socialPlace> build_world(vector<areaUnit> auvec,
                                 vector<uint> n_other);
 
 
+/**
+ * Assign schedule for all individual in the world.
+ * For each individual, schedule chosen based on
+ * age, employment status, etc.
+ */
 void assign_schedules(vector<socialPlace> & W,
                       const vector<schedule> & sched,
                       float prop_unemployed);

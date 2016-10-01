@@ -98,8 +98,16 @@ public:
     void set_doi_distrib(uint pos, string distrib) {_indiv[pos].set_doi_distrib(distrib);}
     void set_doh_distrib(uint pos, string distrib) {_indiv[pos].set_doh_distrib(distrib);}
     
-    void set_immunity_hum(uint pos, float val) {_indiv[pos].set_immunity_hum(val);}
+    /**
+     * Sets humoral immunity of the individual in position 'pos' in this social place.
+     */
+    void set_immunity_hum(uint pos, float val)  {_indiv[pos].set_immunity_hum(val);}
+    
+    /**
+     * Sets cellular immunity of the individual in position 'pos' in this social place.
+     */
     void set_immunity_cell(uint pos, float val) {_indiv[pos].set_immunity_cell(val);}
+    
     void set_frailty(uint pos, float val)  {_indiv[pos].set_frailty(val);}
     
     void set_sp_other_link(uint pos, socialPlace &sp){_indiv[pos].set_id_sp_other(sp);}

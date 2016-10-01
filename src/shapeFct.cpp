@@ -40,3 +40,17 @@ float frailty_mean(float age,
 
 
 
+double immunity_humoral(float age,
+                        float agezero,
+                        float baseline,
+                        float p)
+{
+    return baseline * ( pow(pow(agezero,p)-pow(age,p),1/p) )/agezero;
+}
+
+
+
+
+
+
+

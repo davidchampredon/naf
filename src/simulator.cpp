@@ -2462,22 +2462,24 @@ void Simulator::assign_dox_distribution(string dol_distrib,
 
 
 void Simulator::assign_immunity_hum(){
-    /// Calculate humoral immunity index for all individuals
+    
+    double baseline = _modelParam.get_prm_double("imm_hum_baseline");
+    double agezero  = _modelParam.get_prm_double("imm_hum_agezero");
+    double p        = _modelParam.get_prm_double("imm_hum_p");
     
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();
-        std::uniform_real_distribution<float> unif01(0,1);
-        
         for (uint i=0; i< nk; i++) {
-            _world[k].set_immunity_hum(i, unif01(_RANDOM_GENERATOR));
+            float age = _world[k].get_indiv(i).get_age();
+            double immh = immunity_humoral(age, agezero, baseline, p);
+            _world[k].set_immunity_hum(i, immh);
         }
     }
 }
 
 
 void Simulator::assign_immunity_cell(){
-    /// Calculate cellular immunity index for all individuals
     
     for (uint k=0; k< _world.size(); k++)
     {

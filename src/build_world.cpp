@@ -304,7 +304,6 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
                                 vector<uint> n_school,
                                 vector<uint> n_hosp,
                                 vector<uint> n_other){
-    /// Build world before simulation runs
     
     vector< vector<socialPlace> > y;
     
@@ -501,12 +500,8 @@ void check_sp_integrity(const vector<socialPlace>& x){
 void assign_schedules(vector<socialPlace> & W,
                       const vector<schedule>& sched,
                       float prop_unemployed){
-    /// Assign schedule for all individual in the world.
-    /// For each individual, schedule chosen based on
-    /// age, employment status, etc.
     
-    
-    uint s_student      = pos_schedname("student", sched);
+    uint s_student      = pos_schedname("student",    sched);
     uint s_worker_sed   = pos_schedname("worker_sed", sched);
     uint s_unemployed   = pos_schedname("unemployed", sched);
     //uint s_worker_trav  = pos_schedname("worker_trav", sched);
@@ -519,21 +514,25 @@ void assign_schedules(vector<socialPlace> & W,
         {
             float age = W[k].get_indiv(i).get_age();
 
+            // Students:
             if (0.0 <= age && age < 18.0) {
                 W[k].set_schedule_indiv(i, sched[s_student]);
             }
             else if (age >= 18.0){
                 
-                // Unemployed
+                // Unemployed:
                 std::uniform_real_distribution<> unif01(0.0, 1.0);
                 double u = unif01(_RANDOM_GENERATOR);
+                
                 if (u < prop_unemployed){
                     W[k].set_schedule_indiv(i, sched[s_unemployed]);
                 }
+                // Workers:
                 else{
                     W[k].set_schedule_indiv(i, sched[s_worker_sed]);
                 }
             }
+            
             bool check = (W[k].get_indiv(i).get_schedule().get_sp_type().size()==0);
             if(check) W[k].get_indiv(i).displayInfo();
             stopif(check, "Schedule not assigned for indiv_"+ to_string(i)+ " (currently in SP_"+to_string(k)+").");

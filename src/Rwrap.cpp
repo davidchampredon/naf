@@ -169,6 +169,10 @@ List naf_run(List params,
         set_parameter(MP, "frailty_pivot",     "double", params);
         set_parameter(MP, "frailty_powerChild","double", params);
         set_parameter(MP, "frailty_sd",        "double", params);
+		
+		set_parameter(MP, "imm_hum_baseline",  "double", params);
+		set_parameter(MP, "imm_hum_agezero",   "double", params);
+		set_parameter(MP, "imm_hum_p",         "double", params);
         
         
         // ==== Simulator parameters ====

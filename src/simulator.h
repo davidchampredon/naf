@@ -127,8 +127,17 @@ public:
     void assign_dox_distribution(string dol_distrib,
                                  string doi_distrib,
                                  string doh_distrib);
+    
+    /**
+     * Calculate humoral immunity index for all individuals.
+     */
     void assign_immunity_hum();
+
+    /**
+     * Calculate cellular immunity index for all individuals.
+     */
     void assign_immunity_cell();
+    
     void assign_frailty();
     
 	// Simulate

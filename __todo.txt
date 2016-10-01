@@ -7,6 +7,8 @@
 
 - Monte Carlo engine
 
+- immunities are deterministically allocated: change to stochastic?
+
 - put age determinant for schedule as model parameters (currently hard coded)
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???

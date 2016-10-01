@@ -52,6 +52,11 @@ void main_run_test(){
     MP.add_prm_double("frailty_powerChild", 3);
     MP.add_prm_double("frailty_sd", 0.1);
     
+    MP.add_prm_double("imm_hum_baseline", 0.1);
+    MP.add_prm_double("imm_hum_agezero", 100);
+    MP.add_prm_double("imm_hum_p", 2.0);
+    
+    
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_double ("contact_rate_mean", 4.98);
     MP.add_prm_double ("contact_rate_stddev", 1);
@@ -219,23 +224,6 @@ void main_run_test(){
     
     vector<schedule> sched = build_all_schedules(sched_des, sched_nam, timeslice);
     
-    
-//    // type of schedules:
-//    vector<SPtype> worker_sed   {SP_pubTransp, SP_workplace, SP_workplace, SP_pubTransp, SP_other, SP_household};
-//    vector<SPtype> student      {SP_pubTransp, SP_school,    SP_school,    SP_pubTransp, SP_other, SP_household};
-//    vector<SPtype> unemployed   {SP_household, SP_other,     SP_other,     SP_other,     SP_other, SP_household};
-//    
-//    schedule sched_worker_sed (worker_sed, timeslice, "worker_sed");
-//    schedule sched_student    (student,    timeslice, "student");
-//    schedule sched_unemployed (unemployed, timeslice, "unemployed");
-//    
-//    // Schedules used in the simulation:
-//    vector<schedule> sched {
-//        sched_worker_sed,
-//        sched_student,
-//        sched_unemployed
-//    };
-    
     uint mult = 2;
     
     // number of each social place type
@@ -272,7 +260,7 @@ void main_run_test(){
                               n_other,
                               sched ,
                               MP,
-                             start_time,
+                              start_time,
                               horizon,
                               i0,
                               interv_vec);

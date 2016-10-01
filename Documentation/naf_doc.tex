@@ -37,6 +37,7 @@
 \newcommand{\note}[1]{\textit{\textcolor{Grey}{Note: #1}}}
 \newcommand{\eg}{\textit{e.g.}\xspace}
 \newcommand{\ie}{\textit{i.e.}\xspace}
+\newcommand{\etal}{\textit{et al.}\xspace}
 \newcommand{\naf}{\textsf{NAF}\xspace}
 
 \newcommand{\immh}{\ensuremath{\text{imm}_h}}
@@ -198,15 +199,31 @@ If an individual is hospitalized, it is moved to its linked social place labelle
 Two types of immunity is modelled: humoral and cell-mediated (``cellular'' hereafter). 
 
 \subsection{Humoral immunity}	
-Humoral immunity reflects pre-existing exposure to the pathogen. It is assumed to be the unique determinant of successful infection inside the host. It is modelled as solely age-dependent.
-	
-\note{In the context of pandemic influenza, everyone will have little to no pre-existing exposure, so the humoral immunity profile, as a function of age, will be a flat curvewhose value is near 0.}
+Humoral immunity reflects pre-existing exposure to the pathogen. It is assumed to be the unique determinant of successful infection inside the host. It is modelled as solely age-dependent: decreasing with age (because of immunosenescence).
 
-Vaccination has the effect, with a time lag, to increase (by a pre-specified amount) humoral immunity. This results in decreasing the likelihood of successful infection (more so once the time lag is passed such that the vaccine has reached its full efficacy). The vaccine-induced increase of humoral immunity is age-dependent as illustrated in Figure xxx \warning{make the figure!}. 
+\begin{equation}
+\immh (a) = \frac{H_0 }{a_z}(a_z^p - a^p) ^\frac{1}{p}
+\end{equation}
+where $a_z$ is the age when humoral immunity reaches 0, $p$ is a shape parameter  and $H_0$ is the baseline.
+
+\note{In the context of pandemic influenza, everyone will have little to no pre-existing exposure, so the baseline humoral immunity $H_0$ has a very low value.}
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.90\textwidth]{figures/immunity.pdf}
+\caption{Left panel: Example of humoral immunity with $a_z=100$, $H_0=1$ and $p=2$ (thick line) or $p=3$ (thin line). Right panel: Cellular immunity with $\immc^* = 0.7$,  $a_{pivot}=20$ and $s=3$ (thick line) $s=1.5$ (thin line).}
+\label{fig:immunity}
+\end{figure}
+
+Vaccination has the effect, with a time lag, to increase (by a pre-specified amount) humoral immunity. This results in reducing the likelihood of successful infection (more so once the time lag is passed such that the vaccine has reached its full efficacy). The vaccine-induced increase of humoral immunity is age-dependent as illustrated in Figure \ref{fig:immunity}. 
 
 \subsection{Cellular immunity}	
 
-Cellular immunity is modelled as a determinant of symptomatic infection. It is assumed age-dependent. Because this immunity ``builds up'' through life, older individuals are expected to have a larger cellular immunity than younger ones, hence results in an ``S'' shape curve as illustrated in Figure xxx \warning{make the figure!}.
+Cellular immunity is modelled as a determinant of symptomatic infection. It is assumed age-dependent. Because this immunity ``builds up'' through life, older individuals are expected to have a larger cellular immunity than younger ones, hence results in an ``S'' shape curve as illustrated in Figure \ref{fig:immunity}:
+\begin{equation}
+\immc(a) = \frac{\immc^*}{1+e^{-s(a/a_{pivot} -1)}}
+\end{equation}
+where $\immc^*$ is the maximum immunity, $s$ and $a_{pivot}$ shape parameters representing the slope and inflection point respectively.
 
 Vaccination has the effect, with a time lag, to increase (by a pre-specified amount) cellular immunity. \warning{investigate this effect and relevant functional shape.}
 
@@ -237,9 +254,9 @@ Treatment reduces the duration of infection and has no impact on frailty or immu
 
 
 
-\section{Literature on influenza disease parameters}
+\section{Literature review}
 
-\subsection{Natural history}
+\subsection{Influenza natural history}
 
 \textbf{Incubation.} Typically 1-4 days.
 
@@ -248,7 +265,7 @@ Treatment reduces the duration of infection and has no impact on frailty or immu
 \textbf{Recovery.} Typically after 3-7 days after onset.
 
 
-\subsection{Viral shedding}
+\subsection{Influenza viral shedding}
 
 Shedding can start about 1 day before symptoms onset, but can even be earlier among young children \cite{CDC:2011wq}. Shedding lasts for several days but is usually sharply reduced by day 3-5 after onset \cite{CDC:2011wq}. The decrease rate is exponential and weak patients experience a slower and longer decrease \cite{Lee:2009dc}.
 
@@ -260,15 +277,14 @@ Shedding can start about 1 day before symptoms onset, but can even be earlier am
 \end{figure}
 
 
-\subsection{Hospitalization}
+\subsection{Influenza-induced hospitalization}
 
 Large majority of children hospitalizations last less than 2 days. Median 3-4 days. Hospitalization mostly occur in young children with pre-existing condition.
 
 Fatality rate in hospital is typically 1-3\% in wealthy countries, but is higher among elderly (6-30\%, but this estimates include poor countries \cite{Wong:2015bb}.
 
 
-
-\subsection{Antiviral Treatments}
+\subsection{Antiviral treatments against Influenza }
 \label{sec:antiviral}
 Ressources:
 \begin{itemize}
@@ -298,10 +314,14 @@ Adherence to treatment -- especially for long treatment durations -- is an issue
 
 
 
-\subsection{Vaccination}
+\subsection{Vaccination against Influenza }
 
 Influenza vaccine seems to be effective at reducing disease symptoms and severity, if infected later (at least 10 days later?).
 
+
+\subsection{Age and immunity -- Immunosenescence}
+
+Immune response, for both humoral and cellular, decreases quantitatively, as well as qualitatively, with age \cite{Vallejo:2011fe}. In particular, this causes a decreased vaccine response. Some quantification of this decrease on B-cells is provided in \cite{Frasca:2011bj,LeMaoult:1997wf}.
 
 \section{Performance}
 

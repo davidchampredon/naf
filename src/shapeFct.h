@@ -24,3 +24,8 @@ float frailty_mean(float age,
                    float agepivot,
                    float fpivot,
                    float powerChild);
+
+/**
+ * Defines humoral immunity index for an individual of age 'age'
+ */
+double immunity_humoral(float age, float agezero, float baseline, float p);
