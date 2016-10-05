@@ -22,12 +22,12 @@ frailty_pivot    , 0.50
 frailty_sd       , 0.1
 frailty_powerChild , 3
 
-imm_hum_baseline, 0.9
+imm_hum_baseline, 0.5
 imm_hum_agezero, 100
 imm_hum_p, 2
 
 homogeneous_contact , 0
-contact_rate_mean   , 2.1
+contact_rate_mean   , 3.1
 contact_rate_stddev , 0.4
 
 contact_ratio_age_1_10     , 1.0

@@ -29,6 +29,8 @@ Rlibrary/Rplots.pdf
 
 Documentation/figures/*.key/Data/*
 
+Documentation/slides/*
+
 data/households/Generic_98-313-XCB2011022.xml
 
 data/households/Structure_98-313-XCB2011022.xml
