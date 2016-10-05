@@ -107,7 +107,8 @@ List naf_run(List params,
              List simulParams,
              List intervParams,
              List worldParams,
-             List scheduleParams){
+             List scheduleParams,
+			 unsigned int rnd_seed){
     
     try{
         /// Main test
@@ -181,7 +182,8 @@ List naf_run(List params,
         
         // ==== Simulator parameters ====
         
-        unsigned int rnd_seed   = simulParams["rnd_seed"];
+//        unsigned int rnd_seed   = simulParams["rnd_seed"];
+		
         unsigned int i0         = simulParams["initial_latent"];
         double horizon          = simulParams["horizon"];
         unsigned int popexport  = simulParams["popexport"];
@@ -245,7 +247,8 @@ List naf_run(List params,
         vector<uint> n_school   = worldParams["n_school"];
         vector<uint> n_hosp     = worldParams["n_hosp"];
         vector<uint> n_other    = worldParams["n_other"];
-        
+		
+		float unemployed_prop   = worldParams["unemployed_prop"];
         
         // Social place sizes distributions:
         
@@ -375,6 +378,7 @@ List naf_run(List params,
                                  n_school,
                                  n_hosp,
                                  n_other,
+								 unemployed_prop,
                                  sched ,
                                  MP,
                                  start_time,

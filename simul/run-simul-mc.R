@@ -16,6 +16,7 @@ data.dir         <- '../data/'
 library(ggplot2)
 library(plyr)
 library(naf,lib.loc = R.library.dir)
+library(snowfall)
 
 source('analysis_tools.R')
 source(paste0(param.model.dir,'read-prm.R'))
@@ -31,9 +32,8 @@ fname.prm.interv.0 <- 'prm-interv-0.csv'
 fname.prm.interv   <- 'prm-interv.csv'
 fname.schedules    <- 'schedules.csv'
 
-do.plot           <- TRUE 
+do.plot           <- F# TRUE 
 save.plot.to.file <- TRUE
-run.baseline      <- FALSE
 
 prm        <- list()
 simul.prm  <- list()
@@ -58,6 +58,7 @@ world.prm <- load.world.prm(filename = paste0(param.model.dir,fname.prm.au),
 
 world.prm[['id_region']]  <- 0
 world.prm[['regionName']] <- "Canada"
+world.prm[['unemployed_prop']] <- 0.10
 
 sf           <- as.numeric(simul.prm[['scale_factor']])
 world.prm    <- scale.world(1/sf, world.prm)
@@ -80,52 +81,66 @@ sched.prm[['sched_names']] <- read.schedules(paste0(param.model.dir,fname.schedu
 
 ###  ==== Intervention parameters ====
 
-# Baseline, no vax intervention
+# Baseline, no vax intervention:
 interv.prm.0 <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
-# With vax intervention
+# Vax intervention:
 interv.prm   <- load.interv.prm(paste0(param.model.dir,fname.prm.interv))
+
+
+### === Snowfall wrapper ===
+
+run.snow.wrap <- function(seedMC,
+						  prm, 
+						  simul.prm, 
+						  interv.prm, 
+						  world.prm, 
+						  sched.prm){
+	
+	res <- naf_run(prm, 
+				   simul.prm, 
+				   interv.prm, 
+				   world.prm, 
+				   sched.prm,
+				   seedMC)	
+	return(res)
+}
 
 
 ### ==== Run Simulation ====
 
-seed.0 <- 1234
+n.MC  <- 3
+n.cpu <- 3
+seeds <- 1:n.MC
 
-if(run.baseline){
-	res.0 <- naf_run(prm, 
-					 simul.prm, 
-					 interv.prm.0, 
-					 world.prm, 
-					 sched.prm,
-					 seed.0)
-	
-	# Note: 'res.0' is not used in this script.
-}
+sfInit(parallel = TRUE, cpu = n.cpu)
+sfLibrary(naf,lib.loc = R.library.dir) 
 
-res <- naf_run(prm, 
-			   simul.prm, 
-			   interv.prm, 
-			   world.prm, 
-			   sched.prm,
-			   seed.0)
+res.list <- sfSapply(seeds, run.snow.wrap,
+					 prm        = prm, 
+					 simul.prm  = simul.prm, 
+					 interv.prm = interv.prm, 
+					 world.prm  = world.prm, 
+					 sched.prm  = sched.prm,
+					 simplify   = FALSE)
+sfStop()
 
-
+save.image(file='mc-simul.RData')
 t1 <- as.numeric(Sys.time())
-
-save.image(file='simul.RData')
 
 
 # ==== Process results ====
 
-message("Processing results...")
-ts     <- as.data.frame(res[['time_series']])
-world0 <- res[['world']]
-z      <- lapply(world0, as.data.frame)
-pop    <- do.call('rbind',z)
-ws     <- ddply(pop, c('id_au','sp_type'), summarize, 
-				n_sp    = length(id_sp),
-				n_indiv = length(id_indiv))
-message("Processing done.")
-
+if(FALSE){
+	message("Processing results...")
+	ts     <- as.data.frame(res[['time_series']])
+	world0 <- res[['world']]
+	z      <- lapply(world0, as.data.frame)
+	pop    <- do.call('rbind',z)
+	ws     <- ddply(pop, c('id_au','sp_type'), summarize, 
+					n_sp    = length(id_sp),
+					n_indiv = length(id_indiv))
+	message("Processing done.")
+}
 
 ### ==== PLOTS ==== 
 

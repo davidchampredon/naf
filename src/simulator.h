@@ -116,6 +116,7 @@ public:
                       vector<uint> n_school,
                       vector<uint> n_hosp,
                       vector<uint> n_other,
+                      float unemployed_prop,
                       vector<schedule> sched);
     
 	void build_test_world(double reduction_size);
@@ -152,7 +153,13 @@ public:
 	void set_world(world w);
 	void set_horizon(double h) {_horizon = h;}
 	void set_modelParam(modelParam mp) {_modelParam = mp;}
+    
+    
+    /** 
+     * Make the inventory of all 'sp_other' social places and record in '_sp_other'.
+     */
     void set_sp_other();
+    
     void set_sp_other_link(uint k, uint pos_indiv, socialPlace &sp);
 	
 	// Get functions

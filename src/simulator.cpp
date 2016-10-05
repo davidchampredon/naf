@@ -70,6 +70,7 @@ void Simulator::create_world(vector<areaUnit> AU,
                              vector<uint> n_school,
                              vector<uint> n_hosp,
                              vector<uint> n_other,
+                             float unemployed_prop,
                              vector<schedule> sched)
 {
     /// Create the specified world
@@ -103,8 +104,7 @@ void Simulator::create_world(vector<areaUnit> AU,
     assign_immunity_cell();
     assign_frailty();
 
-    float unemplyed_prop = 0.10; // TO DO: read as model parameter!
-    assign_schedules(_world, sched, unemplyed_prop);
+    assign_schedules(_world, sched, unemployed_prop);
     
     check_schedules_consistency();
     
@@ -1103,9 +1103,7 @@ vector<uint> Simulator::draw_n_contacts(uint k,
 
 
 void Simulator::set_sp_other(){
-    /// Make the inventory of all 'sp_other'
-    /// social places and record in '_sp_other'
-    
+        
     for (uint k=0; k<_world.size(); k++) {
         if(_world[k].get_type() == SP_other){
             _sp_other.push_back(&_world[k]);

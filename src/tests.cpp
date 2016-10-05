@@ -207,6 +207,7 @@ void main_run_test(){
     D_size_other_vec.push_back(D_size_other);
     D_size_other_vec.push_back(D_size_other);
     
+    float unemployed_prop = 0.10;
     
     // === Schedules definition ===
     
@@ -262,6 +263,7 @@ void main_run_test(){
                               n_school,
                               n_hosp,
                               n_other,
+                             unemployed_prop,
                               sched ,
                               MP,
                               start_time,
@@ -292,6 +294,7 @@ Simulator run_test(vector<areaUnit> auvec,
                     vector<uint> n_school,
                     vector<uint> n_hosp,
                     vector<uint> n_other,
+                   float unemployed_prop,
                     vector<schedule> sched ,
                     modelParam MP,
                     double start_time,
@@ -324,6 +327,7 @@ Simulator run_test(vector<areaUnit> auvec,
                      n_school,
                      n_hosp,
                      n_other,
+                     unemployed_prop,
                      sched);
     
     sim.set_horizon(horizon);
