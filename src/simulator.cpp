@@ -2481,13 +2481,19 @@ void Simulator::assign_immunity_hum(){
 
 void Simulator::assign_immunity_cell(){
     
+    double imm_max = _modelParam.get_prm_double("imm_cell_max");
+    double slope   = _modelParam.get_prm_double("imm_cell_slope");
+    double pivot   = _modelParam.get_prm_double("imm_cell_pivot");
+    
     for (uint k=0; k< _world.size(); k++)
     {
         unsigned long nk = _world[k].get_size();
         std::uniform_real_distribution<float> unif01(0,1);
         
         for (uint i=0; i< nk; i++) {
-            _world[k].set_immunity_cell(i, unif01(_RANDOM_GENERATOR));
+            float age = _world[k].get_indiv(i).get_age();
+            double immc = immunity_cellular(age, imm_max, slope, pivot);
+            _world[k].set_immunity_cell(i, immc);
         }
     }
 }

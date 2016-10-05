@@ -173,6 +173,10 @@ List naf_run(List params,
 		set_parameter(MP, "imm_hum_baseline",  "double", params);
 		set_parameter(MP, "imm_hum_agezero",   "double", params);
 		set_parameter(MP, "imm_hum_p",         "double", params);
+		
+		set_parameter(MP, "imm_cell_max",	"double", params);
+		set_parameter(MP, "imm_cell_slope",	"double", params);
+		set_parameter(MP, "imm_cell_pivot", "double", params);
         
         
         // ==== Simulator parameters ====

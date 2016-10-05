@@ -56,6 +56,10 @@ void main_run_test(){
     MP.add_prm_double("imm_hum_agezero", 100);
     MP.add_prm_double("imm_hum_p", 2.0);
     
+    MP.add_prm_double("imm_cell_max", 0.7);
+    MP.add_prm_double("imm_cell_slope", 2);
+    MP.add_prm_double("imm_cell_pivot", 20);
+    
     
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_double ("contact_rate_mean", 4.98);

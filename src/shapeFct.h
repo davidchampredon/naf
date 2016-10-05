@@ -29,3 +29,14 @@ float frailty_mean(float age,
  * Defines humoral immunity index for an individual of age 'age'
  */
 double immunity_humoral(float age, float agezero, float baseline, float p);
+
+
+/**
+ * Defines cellular immunity index for an individual of age 'age'
+ */
+double immunity_cellular(float age, float imm_max, float slope, float pivot);
+
+
+
+
+

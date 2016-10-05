@@ -18,13 +18,9 @@ plot.hum <- function(x,q,p,h0, add) {
 }
 
 # Cellular immunity
-plot.cel <- function(slope,add) {
+plot.cel <- function(imm.max, slope, pivot,add) {
 	agemax <- 100
-	# slope <- 3	
-	pivot <- 20
-	b <- slope/pivot
 	x <- seq(0,agemax,length.out = 1000)
-	imm.max <- 0.7
 	y <- imm.max/(1+exp(-slope*(x/pivot-1)))
 	
 	if(!add){
@@ -46,8 +42,8 @@ par(mfrow=c(1,2))
 h0 <- 0.5
 plot.hum(x,q=100,p=1.7,h0, add=F)
 plot.hum(x,q=100,p=3.0,  h0, add=T)
-plot.cel(slope=3, add=F)
-plot.cel(slope=1.5, add=T)
+plot.cel(imm.max = 0.7, slope=3, pivot=20, add=F)
+plot.cel(imm.max = 0.7, slope=2, pivot=29, add=T)
 if(save.plot) dev.off()
 
 

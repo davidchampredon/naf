@@ -50,6 +50,14 @@ double immunity_humoral(float age,
 
 
 
+double immunity_cellular(float age,
+                         float imm_max,
+                         float slope,
+                         float pivot){
+    
+    return imm_max/(1+exp(-slope*(age/pivot-1)));
+}
+
 
 
 
