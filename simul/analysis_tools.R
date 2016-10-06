@@ -104,7 +104,7 @@ average.age.contact <- function(res.list){
 	}
 	A.mean <- apply(simplify2array(A.list), 1:2, mean)
 	print('... matrices averaged.')
-	return(A.mean)
+	return(list(A.mean,m.max))
 }
 
 
@@ -198,16 +198,18 @@ plot.age.contact.matrix.avg <- function(res.list) {
 	
 	# Desired contact assortativity:
 	y <- res.list[[1]]$contactAssort
-	D <- matrix(unlist(res$contactAssort), ncol = length(y))
+	D <- matrix(unlist(res.list[[1]]$contactAssort), ncol = length(y))
 	
 	# Effective contacts from simulation:
-	A.plot <- average.age.contact(res.list)
+	aac <- average.age.contact(res.list)
+	A.plot <- aac[[1]]
+	m.max <- aac[[2]]
 	
 	# -- PLOTS --
 	
 	par(mfrow = c(1,2), cex.lab=1.7,cex.axis=1.7)
 	
-	na <- ncol(A)
+	na <- ncol(A.plot)
 	D.plot <- D[1:(na+1),1:(na+1)]
 	
 	image(x=0:na, y=0:na, z=D.plot, 
