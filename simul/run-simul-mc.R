@@ -126,52 +126,6 @@ sfStop()
 
 save.image(file='mc-simul.RData')
 t1 <- as.numeric(Sys.time())
-
-
-# ==== Process results ====
-
-if(FALSE){
-	message("Processing results...")
-	ts     <- as.data.frame(res[['time_series']])
-	world0 <- res[['world']]
-	z      <- lapply(world0, as.data.frame)
-	pop    <- do.call('rbind',z)
-	ws     <- ddply(pop, c('id_au','sp_type'), summarize, 
-					n_sp    = length(id_sp),
-					n_indiv = length(id_indiv))
-	message("Processing done.")
-}
-
-### ==== PLOTS ==== 
-
-if(do.plot){
-	message("Plotting results...")
-	
-	# Population:
-	if (save.plot.to.file) pdf('plot_pop.pdf', width = 30,height = 18)
-	library(profvis)
-	profvis({
-		try( plot.population(pop),  silent = T)
-		try( plot.n.contacts(res$track_n_contacts),  silent = T)
-		try( plot.age.contact.matrix(res),  silent = T)
-		try( plot.sp.sz.distrib(pop,world.prm) , silent = T)
-		try( plot.share.same.hh(pop), silent = F)
-	})
-	if (save.plot.to.file) dev.off()
-	
-	# Time series:
-	if (save.plot.to.file) pdf('plot_ts.pdf', width = 25,height = 15)
-	try( plot.epi.timeseries(ts),  silent = T)
-	try( grid.arrange(plot.ts.sp(res$time_series_sp),
-					  plot.ts.sp(res$time_series_sp, facets = T)), 
-		 silent = T)
-	if (save.plot.to.file) dev.off()
-	
-	message("Plotting done.")
-}
-
-# End
-t2 <- as.numeric(Sys.time())
 message(paste("Simulation computing time:",round((t1-t0)/60,1),"min"))
-message(paste("Total elapsed time:       ",round((t2-t0)/60,1),"min"))
+
 

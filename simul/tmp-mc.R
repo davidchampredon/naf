@@ -40,3 +40,8 @@ g <- ggplot(df,aes(x=timeround))+geom_line(aes(y=md),size=1)
 g <- g + geom_line(aes(y=q.lo)) + geom_line(aes(y=q.hi))
 g <- g + scale_y_log10()
 plot(g)
+
+
+
+res <- res.list[[1]]
+nc <- as.data.frame(res$track_n_contacts)

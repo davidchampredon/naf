@@ -1,6 +1,7 @@
 
 library(plyr)
 library(gridExtra)
+library(tidyr)
 
 
 synthetic_age_adult <- function(age.adult){
@@ -39,17 +40,20 @@ merge.pop.mc <- function(res.list) {
 }
 
 
-merge.ts.mc <- function(res.list, is.contact=FALSE){
+merge.ts.mc <- function(res.list, is.contact=FALSE, is.sp=FALSE){
 	# Merge all MC iterations into one single data frame for population.
 	
 	ts.list <- list()
 	print('Merging time series...')
 	if(is.contact) print('(contacts)')
+	if(is.sp) print('(social places)')
+	
 	for(i in seq_along(res.list)){
 		print(paste(i,'/',length(res.list)))
 		res   <- res.list[[i]]
 		if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
 		if(!is.contact) ts    <- as.data.frame(res[['time_series']])
+		if(is.sp)       ts    <- as.data.frame(res[['time_series_sp']])
 		ts$mc <- i
 		ts.list[[i]] <- ts
 	}
@@ -571,7 +575,50 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 }
 
+
+
 plot.epi.timeseries <- function(ts){
+	ts$death_incidence <- c(ts$nD[1],diff(ts$nD))
+	
+	idx <- !grepl('time',names(ts))
+	idx <- idx * !grepl('mc',names(ts))
+	idx <- idx * c(1:length(idx))
+	idx <- idx[idx>0]
+	tsl <- gather(data = ts, key = "type",value = "n",idx)
+	tsl$day <- round(tsl$time)
+	
+	D <- ddply(tsl,c('day','type'),summarise, 
+			   m = median(n),
+			   q.lo = quantile(n,probs = 0.025),
+			   q.hi = quantile(n,probs = 0.975))
+	
+	plot.ts <- function(D, do.log, title='') {
+		g <- ggplot(D) + geom_line(aes(x=day, y=m+0.1, colour=type),size=1)
+		g <- g + geom_ribbon(aes(x=day,ymin=q.lo,ymax=q.hi,fill=type),alpha=0.2)
+		if(do.log) g <- g + scale_y_log10()
+		g <- g + ylab('') + ggtitle(title)
+		return(g)
+	}
+	
+	D.SR <- subset(D, type %in% c('nS','nR'))
+	D.E <- subset(D, type %in% c('nE'))
+	D.I <- subset(D, type %in% c('nIa','nIs','prevalence'))
+	
+	D.i.vt <- subset(D, type %in% c('incidence','n_treated','n_vaccinated'))
+	D.d.vt <- subset(D, type %in% c('death_incidence','n_treated','n_vaccinated'))
+	
+	grid.arrange(
+		plot.ts(D.SR, do.log=F, title='Susceptible & Recovered'),
+		plot.ts(D.E, do.log=T, title='Exposed'),
+		plot.ts(D.I, do.log=F,title = 'Prevalence'),
+		plot.ts(D.I, do.log=T,title = 'Prevalence (log-scale)'),
+		plot.ts(D.i.vt, do.log=T, title = 'Incidence, vaccination & treatment'),
+		plot.ts(D.d.vt, do.log=T, title = 'Deaths, vaccination & treatment')
+	)
+}
+
+# OBSOLETE, DELETE?
+plot.epi.timeseries.old <- function(ts){
 	### Plot time series
 	
 	ts$death_incidence <- c(ts$nD[1],diff(ts$nD))
@@ -641,7 +688,29 @@ plot.epi.timeseries <- function(ts){
 				 g.death.inc)
 }
 
-plot.ts.sp <- function(ts, facets=FALSE){
+
+plot.ts.sp <- function(tssp){
+	
+	tssp$timeround <- floor(tssp$time)
+	df0 <- ddply(tssp,c('timeround','type','mc'),summarize, n=sum(nE))
+	
+	df <- ddply(df0,c('timeround','type'),summarize, 
+				m=median(n), 
+				q.lo=quantile(n,probs=0.025),
+				q.hi=quantile(n,probs=0.975))
+	
+	g <- ggplot(df,aes(x=timeround))
+	g <- g +geom_line(aes(colour=type, y=m),size=1) #+ geom_point(aes(colour=type, y=m))
+	g <- g + geom_ribbon(aes(ymin=q.lo, ymax=q.hi, fill=type),alpha=0.2)
+	g <- g + ggtitle("Exposed individuals, by SP types") + xlab('day')
+	g <- g + scale_y_log10()
+	
+	gf <- g +facet_wrap(~type)
+	grid.arrange(g,gf)
+}
+
+# OBSOLETE, DELETE??
+plot.ts.sp.old <- function(ts, facets=FALSE){
 	
 	zz <- data.frame(matrix(unlist(ts),ncol = length(ts)))
 	names(zz) <- names(ts)
