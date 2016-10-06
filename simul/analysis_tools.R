@@ -1,4 +1,6 @@
-
+library(profvis)
+library(snowfall)
+library(ggplot2)
 library(plyr)
 library(gridExtra)
 library(tidyr)
@@ -20,43 +22,58 @@ synthetic_age_adult <- function(age.adult){
 
 
 
-merge.pop.mc <- function(res.list) {
+merge.pop.mc <- function(res.list, n.cpu) {
 	# Merge all MC iterations into one single data frame for population.
 	
-	pop.list <- list()
-	print('Merging populations...')
-	for(i in seq_along(res.list)){
-		print(paste(i,'/',length(res.list)))
+	snwrap <- function(i){
 		res <- res.list[[i]]
 		world0 <- res[['world']]
 		z      <- lapply(world0, as.data.frame)
 		pop    <- do.call('rbind.data.frame',z)
 		pop$mc <- i
-		pop.list[[i]] <- pop
+		return(pop)
 	}
+	
+	sfInit(parallel = TRUE, cpu = n.cpu)
+	pop.list <- list()
+	print('Merging populations...')
+	pop.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
+	sfStop()
 	pop.all <- do.call('rbind.data.frame',pop.list)
 	print('... populations merged.')
 	return(pop.all)
 }
 
 
-merge.ts.mc <- function(res.list, is.contact=FALSE, is.sp=FALSE){
+merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
 	# Merge all MC iterations into one single data frame for population.
 	
-	ts.list <- list()
 	print('Merging time series...')
 	if(is.contact) print('(contacts)')
 	if(is.sp) print('(social places)')
 	
-	for(i in seq_along(res.list)){
-		print(paste(i,'/',length(res.list)))
+	snwrap <- function(i){
 		res   <- res.list[[i]]
 		if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
 		if(!is.contact) ts    <- as.data.frame(res[['time_series']])
 		if(is.sp)       ts    <- as.data.frame(res[['time_series_sp']])
 		ts$mc <- i
-		ts.list[[i]] <- ts
+		return(ts)
 	}
+	
+	# for(i in seq_along(res.list)){
+	# 	print(paste(i,'/',length(res.list)))
+	# 	res   <- res.list[[i]]
+	# 	if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
+	# 	if(!is.contact) ts    <- as.data.frame(res[['time_series']])
+	# 	if(is.sp)       ts    <- as.data.frame(res[['time_series_sp']])
+	# 	ts$mc <- i
+	# 	ts.list[[i]] <- ts
+	# }
+	sfInit(parallel = TRUE, cpu = n.cpu)
+	ts.list <- list()
+	ts.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
+	sfStop()
 	ts.all <-  do.call('rbind.data.frame',ts.list)
 	print('... time series merged.')
 	return(ts.all)
