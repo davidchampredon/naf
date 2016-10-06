@@ -1,4 +1,7 @@
 i <-1
+
+library(plyr)
+
 pop.list <- list()
 for(i in seq_along(res.list)){
 	print(i)
@@ -24,4 +27,16 @@ for(i in seq_along(res.list)){
 }
 ts.all <-  do.call('rbind.data.frame',ts.list)
 
-ggplot(ts.all) + geom_line(aes(x=time, y=nE, colour=factor(mc))) + scale_y_log10()
+ggplot(ts.all) + geom_line(aes(x=time, y=nIa, colour=factor(mc))) + scale_y_log10()
+
+ts.all$timeround <- round(ts.all$time)
+
+df <- ddply(ts.all, c('timeround'),summarise,
+			md=median(nIa),
+			q.lo=quantile(nIa,probs = 0.025),
+			q.hi=quantile(nIa,probs = 0.975))
+		
+g <- ggplot(df,aes(x=timeround))+geom_line(aes(y=md),size=1)
+g <- g + geom_line(aes(y=q.lo)) + geom_line(aes(y=q.hi))
+g <- g + scale_y_log10()
+plot(g)
