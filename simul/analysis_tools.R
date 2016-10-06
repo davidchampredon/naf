@@ -18,15 +18,92 @@ synthetic_age_adult <- function(age.adult){
 }
 
 
-plot.binomial.regression <- function(dat, xvar, binomial_response, title) {
+
+merge.pop.mc <- function(res.list) {
+	# Merge all MC iterations into one single data frame for population.
+	
+	pop.list <- list()
+	print('Merging populations...')
+	for(i in seq_along(res.list)){
+		print(paste(i,'/',length(res.list)))
+		res <- res.list[[i]]
+		world0 <- res[['world']]
+		z      <- lapply(world0, as.data.frame)
+		pop    <- do.call('rbind.data.frame',z)
+		pop$mc <- i
+		pop.list[[i]] <- pop
+	}
+	pop.all <- do.call('rbind.data.frame',pop.list)
+	print('... populations merged.')
+	return(pop.all)
+}
+
+
+merge.ts.mc <- function(res.list, is.contact=FALSE){
+	# Merge all MC iterations into one single data frame for population.
+	
+	ts.list <- list()
+	print('Merging time series...')
+	if(is.contact) print('(contacts)')
+	for(i in seq_along(res.list)){
+		print(paste(i,'/',length(res.list)))
+		res   <- res.list[[i]]
+		if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
+		if(!is.contact) ts    <- as.data.frame(res[['time_series']])
+		ts$mc <- i
+		ts.list[[i]] <- ts
+	}
+	ts.all <-  do.call('rbind.data.frame',ts.list)
+	print('... time series merged.')
+	return(ts.all)
+}
+
+
+average.age.contact <- function(res.list){
+
+	A.list <- list()
+	print('Averaging age-contact matrices...')
+	for(l in seq_along(res.list)){
+		print(paste(l,'/',length(res.list)))
+		x <- res.list[[l]]$wiw_ages
+		m <- matrix(unlist(x), ncol=length(x))
+		m.max <- ceiling(max(m))
+		
+		A <- matrix(nrow = m.max, ncol=m.max, data = 0)
+		ages <- 1:m.max
+		row.names(A) <- ages
+		colnames(A)  <- ages
+		
+		for(q in 1:nrow(m)){
+			i <- ceiling(m[q,1])
+			j <- ceiling(m[q,2])
+			A[i,j] <- A[i,j] + 1
+		}
+		A.list[[l]] <- log(1+A)
+	}
+	A.mean <- apply(simplify2array(A.list), 1:2, mean)
+	print('... matrices averaged.')
+	return(A.mean)
+}
+
+
+plot.binomial.regression <- function(dat, xvar, binomial_response, title, split.mc=FALSE) {
 	n <- nrow(dat)
 	
 	g <- ggplot(dat) 
 	if(n<1000) g <- g + geom_point(aes_string(x=xvar,y=binomial_response), alpha=0.3) 
-	g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response), 
+	if(!split.mc) g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response), 
 						 method = "glm", 
 						 method.args = list(family = "binomial"), 
 						 colour='red3',size=2,se = F)
+	if(split.mc) {
+		dat$mc <- as.factor(dat$mc)
+		g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response, colour='mc'), 
+									  method = "glm", 
+									  method.args = list(family = "binomial"), 
+									  alpha = 0.6,
+									  size=2,se = F)
+	}
 	g <- g + ggtitle(title)
 	return(g)
 }
@@ -49,9 +126,7 @@ plot.density.categ <- function(dat, xvar, categ, title) {
 	return(g)
 }
 
-
-
-
+# DELETE, OBSOLETE???:
 plot.age.contact.matrix <- function(res) {
 	
 	# Desired contact assortativity:
@@ -98,14 +173,47 @@ plot.age.contact.matrix <- function(res) {
 }
 
 
+plot.age.contact.matrix.avg <- function(res.list) {
+	
+	# Desired contact assortativity:
+	y <- res.list[[1]]$contactAssort
+	D <- matrix(unlist(res$contactAssort), ncol = length(y))
+	
+	# Effective contacts from simulation:
+	A.plot <- average.age.contact(res.list)
+	
+	# -- PLOTS --
+	
+	par(mfrow = c(1,2), cex.lab=1.7,cex.axis=1.7)
+	
+	na <- ncol(A)
+	D.plot <- D[1:(na+1),1:(na+1)]
+	
+	image(x=0:na, y=0:na, z=D.plot, 
+		  col = topo.colors(12), 
+		  main='Input contact assortativity',
+		  xlab = 'age', ylab='age', las=1)
+	abline(a=0,b=1,lty=2); grid()
+	
+	image(A.plot,x = 1:m.max, y=1:m.max, zlim = c(0,max(A.plot)), 
+		  ylab = 'infector\'s age',
+		  xlab = 'infectee\'s age',
+		  las = 1,
+		  main = 'Simulated effective contact age matrix\n(averaged across all MC iterations)',
+		  col  = topo.colors(12))
+	abline(a=0,b=1,lty=2); grid()
+}
+
+
+
 plot.n.contacts <- function(nc){
-	df0 <- data.frame(time=nc$time, uid=nc$uid, n=nc$nContacts)
+	df0 <- data.frame(time=nc$time, uid=nc$uid, n=nc$nContacts, mc=nc$mc)
 	df0$timeround <- ceiling(df0$time)
 	
 	df    <- ddply(df0, c('timeround','uid'),summarize, ncontacts = sum(n))
-	df.ts <- ddply(df0, c('timeround'),summarize, tot.contacts = sum(n))
+	df.ts <- ddply(df0, c('timeround','mc'), summarize, tot.contacts = sum(n))
 	
-	gts <- ggplot(df.ts, aes(x=timeround, y=tot.contacts))+ geom_step()
+	gts <- ggplot(df.ts, aes(x=timeround, y=tot.contacts, colour=factor(mc)))+ geom_step(size=2, alpha=0.5)
 	gts <- gts + scale_y_log10() + ggtitle('Total number of contacts')+xlab('time')+ylab('')
 	
 	# Distribution
@@ -137,8 +245,14 @@ plot.sched <- function(pop){
 }
 
 
+plot.age.distrib.mc <- function(pop){
+	g <- ggplot(pop)
+	g.age <- g + geom_density(aes(x=age, colour=factor(mc)))
+	g.age <- g.age + ggtitle('Age distribution')
+	return(g.age)
+}
 
-plot.population <- function(pop) {
+plot.population <- function(pop, split.mc = TRUE) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
 	pop.hosp <- subset(pop, hosp>0)
@@ -151,6 +265,8 @@ plot.population <- function(pop) {
 	g.age <- g + geom_histogram(aes(x=age), binwidth=2, fill='darkgrey', colour = 'black')
 	g.age <- g.age + ggtitle('Age distribution')
 	
+	g.age.dist <- plot.age.distrib.mc(pop)
+	
 	g.age.death.dist <- plot.density.categ(dat = pop, 
 										   xvar='age',
 										   categ = 'is_alive',
@@ -161,17 +277,20 @@ plot.population <- function(pop) {
 	g.death.frailty <- plot.binomial.regression(dat = pop, 
 												xvar='frailty',
 												binomial_response = 'is_alive',
-												title='Death and Frailty')
+												title='Survival and Frailty',
+												split.mc=split.mc)
 	
 	g.death.imm.hum <- plot.binomial.regression(dat = pop, 
 												xvar='immunity_hum',
 												binomial_response = 'is_alive',
-												title='Death and Humoral Immunity')
+												title='Survival and Humoral Immunity',
+												split.mc=split.mc)
 	
 	g.death.imm.cell <- plot.binomial.regression(dat = pop, 
 												 xvar='immunity_cell',
 												 binomial_response = 'is_alive',
-												 title='Death and Cellular Immunity')
+												 title='Survival and Cellular Immunity',
+												 split.mc=split.mc)
 	
 	
 	g.death.frailty.dist <- plot.density.categ(dat = pop, 
@@ -250,20 +369,24 @@ plot.population <- function(pop) {
 	
 	g.frail.hosp <- plot.binomial.regression(dat = pop, xvar = 'frailty',
 											 binomial_response = 'hosp',
-											 title = 'Hospitalization and frailty')
+											 title = 'Hospitalization and frailty',
+											 split.mc=split.mc)
 	
 	g.imm.hum.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_hum',
 											   binomial_response = 'hosp',
-											   title = 'Hospitalization and humoral immunity')
+											   title = 'Hospitalization and humoral immunity',
+											   split.mc=split.mc)
 	
 	g.imm.cell.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_cell',
 												binomial_response = 'hosp',
-												title = 'Hospitalization and cellular immunity')
+												title = 'Hospitalization and cellular immunity',
+												split.mc=split.mc)
 	
 	
 	g.age.hosp <- plot.binomial.regression(dat = pop, xvar = 'age',
 										   binomial_response = 'hosp',
-										   title = 'Hospitalization and age')
+										   title = 'Hospitalization and age',
+										   split.mc=split.mc)
 	
 	
 	pop.treat.hosp <- ddply(pop,c('hosp','is_treated'),summarize, n=length(id_indiv))
@@ -414,6 +537,7 @@ plot.population <- function(pop) {
 	### ==== Final ====
 	
 	grid.arrange(g.age, 
+				 g.age.dist,
 				 g.age.imm.hum,
 				 g.age.imm.cell,
 				 g.age.fra,
@@ -543,7 +667,7 @@ plot.ts.sp <- function(ts, facets=FALSE){
 
 
 
-
+# DELETE, OBSOLETE?
 plot.sp.one <- function(pop, world.prm, name.in, name.out){
 	
 	undefined.id <- 999999999
@@ -582,7 +706,7 @@ plot.sp.one <- function(pop, world.prm, name.in, name.out){
 }
 
 
-
+# DELETE, OBSOLETE?
 plot.sp.sz.distrib <- function(pop,world.prm) {
 	
 	name.in.vec  <- c('hh_size','wrk_size', 'school_size', 'pubt_size', 'other_size')
@@ -594,6 +718,71 @@ plot.sp.sz.distrib <- function(pop,world.prm) {
 					name.in  = name.in.vec[i], 
 					name.out = name.out.vec[i])
 	}
+}
+
+
+plot.sp.sz.distrib.new <- function(pop , world.prm) {
+	
+	# Process simulation results:
+	x <- ddply(pop,c('id_au','mc', 'sp_type','id_sp'),summarise, size=mean(n_linked))
+	y <- ddply(x,c('id_au','mc', 'sp_type','size'),summarise, n=length(size))
+	z <- ddply(y,c('id_au','mc', 'sp_type'),summarise, tot=sum(n))
+	
+	y$key <- paste(y$id_au, y$mc, y$sp_type, sep='_')
+	z$key <- paste(z$id_au, z$mc, z$sp_type, sep='_')
+	
+	a <- join(y,z,by='key')
+	a$freq <- a$n/a$tot
+	a$mc<- as.factor(a$mc)
+	
+	a$sp_type_string <- NA
+	a$sp_type_string[a$sp_type==0] <- 'Household'
+	a$sp_type_string[a$sp_type==1] <- 'Workplace'
+	a$sp_type_string[a$sp_type==2] <- 'School'
+	a$sp_type_string[a$sp_type==3] <- 'Other'
+	a$sp_type_string[a$sp_type==5] <- 'PubTransp'
+	
+	a$id_au_string <- paste('AU',a$id_au)
+	
+	# Read target distributions and reformat in data frame
+	
+	hh.x <- world.prm$hh_size
+	hh.y <- world.prm$hh_size_proba
+	wrk.x <- world.prm$wrk_size
+	wrk.y <- world.prm$wrk_size_proba
+	school.x <- world.prm$school_size
+	school.y <- world.prm$school_size_proba
+	pubt.x  <- world.prm$pubt_size
+	pubt.y  <- world.prm$pubt_size_proba
+	other.x <- world.prm$other_size
+	other.y <- world.prm$other_size_proba
+	
+	df <- data.frame(id_au_string=NULL, size=NULL, freq=NULL, mc=NULL,sp_type_string=NULL)	
+	
+	for(i in 1:length(hh.x)){
+		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=hh.x[[i]], freq=hh.y[[i]], mc=1,sp_type_string='Household')	
+		df <- rbind(df,df.tmp)
+		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=wrk.x[[i]], freq=wrk.y[[i]], mc=1,sp_type_string='Workplace')	
+		df <- rbind(df,df.tmp)
+		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=school.x[[i]], freq=school.y[[i]], mc=1,sp_type_string='School')	
+		df <- rbind(df,df.tmp)
+		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=pubt.x[[i]], freq=pubt.y[[i]], mc=1,sp_type_string='PubTransp')	
+		df <- rbind(df,df.tmp)
+		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=other.x[[i]], freq=other.y[[i]], mc=1,sp_type_string='Other')	
+		df <- rbind(df,df.tmp)
+	}
+	df$mc <- as.factor(df$mc)
+	df$sp_type_string <- as.character(df$sp_type_string)
+	df$id_au_string <- as.character(df$id_au_string)
+	
+	# Plot
+	
+	g <- ggplot(a,aes(x=size,y=freq,colour=mc)) + geom_point() +geom_line()
+	g <- g + facet_wrap(~sp_type_string+id_au_string, scales='free') + coord_cartesian(ylim=c(0,1))
+	g <- g + geom_line(data = df, aes(x=size,y=freq), colour='black',size=2, alpha=0.25)
+	g <- g + geom_point(data = df, aes(x=size,y=freq), colour='black',size=3, alpha=0.5, shape=15)
+	g <- g + ggtitle('Distributions of Social Places sizes')
+	plot(g)
 }
 
 
