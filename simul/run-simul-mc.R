@@ -108,8 +108,8 @@ run.snow.wrap <- function(seedMC,
 
 ### ==== Run Simulation ====
 
-n.MC  <- 3
-n.cpu <- 3
+n.MC  <- simul.prm[['mc']]
+n.cpu <- simul.prm[['cpu']]
 seeds <- 1:n.MC
 
 sfInit(parallel = TRUE, cpu = n.cpu)
