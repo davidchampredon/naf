@@ -5,7 +5,7 @@
 
 === MAJOR ITEMS ===
 
-- Monte Carlo engine
+- Make output and plots for interventions comparison
 
 - immunities are deterministically allocated: change to stochastic?
 
