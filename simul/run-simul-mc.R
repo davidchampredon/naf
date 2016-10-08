@@ -115,6 +115,16 @@ seeds <- 1:n.MC
 sfInit(parallel = TRUE, cpu = n.cpu)
 sfLibrary(naf,lib.loc = R.library.dir) 
 
+# Baseline scenario:
+res.list.0 <- sfSapply(seeds, run.snow.wrap,
+					   prm        = prm, 
+					   simul.prm  = simul.prm, 
+					   interv.prm = interv.prm.0, 
+					   world.prm  = world.prm, 
+					   sched.prm  = sched.prm,
+					   simplify   = FALSE)
+
+# Interventions:
 res.list <- sfSapply(seeds, run.snow.wrap,
 					 prm        = prm, 
 					 simul.prm  = simul.prm, 

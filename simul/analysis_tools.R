@@ -636,75 +636,49 @@ plot.epi.timeseries <- function(ts){
 	)
 }
 
-# OBSOLETE, DELETE?
-plot.epi.timeseries.old <- function(ts){
-	### Plot time series
-	
+
+plot.epi.timeseries.comp <- function(ts){
 	ts$death_incidence <- c(ts$nD[1],diff(ts$nD))
 	
-	g.SR <- ggplot(ts, aes(x=time))
-	g.SR <- g.SR + geom_step(aes(y=nS),colour='springgreen3', size=2) 
-	g.SR <- g.SR + geom_step(aes(y=nR),colour='blue', size=2)
-	g.SR <- g.SR + geom_step(aes(y=n_vaccinated),colour='springgreen2', linetype = 1)
-	g.SR <- g.SR + geom_step(aes(y=n_treated),colour='tomato', linetype = 1)
-	g.SR <- g.SR + ggtitle("Susceptible, recovered, vaccinated, treated") + ylab("")
+	idx <- !grepl('time',names(ts))
+	idx <- idx * !grepl('mc',names(ts))
+	idx <- idx * !grepl('scen',names(ts))
+	idx <- idx * c(1:length(idx))
+	idx <- idx[idx>0]
+	tsl <- gather(data = ts, key = "type",value = "n",idx)
+	tsl$day <- round(tsl$time)
 	
-	g.inf <- ggplot(ts, aes(x=time))
-	g.inf <- g.inf + geom_step(aes(y=nE),colour='orange',size=2) 
-	g.inf <- g.inf + geom_step(aes(y=nIs),colour='red',size=2)
-	g.inf <- g.inf + geom_step(aes(y=nIa),colour='red')
-	g.inf <- g.inf + geom_step(aes(y=nIa+nIs),colour='red',linetype=3)
-	g.inf <- g.inf + geom_step(aes(y=nE+nIa+nIs),colour='grey70',linetype=3)
-	g.inf <- g.inf + geom_step(aes(y=n_treated), colour='cyan', linetype = 2)
-	g.inf <- g.inf + geom_step(aes(y=n_vaccinated), colour='springgreen2', linetype = 2)
-	g.inf <- g.inf + geom_step(aes(y=death_incidence), colour='black', linetype = 1)
-	g.inf <- g.inf + ggtitle("All latent (nE, orange), Infectious (Ia & Is[bold])\n treated, vaccinated (dashed) and death (black)") + ylab("")
+	D <- ddply(tsl,c('day','type','scen'),summarise, 
+			   m = median(n),
+			   q.lo = quantile(n,probs = 0.025),
+			   q.hi = quantile(n,probs = 0.975))
 	
-	# incidence 
+	plot.ts <- function(D, do.log, title='') {
+		g <- ggplot(D) + geom_line(aes(x=day, y=m+0.1, colour=scen),
+								   size=1)
+		g <- g + geom_ribbon(aes(x=day,ymin=q.lo,ymax=q.hi, fill=scen),alpha=0.2)
+		if(do.log) g <- g + scale_y_log10()
+		g <- g + ylab('') + ggtitle(title)
+		g <- g + facet_wrap(~type,scales = 'free')
+		return(g)
+	}
 	
-	g.inc <- ggplot(ts, aes(x=time))
-	g.inc <- g.inc + geom_step(aes(y=incidence), colour='grey') + geom_point(aes(y=incidence),size=1)
-	g.inc <- g.inc + ggtitle("Raw Incidence") + ylab("")
+	D.SR <- subset(D, type %in% c('nS','nR'))
+	D.E <- subset(D, type %in% c('nE'))
+	D.I <- subset(D, type %in% c('nIa','nIs','prevalence'))
+	D.cuminc <- subset(D, type %in% c('cuminc'))
 	
-	ts$cuminc <- cumsum(ts$incidence)
-	g.cuminc <- ggplot(ts, aes(x=time))
-	g.cuminc <- g.cuminc + geom_step(aes(y=cuminc)) 
-	g.cuminc <- g.cuminc + ggtitle("Cumulative Incidence") + ylab("")
+	D.i.vt <- subset(D, type %in% c('incidence','nD'))
+	D.d.vt <- subset(D, type %in% c('n_treated','n_vaccinated'))
 	
-	ts$timeround <- floor(ts$time)
-	ts2 <- ddply(ts, c('timeround'), summarize,
-				 dailyinc=sum(incidence))
-	g.dailyinc <- ggplot(ts2, aes(x=timeround))
-	g.dailyinc <- g.dailyinc + geom_step(aes(y=dailyinc))
-	# g.dailyinc <- g.dailyinc + geom_point(aes(y=dailyinc))
-	g.dailyinc <- g.dailyinc + ggtitle('Daily incidence') + xlab('day')+ylab('')
-	
-	g.dailyinc.log <- g.dailyinc + scale_y_log10()
-	
-	g.prev <- ggplot(ts, aes(x=time))
-	g.prev <- g.prev + geom_step(aes(y=prevalence))
-	g.prev <- g.prev + ggtitle("Prevalence") + ylab("")
-	g.prev.log <- g.prev + scale_y_log10()
-	
-	g.death <- ggplot(ts, aes(x=time))
-	g.death <- g.death + geom_step(aes(y=nD))
-	g.death <- g.death + ggtitle("Cumulative Deaths") + ylab("")
-	
-	g.death.inc <- ggplot(ts, aes(x=time))
-	g.death.inc <- g.death.inc + geom_step(aes(y=death_incidence))
-	g.death.inc <- g.death.inc + ggtitle("Deaths incidence") + ylab("")
-	
-	
-	grid.arrange(g.SR ,
-				 g.inf, 
-				 g.inc,
-				 g.cuminc,
-				 g.dailyinc,
-				 g.dailyinc.log,
-				 g.prev,
-				 g.prev.log,
-				 g.death,
-				 g.death.inc)
+	grid.arrange(
+		plot.ts(D.SR, do.log=F, title='Susceptible & Recovered'),
+		plot.ts(D.E, do.log=T, title='Exposed'),
+		plot.ts(D.I, do.log=F,title = 'Prevalence'),
+		plot.ts(D.I, do.log=T,title = 'Prevalence (log-scale)'),
+		plot.ts(D.i.vt, do.log=F, title = 'Incidence & Cumul Deaths'),
+		plot.ts(D.d.vt, do.log=F, title = 'Vaccination & treatment')
+	)
 }
 
 
@@ -726,86 +700,6 @@ plot.ts.sp <- function(tssp){
 	
 	gf <- g +facet_wrap(~type)
 	grid.arrange(g,gf)
-}
-
-# OBSOLETE, DELETE??
-plot.ts.sp.old <- function(ts, facets=FALSE){
-	
-	zz <- data.frame(matrix(unlist(ts),ncol = length(ts)))
-	names(zz) <- names(ts)
-	
-	myconv <- function(x) {
-		return(as.numeric(as.character(x)))
-	}
-	zz$time <- myconv(zz$time)
-	zz$id_sp<- myconv(zz$id_sp)
-	zz$nS <- myconv(zz$nS)
-	zz$nE <- myconv(zz$nE)
-	
-	zz$timeround <- floor(zz$time)
-	df <- ddply(zz,c('timeround','type'),summarize, n=sum(nE))
-	
-	g <- ggplot(df,aes(x=timeround, y=n, colour=type, shape=type))
-	g <- g + geom_point()+geom_line(size=0.2)
-	if(facets) g <- g +facet_wrap(~type)
-	g <- g + ggtitle("Exposed individuals, by SP types") + xlab('day')
-	g <- g + scale_y_log10()
-	return(g)
-}
-
-
-
-# DELETE, OBSOLETE?
-plot.sp.one <- function(pop, world.prm, name.in, name.out){
-	
-	undefined.id <- 999999999
-	
-	for(id.au in unique(pop$id_au))
-	{
-		pop.au <- subset(pop, id_au==id.au)
-		pop.au <- pop.au[pop.au[,name.out] < undefined.id, ]
-		df <- ddply(pop.au, name.out, function(x){c(sz=length(x[,name.out]))})
-		df <- ddply(df,'sz',summarise, n=length(sz))
-		
-		sz.out <- df$sz
-		pr.out <- df$n/sum(df$n)
-		sz.in <- world.prm[[name.in]][[id.au+1]]
-		pr.in <- world.prm[[paste0(name.in,'_proba')]][[id.au+1]]
-		
-		plot(x = sz.out, 
-			 y = pr.out, 
-			 main = paste0('Size Distribution in AU_',id.au),
-			 ylim = range(pr.out, pr.in),
-			 xlim = range(sz.in, sz.out),
-			 xlab = name.in, ylab='prop', las=1,
-			 typ ='l', lwd = 2)
-		
-		lines(x = sz.in, 
-			   y = pr.in, 
-			   pch = 3, cex=2, lwd=2,
-			   col='red', typ='o')
-		points(x = sz.out, y = pr.out, 
-			   pch=1, lwd = 2, cex=1.5)
-		
-		legend(x='topright', pch=c(3,1), col=c('red','black'), 
-			   pt.lwd = 3,pt.cex=1,
-			   legend=c('Target','Realized'))
-	}
-}
-
-
-# DELETE, OBSOLETE?
-plot.sp.sz.distrib <- function(pop,world.prm) {
-	
-	name.in.vec  <- c('hh_size','wrk_size', 'school_size', 'pubt_size', 'other_size')
-	name.out.vec <- c('id_hh',  'id_wrk',   'id_school',   'id_pubTr',  'id_other')
-	
-	par(mfrow=c(5,2), cex.lab=2, cex.axis=2)
-	for(i in seq_along(name.out.vec)){
-		plot.sp.one(pop, world.prm, 
-					name.in  = name.in.vec[i], 
-					name.out = name.out.vec[i])
-	}
 }
 
 
@@ -896,3 +790,46 @@ plot.share.same.hh <- function(pop) {
 }
 
 
+
+diff.flex <- function(x,y){
+	nx <- length(x)
+	ny <- length(y)
+	res <- numeric(max(nx,ny))
+	
+	if(nx >ny){
+		res[1:ny] <- x[1:ny] - y
+		res[(ny+1):nx] <- x[(ny+1):nx]
+	}
+	else if(nx<ny){
+		res[1:nx] <- x - y[1:nx]
+		res[(nx+1):ny] <- -y[(nx+1):ny]
+	}
+	else if(nx==ny){
+		res = x-y
+	}
+	return(res)
+}
+
+
+plot.ts.comp <- function(df,var.name) {
+	df$day <- round(df$time,0)
+	df$var <- df[,var.name]
+	df2 <- ddply(df,c('day'),summarize, 
+				 m = mean(var),
+				 md = median(var),
+				 q.lo = quantile(var,probs = 0.025),
+				 q.hi = quantile(var,probs = 0.975))
+	
+	g <- ggplot(df2) + geom_line(aes(x=day,y=m),size=1) + geom_line(aes(x=day,y=md),linetype=2)  
+	g <- g + geom_ribbon(aes(x=day,ymin=q.lo,ymax=q.hi),alpha=0.2)
+	g <- g + ggtitle(var.name)
+	g
+}
+
+plot.ts.comp.all <- function(){
+	grid.arrange(
+		plot.ts.comp(df,'dinc'),
+		plot.ts.comp(df,'dIs'),
+		plot.ts.comp(df,'dIa')
+	)
+}
