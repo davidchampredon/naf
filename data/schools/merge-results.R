@@ -9,6 +9,4 @@ for(i in seq_along(x)){
 }
 
 dfall <- do.call('rbind',dflist)
-
-
 save(dfall,file = 'dfall.RData')

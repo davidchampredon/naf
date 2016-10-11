@@ -1,4 +1,4 @@
-Rscript hack-website.R 1 50 &
-Rscript hack-website.R 51 100 &
-Rscript hack-website.R 101 150 &
-Rscript hack-website.R 151 200 &
+# done:: Rscript hack-website.R 1 10 
+# done:: Rscript hack-website.R 11 600 ; Rscript hack-website.R 601 1000  
+Rscript hack-website.R 1001 2000 > out-1-2.txt; Rscript hack-website.R 2001 3000 > out-2-3.txt 
+# Rscript hack-website.R 3001 4000 > out-3-4.txt; Rscript hack-website.R 4001 4988 > out-4-5.txt
