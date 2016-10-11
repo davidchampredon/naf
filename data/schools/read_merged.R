@@ -16,11 +16,12 @@ write.table(df.save,file='size-distrib-schools-ontario.csv',
 			row.names = F, sep=',',quote = F)
 
 
-# plot(density(dfall$enrolment,adjust = 0.5))
 h <- hist(dfall$enrolment, 
 		  breaks = seq(0,1000,by=50),
 		  las = 1,
 		  freq = F, col='lightgrey')
+lines(density(dfall$enrolment,adjust = 0.5))
 xx <- seq(0,1500, by = 1)
 yy <- dlnorm(xx,meanlog = mean(log(m)), sdlog = 0.6)
-lines(xx,yy,col='red')
+lines(xx,yy,col='red', lty=2)
+
