@@ -1,0 +1,2 @@
+Rscript merge-results.R
+Rscript read_merged.R

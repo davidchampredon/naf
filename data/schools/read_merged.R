@@ -1,6 +1,9 @@
 load('dfall.RData')
 nrow(dfall)
-h <- hist(dfall$enrolment, breaks=seq(0,1000,by=50),freq = T, col='grey')
+h <- hist(dfall$enrolment, 
+		  breaks = seq(0,1000,by=50),
+		  las = 1,
+		  freq = T, col='lightgrey')
 m <- mean(dfall$enrolment)
 CI <- 0.80
 q <- quantile(dfall$enrolment, probs = c(0.5-CI/2, 0.5, 0.5+CI/2))
@@ -11,3 +14,13 @@ abline(v=m, lwd=2, lty=3, col='orange')
 df.save <- data.frame(school.size=h$mids, prop=h$counts/sum(h$counts))
 write.table(df.save,file='size-distrib-schools-ontario.csv', 
 			row.names = F, sep=',',quote = F)
+
+
+# plot(density(dfall$enrolment,adjust = 0.5))
+h <- hist(dfall$enrolment, 
+		  breaks = seq(0,1000,by=50),
+		  las = 1,
+		  freq = F, col='lightgrey')
+xx <- seq(0,1500, by = 1)
+yy <- dlnorm(xx,meanlog = mean(log(m)), sdlog = 0.6)
+lines(xx,yy,col='red')
