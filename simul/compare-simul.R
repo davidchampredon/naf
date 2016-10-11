@@ -8,7 +8,8 @@ t0 <- as.numeric(Sys.time())
 
 print('Loading simulation results ...')
 load('mc-simul.RData')
-print('... simulation results loaded.')
+t1 <- as.numeric(Sys.time())
+print(paste('... simulation results loaded in',round((t1-t0)/60,1),'minutes.'))
 
 source('analysis_tools.R')  
 save.plot.to.file <- TRUE
@@ -16,7 +17,7 @@ save.plot.to.file <- TRUE
 
 ### ==== Merge all MC iterations ====
 
-n.cpu <- parallel::detectCores()
+n.cpu <- min(parallel::detectCores(), 16)
 ts    <- merge.ts.mc(res.list,   n.cpu = n.cpu)
 ts0   <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
 
@@ -26,8 +27,8 @@ u <- rbind.data.frame(ts0,ts)
 plot.epi.timeseries.comp(u)
 
 
-
 n.mc    <- length(res.list)
+print(paste('Number of MC iterations:',n.mc))
 tmp     <- list()
 dprev   <- numeric(n.mc)
 dtreat  <- numeric(n.mc)
@@ -88,4 +89,6 @@ plot.hist(dtreat)
 plot.hist(dD)
 plot.hist(dcuminc)
 
+t2 <- as.numeric(Sys.time())
+print(paste('Full comparison completed in',round((t2-t0)/60,1),'minutes.'))
 

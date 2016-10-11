@@ -15,7 +15,7 @@ library(naf,lib.loc = "./lib")
 source('analysis_tools.R')
 source("../../SEmInR/SEmInR_deterministic.R")
 
-sfInit(parallel = TRUE, cpu = 4)
+sfInit(parallel = TRUE, cpu = 14)
 sfLibrary(naf,lib.loc = "./lib")
 
 t0 <- Sys.time()
@@ -36,7 +36,7 @@ prm[['homogeneous_contact']] <- TRUE
 prm[['contact_rate']] <- cr
 
 simul.prm[['horizon']] <- 90
-simul.prm[['n_indiv']] <- 1E5
+simul.prm[['n_indiv']] <- 1E6
 simul.prm[['initial_latent']] <- 2
 simul.prm[['nt']] <- 4
 
@@ -62,7 +62,7 @@ df  <- sim.det$ts
 det.prev <- df$Iall
 det.t <- df$time
 
-n.MC <- 30
+n.MC <- 50
 
 
 loop.MC.naf <- function(iMC, prm, simul.prm) {

@@ -26,7 +26,7 @@ merge.pop.mc <- function(res.list, n.cpu) {
 	# Merge all MC iterations into one single data frame for population.
 	
 	snwrap <- function(i){
-		res <- res.list[[i]]
+		res    <- res.list[[i]]
 		world0 <- res[['world']]
 		z      <- lapply(world0, as.data.frame)
 		pop    <- do.call('rbind.data.frame',z)
@@ -34,7 +34,7 @@ merge.pop.mc <- function(res.list, n.cpu) {
 		return(pop)
 	}
 	
-	sfInit(parallel = TRUE, cpu = n.cpu)
+	sfInit(parallel = (n.cpu>1), cpu = n.cpu)
 	pop.list <- list()
 	print('Merging populations...')
 	pop.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
@@ -47,12 +47,13 @@ merge.pop.mc <- function(res.list, n.cpu) {
 
 merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
 	# Merge all MC iterations into one single data frame for population.
-	
+  tt1 <- as.numeric(Sys.time())
 	print('Merging time series...')
 	if(is.contact) print('(contacts)')
 	if(is.sp) print('(social places)')
 	
 	snwrap <- function(i){
+	  print(paste(i,'/',length(res.list)))
 		res   <- res.list[[i]]
 		if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
 		if(!is.contact) ts    <- as.data.frame(res[['time_series']])
@@ -60,22 +61,13 @@ merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
 		ts$mc <- i
 		return(ts)
 	}
-	
-	# for(i in seq_along(res.list)){
-	# 	print(paste(i,'/',length(res.list)))
-	# 	res   <- res.list[[i]]
-	# 	if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
-	# 	if(!is.contact) ts    <- as.data.frame(res[['time_series']])
-	# 	if(is.sp)       ts    <- as.data.frame(res[['time_series_sp']])
-	# 	ts$mc <- i
-	# 	ts.list[[i]] <- ts
-	# }
 	sfInit(parallel = TRUE, cpu = n.cpu)
 	ts.list <- list()
 	ts.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
 	sfStop()
 	ts.all <-  do.call('rbind.data.frame',ts.list)
-	print('... time series merged.')
+	tt2 <- as.numeric(Sys.time())
+	print(paste('... time series merged in',round((tt2-tt1)/60,1),'minutes'))
 	return(ts.all)
 }
 
