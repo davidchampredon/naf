@@ -34,7 +34,9 @@ merge.pop.mc <- function(res.list, n.cpu) {
 		return(pop)
 	}
 	
-	sfInit(parallel = (n.cpu>1), cpu = n.cpu)
+	### ***WARNING***
+	### PARALLEL TURNED OFF BECAUSE DOES NOT WORK (FIX THIS IF TIME...)
+	sfInit(parallel = FALSE, cpu = n.cpu) 
 	pop.list <- list()
 	print('Merging populations...')
 	pop.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
@@ -61,7 +63,9 @@ merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
 		ts$mc <- i
 		return(ts)
 	}
-	sfInit(parallel = TRUE, cpu = n.cpu)
+	### ***WARNING***
+	### PARALLEL TURNED OFF BECAUSE DOES NOT WORK (FIX THIS IF TIME...)
+	sfInit(parallel = FALSE, cpu = n.cpu)
 	ts.list <- list()
 	ts.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
 	sfStop()

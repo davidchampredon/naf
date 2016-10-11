@@ -2,30 +2,29 @@
 ###   COMPARE SIMULATIONS (BASELINE vs INTERVENTION) ALREADY RUN
 ###
 
-t0 <- as.numeric(Sys.time())
+ct0 <- as.numeric(Sys.time())
+library(tidyr)
 
 ### ==== Load simulation results ====
 
 print('Loading simulation results ...')
 load('mc-simul.RData')
 t1 <- as.numeric(Sys.time())
-print(paste('... simulation results loaded in',round((t1-t0)/60,1),'minutes.'))
+print(paste('... simulation results loaded in',round((t1-ct0)/60,1),'minutes.'))
 
 source('analysis_tools.R')  
 save.plot.to.file <- TRUE
-
+max.cpu <- 1
 
 ### ==== Merge all MC iterations ====
 
-n.cpu <- min(parallel::detectCores(), 16)
+n.cpu <- min(parallel::detectCores(), max.cpu)
 ts    <- merge.ts.mc(res.list,   n.cpu = n.cpu)
 ts0   <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
 
 ts0$scen <- 'baseline'
 ts$scen  <- 'interv'
 u <- rbind.data.frame(ts0,ts)
-plot.epi.timeseries.comp(u)
-
 
 n.mc    <- length(res.list)
 print(paste('Number of MC iterations:',n.mc))
@@ -70,25 +69,45 @@ for(i in seq_along(res.list.0)){
 
 df <- do.call('rbind.data.frame',tmp)
 
-
-plot.ts.comp.all()
-
+#### ====== Plots =====
 
 plot.hist <- function(x) {
-	hist(x, xlim=range(0,x),
-		 col='lightgrey',
-		 yaxt='n',ylab='',xlab='',
-		 main=deparse(substitute(x)))
-	abline(v=mean(x),lty=1, lwd=4,col='red')
-	abline(v=0,lty=2, lwd=2,col='black')
+  hist(x, xlim=range(0,x),
+       col='lightgrey',
+       #yaxt='n',
+       ylab='',xlab='', las=1,
+       main=deparse(substitute(x)))
+  abline(v=mean(x),lty=1, lwd=4,col='red')
+  abline(v=0,lty=2, lwd=2,col='black')
 }
 
-par(mfrow=c(2,2))
-plot.hist(dprev)
+pdf('plot-compare.pdf',width = 15, height = 10)
+
+plot.epi.timeseries.comp(u)
+plot.ts.comp.all()
+
+par(mfrow=c(1,3))
 plot.hist(dtreat)
 plot.hist(dD)
 plot.hist(dcuminc)
 
+par(mfrow=c(1,1))
+CI <- 0.95
+df <- data.frame(dtreat,dD,dcuminc)
+df0 <- gather(df)
+df <- ddply(df0,'key',summarize, 
+            m = mean(value), 
+            md = median(value),
+            q.lo = quantile(value, probs = 0.5-CI/2),
+            q.hi = quantile(value, probs = 0.5+CI/2))
+
+g <- ggplot(df) + geom_pointrange(aes(x=key, y=md, ymin=q.lo, ymax=q.hi))
+g <- g + geom_point(aes(x=key, y=m),shape=2)
+plot(g)
+h <- ggplot(df0)+geom_density(aes(x=value),fill='blue')+facet_wrap(~key, scales='free')
+plot(h)
+
+dev.off()
 t2 <- as.numeric(Sys.time())
-print(paste('Full comparison completed in',round((t2-t0)/60,1),'minutes.'))
+print(paste('Full comparison completed in',round((t2-ct0)/60,1),'minutes.'))
 
