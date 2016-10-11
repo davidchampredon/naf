@@ -17,8 +17,8 @@ save.plot.to.file <- TRUE
 ### ==== Merge all MC iterations ====
 
 n.cpu <- parallel::detectCores()
-ts    <- merge.ts.mc(res.list, n.cpu = n.cpu)
-ts0    <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
+ts    <- merge.ts.mc(res.list,   n.cpu = n.cpu)
+ts0   <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
 
 ts0$scen <- 'baseline'
 ts$scen  <- 'interv'
