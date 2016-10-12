@@ -7,15 +7,21 @@
 
 - Make output and plots for interventions comparison
 
-- immunities are deterministically allocated: change to stochastic?
+- fit age distribution given household size on overall age distribution
 
-- put age determinant for schedule as model parameters (currently hard coded)
+- split data Toronto vs rest of Ontario
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
+
 - Treatment & vax affects hospitalization outcome
+
 - Performance tests
 
 
 === MINOR ITEMS ===
 
 - _id_Is and _indiv_Is redundant
+
+- immunities are deterministically allocated: change to stochastic?
+
+- put age determinant for schedule as model parameters (currently hard coded)
