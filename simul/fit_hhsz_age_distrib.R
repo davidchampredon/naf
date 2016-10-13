@@ -240,7 +240,7 @@ x0 <- c(agemean.vec, a.vec)
 lb <- c( c(40,30,30,25,25,5) ,  rep(0.1,6) )
 ub <- c( c(70,70,70,65,65,45) , rep(10,6) )
 
-opts <- list('algorithm'   ='NLOPT_LN_COBYLA',
+opts <- list('algorithm'   ='NLOPT_GN_CRS2_LM', # 'NLOPT_LN_COBYLA',
 			 'print_level' = 1,
 			 'maxtime'     = 60*simul.prm[['fit_maxtime_minutes']])
 # nloptr.print.options()
