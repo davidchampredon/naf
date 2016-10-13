@@ -2,7 +2,7 @@ rnd_seed, 1234561
 build_world_only, 1
 fit_hhsz_age_mc,2
 fit_hhsz_age_cpu,2
-fit_maxtime_minutes, 20
+fit_maxtime_minutes, 60
 start_time, -10
 horizon, 300
 initial_latent, 6

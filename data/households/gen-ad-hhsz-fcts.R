@@ -46,7 +46,7 @@ gen.all.ad.hhsz <- function(agemean.vec, a.vec, path.save='./') {
 	M[[1]] <- list(c(agemin=18,agemax=80, agemean=agemean.vec[1],  a=a.vec[1]))
 	
 	M[[2]] <- list(c(agemin=18,agemax=80, agemean=agemean.vec[2],  a=a.vec[2]),
-				   c(agemin=18,agemax=80, agemean=agemean.vec[3],  a=a.vec[3]))
+				   c(agemin=0, agemax=80, agemean=agemean.vec[3],  a=a.vec[3]))
 	
 	M[[3]] <- list(c(agemin=18,agemax=65, agemean=agemean.vec[4],  a=a.vec[4]),
 				   c(agemin=18,agemax=65, agemean=agemean.vec[5],  a=a.vec[5]),

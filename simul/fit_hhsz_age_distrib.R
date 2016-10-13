@@ -149,6 +149,8 @@ error.function <- function(agemean.vec,a.vec) {
 		}
 		amx <- max(unlist(lapply(a, max)))+1
 		sim.age <- 0:amx
+		print(paste('DEBUG:: amx = ',amx))
+		
 		M <- matrix(nrow = length(sim.age)-1, ncol=length(res))
 		for(i in seq_along(res)){
 			h <- hist(a[[i]], breaks = sim.age, plot = F)
@@ -233,35 +235,35 @@ eval_f <- function(x){
 	return(EF[['err']])
 }
 
-agemean.vec <- c(65,59,59,35,35,12)   #c(60,50,50,35,35,10)
+agemean.vec <- c(65,59,30,35,35,12)   #c(60,50,50,35,35,10)
 a.vec       <- c(1.5,2.5,2.5,1.8,1.8,2.1)
 
 x0 <- c(agemean.vec, a.vec)
-lb <- c( c(40,30,30,25,25,5) ,  rep(0.1,6) )
-ub <- c( c(70,70,70,65,65,45) , rep(10,6) )
+ub <- c( c(79,79,79,66,66,45) , rep(10,6) )
+lb <- c( c(40,20,5, 20,20,5) ,  rep(0.1,6) )
 
-opts <- list('algorithm'   ='NLOPT_GN_CRS2_LM', # 'NLOPT_LN_COBYLA',
+opts <- list('algorithm'   ='NLOPT_LN_COBYLA', #NLOPT_GN_CRS2_LM', # 'NLOPT_LN_COBYLA',
 			 'print_level' = 1,
 			 'maxtime'     = 60*simul.prm[['fit_maxtime_minutes']])
 # nloptr.print.options()
 
 opt.val <- nloptr(x0 = x0,eval_f = eval_f, lb = lb, ub=ub, opts = opts)
 
-xx <- opt.val$solution
-
+save.image(file='fit_hhsz_age.RData')
 
 # Retrieve the optimal value
 # and plot the 'best' distribution:
+xx <- opt.val$solution
 EF <- error.function(agemean.vec = xx[1:6],
 					 a.vec = xx[7:12])
 
 err <- EF[['err']]
 
-t.ad <- EF[['t.ad']]
-sim.age <- EF[['sim.age']]
+t.ad         <- EF[['t.ad']]
+sim.age      <- EF[['sim.age']]
 sim.age.prop <- EF[['sim.age.prop']]
-target.reg <- EF[['target.reg']]
-sim.reg <- EF[['sim.reg']]
+target.reg   <- EF[['target.reg']]
+sim.reg      <- EF[['sim.reg']]
 
 pdf('plot-fit-hhsz-age.pdf', width = 15, height = 10)
 par(mfrow=c(1,1))
@@ -280,8 +282,7 @@ lines(sim.age, sim.reg, lty =1, lwd=2, col='red')
 read.all.ad.hhsz(path = '../data/households/')
 dev.off()
 
-save.image(file='fit_hhsz_age.RData')
+
 t1 <- as.numeric(Sys.time())
 message(paste("Computing time:",round((t1-t0)/60,1),"min"))
-
 
