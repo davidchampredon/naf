@@ -147,9 +147,9 @@ error.function <- function(agemean.vec,a.vec) {
 		for(i in seq_along(res)){
 			a[[i]] <- res[[i]][['ages']]
 		}
-		amx <- max(unlist(lapply(a, max)))
-		sim.age <- 1:amx
-		M <- matrix(nrow = amx-1, ncol=length(res))
+		amx <- max(unlist(lapply(a, max)))+1
+		sim.age <- 0:amx
+		M <- matrix(nrow = length(sim.age)-1, ncol=length(res))
 		for(i in seq_along(res)){
 			h <- hist(a[[i]], breaks = sim.age, plot = F)
 			sim.age.prop.i <- h$counts / sum(h$counts)	
