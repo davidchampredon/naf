@@ -1,0 +1,2 @@
+Rscript fit_hhsz_age_distrib.R > out-fit.txt &
+

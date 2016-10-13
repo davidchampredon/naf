@@ -68,7 +68,7 @@ print(paste('World size reduced by',sf))
 # household composition:
 base.fname  <- paste0(data.dir,'households/hh_size_ad')
 
-max(world.prm[['max_hh_size']])) )
+max(world.prm[['max_hh_size']])
 
 # schedule time slices:
 sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 
@@ -81,7 +81,6 @@ sched.prm[['sched_names']] <- read.schedules(paste0(param.model.dir,fname.schedu
 
 # Baseline, no vax intervention:
 interv.prm <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
-
 
 # Snowfall wrapper:
 run.snow.wrap <- function(seedMC,
@@ -109,14 +108,14 @@ error.function <- function(agemean.vec,a.vec) {
 	gen.all.ad.hhsz(agemean.vec, a.vec, 
 					path='../data/households/')
 	# Construct the simulation world and 
-	# return the actual _global_ age distribution:
+	# return the simulated _global_ age distribution:
 	get.age.update.world <- function(prm, 
 									 simul.prm, 
 									 interv.prm, 
 									 world.prm, 
 									 sched.prm) {
-		n.MC  <- 1 # simul.prm[['mc']]
-		n.cpu <- 1 # simul.prm[['cpu']]
+		n.MC  <- simul.prm[['fit_hhsz_age_mc']]
+		n.cpu <- simul.prm[['fit_hhsz_age_cpu']]
 		seeds <- 1:n.MC
 		
 		# Update world parameter
@@ -142,13 +141,24 @@ error.function <- function(agemean.vec,a.vec) {
 		
 		sfStop()
 		
-		a <- res[[1]][['ages']]
-		summary(a)
-		h <- hist(a, breaks = 1:max(a), plot = F)
-		sim.age <- h$breaks
-		sim.age.prop <- h$counts / sum(h$counts)
+		# Average the global age distributions
+		# across all MC iterations:
+		a <- list()
+		for(i in seq_along(res)){
+			a[[i]] <- res[[i]][['ages']]
+		}
+		amx <- max(unlist(lapply(a, max)))
+		sim.age <- 1:amx
+		M <- matrix(nrow = amx-1, ncol=length(res))
+		for(i in seq_along(res)){
+			h <- hist(a[[i]], breaks = sim.age, plot = F)
+			sim.age.prop.i <- h$counts / sum(h$counts)	
+			M[,i] <- sim.age.prop.i
+		}
+		sim.age.prop <- apply(M,1,FUN = mean)
 		
-		return(list(sim.age = sim.age, sim.age.prop = sim.age.prop))
+		return(list(sim.age = sim.age, 
+					sim.age.prop = sim.age.prop))
 	}
 	A <- get.age.update.world(prm, 
 							  simul.prm, 
@@ -214,8 +224,7 @@ target.reg <- EF[['target.reg']]
 sim.reg <- EF[['sim.reg']]
 
 
-### Constraint optimization:
-
+### ==== Constraint optimization ====
 
 eval_f <- function(x){
 	agemean.vec <- x[1:6]
@@ -233,7 +242,7 @@ ub <- c( c(70,70,70,65,65,45) , rep(10,6) )
 
 opts <- list('algorithm'   ='NLOPT_LN_COBYLA',
 			 'print_level' = 1,
-			 'maxtime'     = 300)
+			 'maxtime'     = 60*simul.prm[['fit_maxtime_minutes']])
 # nloptr.print.options()
 
 opt.val <- nloptr(x0 = x0,eval_f = eval_f, lb = lb, ub=ub, opts = opts)
@@ -254,7 +263,7 @@ sim.age.prop <- EF[['sim.age.prop']]
 target.reg <- EF[['target.reg']]
 sim.reg <- EF[['sim.reg']]
 
-
+pdf('plot-fit-hhsz-age.pdf', width = 15, height = 10)
 par(mfrow=c(1,1))
 plot(t.ad$age, t.ad$prop, 
 	 ylim= range(t.ad$prop,sim.age.prop,0),
@@ -269,6 +278,7 @@ lines(sim.age,
 lines(sim.age, sim.reg, lty =1, lwd=2, col='red')
 
 read.all.ad.hhsz(path = '../data/households/')
+dev.off()
 
 save.image(file='fit_hhsz_age.RData')
 t1 <- as.numeric(Sys.time())
