@@ -40,7 +40,8 @@ Simulator run_test(vector<areaUnit> auvec,
                    double start_time,
                    double horizon,
                    uint i0,
-                   const vector<intervention> &interv);
+                   const vector<intervention> &interv,
+                   bool build_world_only);
 
 void main_run_test();
 

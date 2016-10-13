@@ -181,9 +181,8 @@ List naf_run(List params,
         
         
         // ==== Simulator parameters ====
-        
-//        unsigned int rnd_seed   = simulParams["rnd_seed"];
 		
+		bool build_world_only   = simulParams["build_world_only"];
         unsigned int i0         = simulParams["initial_latent"];
         double horizon          = simulParams["horizon"];
         unsigned int popexport  = simulParams["popexport"];
@@ -263,9 +262,8 @@ List naf_run(List params,
         
         List tmp_szdst;
         
-        for(unsigned int i=0; i<n_au; i++){
-            
-
+        for(unsigned int i=0; i<n_au; i++)
+		{
             tmp_szdst = worldParams["hh_size"];
             vector<uint> hh_size            = tmp_szdst[i];
 
@@ -384,44 +382,75 @@ List naf_run(List params,
                                  start_time,
                                  horizon,
                                  i0,
-                                 interv_vec);
+                                 interv_vec,
+								 build_world_only);
         
-        // Retrieve all results from simulation:
-        // populations:
-        dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
-        // epidemic time series
-        dcDataFrame ts = sim.timeseries();
-        
-        // Time series of census for every social places:
-        Rcpp::List census_sp;
-        census_sp.push_back(sim.get_ts_census_sp_time());
-        census_sp.push_back(sim.get_ts_census_sp_id());
-        census_sp.push_back(sim.get_ts_census_sp_type());
-        census_sp.push_back(sim.get_ts_census_sp_nS());
-        census_sp.push_back(sim.get_ts_census_sp_nE());
-        vector<string> tmp_names = {"time","id_sp","type","nS","nE"};
-        census_sp.attr("names") = tmp_names;
-        
-        // Number of contacts tracker
-        Rcpp::List track_n_contacts;
-        track_n_contacts.push_back(sim.get_track_n_contacts_time());
-        track_n_contacts.push_back(sim.get_track_n_contacts_uid());
-        track_n_contacts.push_back(sim.get_track_n_contacts());
-        tmp_names = {"time","uid","nContacts"};
-        track_n_contacts.attr("names") = tmp_names;
-        
-        
-        vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
-        
-        // Return R-formatted result:
-        return List::create(Named("population_final") = to_list(pop_final,false),
-                            Named("world")            = to_list_vector(W, false),
-                            Named("time_series")      = to_list(ts, false),
-                            Named("time_series_sp")   = census_sp,
-                            Named("track_n_contacts") = track_n_contacts,
-                            Named("wiw_ages")         = sim.get_wiw_ages(),
-							Named("contactAssort")    = sim.get_contactAssort()
-                            );
+		
+		
+		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
+		
+		
+		if(!build_world_only){
+			
+			// Retrieve all results from simulation:
+			// populations:
+			dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
+			
+			// epidemic time series
+			dcDataFrame ts = sim.timeseries();
+			
+			// Time series of census for every social places:
+			Rcpp::List census_sp;
+			census_sp.push_back(sim.get_ts_census_sp_time());
+			census_sp.push_back(sim.get_ts_census_sp_id());
+			census_sp.push_back(sim.get_ts_census_sp_type());
+			census_sp.push_back(sim.get_ts_census_sp_nS());
+			census_sp.push_back(sim.get_ts_census_sp_nE());
+			vector<string> tmp_names = {"time","id_sp","type","nS","nE"};
+			census_sp.attr("names") = tmp_names;
+			
+			// Number of contacts tracker
+			Rcpp::List track_n_contacts;
+			track_n_contacts.push_back(sim.get_track_n_contacts_time());
+			track_n_contacts.push_back(sim.get_track_n_contacts_uid());
+			track_n_contacts.push_back(sim.get_track_n_contacts());
+			tmp_names = {"time","uid","nContacts"};
+			track_n_contacts.attr("names") = tmp_names;
+			
+			
+			
+			// Return R-formatted result:
+			return List::create(Named("population_final") = to_list(pop_final,false),
+								Named("world")            = to_list_vector(W, false),
+								Named("time_series")      = to_list(ts, false),
+								Named("time_series_sp")   = census_sp,
+								Named("track_n_contacts") = track_n_contacts,
+								Named("wiw_ages")         = sim.get_wiw_ages(),
+								Named("contactAssort")    = sim.get_contactAssort()
+								);
+		}
+		
+		// If no simulation was requested,
+		// return only information about the World created.
+		if(build_world_only){
+			
+			Rcpp::List empty_list;
+			
+			// Return R-formatted result:
+			return List::create(Named("world")            = to_list_vector(W, false),
+								Named("ages")             = census_ages(sim.get_world()),
+								
+								// kept for consistency with case
+								// 'build_world_only=false':
+								Named("population_final") = empty_list,
+								Named("time_series")      = empty_list,
+								Named("time_series_sp")   = empty_list,
+								Named("track_n_contacts") = empty_list,
+								Named("wiw_ages")         = empty_list,
+								Named("contactAssort")    = empty_list
+								);
+		}
+		
     }
     catch (...){
         ::Rf_error(">>>> C++ exception (unknown reason) <<<<");

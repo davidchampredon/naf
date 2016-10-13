@@ -253,6 +253,10 @@ uint world_size(const vector<socialPlace>& sp);
 
 uint census_schedule(vector<socialPlace> w, string name);
 
+/**
+ * Return (in a vector) the ages of all individual in this world.
+ */
+vector<float> census_ages(vector<socialPlace> w);
 
 
 #endif /* defined(__naf__socialPlace__) */

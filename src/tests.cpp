@@ -17,7 +17,7 @@ void main_run_test(){
     // ================================================================
     //     MODEL PARAMETERS
     // ================================================================
-
+    
     double start_time = -10.0;
     double horizon    = 300.0;
     
@@ -102,7 +102,7 @@ void main_run_test(){
     interv_vec.push_back(interv);
     
     
-
+    
     // ================================================================
     //     WORLD PARAMETERS
     // ================================================================
@@ -128,11 +128,11 @@ void main_run_test(){
     vector<uint> hh_size {1,2,3};
     vector<double> hh_size_proba {0.2, 0.5, 0.30};
     discrete_prob_dist<uint> D_size_hh(hh_size, hh_size_proba);
-
+    
     // in this test file, assume both AU have same size distributions:
     D_size_hh_vec.push_back(D_size_hh);
     D_size_hh_vec.push_back(D_size_hh);
-
+    
     
     // Age distribution inside households
     vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
@@ -154,7 +154,7 @@ void main_run_test(){
     discrete_prob_dist<uint> pr_age_hh_22(age_all,   p_age_all_2);
     
     vector<discrete_prob_dist<uint> > tmp;
-
+    
     tmp.push_back(pr_age_hh_00);
     pr_age_hh.push_back(tmp);
     
@@ -222,7 +222,7 @@ void main_run_test(){
     sched_des.push_back({"SP_pubTransp", "SP_workplace", "SP_workplace", "SP_pubTransp", "SP_other", "SP_household"});
     sched_des.push_back({"SP_pubTransp", "SP_school",    "SP_school",    "SP_pubTransp", "SP_other", "SP_household"});
     sched_des.push_back({"SP_household", "SP_other",     "SP_other",     "SP_other",     "SP_other", "SP_household"});
-
+    
     sched_nam.push_back("worker_sed");
     sched_nam.push_back("student");
     sched_nam.push_back("unemployed");
@@ -248,59 +248,64 @@ void main_run_test(){
     // ================================================================
     //     RUN SIMULATION
     // ================================================================
-
+    
+    bool build_world_only = true;
+    
     Simulator sim = run_test(auvec,
-                              D_size_hh_vec,
-                              D_size_wrk_vec,
-                              D_size_pubt_vec,
-                              D_size_school_vec,
-                              D_size_hosp_vec,
-                              D_size_other_vec,
-                              pr_age_hh,
-                              n_hh ,
-                              n_wrk,
-                              n_pubt ,
-                              n_school,
-                              n_hosp,
-                              n_other,
+                             D_size_hh_vec,
+                             D_size_wrk_vec,
+                             D_size_pubt_vec,
+                             D_size_school_vec,
+                             D_size_hosp_vec,
+                             D_size_other_vec,
+                             pr_age_hh,
+                             n_hh ,
+                             n_wrk,
+                             n_pubt ,
+                             n_school,
+                             n_hosp,
+                             n_other,
                              unemployed_prop,
-                              sched ,
-                              MP,
-                              start_time,
-                              horizon,
-                              i0,
-                              interv_vec);
+                             sched ,
+                             MP,
+                             start_time,
+                             horizon,
+                             i0,
+                             interv_vec,
+                             build_world_only);
     
     // ================================================================
     //     MANIPULATE RESULTS
     // ================================================================
     
     // insert code here ...
-
+    displayVector(census_ages(sim.get_world()));
+    
 }
 
 
 Simulator run_test(vector<areaUnit> auvec,
-                    vector<discrete_prob_dist<uint> > D_size_hh,
-                    vector<discrete_prob_dist<uint> > D_size_wrk,
-                    vector<discrete_prob_dist<uint> > D_size_pubt,
-                    vector<discrete_prob_dist<uint> > D_size_school,
-                    vector<discrete_prob_dist<uint> > D_size_hosp,
-                    vector<discrete_prob_dist<uint> > D_size_other,
-                    vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
-                    vector<uint> n_hh ,
-                    vector<uint> n_wrk,
-                    vector<uint> n_pubt ,
-                    vector<uint> n_school,
-                    vector<uint> n_hosp,
-                    vector<uint> n_other,
+                   vector<discrete_prob_dist<uint> > D_size_hh,
+                   vector<discrete_prob_dist<uint> > D_size_wrk,
+                   vector<discrete_prob_dist<uint> > D_size_pubt,
+                   vector<discrete_prob_dist<uint> > D_size_school,
+                   vector<discrete_prob_dist<uint> > D_size_hosp,
+                   vector<discrete_prob_dist<uint> > D_size_other,
+                   vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
+                   vector<uint> n_hh ,
+                   vector<uint> n_wrk,
+                   vector<uint> n_pubt ,
+                   vector<uint> n_school,
+                   vector<uint> n_hosp,
+                   vector<uint> n_other,
                    float unemployed_prop,
-                    vector<schedule> sched ,
-                    modelParam MP,
-                    double start_time,
-                    double horizon,
-                    uint i0,
-                    const vector<intervention> &interv){
+                   vector<schedule> sched ,
+                   modelParam MP,
+                   double start_time,
+                   double horizon,
+                   uint i0,
+                   const vector<intervention> &interv,
+                   bool build_world_only){
     
     
     stopif(auvec.size() != n_hh.size() ||
@@ -354,7 +359,11 @@ Simulator run_test(vector<areaUnit> auvec,
     // Run the simulation:
     sim.set_start_time(start_time);
     sim.set_initial_prevalence(i0);
-    sim.run();
+    
+    if(!build_world_only) sim.run();
+    else{
+        cout << " World is built only, simulations were not requested."<<endl;
+    }
     
     return sim;
 }

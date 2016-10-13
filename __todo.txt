@@ -7,7 +7,7 @@
 
 - Make output and plots for interventions comparison
 
-- fit age distribution given household size on overall age distribution
+- fit age distribution given household size on overall age distribution --> DONE BUT CLEAN UP!
 
 - split data Toronto vs rest of Ontario
 

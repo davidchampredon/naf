@@ -1125,7 +1125,13 @@ uint census_schedule(vector<socialPlace> w, string name){
 
 
 
-
+vector<float> census_ages(vector<socialPlace> w){
+    vector<float> res;
+    for (uint k=0; k<w.size(); k++) {
+        for(uint i=0; i<w[k].get_size();i++) res.push_back(w[k].get_indiv(i).get_age());
+    }
+    return res;
+}
 
 
 
