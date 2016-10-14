@@ -161,6 +161,13 @@ load.world.prm <- function(filename, path.prm){
 	prm.sz.dst <- merge.lists.into.one.list(sz.dst.list)
 	prm.au.2   <- merge.lists.into.one.list.vec(prm.au)
 	world.prm  <- c(prm.sz.dst, prm.au.2)
+	
+	# If only one AU, then must make it consistent
+	# with cases when several AUs. 
+	# (the way I do this is not automatically 
+	#  consistent, that's why there is this extra command):
+	if(n.au==1) world.prm <- unlist(world.prm, recursive = FALSE)
+	
 	return(world.prm)
 }
 
