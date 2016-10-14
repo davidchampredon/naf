@@ -14,3 +14,19 @@ id, name, value
 0, pubt_size_distrib_file,   prm-size-pubt-ontario.csv
 0, hosp_size_distrib_file,   prm-size-hosp-ontario.csv
 0, other_size_distrib_file,  prm-size-other-ontario.csv
+
+1, name_au,  ontario2
+1, id_au,    0
+1, n_hh,     4887505
+1, n_wrk,    689116
+1, n_pubt,   500000
+1, n_school, 4893
+1, n_hosp,   1
+1, n_other,  200000
+1, max_hh_size, 6
+1, hh_size_distrib_file,     prm-size-hh-ontario.csv
+1, wrk_size_distrib_file,    prm-size-wrk-ontario.csv
+1, school_size_distrib_file, prm-size-school-ontario.csv
+1, pubt_size_distrib_file,   prm-size-pubt-ontario.csv
+1, hosp_size_distrib_file,   prm-size-hosp-ontario.csv
+1, other_size_distrib_file,  prm-size-other-ontario.csv

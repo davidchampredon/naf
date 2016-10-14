@@ -69,7 +69,7 @@ print(paste('World size reduced by',sf))
 base.fname  <- paste0(data.dir,'households/hh_size_ad')
 world.prm   <- c(world.prm,
 				 load.age.hh(base.fname, 
-				 			max(world.prm[['max_hh_size']])) )
+				 			max.hh.size = max(world.prm[['max_hh_size']])) )
 
 # schedule time slices:
 
