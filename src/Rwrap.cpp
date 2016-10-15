@@ -93,6 +93,35 @@ void set_parameter(modelParam &MP, string prm_name, string prm_type, List params
         cerr << "Parameter type " << prm_type << " not found for parameter "<<prm_name <<endl;
 }
 
+/** 
+ * Read a discrete distribution.
+ * (Predefined format mandatory!)
+ */
+void read_discr_distr(List prm,
+					  string name,
+					  vector<uint> &val,
+					  vector<double> &proba,
+					  uint n_au,
+					  uint i){
+
+	string namep = name + "_proba";
+	
+	if(n_au==1){
+		vector<uint>   v = prm[name];
+		vector<double> p = prm[namep];
+		val   = v;
+		proba = p;
+	}
+	else{
+		List tmp   = prm[name];
+		List tmp_p = prm[namep];
+		vector<uint>   v = tmp[i];
+		vector<double> p = tmp_p[i];
+		val   = v;
+		proba = p;
+	}
+}
+
 
 
 // ====================================================================================
@@ -264,49 +293,34 @@ List naf_run(List params,
         
         for(unsigned int i=0; i<n_au; i++)
 		{
-            tmp_szdst = worldParams["hh_size"];
-            vector<uint> hh_size            = tmp_szdst[i];
-
-            tmp_szdst = worldParams["hh_size_proba"];
-            vector<double> hh_size_proba    = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["wrk_size"];
-            vector<uint> wrk_size           = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["wrk_size_proba"];
-            vector<double> wrk_size_proba   = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["pubt_size"];
-            vector<uint> pubt_size          = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["pubt_size_proba"];
-            vector<double> pubt_size_proba  = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["school_size"];
-            vector<uint> school_size        = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["school_size_proba"];
-            vector<double> school_size_proba= tmp_szdst[i];
-            
-            tmp_szdst = worldParams["hosp_size"];
-            vector<uint> hosp_size          = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["hosp_size_proba"];
-            vector<double> hosp_size_proba  = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["other_size"];
-            vector<uint> other_size         = tmp_szdst[i];
-            
-            tmp_szdst = worldParams["other_size_proba"];
-            vector<double> other_size_proba = tmp_szdst[i];
-
+			
+			vector<uint>   hh_size;
+			vector<double> hh_size_proba;
+			vector<uint>   wrk_size;
+			vector<double> wrk_size_proba;
+			vector<uint>   pubt_size;
+			vector<double> pubt_size_proba;
+			vector<uint>   school_size;
+			vector<double> school_size_proba;
+			vector<uint>   hosp_size;
+			vector<double> hosp_size_proba;
+			vector<uint>   other_size;
+			vector<double> other_size_proba;
+			
+			read_discr_distr(worldParams,"hh_size",     hh_size, hh_size_proba, n_au, i);
+			read_discr_distr(worldParams,"wrk_size",    wrk_size, wrk_size_proba, n_au, i);
+			read_discr_distr(worldParams,"pubt_size",   pubt_size, pubt_size_proba, n_au, i);
+			read_discr_distr(worldParams,"school_size", school_size, school_size_proba, n_au, i);
+			read_discr_distr(worldParams,"hosp_size",   hosp_size, hosp_size_proba, n_au, i);
+			read_discr_distr(worldParams,"other_size",  other_size, other_size_proba, n_au, i);
+			
             discrete_prob_dist<uint> D_size_hh(hh_size, hh_size_proba);
-            discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
-            discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
+			discrete_prob_dist<uint> D_size_wrk(wrk_size, wrk_size_proba);
+			discrete_prob_dist<uint> D_size_pubt(pubt_size, pubt_size_proba);
             discrete_prob_dist<uint> D_size_school(school_size, school_size_proba);
             discrete_prob_dist<uint> D_size_hosp(hosp_size, hosp_size_proba);
             discrete_prob_dist<uint> D_size_other(other_size, other_size_proba);
-            
+			
             D_size_hh_vec.push_back(D_size_hh);
             D_size_wrk_vec.push_back(D_size_wrk);
             D_size_pubt_vec.push_back(D_size_pubt);

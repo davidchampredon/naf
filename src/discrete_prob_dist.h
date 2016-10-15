@@ -59,7 +59,8 @@ public:
     
     void check_construction(){
         stopif(_value.size()!=_proba.size(), "Value and proba must be same size.");
-        stopif( abs(sumElements(_proba)-1.0) > 1E-6 , "Probabilities do not sum up to 1.0.");
+        double s = sumElements(_proba);
+        stopif( abs(s-1.0) > 1E-6 , "Probabilities do not sum up to 1.0. They currently sum up to " + to_string(s));
     }
 };
 
