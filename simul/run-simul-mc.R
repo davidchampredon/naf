@@ -112,7 +112,7 @@ n.MC  <- simul.prm[['mc']]
 n.cpu <- simul.prm[['cpu']]
 seeds <- 1:n.MC
 
-sfInit(parallel = TRUE, cpu = n.cpu)
+sfInit(parallel = (n.cpu>1), cpu = n.cpu)
 sfLibrary(naf,lib.loc = R.library.dir) 
 
 # Baseline scenario:
