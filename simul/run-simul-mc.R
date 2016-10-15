@@ -108,6 +108,7 @@ run.snow.wrap <- function(seedMC,
 
 ### ==== Run Simulation ====
 
+baseonly  <- simul.prm[['baseline_only']]
 n.MC  <- simul.prm[['mc']]
 n.cpu <- simul.prm[['cpu']]
 seeds <- 1:n.MC
@@ -125,13 +126,15 @@ res.list.0 <- sfSapply(seeds, run.snow.wrap,
 					   simplify   = FALSE)
 
 # Interventions:
-res.list <- sfSapply(seeds, run.snow.wrap,
-					 prm        = prm, 
-					 simul.prm  = simul.prm, 
-					 interv.prm = interv.prm, 
-					 world.prm  = world.prm, 
-					 sched.prm  = sched.prm,
-					 simplify   = FALSE)
+if(!baseonly){
+	res.list <- sfSapply(seeds, run.snow.wrap,
+						 prm        = prm, 
+						 simul.prm  = simul.prm, 
+						 interv.prm = interv.prm, 
+						 world.prm  = world.prm, 
+						 sched.prm  = sched.prm,
+						 simplify   = FALSE)
+}
 sfStop()
 
 save.image(file='mc-simul.RData')

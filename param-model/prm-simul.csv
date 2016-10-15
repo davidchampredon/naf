@@ -1,4 +1,5 @@
 build_world_only, 0
+baseline_only, 1
 fit_hhsz_age_mc,2
 fit_hhsz_age_cpu,2
 fit_maxtime_minutes, 60
