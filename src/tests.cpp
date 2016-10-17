@@ -229,7 +229,7 @@ void main_run_test(){
     
     vector<schedule> sched = build_all_schedules(sched_des, sched_nam, timeslice);
     
-    uint mult = 2;
+    uint mult = 8;
     
     // number of each social place type
     vector<uint> n_hh       {1200*mult, 1001*mult};
@@ -279,7 +279,7 @@ void main_run_test(){
     // ================================================================
     
     // insert code here ...
-    displayVector(census_ages(sim.get_world()));
+    //displayVector(census_ages(sim.get_world()));
     
 }
 
@@ -359,6 +359,8 @@ Simulator run_test(vector<areaUnit> auvec,
     // Run the simulation:
     sim.set_start_time(start_time);
     sim.set_initial_prevalence(i0);
+    
+    sim.display_summary_info();
     
     if(!build_world_only) sim.run();
     else{

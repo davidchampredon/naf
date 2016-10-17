@@ -480,7 +480,6 @@ void socialPlace::acquireDisease(uint pos){
 
 
 dcDataFrame socialPlace::export_dcDataFrame() const {
-    /// Export this social place to a dcDataFrame
     
     unsigned long n =_indiv.size();
     vector<double> id_au(n,(double)(_id_au));
@@ -526,6 +525,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     vector<double> id_pubTr(n);
     
     vector<double> sched_type(n);
+    
     
     for(ID i=0; i<n; i++){
         id_indiv[i]      = _indiv[i].get_id();
@@ -598,28 +598,10 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
 }
 
 
-dcDataFrame export_dcDataFrame_slow(const vector<socialPlace>& x){
-    
-    dcDataFrame df;
-    for (uint i=0; i<x.size(); i++) {
-        /* DEBUG */
-        if(i%100==0) {cout << "exporting "<<i<<"/"<<x.size()<<"\r";fflush(stdout);}
-        
-        dcDataFrame tmp = x[i].export_dcDataFrame();
-        if(i==0) df = tmp;
-        else append(df, tmp);
-    }
-    return df;
-}
-
-
 vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace>& x){
-    
     vector<dcDataFrame> df(x.size());
     for (uint i=0; i<x.size(); i++) {
-        /* DEBUG */
-        //if(i%100==0) {cout << "exporting "<<i<<"/"<<x.size()<<"\r";fflush(stdout);}
-        
+        /* DEBUG */  //if(i%100==0) {cout << "exporting "<<i<<"/"<<x.size()<<"\r";fflush(stdout);}
         df[i] = x[i].export_dcDataFrame();
     }
     return df;

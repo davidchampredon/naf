@@ -134,6 +134,7 @@ public:
 	
 	// Set functions
 	
+    void set_id(uint x) {_id = x;}
     void set_age(double x){_age = x;}
     
 	void set_id_sp_current(ID id_sp){_id_sp_current = id_sp;}

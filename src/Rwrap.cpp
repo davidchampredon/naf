@@ -450,9 +450,12 @@ List naf_run(List params,
 			
 			Rcpp::List empty_list;
 			
+			dcDataFrame world_sp = sim.census_sp();
+			
 			// Return R-formatted result:
 			return List::create(Named("world")            = to_list_vector(W, false),
 								Named("ages")             = census_ages(sim.get_world()),
+								Named("census_sp")		  = to_list(world_sp,false),
 								
 								// kept for consistency with case
 								// 'build_world_only=false':

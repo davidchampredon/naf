@@ -191,15 +191,19 @@ public:
     // Census functions:
     // WARNING: brute force counting, hence slow!
     
-    uint	census_alive();
-    uint	census_alive_age(double age_lo, double age_hi);
-    uint	census_infectious();
-    uint	census_disease_stage(string stage);
-    vector<ID>		census_disease_stage_ID(string stage);
-    uint    census_schedule(string name);
+    uint        census_alive();
+    uint        census_alive_age(double age_lo, double age_hi);
+    uint        census_infectious();
+    uint        census_disease_stage(string stage);
+    vector<ID>  census_disease_stage_ID(string stage);
+    uint        census_schedule(string name);
     
     
     // Exports
+    
+    /**
+     * Export this social place to a dcDataFrame
+     */
     dcDataFrame export_dcDataFrame() const;
     
 
@@ -207,10 +211,9 @@ public:
     void	displayInfo();
 };
 
-
-
-
-dcDataFrame export_dcDataFrame_slow(const vector<socialPlace> & df);
+/**
+ * Export the vector of social places to a vector of dcDataFrame
+ */
 vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace> & df);
 
 

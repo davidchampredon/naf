@@ -27,8 +27,12 @@ vector<areaUnit> create_area_unit(const vector<ID>& id_au,
                                   ID id_region,
                                   string regionName);
 
+/**
+ * Keep individuals in this vector that are linked to a household.
+ * Individuals who are _not_ linked, are deleted.
+ */
+vector<individual> keep_indiv_with_household(const vector<individual>& x, uint first_id_au);
 
-void keep_indiv_with_household(vector<individual>& x);
 
 void keep_indiv_with_relevant_links(vector<individual>& x);
 

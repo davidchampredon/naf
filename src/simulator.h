@@ -164,7 +164,7 @@ public:
 	
 	// Get functions
 	
-	world	get_world() {return _world;}
+	world           get_world() {return _world;}
 	
 	double			get_current_time()   const {return _current_time;}
 	vector<double>	get_ts_times()       const {return _ts_times;}
@@ -300,13 +300,16 @@ public:
     bool    at_least_one_infected();
     uint    census_total_alive();
     void    update_ts_census_SP();
-
+    
+    /**
+     * Loop through all SP to get their type and numbre of individuals linked
+     */
+    dcDataFrame    census_sp();
+    
     
 	// Exports
 	
 	dcDataFrame		timeseries();
-    
-    
     
     // Miscelleanous
 

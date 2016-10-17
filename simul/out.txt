@@ -1,35 +1,21 @@
-[1] "World size reduced by 1200"
-R Version:  R version 3.3.1 (2016-06-21) 
-
-Library naf loaded.
- Entering Rwrap... 
+[1] "World size reduced by 1000"
  Entering Rwrap... 
 Loading 1 intervention scenarios ... 1
 Interventions loaded. 
-Loading 1 intervention scenarios ... 1
-Interventions loaded. 
-all parameters loaded.
 all parameters loaded.
 
-
- Creating world ... 24438 individuals provided to build area unit ID_0
- Creating world ... 24438 individuals provided to build area unit ID_0
-Social places of type Household completed.
+ Creating world ... 29328 individuals provided to build area unit ID_0
 Social places of type Household completed.
 
- Removing individuals w/o households...
- Removing individuals w/o households... done: 13868 individuals removed out of a total of 24438 (56%).
+ Removing individuals w/o households... done: 16693 individuals removed out of a total of 29328 (56%).
 
 * * WARNING * * 
- 98 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
+ 104 out of the 690 Workplace social places requested were not created/completed because of lack of individuals.
 Social places of type Workplace completed.
 
 * * WARNING * * 
- 327 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
+ 388 out of the 500 Public transport social places requested were not created/completed because of lack of individuals.
 Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
 Social places of type School completed.
 
 * * WARNING * * 
@@ -37,76 +23,7 @@ Social places of type School completed.
 Social places of type Hospital completed.
 
 * * WARNING * * 
- 94 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
- done: 14069 individuals removed out of a total of 24438 (57%).
-
-* * WARNING * * 
- 156 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 319 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 118 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
-24438 individuals provided to build area unit ID_1
-Social places of type Household completed.
-
- Removing individuals w/o households...24438 individuals provided to build area unit ID_1
-Social places of type Household completed.
-
- Removing individuals w/o households... done: 13937 individuals removed out of a total of 24438 (57%).
-
-* * WARNING * * 
- 75 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 310 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 99 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
- done: 13962 individuals removed out of a total of 24438 (57%).
-
-* * WARNING * * 
- 92 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 326 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 97 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
+ 131 out of the 200 Other public space social places requested were not created/completed because of lack of individuals.
 Social places of type Other public space completed.
 
  === Schedules consistency === 
@@ -117,161 +34,7 @@ Social places of type Other public space completed.
 
 Household             : 0
 Workplace             : 0
-School                : 0
-Other public space    : 0
-Hospital              : 0
-Public transport      : 0
-
-... world created. 
- World is built only, simulations were not requested.
-
- === Schedules consistency === 
-
- Number of individuals without
- a link to relevant SP type
- in its schedule (should be 0):  
-
-Household             : 0
-Workplace             : 0
-School                : 0
-Other public space    : 0
-Hospital              : 0
-Public transport      : 0
-
-... world created. 
- World is built only, simulations were not requested.
- Entering Rwrap... 
-Loading 2 intervention scenarios ... 1,2
-Interventions loaded. 
- Entering Rwrap... 
-Loading 2 intervention scenarios ... 1,2
-Interventions loaded. 
-all parameters loaded.
-
-all parameters loaded.
-
- Creating world ... 24438 individuals provided to build area unit ID_0
- Creating world ... 24438 individuals provided to build area unit ID_0
-Social places of type Household completed.
-Social places of type Household completed.
-
- Removing individuals w/o households...
- Removing individuals w/o households... done: 13868 individuals removed out of a total of 24438 (56%).
-
-* * WARNING * * 
- 98 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 327 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 94 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
- done: 14069 individuals removed out of a total of 24438 (57%).
-
-* * WARNING * * 
- 156 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 319 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 118 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
-24438 individuals provided to build area unit ID_1
-Social places of type Household completed.
-
- Removing individuals w/o households...24438 individuals provided to build area unit ID_1
-Social places of type Household completed.
-
- Removing individuals w/o households... done: 13937 individuals removed out of a total of 24438 (57%).
-
-* * WARNING * * 
- 75 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 310 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 99 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
- done: 13962 individuals removed out of a total of 24438 (57%).
-
-* * WARNING * * 
- 92 out of the 575 Workplace social places requested were not created/completed because of lack of individuals.
-Social places of type Workplace completed.
-
-* * WARNING * * 
- 326 out of the 417 Public transport social places requested were not created/completed because of lack of individuals.
-Social places of type Public transport completed.
-
-* * WARNING * * 
- 5 out of the 5 School social places requested were not created/completed because of lack of individuals.
-Social places of type School completed.
-
-* * WARNING * * 
- 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
-Social places of type Hospital completed.
-
-* * WARNING * * 
- 97 out of the 167 Other public space social places requested were not created/completed because of lack of individuals.
-Social places of type Other public space completed.
-
- === Schedules consistency === 
-
- Number of individuals without
- a link to relevant SP type
- in its schedule (should be 0):  
-
-Household             : 0
-Workplace             : 0
-School                : 0
-Other public space    : 0
-Hospital              : 0
-Public transport      : 0
-
-... world created. 
- World is built only, simulations were not requested.
-
- === Schedules consistency === 
-
- Number of individuals without
- a link to relevant SP type
- in its schedule (should be 0):  
-
-Household             : 0
-Workplace             : 0
-School                : 0
+School                : 648
 Other public space    : 0
 Hospital              : 0
 Public transport      : 0

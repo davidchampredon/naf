@@ -1,4 +1,4 @@
-build_world_only, 0
+build_world_only, 1
 baseline_only, 1
 fit_hhsz_age_mc,2
 fit_hhsz_age_cpu,2
@@ -7,6 +7,6 @@ start_time, -10
 horizon, 300
 initial_latent, 6
 popexport, 1
-scale_factor, 1200
-mc,2
-cpu,2
+scale_factor, 200
+mc,1
+cpu,1

@@ -75,7 +75,7 @@ void Simulator::create_world(vector<areaUnit> AU,
 {
     /// Create the specified world
     
-    cout << endl << " Creating world ... ";
+    cout << endl << " Creating world ... " << endl;
     
     // Create social places:
     
@@ -1656,6 +1656,24 @@ uint Simulator::population_size(){
     return s;
 }
 
+dcDataFrame Simulator::census_sp(){
+    
+    vector<double> sp_id(_world.size());
+    vector<double> sp_type(_world.size());
+    vector<double> sp_nlinked(_world.size());
+    
+    
+    for(uint k=0; k<_world.size(); k++){
+        sp_id[k]      = (double)_world[k].get_id_sp();
+        sp_type[k]    = (double)_world[k].get_type();
+        sp_nlinked[k] = (double)_world[k].get_linked_indiv_id().size();
+    }
+    
+    dcDataFrame x(sp_id,"sp_id");
+    x.addcol("sp_type", sp_type);
+    x.addcol("nlinked", sp_nlinked);
+    return x;
+}
 
 void Simulator::display_summary_info(){
     

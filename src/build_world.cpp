@@ -21,24 +21,29 @@ vector<individual> create_individuals(uint n, uint first_id_indiv){
 }
 
 
-void keep_indiv_with_household(vector<individual>& x){
-    /// Keep individuals in this vector that are linked to a household.
-    /// Individuals who are _not_ linked, are deleted.
-    
+vector<individual> keep_indiv_with_household(const vector<individual>& x, uint first_id_au){
+ 
     cout << endl<<" Removing individuals w/o households..."; fflush(stdout);
     
     unsigned long initial_size = x.size();
+    vector<individual> xnew(initial_size);
+    
     uint cnt = 0;
     for (uint i=0; i<x.size(); i++) {
-        if (x[i].get_id_sp_household() == __UNDEFINED_ID) {
-            x.erase(x.begin()+i);
-            i--;
+        if (x[i].get_id_sp_household() != __UNDEFINED_ID) {
+            xnew[cnt] = x[i];
+            xnew[cnt].set_id(cnt+first_id_au);
             cnt++;
         }
     }
-    cout << " done: "<<cnt<< " individuals removed out of a total of ";
+    // Keep only linked individuals:
+    xnew.resize(cnt+1);
+    
+    cout << " done: "<< endl << cnt<< " individuals kept out of a total of ";
     cout << initial_size<<" ("<< (int)((double)(cnt)/initial_size*100) <<"%)."<<endl;
+    return xnew;
 }
+
 
 
 
@@ -343,7 +348,8 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         // Get rid of excess individuals:
         // (because not all of them could
         //  be allocateda scheduled SP)
-        keep_indiv_with_household(indiv);
+        
+        indiv = keep_indiv_with_household(indiv, first_id_indiv_au);
         
         // Make sure ID of social places do not
         // overlap within _and_ across area units:
