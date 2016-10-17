@@ -102,9 +102,24 @@ All individuals are linked to a social place of type ``household''. Link to othe
 
 The world where the simulations will take place is defined iteratively. Briefly, a large number of individuals are created and assigned to households according to the pre-specified distribution of sizes. All households have at least one individual. Once all the households are populated, individuals are assigned an age based on pre-specified age distributions conditional on the household size. For example, a household of size one is associated with an age distribution that has a lower value of 18 years old in order to avoid households populated with only one child. There cannot be an empty household or an individual without a link to a household.
 
-Construction of other social places is more straightforward. Individuals are assigned randomly to workplaces, schools, public transportation, etc. based on their features (\eg age, distance from household \note{not implemented yet}). 
+Construction of other social places is more straightforward. The total number of a given social place and its size distribution are pre-specified as inputs. 
+Then, individuals are assigned randomly to social places based on individuals' schedule (which is itself base on age, employment rate, etc.). 
+
+If there are not enough social places (of one or more given type), the simulation will eventually fail because individuals that are not linked to a social place that constitutes its schedule (for example a school for a student) will have no determined destination. 
+
 
 Only social places tagged as ``other'' do not have individuals linked to them, because their purpose is to be visited randomly. 
+
+To summarize, the high level algorithm for the construction of the simulated world is
+\begin{enumerate}
+\item Create $N_h$ empty households. 
+\item Create $N_i$ ageless individuals ($N_i \gg N_h$)
+\item Link households with ageless individuals according to the household size distribution
+\item Delete superfluous (not linked to an household) ageless individuals 
+\item Assign ages to individuals that are linked to an household, based on a pre-specified age distribution given a household size
+\item Create social places according to pre-specified number and size distribution
+\item Link individuals to social places according to their schedules
+\end{enumerate}
 
 
 
@@ -328,7 +343,7 @@ Immune response, for both humoral and cellular, decreases quantitatively, as wel
 \note{this section is not completed...}
 
 
-\begin{table}[htdp]
+\begin{table}[htp]
 \caption{Computing time on one CPU (3.2 GHz, 8GB memory) }
 \begin{center}
 \begin{tabular}{|ccc|}
