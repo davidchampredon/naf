@@ -23,7 +23,7 @@ write.table(df.save,file='size-distrib-schools-ontario.csv',
 
 
 h <- hist(dfall$enrolment, 
-		  breaks = seq(0,1000,by=50),
+		  breaks = seq(0,emax+10,by=50),
 		  las = 1,
 		  freq = F, col='lightgrey')
 lines(density(dfall$enrolment,adjust = 0.5))
