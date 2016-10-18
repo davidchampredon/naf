@@ -101,6 +101,9 @@ public:
 
 	// Pseudo constructors:
     
+    /**
+     * Create STOCHASTICALLY a world from probability distributions inputs.
+     */
     void create_world(vector<areaUnit> AU,
                       vector<discrete_prob_dist<uint> > D_size_hh,     // Households sizes
                       vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
@@ -118,6 +121,23 @@ public:
                       vector<uint> n_other,
                       float unemployed_prop,
                       vector<schedule> sched);
+    
+    /**
+     * Create a world from deterministic vector inputs.
+     */
+    void create_world_det(vector<areaUnit> AU,
+                          vector<vector<uint> > size_hh,     // Households sizes
+                          vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
+                          
+                          vector<vector<uint> > size_wrk,
+                          vector<vector<uint> > size_pubt,
+                          vector<vector<uint> > size_school,
+                          vector<vector<uint> > size_hosp,
+                          vector<vector<uint> > size_other,
+
+                          float unemployed_prop,
+                          vector<schedule> sched);
+    
     
 	void build_test_world(double reduction_size);
     void build_test_2_sp(uint n_indiv);

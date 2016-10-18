@@ -71,11 +71,9 @@ void Simulator::create_world(vector<areaUnit> AU,
                              vector<uint> n_hosp,
                              vector<uint> n_other,
                              float unemployed_prop,
-                             vector<schedule> sched)
-{
-    /// Create the specified world
+                             vector<schedule> sched){
     
-    cout << endl << " Creating world ... " << endl;
+    cout << endl << " Creating world stochastically ... " << endl;
     
     // Create social places:
     
@@ -113,6 +111,57 @@ void Simulator::create_world(vector<areaUnit> AU,
 
 
 
+
+void Simulator::create_world_det(vector<areaUnit> AU,
+                                 vector<vector<uint> > size_hh,     // Households sizes
+                                 vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
+                                 
+                                 vector<vector<uint> > size_wrk,
+                                 vector<vector<uint> > size_pubt,
+                                 vector<vector<uint> > size_school,
+                                 vector<vector<uint> > size_hosp,
+                                 vector<vector<uint> > size_other,
+                                 
+                                 float unemployed_prop,
+                                 vector<schedule> sched){
+    
+    cout << endl << " Creating world deterministically... " << endl;
+    
+    // Create social places:
+    
+    world W = build_world_det(AU,
+                              size_hh, pr_age_hh,
+                              size_wrk,
+                              size_pubt,
+                              size_school,
+                              size_hosp,
+                              size_other);
+    
+    set_world(W);
+    set_sp_other();
+    
+    // Define individuals' features:
+    
+    string dol_distrib = _modelParam.get_prm_string("dol_distrib");
+    string doi_distrib = _modelParam.get_prm_string("doi_distrib");
+    string doh_distrib = _modelParam.get_prm_string("doh_distrib");
+    assign_dox_distribution(dol_distrib,
+                            doi_distrib,
+                            doh_distrib);
+    
+    assign_immunity_hum();
+    assign_immunity_cell();
+    assign_frailty();
+    
+    assign_schedules(_world, sched, unemployed_prop);
+    
+    check_schedules_consistency();
+    
+    cout << "... world created. " << endl;
+}
+
+
+
 void Simulator::check_schedules_consistency(){
     /// Check that all individuals who have a
     /// given SP type in their schedule, are
@@ -140,7 +189,6 @@ void Simulator::check_schedules_consistency(){
     cout << " Number of individuals without\n a link to relevant SP type\n in its schedule (should be 0):  " <<endl<<endl;
     for(uint i=0; i<cnt.size(); i++){
         tabcout(SPtype2string(int2SPtype(i)), cnt[i],22);
-
     }
     cout<<endl;
     //stopif(sumElements(cnt) > 0, "Some individuals have no link to relevant SP.");
@@ -1696,7 +1744,8 @@ void Simulator::display_summary_info(){
         uint spt = _world[k].get_type();
         cnt[spt]++;
         cnt_indiv[spt] += (uint)_world[k].get_linked_indiv_id().size();
-        cnt_children   += _world[k].census_alive_age(0, 18.0);
+        cnt_children   += _world[k].census_alive_age(0, 17.99999999
+                                                     );
     }
     
     cout << endl << "Number of social places by type:" <<endl;

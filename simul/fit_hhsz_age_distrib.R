@@ -212,19 +212,6 @@ error.function <- function(agemean.vec,a.vec) {
 				sim.reg = sim.reg))
 }
 
-agemean.vec <- c(65,59,59,35,35,12)   #c(60,50,50,35,35,10)
-a.vec       <- c(1.5,2.5,2.5,1.8,1.8,2.1)
-
-EF <- error.function(agemean.vec,a.vec)
-
-err <- EF[['err']]
-
-t.ad <- EF[['t.ad']]
-sim.age <- EF[['sim.age']]
-sim.age.prop <- EF[['sim.age.prop']]
-target.reg <- EF[['target.reg']]
-sim.reg <- EF[['sim.reg']]
-
 
 ### ==== Constraint optimization ====
 
@@ -235,7 +222,7 @@ eval_f <- function(x){
 	return(EF[['err']])
 }
 
-agemean.vec <- c(65,59,30,35,35,12)   #c(60,50,50,35,35,10)
+agemean.vec <- c(65,59,59,35,35,12)   #c(60,50,50,35,35,10)
 a.vec       <- c(1.5,2.5,2.5,1.8,1.8,2.1)
 
 x0 <- c(agemean.vec, a.vec)

@@ -37,6 +37,40 @@ vector<individual> keep_indiv_with_household(const vector<individual>& x, uint f
 void keep_indiv_with_relevant_links(vector<individual>& x);
 
 
+
+/**
+ * Build 'num_sp' social of 'sp_type' according
+ * to a pre-specified, DETERMINISTIC, size vector.
+ * Individuals passed in parameters of this function
+ * are linked to each social place.
+ * Note: There is a constraint on individual's age to be linked: age_min <= age < age_max
+ *
+ * * * WARNING * *
+ * vector of individuals must be large enough!
+ */
+vector<socialPlace> set_socialPlaces_size(SPtype sp_type,
+                                          uint first_id_sp,
+                                          uint first_id_indiv,
+                                          vector<uint> size_val,
+                                          areaUnit AU,
+                                          vector<individual>& indiv,
+                                          float age_min = -999.999,
+                                          float age_max = 999.99);
+
+
+
+/**
+ * Build 'num_sp' social of 'sp_type' according
+ * to a pre-specified size distribution.
+ * Individuals passed in parameters of this function
+ * are linked to each social place.
+ * Note: There is a constraint on individual's age to be linked: age_min <= age < age_max
+ *
+ * * * WARNING * *
+ * vector of individuals must be large enough!
+ *
+ * Difference with 'set_socialPlaces_size': here size allocation is random.
+ */
 vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              uint num_sp,
                                              uint first_id_sp,
@@ -58,7 +92,7 @@ void assign_age_in_households(vector<socialPlace>& hh,
                               vector<vector<discrete_prob_dist<uint> > > age_distrib);
 
 /**
- * Build world before simulation runs.
+ * Build world STOCHASTICALLY (before simulation runs).
  */
 vector<socialPlace> build_world(vector<areaUnit> auvec,
                                 vector<discrete_prob_dist<uint> > D_size_hh,     // Households sizes
@@ -76,6 +110,19 @@ vector<socialPlace> build_world(vector<areaUnit> auvec,
                                 vector<uint> n_hosp,
                                 vector<uint> n_other);
 
+
+/**
+ * Build world DETERMINISTICALLY (before simulation runs).
+ */
+vector<socialPlace> build_world_det(vector<areaUnit> AU,
+                                    vector<vector<uint> > size_hh,     // Households sizes
+                                    vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
+                                    
+                                    vector<vector<uint> > size_wrk,
+                                    vector<vector<uint> > size_pubt,
+                                    vector<vector<uint> > size_school,
+                                    vector<vector<uint> > size_hosp,
+                                    vector<vector<uint> > size_other);
 
 /**
  * Assign schedule for all individual in the world.

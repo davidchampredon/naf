@@ -35,7 +35,7 @@ int main(int argc, const char * argv[]) {
     system("pwd");
     
     try{
-        main_run_test();
+        main_run();
     }
     catch (...) {
         std::cout << endl <<  "   ~~~~~ Standard C++ exception caught ~~~~~ "<<endl <<endl;

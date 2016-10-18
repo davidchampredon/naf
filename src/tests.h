@@ -20,7 +20,7 @@
 #include "dcMatrix.h"
 
 
-Simulator run_test(vector<areaUnit> auvec,
+Simulator run_stochWorld(vector<areaUnit> auvec,
                    vector<discrete_prob_dist<uint> > D_size_hh,
                    vector<discrete_prob_dist<uint> > D_size_wrk,
                    vector<discrete_prob_dist<uint> > D_size_pubt,
@@ -43,7 +43,26 @@ Simulator run_test(vector<areaUnit> auvec,
                    const vector<intervention> &interv,
                    bool build_world_only);
 
-void main_run_test();
+
+Simulator run_detWorld(vector<areaUnit> auvec,
+                       vector<vector<uint> > size_hh,
+                       vector<vector<uint> > size_wrk,
+                       vector<vector<uint> > size_pubt,
+                       vector<vector<uint> > size_school,
+                       vector<vector<uint> > size_hosp,
+                       vector<vector<uint> > size_other,
+                       vector< vector<discrete_prob_dist<uint> > > pr_age_hh,
+                       float unemployed_prop,
+                       vector<schedule> sched ,
+                       modelParam MP,
+                       double start_time,
+                       double horizon,
+                       uint i0,
+                       const vector<intervention> &interv,
+                       bool build_world_only);
+
+
+void main_run();
 
 
 // -----------------------------------------

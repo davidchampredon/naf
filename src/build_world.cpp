@@ -109,6 +109,90 @@ vector<areaUnit> create_area_unit(const vector<ID>& id_au,
     return v;
 }
 
+vector<socialPlace> set_socialPlaces_size(SPtype sp_type,
+                                          uint first_id_sp,
+                                          uint first_id_indiv,
+                                          vector<uint> size_sp,
+                                          areaUnit AU,
+                                          vector<individual>& indiv,
+                                          float age_min, float age_max){
+    
+    cout << endl <<  "Creating social places of type " + SPtype2string(sp_type) + " deterministically ...";
+
+    vector<socialPlace> x;
+    unsigned long n_indiv = indiv.size();
+    uint totsize_sp       = sumElements(size_sp);
+    unsigned long num_sp  = size_sp.size();
+    
+    // Check sizes consistency:
+    string warnmsg = "The total sizes of SP " + SPtype2string(sp_type) + " (" + to_string(totsize_sp) + ") ";
+    warnmsg = warnmsg + "may not be large enough compared to the number individuals to be linked (" + to_string(n_indiv) +").";
+    if(n_indiv > totsize_sp && sp_type!=SP_household) cout <<endl<< warnmsg <<endl;
+    
+    // counts over the _whole_ vector of
+    // individuals supplied and make sure
+    // individual id do not overlap across AUs:
+    uint cnt = 0;
+    uint sp_not_linked = 0;
+    
+    // individuals are picked in random order.
+    // (else, it will be too likely the
+    //  individuals from the same household
+    //  will share this same Social Place)
+    vector<uint> sel(n_indiv);
+    for (uint i=0; i<n_indiv; i++) sel[i]=i;
+    // no shuffle for households and school
+    if(sp_type != SP_household && sp_type != SP_school){
+        auto engine = std::default_random_engine{};
+        std::shuffle(std::begin(sel), std::end(sel), engine);
+    }
+    
+    for (ID k=0; k < num_sp; k++) {
+        bool record = false;
+        // Create social place (empty shell):
+        socialPlace tmp(AU, first_id_sp + k, sp_type);
+        
+        // Link individuals with the kth social place,
+        // as long as this social place is not full:
+        for (uint linked = 0;
+             linked < size_sp[k] &&
+             cnt < n_indiv; ){
+            // Randomly selected individual:
+            uint sel_idx = sel[cnt];
+            float age    = indiv[sel_idx].get_age(); // <-- no 'first_id_indiv' for the index of vector ('first_id_indiv' is just for ID)
+            
+            if(age_min <= age && age < age_max){
+                // Link both individual and social place
+                // ('set_id_sp' links both ways):
+                indiv[sel_idx].set_id_sp(sp_type, tmp);
+                record = true;
+                linked++;
+                //cout << " DEBUG:: SP_"<<tmp.get_id_sp()<<" indiv_"<<indiv[sel_idx].get_id()<<" ; sel_idx="<<sel_idx<<endl;
+            }
+            cnt++;
+        }
+        // Record the links
+        if(record)
+            x.push_back(tmp);
+        
+        if(cnt == n_indiv){
+            // end of indiv vector reached
+            sp_not_linked++;
+        }
+    }
+    if(sp_not_linked>0){
+        cout << endl;
+        cout << "* * WARNING * * \n ";
+        cout << sp_not_linked;
+        cout << " out of the "<< num_sp <<" ";
+        cout << SPtype2string(sp_type) << " social places requested";
+        cout <<" were not created/completed because of lack of individuals.";
+        cout << endl;
+    }
+    cout << "Social places of type " + SPtype2string(sp_type) + " completed." <<endl;
+    return x;
+}
+
 
 vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              uint num_sp,
@@ -118,15 +202,8 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              areaUnit AU,
                                              vector<individual>& indiv,
                                              float age_min, float age_max){
-    /// Build 'num_sp' social of 'sp_type' according
-    /// to a pre-specified size distribution.
-    /// Individuals passed in parameters of this function
-    /// are linked to each social place.
-    /// Note: There is a constraint on individual's age to be linked.
-    /// * * WARNING * *
-    /// vector of individuals must be large enough!
-    
-//    cout << endl <<  "Creating social places of type " + SPtype2string(sp_type) + " ...";
+      
+    cout << endl <<  "Creating social places of type " + SPtype2string(sp_type) + " ...";
 //    fflush(stdout);
     
     vector<socialPlace> x;
@@ -141,7 +218,7 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
     uint sp_not_linked = 0;
     
     // individuals are picked in random order.
-    // (else, it wil be too likely the
+    // (else, it will be too likely the
     //  individuals from the same household
     //  will share this same Social Place)
     vector<uint> sel(n_indiv);
@@ -293,6 +370,181 @@ void populate_households(vector<socialPlace>& sp_hh,
 
 
 
+vector<socialPlace> build_world_det(vector<areaUnit> AU,
+                                    vector<vector<uint> > size_hh,     // Households sizes
+                                    vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
+                                    
+                                    vector<vector<uint> > size_wrk,
+                                    vector<vector<uint> > size_pubt,
+                                    vector<vector<uint> > size_school,
+                                    vector<vector<uint> > size_hosp,
+                                    vector<vector<uint> > size_other){
+    
+    vector< vector<socialPlace> > y;
+    
+    // Variables that make sure id (sp & indiv)
+    // do not overlap across Area Units!
+    uint first_id_sp       = 0; // make sure no overlap for id_sp _within_ an Area Unit
+    uint first_id_indiv_au = 0; // make sure no overlap for id_indiv _across_ Area Units
+    
+    for (uint a=0; a<AU.size(); a++)
+    {
+        // These individuals are the raw material
+        // for creating the world.
+        
+        // First, make sure there are enough individuals created,
+        // by taking the maxing value of the support of the
+        // distribution of households sizes:
+        vector<uint> ds          = size_hh[a];
+        uint n_hh                = (uint) ds.size();
+        uint nmax                = *std::max_element(ds.begin(), ds.end());
+        vector<individual> indiv = create_individuals(n_hh * nmax, first_id_indiv_au);
+        
+        cout << indiv.size() << " individuals provided to build area unit ID_"<< a << endl;
+        
+        // Create households and link existing individuals to them.
+        // The size of the households is driven by the
+        // distribution 'D_hh_size'.
+        vector<socialPlace> sp_hh   = set_socialPlaces_size(SP_household,
+                                                            first_id_sp,
+                                                            first_id_indiv_au,
+                                                            size_hh[a],
+                                                            AU[a],
+                                                            indiv);
+        // Assign individuals' age based on the size of
+        // the household they are linked to.
+        assign_age_in_households(sp_hh, indiv, pr_age_hh);
+        
+        // Get rid of excess individuals:
+        // (because not all of them could
+        //  be allocateda scheduled SP)
+        
+        indiv = keep_indiv_with_household(indiv, first_id_indiv_au);
+        
+        // Make sure ID of social places do not
+        // overlap within _and_ across area units:
+        first_id_sp += (uint) sp_hh.size();
+        
+        // Link social places (other than households)
+        // to individuals.
+        // Constraints to be linked to a given social place
+        // is based on
+        // - the distribution of sizes for this social place
+        // - individual's age
+        
+        // only indiv older than 18 yrs old
+        // can be linked to workplaces:
+        float age_min_wrk = 18.0; //17.9;
+        float age_max_wrk = _AGE_MAX; // <-- TO DO: change that!
+        
+        vector<socialPlace> sp_wrk = set_socialPlaces_size(SP_workplace,
+                                                           first_id_sp,
+                                                           first_id_indiv_au,
+                                                           size_wrk[a],
+                                                           AU[a],
+                                                           indiv,
+                                                           age_min_wrk,
+                                                           age_max_wrk);
+        
+        first_id_sp += (uint) sp_wrk.size()  ;
+        
+        float age_min_pubt = 0.0;
+        float age_max_pubt = _AGE_MAX;
+        vector<socialPlace> sp_pubt = set_socialPlaces_size(SP_pubTransp,
+                                                            first_id_sp,
+                                                            first_id_indiv_au,
+                                                            size_pubt[a],
+                                                            AU[a],
+                                                            indiv,
+                                                            age_min_pubt,
+                                                            age_max_pubt);
+        first_id_sp += (uint) sp_pubt.size() ;
+        
+        // Schools are for children only.
+        // In particular, teachers and university students
+        // are not modelled with social place school.
+        // - For teachers, they are allocated to a workplace
+        // (although they do not mix as much as children b/w
+        //  them, that would be better to include them in school --> TO DO)
+        // - University students are linked to a standard workplace, this
+        //  is justified by the fact they tend to mix more like adults at that age.
+        
+        float age_min_school = 0.0;
+        float age_max_school = 18.0;
+        vector<socialPlace> sp_school = set_socialPlaces_size(SP_school,
+                                                              first_id_sp,
+                                                              first_id_indiv_au,
+                                                              size_school[a],
+                                                              AU[a],
+                                                              indiv,
+                                                              age_min_school,
+                                                              age_max_school);
+        // No age constraint for linking individuals
+        // to hospital and 'other' type of social places.
+        
+        
+        first_id_sp += (uint) sp_school.size();
+        
+        vector<socialPlace> sp_hosp = set_socialPlaces_size(SP_hospital,
+                                                            first_id_sp,
+                                                            first_id_indiv_au,
+                                                            size_hosp[a],
+                                                            AU[a],
+                                                            indiv);
+        
+        first_id_sp += (uint) sp_hosp.size() ;
+        
+        vector<socialPlace> sp_other = set_socialPlaces_size(SP_other,
+                                                             first_id_sp,
+                                                             first_id_indiv_au,
+                                                             size_other[a],
+                                                             AU[a],
+                                                             indiv);
+        
+        // Makes sure sp_ids are incremented
+        // for the next AU iteration:
+        first_id_sp += (uint) sp_other.size() ;
+        
+        // 'Physically' move individuals
+        // in the household they are linked to:
+        populate_households(sp_hh, indiv);
+        
+        // Put all social places of
+        // the area unit into one container:
+        vector<vector<socialPlace> > tmp;
+        tmp.push_back(sp_hh);
+        tmp.push_back(sp_wrk);
+        tmp.push_back(sp_pubt);
+        tmp.push_back(sp_school);
+        tmp.push_back(sp_hosp);
+        tmp.push_back(sp_other);
+        
+        // Transform the container into
+        // one tall vector:
+        vector<socialPlace> tmp2 = melt(tmp);
+        check_sp_integrity(tmp2);
+        
+        // Increase the starting value of IDs for
+        // individuals of the next area unit:
+        first_id_indiv_au += indiv.size();
+        
+        // store the tall containers for each area unit:
+        y.push_back(tmp2);
+    }
+    // Transform the container of all social places in
+    // all area units into one tall vector:
+    vector<socialPlace> x = melt(y);
+    check_sp_integrity(x);
+    
+    return x;
+}
+
+
+
+
+
+
+
 vector<socialPlace> build_world(vector<areaUnit> AU,
                                 vector<discrete_prob_dist<uint> > D_size_hh,     // Households sizes
                                 vector< vector<discrete_prob_dist<uint> > > pr_age_hh,  // Age distribution inside households
@@ -365,7 +617,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         
         // only indiv older than 18 yrs old
         // can be linked to workplaces:
-        float age_min_wrk = 17.9;
+        float age_min_wrk = 18.0; //17.9;
         float age_max_wrk = _AGE_MAX; // <-- TO DO: change that!
         
         vector<socialPlace> sp_wrk = create_socialPlaces_size(SP_workplace,
@@ -403,7 +655,7 @@ vector<socialPlace> build_world(vector<areaUnit> AU,
         //  is justified by the fact they tend to mix more like adults at that age.
         
         float age_min_school = 0.0;
-        float age_max_school = 18.1;
+        float age_max_school = 18.0;
         vector<socialPlace> sp_school = create_socialPlaces_size(SP_school,
                                                                  n_school[a],
                                                                  first_id_sp,
