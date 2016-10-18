@@ -36,8 +36,8 @@ read.value.from.url <- function(url) {
 		return(NA)
 	}
 	
-	val.a <- substr(html,pos.a+11,  pos.a+100)
-	val.e <- substr(html,pos.e+11, pos.e+15)
+	val.a <- substr(html,pos.a+11, pos.a+100)
+	val.e <- substr(html,pos.e+11, pos.e+17)
 	
 	val.a <- trimws(substr(val.a,1,str_locate(val.a,"<")-1))
 	val.e <- as.numeric(substr(val.e,1,str_locate(val.e,"<")-1))
