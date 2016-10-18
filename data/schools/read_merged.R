@@ -2,6 +2,7 @@ load('dfall.RData')
 
 print(paste(nrow(dfall),'schools retrieved.'))
 print(summary(dfall))
+write.csv(x = dfall, file = 'dfall.csv')
 emax <- max(dfall$enrolment)
 
 ### ====  Histogram ====
