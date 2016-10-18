@@ -20,6 +20,7 @@ library(snowfall)
 library(nloptr)
 
 source('analysis_tools.R')
+source('build-world-det-sizegen.R')
 source(paste0(param.model.dir,'read-prm.R'))
 source(paste0(param.model.dir,'read-world-prm.R'))
 source(paste0(param.model.dir,'read-interv.R'))
@@ -51,6 +52,9 @@ prm       <- read.prm(filename = paste0(param.model.dir,fname.prm.epi),
 simul.prm <- read.prm(filename = paste0(param.model.dir,fname.prm.simul), 
 					  prm = simul.prm)
 
+stoch_build_world <- simul.prm[['build_world_stoch']]
+
+
 ###  ==== World parameters ====
 
 world.prm <- load.world.prm(filename = paste0(param.model.dir,fname.prm.au), 
@@ -67,8 +71,11 @@ print(paste('World size reduced by',sf))
 # age distributions, conditional on 
 # household composition:
 base.fname  <- paste0(data.dir,'households/hh_size_ad')
+world.prm   <- c(world.prm,
+				 load.age.hh(base.fname, 
+				 			max.hh.size = max(world.prm[['max_hh_size']])) )
 
-max(world.prm[['max_hh_size']])
+world.prm <- gen_world_ontario(world.prm)
 
 # schedule time slices:
 sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 
@@ -88,13 +95,24 @@ run.snow.wrap <- function(seedMC,
 						  simul.prm, 
 						  interv.prm, 
 						  world.prm, 
-						  sched.prm){
-	res <- naf_run(prm, 
-				   simul.prm, 
-				   interv.prm, 
-				   world.prm, 
-				   sched.prm,
-				   seedMC)	
+						  sched.prm,
+						  stoch_build_world){
+	if(stoch_build_world){
+		res <- naf_run(prm, 
+					   simul.prm, 
+					   interv.prm, 
+					   world.prm, 
+					   sched.prm,
+					   seedMC)
+	}
+	else{
+		res <- naf_run_det(prm, 
+						   simul.prm, 
+						   interv.prm, 
+						   world.prm, 
+						   sched.prm,
+						   seedMC)
+	}	
 	return(res)
 }
 
@@ -137,6 +155,7 @@ error.function <- function(agemean.vec,a.vec) {
 						interv.prm = interv.prm, 
 						world.prm  = world.prm, 
 						sched.prm  = sched.prm,
+						stoch_build_world = stoch_build_world,
 						simplify   = FALSE)
 		
 		sfStop()

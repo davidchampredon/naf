@@ -1,2 +1,5 @@
-Rscript run-simul-mc.R > out.txt &
-
+Rscript run-simul-mc.R >  out-sim.txt 
+Rscript analyze-simul.R > out-ana.txt
+Rscript compare-simul.R > out-cmp.txt
+echo "go-simulate finished!"
+ 

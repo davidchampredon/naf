@@ -382,7 +382,8 @@ List naf_run_det(List params,
 		
 		
 		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
-		
+		dcDataFrame world_sp  = sim.census_sp();
+	
 		
 		if(!build_world_only){
 			
@@ -416,6 +417,8 @@ List naf_run_det(List params,
 			// Return R-formatted result:
 			return List::create(Named("population_final") = to_list(pop_final,false),
 								Named("world")            = to_list_vector(W, false),
+								Named("ages")             = census_ages(sim.get_world()),
+								Named("census_sp")		  = to_list(world_sp,false),
 								Named("time_series")      = to_list(ts, false),
 								Named("time_series_sp")   = census_sp,
 								Named("track_n_contacts") = track_n_contacts,
@@ -429,8 +432,6 @@ List naf_run_det(List params,
 		if(build_world_only){
 			
 			Rcpp::List empty_list;
-			
-			dcDataFrame world_sp = sim.census_sp();
 			
 			// Return R-formatted result:
 			return List::create(Named("world")            = to_list_vector(W, false),

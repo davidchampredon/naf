@@ -6,6 +6,13 @@ library(gridExtra)
 library(tidyr)
 library(parallel)
 
+
+###########################################################################
+###########################################################################
+###      H E L P E R   F U N C T I O N S 
+###########################################################################
+###########################################################################
+
 synthetic_age_adult <- function(age.adult){
 	# Create a synthetic age distribution for adults.
 	
@@ -19,7 +26,6 @@ synthetic_age_adult <- function(age.adult){
 	p.adult <- p.adult/sum(p.adult)
 	return(p.adult)
 }
-
 
 
 merge.pop.mc <- function(res.list, n.cpu) {
@@ -47,7 +53,6 @@ merge.pop.mc <- function(res.list, n.cpu) {
 }
 
 
-
 merge.pop.mc2 <- function(res.list, n.cpu) {
 	# Merge all MC iterations into one single data frame for population.
 	
@@ -71,7 +76,6 @@ merge.pop.mc2 <- function(res.list, n.cpu) {
 	print('... populations merged.')
 	return(pop.all)
 }
-
 
 
 merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
@@ -130,6 +134,47 @@ average.age.contact <- function(res.list){
 	return(list(A.mean,m.max))
 }
 
+
+diff.flex <- function(x,y){
+	nx <- length(x)
+	ny <- length(y)
+	res <- numeric(max(nx,ny))
+	
+	if(nx >ny){
+		res[1:ny] <- x[1:ny] - y
+		res[(ny+1):nx] <- x[(ny+1):nx]
+	}
+	else if(nx<ny){
+		res[1:nx] <- x - y[1:nx]
+		res[(nx+1):ny] <- -y[(nx+1):ny]
+	}
+	else if(nx==ny){
+		res = x-y
+	}
+	return(res)
+}
+
+sp.to.string <- function(i) {
+	# WARNING: order matters!
+	# MUST be same order as enum SPType definition (C++).
+	if (i==0) res = 'household';
+	if (i==1) res = 'workplace'; 
+	if (i==2) res = 'school';
+	if (i==3) res = 'other';
+	if (i==4) res = 'hospital';
+	if (i==5) res = 'pubTransp';
+	# // [add here newly defined SPs...]
+	# // if(i==6) res = SP_xxx;
+	return(res)
+}
+
+
+
+###########################################################################
+###########################################################################
+###      P O P U L A T I O N    P L O T S 
+###########################################################################
+###########################################################################
 
 plot.binomial.regression <- function(dat, xvar, binomial_response, title, split.mc=FALSE) {
 	n <- nrow(dat)
@@ -619,6 +664,68 @@ plot.population <- function(pop, split.mc = TRUE) {
 
 
 
+###########################################################################
+###########################################################################
+###      S O C I A L   P L A C E S      P L O T S 
+###########################################################################
+###########################################################################
+
+plot.world <- function(x) {
+	stopifnot(length(x)>=1)
+	sp      <- as.data.frame(x[[1]]$census_sp)
+	stopifnot(nrow(sp)>1)
+	sp$type <- sapply(sp$sp_type,FUN = sp.to.string) 
+	sp.cnt  <- ddply(sp,c('type'),summarize, cnt=length(sp_id))
+	
+	sp.cnt$target <- NA
+	sp.cnt$target[sp.cnt$type=='household'] <- world.prm[['n_hh']]
+	sp.cnt$target[sp.cnt$type=='workplace'] <- world.prm[['n_wrk']]
+	sp.cnt$target[sp.cnt$type=='other']     <- world.prm[['n_other']]
+	sp.cnt$target[sp.cnt$type=='school']    <- world.prm[['n_school']]
+	sp.cnt$target[sp.cnt$type=='pubTransp'] <- world.prm[['n_pubt']]
+	sp.cnt$target[sp.cnt$type=='hospital']  <- world.prm[['n_hosp']]
+	sp.cnt$prop.filled <- sp.cnt$cnt/sp.cnt$target
+	sp.cnt
+	
+	g <- ggplot(sp.cnt) + geom_bar(aes(x=type, y=prop.filled), stat='identity')
+	g <- g + ggtitle('Proportion filled w.r.t. target sizes')
+	
+	sp.dsz  <- ddply(sp,c('type','nlinked'), summarize, n=length(nlinked))
+	
+	q <- join(sp.dsz, sp.cnt,by='type')
+	q$prop <- q$n/q$cnt
+	q$source <- 'simulated'
+	
+	wp <- data.frame(type = 'household', nlinked=world.prm[['hh_size']], prop=world.prm[['hh_size_proba']])
+	wp <- rbind(wp, 
+				data.frame(type = 'workplace', nlinked=world.prm[['wrk_size']], prop=world.prm[['wrk_size_proba']]))
+	wp <- rbind(wp, 
+				data.frame(type = 'school', nlinked=world.prm[['school_size']], prop=world.prm[['school_size_proba']]))
+	wp <- rbind(wp, 
+				data.frame(type = 'pubTransp', nlinked=world.prm[['pubt_size']], prop=world.prm[['pubt_size_proba']]))
+	wp <- rbind(wp, 
+				data.frame(type = 'other', nlinked=world.prm[['other_size']], prop=world.prm[['other_size_proba']]))
+	
+	wp$type <- as.character(wp$type)
+	wp$source <- 'target'
+	
+	df <- rbind(q[,names(wp)],wp)
+	df$lt <- 1
+	df$lt[df$source=='target'] <- 2
+	g2 <- ggplot(df,aes(x=nlinked, y=prop, colour=source, shape=source)) + geom_point() + geom_line(aes(linetype=factor(lt))) + facet_wrap(~type, scale='free')
+	g2 <- g2 + ggtitle('Size Distribution: simulated v.s. target')
+	
+	plot(g)
+	plot(g2)
+}
+
+
+###########################################################################
+###########################################################################
+###      T I M E  S E R I E S     P L O T S 
+###########################################################################
+###########################################################################
+
 plot.epi.timeseries <- function(ts){
 	ts$death_incidence <- c(ts$nD[1],diff(ts$nD))
 	
@@ -810,27 +917,6 @@ plot.share.same.hh <- function(pop) {
 	boxplot(ratio~sptype, data=yy, ylim=c(0,1), col='lightgrey',
 			main='Proportion of indiv sharing the same household\n(all AU combined)')
 	grid()
-}
-
-
-
-diff.flex <- function(x,y){
-	nx <- length(x)
-	ny <- length(y)
-	res <- numeric(max(nx,ny))
-	
-	if(nx >ny){
-		res[1:ny] <- x[1:ny] - y
-		res[(ny+1):nx] <- x[(ny+1):nx]
-	}
-	else if(nx<ny){
-		res[1:nx] <- x - y[1:nx]
-		res[(nx+1):ny] <- -y[(nx+1):ny]
-	}
-	else if(nx==ny){
-		res = x-y
-	}
-	return(res)
 }
 
 
