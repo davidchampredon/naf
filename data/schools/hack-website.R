@@ -53,8 +53,8 @@ read.one.url <- function(i,base.url,sn.all) {
 }
 
 # for tests:
-# s.start <- 1459
-# s.end   <- 1460
+# s.start <- 4700
+# s.end   <- 4710
 
 ns <- s.end-s.start+1
 print(paste('Parsing',ns,'URLs ...', '(',s.start,s.end,')'))

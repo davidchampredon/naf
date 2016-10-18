@@ -3,12 +3,14 @@ load('dfall.RData')
 print(paste(nrow(dfall),'schools retrieved.'))
 print(summary(dfall))
 write.csv(x = dfall, file = 'dfall.csv')
-emax <- max(dfall$enrolment)
+emax <- max(dfall$enrolment)+10
 
 ### ====  Histogram ====
 
+size.bucket <- 100
+
 h <- hist(dfall$enrolment, 
-		  breaks = seq(0,emax+10,by=50),
+		  breaks = seq(0,emax, by=size.bucket),
 		  las = 1,
 		  freq = T, col='lightgrey')
 m <- mean(dfall$enrolment)
@@ -24,11 +26,11 @@ write.table(df.save,file='size-distrib-schools-ontario.csv',
 
 
 h <- hist(dfall$enrolment, 
-		  breaks = seq(0,emax+10,by=50),
+		  breaks = seq(0,emax, by=size.bucket),
 		  las = 1,
 		  freq = F, col='lightgrey')
 lines(density(dfall$enrolment,adjust = 0.5))
-xx <- seq(0,1500, by = 1)
+xx <- seq(0,emax, by = 1)
 yy <- dlnorm(xx,meanlog = mean(log(m)), sdlog = 0.6)
 lines(xx,yy,col='red', lty=2)
 

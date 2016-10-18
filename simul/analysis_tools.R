@@ -4,7 +4,7 @@ library(ggplot2)
 library(plyr)
 library(gridExtra)
 library(tidyr)
-
+library(parallel)
 
 synthetic_age_adult <- function(age.adult){
 	# Create a synthetic age distribution for adults.
@@ -45,6 +45,33 @@ merge.pop.mc <- function(res.list, n.cpu) {
 	print('... populations merged.')
 	return(pop.all)
 }
+
+
+
+merge.pop.mc2 <- function(res.list, n.cpu) {
+	# Merge all MC iterations into one single data frame for population.
+	
+	snwrap <- function(i){
+		res    <- res.list[[i]]
+		world0 <- res[['world']]
+		z      <- mclapply(world0, as.data.frame, mc.cores = 4)   #lapply(world0, as.data.frame) 
+		pop    <- do.call('rbind.data.frame',z)
+		pop$mc <- i
+		return(pop)
+	}
+	
+	### ***WARNING***
+	### PARALLEL TURNED OFF BECAUSE DOES NOT WORK (FIX THIS IF TIME...)
+	sfInit(parallel = FALSE, cpu = n.cpu) 
+	pop.list <- list()
+	print('Merging populations...')
+	pop.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
+	sfStop()
+	pop.all <- do.call('rbind.data.frame',pop.list)
+	print('... populations merged.')
+	return(pop.all)
+}
+
 
 
 merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
