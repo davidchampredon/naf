@@ -124,7 +124,8 @@ error.function <- function(agemean.vec,a.vec) {
 	# Generate age (target) distributions given household size
 	# with parameters 'agemean' and 'a':
 	gen.all.ad.hhsz(agemean.vec, a.vec, 
-					path='../data/households/')
+					path.save='../data/households/')
+	
 	# Construct the simulation world and 
 	# return the simulated _global_ age distribution:
 	get.age.update.world <- function(prm, 
@@ -139,9 +140,19 @@ error.function <- function(agemean.vec,a.vec) {
 		# Update world parameter
 		# Relevant when age distributions
 		# given household size previously updated:
+		
+		# Remove existing:
+		idx <- which(grepl('pr_age_hh_',names(world.prm)))
+		world.prm[idx] <- NULL
+		# Update with new ones:
 		world.prm   <- c(world.prm,
 						 load.age.hh(base.fname, 
 						 			max(world.prm[['max_hh_size']])) )
+		
+		world.prm <- gen_world_ontario(world.prm)
+		
+		print('==== DEBUG ====')
+		print(world.prm[['pr_age_hh_00_proba']])
 		
 		sfInit(parallel = (n.cpu>1), cpu = n.cpu)
 		sfLibrary(naf,lib.loc = R.library.dir) 
@@ -168,7 +179,6 @@ error.function <- function(agemean.vec,a.vec) {
 		}
 		amx <- max(unlist(lapply(a, max)))+1
 		sim.age <- 0:amx
-		print(paste('DEBUG:: amx = ',amx))
 		
 		M <- matrix(nrow = length(sim.age)-1, ncol=length(res))
 		for(i in seq_along(res)){
@@ -248,12 +258,15 @@ x0 <- c(agemean.vec, a.vec)
 ub <- c( c(79,79,79,66,66,45) , rep(10,6) )
 lb <- c( c(40,20,5, 20,20,5) ,  rep(0.1,6) )
 
-opts <- list('algorithm'   ='NLOPT_LN_COBYLA', #NLOPT_GN_CRS2_LM', # 'NLOPT_LN_COBYLA',
-			 'print_level' = 1,
+opts <- list('algorithm'   ='NLOPT_GN_CRS2_LM', #NLOPT_GN_CRS2_LM', # 'NLOPT_LN_COBYLA',
+			 'print_level' = 3,
 			 'maxtime'     = 60*simul.prm[['fit_maxtime_minutes']])
 # nloptr.print.options()
 
-opt.val <- nloptr(x0 = x0,eval_f = eval_f, lb = lb, ub=ub, opts = opts)
+opt.val <- nloptr(x0 = x0, 
+				  eval_f = eval_f, 
+				  lb = lb, ub=ub, 
+				  opts = opts)
 
 save.image(file='fit_hhsz_age.RData')
 

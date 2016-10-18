@@ -77,11 +77,13 @@ gen.all.ad.hhsz <- function(agemean.vec, a.vec, path.save='./') {
 		zz <- matrix(unlist(z),ncol = 2)
 		zz <- zz[!is.infinite(zz[,2]),]
 		zz[,2] <- zz[,2]/sum(zz[,2])
+		ff <- paste0(paste(fname,hh-1,indiv-1,sep="_"),'.csv')
 		write.table(zz,
-					file=paste0(paste(fname,hh-1,indiv-1,sep="_"),'.csv'), # '-1' to be consistent with C++ code
+					file= ff, # '-1' to be consistent with C++ code
 					sep = ',',
 					col.names = FALSE,
 					row.names = FALSE)
+		print(paste('age distrib saved in',ff))
 	}
 	for(i in 1:6){
 		for(j in 1:6){
