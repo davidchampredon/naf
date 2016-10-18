@@ -1,7 +1,13 @@
 load('dfall.RData')
-nrow(dfall)
+
+print(paste(nrow(dfall),'schools retrieved.'))
+print(summary(dfall))
+emax <- max(dfall$enrolment)
+
+### ====  Histogram ====
+
 h <- hist(dfall$enrolment, 
-		  breaks = seq(0,1000,by=50),
+		  breaks = seq(0,emax+10,by=50),
 		  las = 1,
 		  freq = T, col='lightgrey')
 m <- mean(dfall$enrolment)
