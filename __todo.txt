@@ -5,9 +5,9 @@
 
 === MAJOR ITEMS ===
 
-- Finalize data used for final stage, fit, robustness, etc...
+- Clean up ABC age distribution fit
 
-- Write and read world from file
+- Finalize data used for final stage, fit, robustness, etc...
 
 - Make table output for interventions comparison
 
