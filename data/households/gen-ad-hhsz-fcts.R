@@ -102,7 +102,7 @@ gen.all.ad.hhsz <- function(agemean.vec, a.vec, path.save='./') {
 					sep = ',',
 					col.names = FALSE,
 					row.names = FALSE)
-		print(paste('age distrib saved in',ff))
+		#print(paste('age distrib saved in',ff))
 	}
 	for(i in 1:6){
 		for(j in 1:6){
