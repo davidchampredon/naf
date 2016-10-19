@@ -262,7 +262,9 @@ optim_abc <- function(n.abc,
 	idx.best <- which.min(res)
 	
 	return(list(x.best = MABC[idx.best,], 
-				fx.best = res[idx.best]))
+				fx.best = res[idx.best],
+				x.all = MABC,
+				fx.all = unlist(res)))
 }
 
 
