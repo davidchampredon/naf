@@ -3,6 +3,14 @@
 ###   CONDITIONAL ON HOUSEHOLD SIZE
 ###
 
+remove.Inf <- function(x, mult = 2) {
+	z <- x
+	zz <- z
+	z[z==Inf] <- 0
+	zz[zz==Inf]	 <- mult * max(z)
+	return(zz)
+}
+
 
 gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 	
@@ -19,6 +27,7 @@ gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 	x = seq(0,1,by=1/(agemax-agemin))
 	age <- agemin + (agemax-agemin)*x
 	ad <- dbeta(x, shape1 = a, shape2 = b)
+	ad <- remove.Inf(ad)
 	
 	if(do.plot){
 		plot(age, ad, typ='l',lwd=6, xlim=c(0,100),
@@ -43,9 +52,13 @@ gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 
 # FOR QUICK TEST:
 if(0){ 
+	# agemin  agemax agemean       a 
+	# 18.0    65.0    66.0     0.7 
+	
 	par(mfrow=c(1,1))
-	aa <- gen.ad(prm=c(agemin=0, agemax=40, agemean=19,   a=0.1),
+	aa <- gen.ad(prm=c(agemin=18, agemax=65, agemean=66,   a=0.7),
 				 do.plot = TRUE, plot.title='test')
+
 }
 
 
@@ -54,11 +67,11 @@ M <- list()
 M[[1]] <- list(c(agemin=18,agemax=80, agemean=60,  a=1.5))
 
 M[[2]] <- list(c(agemin=18,agemax=80, agemean=50,  a=2.5),
-			   c(agemin=18,agemax=80, agemean=50,  a=2.5))
+			   c(agemin=1 ,agemax=80, agemean=50,  a=2.5))
 
-M[[3]] <- list(c(agemin=18,agemax=65, agemean=35,  a=1.8),
-			   c(agemin=18,agemax=65, agemean=35,  a=1.8),
-			   c(agemin=0, agemax=40, agemean=10,  a=2.0))
+M[[3]] <- list(c(agemin=18,agemax=80, agemean=35,  a=1.8),
+			   c(agemin=18,agemax=80, agemean=35,  a=1.8),
+			   c(agemin=1, agemax=50, agemean=10,  a=2.0))
 
 shift.mean <-  c(agemin=0, agemax=0, agemean= 2.9,   a=0)
 

@@ -2,7 +2,13 @@
 ###   GENERATE SYNTHETIC AGE DISTRIBUTIONS 
 ###   CONDITIONAL ON HOUSEHOLD SIZE
 ###
-
+remove.Inf <- function(x, mult = 2) {
+	z <- x
+	zz <- z
+	z[z==Inf] <- 0
+	zz[zz==Inf]	 <- mult * max(z)
+	return(zz)
+}
 
 gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 	
@@ -10,6 +16,11 @@ gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 	agemin  <- prm[['agemin']]
 	agemax  <- prm[['agemax']]
 	a       <- prm[['a']]
+	
+	if(agemean<agemin | agemean>agemax) {
+		print('agemean not within min and max!')
+		stop()
+	}
 	
 	qv <- vector()
 	pv <- c(0.05, 0.50,0.95,0.99,0.999)
@@ -19,6 +30,14 @@ gen.ad <- function(prm, do.plot = TRUE, plot.title=''){
 	x = seq(0,1,by=1/(agemax-agemin))
 	age <- agemin + (agemax-agemin)*x
 	ad <- dbeta(x, shape1 = a, shape2 = b)
+	ad <- remove.Inf(ad)
+	
+	if(any(is.nan(ad))){
+		print(" == DEBUG ==")
+		print(prm)
+		print(ad)
+		stop()
+	}
 	
 	if(do.plot){
 		plot(age, ad, typ='l',lwd=6, xlim=c(0,100),
@@ -46,11 +65,11 @@ gen.all.ad.hhsz <- function(agemean.vec, a.vec, path.save='./') {
 	M[[1]] <- list(c(agemin=18,agemax=80, agemean=agemean.vec[1],  a=a.vec[1]))
 	
 	M[[2]] <- list(c(agemin=18,agemax=80, agemean=agemean.vec[2],  a=a.vec[2]),
-				   c(agemin=0, agemax=80, agemean=agemean.vec[3],  a=a.vec[3]))
+				   c(agemin=1, agemax=80, agemean=agemean.vec[3],  a=a.vec[3]))
 	
-	M[[3]] <- list(c(agemin=18,agemax=65, agemean=agemean.vec[4],  a=a.vec[4]),
-				   c(agemin=18,agemax=65, agemean=agemean.vec[5],  a=a.vec[5]),
-				   c(agemin=0, agemax=40, agemean=agemean.vec[6],  a=a.vec[6]))
+	M[[3]] <- list(c(agemin=18,agemax=80, agemean=agemean.vec[4],  a=a.vec[4]),
+				   c(agemin=1 ,agemax=80, agemean=agemean.vec[5],  a=a.vec[5]),
+				   c(agemin=1 ,agemax=70, agemean=agemean.vec[6],  a=a.vec[6]))
 	
 	shift.mean <-  c(agemin=0, agemax=0, agemean= 2.9,   a=0)
 	
