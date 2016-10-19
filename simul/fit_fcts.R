@@ -131,8 +131,6 @@ error.function <- function(agemean.vec,
 	sim.age.prop <- A[['sim.age.prop']]
 	sim.age2     <- sim.age[1:length(sim.age.prop)]
 	
-	
-	
 	# Retrieve the target global age distribution from data:
 	target.ad <- read.csv('../data/ages/size-distrib-ages.csv')
 	idx       <- which(target.ad$age <= max(sim.age))
@@ -142,10 +140,16 @@ error.function <- function(agemean.vec,
 	# Polynomial regression
 	# (fit is made on this smooth regression
 	#  rather than noisy simulation outputs & data)
-	deg      <- 7
-	t.ad.reg <- poly.reg(x=t.ad$age, y=t.ad$prop, deg)
-	sim.reg  <- poly.reg(x=sim.age2, y=sim.age.prop, deg)
-	
+	do.reg <- FALSE
+	if(do.reg){
+		deg      <- 7
+		t.ad.reg <- poly.reg(x=t.ad$age, y=t.ad$prop, deg)
+		sim.reg  <- poly.reg(x=sim.age2, y=sim.age.prop, deg)
+	}
+	if(!do.reg){
+		t.ad.reg <- t.ad$prop
+		sim.reg  <- sim.age.prop
+	}
 	
 	# Error value (to be minimized):
 	err <- err.dist(sim.reg, t.ad.reg, p=2)
@@ -213,14 +217,16 @@ snow.abc <- function(i,
 					 interv.prm, 
 					 world.prm, 
 					 sched.prm){
-	# i=1
 	x <- MABC[i,]
-	return(eval_f(x = x,
-				  prm        = prm, 
-				  simul.prm  = simul.prm, 
-				  interv.prm = interv.prm, 
-				  world.prm  = world.prm, 
-				  sched.prm  = sched.prm) )
+	tryeval <- try(res <- eval_f(x = x,
+								 prm        = prm, 
+								 simul.prm  = simul.prm, 
+								 interv.prm = interv.prm, 
+								 world.prm  = world.prm, 
+								 sched.prm  = sched.prm)
+	)
+	if(class(tryeval)=='try-error') res <- NA
+	return(res)
 }
 
 optim_abc <- function(n.abc, 
@@ -241,8 +247,6 @@ optim_abc <- function(n.abc,
 	}
 	
 	sfInit(parallel = (n.cpu>1), cpu = n.cpu)
-	# sfExport(list=list('eval_f','error.function','gen.all.ad.hhsz','gen.ad',
-	# 				   'get.age.update.world','load.age.hh'))
 	sfExportAll()
 	sfLibrary(naf, lib.loc = R.library.dir) 
 	res <- sfSapply(x          = 1:n.abc, 
@@ -298,9 +302,11 @@ plot.best.fit <- function(xbest,
 		  pch=16, cex=0.7,  typ='o')
 	lines(sim.age, sim.reg, lty =1, lwd=2, col='red')
 	
-	read.all.ad.hhsz(path = '../data/households/')
+	try(read.all.ad.hhsz(path = '../data/households/'), silent=FALSE)
 	dev.off()
 }
+
+
 
 
 

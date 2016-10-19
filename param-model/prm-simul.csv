@@ -1,7 +1,7 @@
 build_world_only, 0
 build_world_stoch, 0
 baseline_only, 0
-fit_hhsz_age_ABC_n, 12
+fit_hhsz_age_ABC_n, 4
 fit_hhsz_age_cpu,2
 fit_maxtime_minutes, 5
 start_time, -10

@@ -87,17 +87,20 @@ interv.prm <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
 agemean.vec <- c(65,59,59,35,35,12)   
 a.vec       <- c(1.5,2.5,2.5,1.8,1.8,2.1)
 x0          <- c(agemean.vec, a.vec)
-agemean.hi  <- c(79,79,79,66,66,45)
-agemean.lo  <- c(40,20,5, 20,20,5)
-a.hi        <- 10
-a.lo        <- 0.1
+# WARNING: agemean boundaries MUST be 
+# consistent with the hard-coded ones in
+# function 'gen.all.ad.hhsz'
+agemean.hi  <- c(69, 69, 69, 66,66,45)
+agemean.lo  <- c(30, 19, 2, 19, 2, 2)
+a.hi        <- 15
+a.lo        <- 0.7
 ub <- c( agemean.hi , rep(a.hi,length(agemean.hi)) )
 lb <- c( agemean.lo , rep(a.lo,length(agemean.lo)) )
 
 optim.method <- 'ABC' # 'ABC' , 'NLOPT'
 
 if(optim.method=='ABC'){
-xbest <- optim_abc(n.abc = simul.prm[['fit_hhsz_age_ABC_n']], 
+abmfit <- optim_abc(n.abc = simul.prm[['fit_hhsz_age_ABC_n']], 
 				   n.cpu = simul.prm[['fit_hhsz_age_cpu']],
 				   lb, 
 				   ub,  
@@ -106,7 +109,7 @@ xbest <- optim_abc(n.abc = simul.prm[['fit_hhsz_age_ABC_n']],
 				   interv.prm, 
 				   world.prm, 
 				   sched.prm)
-xbest <- xbest$x.best
+xbest <- abmfit$x.best
 }
 
 if(optim.method=='NLOPT'){
