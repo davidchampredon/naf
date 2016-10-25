@@ -50,3 +50,5 @@ simul/out-cmp.txt
 simul/out-sim.txt
 
 simul/out.txt
+
+fit/out-fit.txt
