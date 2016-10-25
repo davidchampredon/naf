@@ -189,12 +189,13 @@ optim_nlopt <- function(algo.name, x0, lb, ub,
 						simul.prm, 
 						interv.prm, 
 						world.prm, 
-						sched.prm) {
+						sched.prm,
+						fit.prm) {
 	
 	# for all options, see: nloptr.print.options()
 	opts <- list('algorithm'   =algo.name, #'NLOPT_GN_ISRES', # NLOPT_GN_DIRECT_L, NLOPT_GN_ISRES,     NLOPT_GN_CRS2_LM', # 'NLOPT_LN_COBYLA',
 				 'print_level' = 3,
-				 'maxtime'     = 60*simul.prm[['fit_maxtime_minutes']])
+				 'maxtime'     = 60*fit.prm[['fit_maxtime_minutes']])
 	
 	opt.val <- nloptr(x0 = x0, 
 					  eval_f = eval_f, 
@@ -308,6 +309,78 @@ plot.best.fit <- function(xbest,
 	dev.off()
 }
 
+
+
+plot.best.fit.manual <- function(x1,
+								 x2,
+								 prm, 
+								 simul.prm, 
+								 interv.prm, 
+								 world.prm, 
+								 sched.prm) {
+	
+	# First parameter set:
+	
+	EF <- error.function(agemean.vec = x1[1:6],
+						 a.vec       = x1[7:12],
+						 prm        = prm, 
+						 simul.prm  = simul.prm, 
+						 interv.prm = interv.prm, 
+						 world.prm  = world.prm, 
+						 sched.prm  = sched.prm)
+	
+	err          <- EF[['err']]
+	t.ad         <- EF[['t.ad']]
+	sim.age      <- EF[['sim.age']]
+	sim.age.prop <- EF[['sim.age.prop']]
+	target.reg   <- EF[['target.reg']]
+	sim.reg      <- EF[['sim.reg']]
+	
+	
+	# second parameter set:
+	EF <- error.function(agemean.vec = x2[1:6],
+						 a.vec       = x2[7:12],
+						 prm        = prm, 
+						 simul.prm  = simul.prm, 
+						 interv.prm = interv.prm, 
+						 world.prm  = world.prm, 
+						 sched.prm  = sched.prm)
+	
+	err2          <- EF[['err']]
+	t.ad2         <- EF[['t.ad']]
+	sim.age2      <- EF[['sim.age']]
+	sim.age.prop2 <- EF[['sim.age.prop']]
+	target.reg2   <- EF[['target.reg']]
+	sim.reg2      <- EF[['sim.reg']]
+	
+	
+	par(mfrow=c(1,1),mar=rep(2,4))
+	
+	plot(t.ad$age, 
+		 t.ad$prop, 
+		 ylim= range(t.ad$prop,sim.age.prop,0),
+		 main = paste('err =',round(err,5),'  err2 =',round(err2,5)),
+		 cex=1.0, typ='p', col='lightgrey')
+	lines(t.ad$age, target.reg, lty =2, lwd =2)
+	grid()
+	
+	col1 <- 'pink'
+	col2 <- 'brown'
+	
+	lines(sim.age,
+		  sim.age.prop, 
+		  col = col1,
+		  pch=16, cex=0.7,  typ='o')
+	lines(sim.age, sim.reg, lty =1, lwd=2, col=col1)
+	lines(sim.age2,
+		  sim.age.prop2, 
+		  col = col2,
+		  pch=16, cex=0.7,  typ='o')
+	lines(sim.age2, sim.reg2, 
+		  lty =1, lwd=2, col=col2)
+	
+	#try(read.all.ad.hhsz(path = '../data/households/'), silent=FALSE)
+}
 
 
 

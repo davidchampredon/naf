@@ -19,10 +19,10 @@ library(naf,lib.loc = R.library.dir)
 library(snowfall)
 library(nloptr)
 
-source('analysis_tools.R')
-source('build-world-det-sizegen.R')
-source('fit_fcts.R')
+source('../simul/analysis_tools.R')
+source('../simul/build-world-det-sizegen.R')
 source('../data/households/gen-ad-hhsz-fcts.R')
+source('fit_fcts.R')
 source(paste0(param.model.dir,'read-prm.R'))
 source(paste0(param.model.dir,'read-world-prm.R'))
 source(paste0(param.model.dir,'read-interv.R'))
@@ -35,12 +35,14 @@ fname.prm.au       <- 'prm-au-ontario.csv'
 fname.prm.interv.0 <- 'prm-interv-0.csv'
 fname.prm.interv   <- 'prm-interv.csv'
 fname.schedules    <- 'schedules.csv'
+fname.prm.fit      <- 'prm-fit.csv'
 
 prm        <- list()
 simul.prm  <- list()
 interv.prm <- list()
 world.prm  <- list()
 sched.prm  <- list()
+fit.prm    <- list()
 
 ### ==== Model Parameters ====
 
@@ -50,6 +52,10 @@ prm       <- read.prm(filename = paste0(param.model.dir,fname.prm.epi),
 					  prm = prm)
 simul.prm <- read.prm(filename = paste0(param.model.dir,fname.prm.simul), 
 					  prm = simul.prm)
+
+fit.prm   <- read.prm(filename = paste0(param.model.dir,fname.prm.fit), 
+					  prm = fit.prm)
+
 
 stoch_build_world <- simul.prm[['build_world_stoch']]
 
@@ -84,24 +90,25 @@ interv.prm <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
 
 ### ==== Constraint optimization ====
 
-agemean.vec <- c(65,59,59,35,35,12)   
-a.vec       <- c(1.5,2.5,2.5,1.8,1.8,2.1)
+agemean.vec <- c(49, 51, 23.2, 59.4, 52.1, 20.2)     
+a.vec       <- c(1.57, 7.07, 4.54, 3.27, 4.37, 0.95)
 x0          <- c(agemean.vec, a.vec)
 # WARNING: agemean boundaries MUST be 
 # consistent with the hard-coded ones in
 # function 'gen.all.ad.hhsz'
 agemean.hi  <- c(69, 69, 69, 66,66,45)
 agemean.lo  <- c(30, 19, 2, 19, 2, 2)
-a.hi        <- 15
+a.hi        <- 11
 a.lo        <- 0.7
 ub <- c( agemean.hi , rep(a.hi,length(agemean.hi)) )
 lb <- c( agemean.lo , rep(a.lo,length(agemean.lo)) )
 
-optim.method <- 'ABC' # 'ABC' , 'NLOPT'
+# Choose the optimizing method here:
+optim.method <- 'NLOPT'       # 'ABC' , 'NLOPT'
 
 if(optim.method=='ABC'){
-abmfit <- optim_abc(n.abc = simul.prm[['fit_hhsz_age_ABC_n']], 
-				   n.cpu = simul.prm[['fit_hhsz_age_cpu']],
+abmfit <- optim_abc(n.abc = fit.prm[['fit_hhsz_age_ABC_n']], 
+				   n.cpu  = fit.prm[['fit_hhsz_age_cpu']],
 				   lb, 
 				   ub,  
 				   prm, 
@@ -119,7 +126,8 @@ xbest <- optim_nlopt(algo.name = 'NLOPT_GN_ISRES',
 					 simul.prm, 
 					 interv.prm, 
 					 world.prm, 
-					 sched.prm)
+					 sched.prm,
+					 fit.prm)
 }
 save.image(file='fit_hhsz_age.RData')
 
