@@ -5,9 +5,9 @@
 
 === MAJOR ITEMS ===
 
-- Clean up ABC age distribution fit
-
 - Finalize data used for final stage, fit, robustness, etc...
+
+- Make simulations simple to run, such that launching multi-scenario will be simple
 
 - Make table output for interventions comparison
 
