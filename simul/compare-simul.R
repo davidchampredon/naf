@@ -12,9 +12,13 @@ load('mc-simul.RData')
 t1 <- as.numeric(Sys.time())
 print(paste('... simulation results loaded in',round((t1-ct0)/60,1),'minutes.'))
 
+n.mc  <- length(res.list)
+print(paste('Number of MC iterations:',n.mc))
+
 source('analysis_tools.R')  
 save.plot.to.file <- TRUE
-max.cpu <- 1
+max.cpu <- 2
+
 
 ### ==== Merge all MC iterations ====
 
@@ -24,21 +28,21 @@ ts0   <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
 
 ts0$scen <- 'baseline'
 ts$scen  <- 'interv'
-u <- rbind.data.frame(ts0,ts)
+u        <- rbind.data.frame(ts0,ts)
 
-n.mc    <- length(res.list)
-print(paste('Number of MC iterations:',n.mc))
+
 tmp     <- list()
 dprev   <- numeric(n.mc)
 dtreat  <- numeric(n.mc)
 dD      <- numeric(n.mc)
 dcuminc <- numeric(n.mc)
 
+# Loop to calculate differences
+# b/w baseline and intervention:
 for(i in seq_along(res.list.0)){
-	print(i)
-	
+	print(paste('Calculating scenario differences',i,'/',n.mc))
 	z0 <- subset(ts0,mc==i)
-	z <- subset(ts,mc==i)
+	z  <- subset(ts, mc==i)
 	
 	pop.size <- z$nS[1]+z$nE[1]+z$nIa[1]+z$nIs[1]
 	
@@ -67,7 +71,8 @@ for(i in seq_along(res.list.0)){
 						   )
 }
 
-df <- do.call('rbind.data.frame',tmp)
+dfall <- do.call('rbind.data.frame',tmp)
+
 
 #### ====== Plots =====
 
@@ -109,5 +114,5 @@ plot(h)
 
 dev.off()
 t2 <- as.numeric(Sys.time())
-print(paste('Full comparison completed in',round((t2-ct0)/60,1),'minutes.'))
+print(paste('Full comparison completed in',round((t2-ct0)/60,2),'minutes.'))
 

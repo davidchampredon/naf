@@ -28,7 +28,9 @@ synthetic_age_adult <- function(age.adult){
 }
 
 
-merge.pop.mc <- function(res.list, n.cpu) {
+merge.pop.mc <- function(res.list, n.cpu, 
+						 doparallel = FALSE, 
+						 select.mc = NA) {
 	# Merge all MC iterations into one single data frame for population.
 	
 	snwrap <- function(i){
@@ -42,13 +44,19 @@ merge.pop.mc <- function(res.list, n.cpu) {
 	
 	### ***WARNING***
 	### PARALLEL TURNED OFF BECAUSE DOES NOT WORK (FIX THIS IF TIME...)
-	sfInit(parallel = FALSE, cpu = n.cpu) 
+	t00<- as.numeric(Sys.time())
+	seqmc <- seq_along(res.list)
+	if(!is.na(select.mc)) seqmc <- select.mc
+	
+	sfInit(parallel = doparallel, cpu = n.cpu) 
 	pop.list <- list()
 	print('Merging populations...')
-	pop.list <- sfSapply(seq_along(res.list), snwrap, simplify= FALSE)
+	pop.list <- sfSapply(seqmc, snwrap, simplify= FALSE)
 	sfStop()
 	pop.all <- do.call('rbind.data.frame',pop.list)
-	print('... populations merged.')
+	t01  <- as.numeric(Sys.time())
+	msgt <- round((t01-t00)/60,2)
+	print(paste('... populations merged in',msgt,'minutes.'))
 	return(pop.all)
 }
 
@@ -78,7 +86,9 @@ merge.pop.mc2 <- function(res.list, n.cpu) {
 }
 
 
-merge.ts.mc <- function(res.list, n.cpu=2, is.contact=FALSE, is.sp=FALSE){
+merge.ts.mc <- function(res.list, n.cpu=2, 
+						is.contact=FALSE, is.sp=FALSE,
+						doparallel = FALSE){
 	# Merge all MC iterations into one single data frame for population.
   tt1 <- as.numeric(Sys.time())
 	print('Merging time series...')
@@ -134,7 +144,8 @@ average.age.contact <- function(res.list){
 	return(list(A.mean,m.max))
 }
 
-
+### Difference between 2 vectors 
+### not necessarily the same size.
 diff.flex <- function(x,y){
 	nx <- length(x)
 	ny <- length(y)
