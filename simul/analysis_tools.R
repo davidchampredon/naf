@@ -946,7 +946,7 @@ plot.ts.comp <- function(df,var.name) {
 	g
 }
 
-plot.ts.comp.all <- function(){
+plot.ts.comp.all <- function(df){
 	grid.arrange(
 		plot.ts.comp(df,'dinc'),
 		plot.ts.comp(df,'dIs'),

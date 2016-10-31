@@ -89,7 +89,7 @@ plot.hist <- function(x) {
 pdf('plot-compare.pdf',width = 15, height = 10)
 
 plot.epi.timeseries.comp(u)
-plot.ts.comp.all()
+plot.ts.comp.all(dfall)
 
 par(mfrow=c(1,3))
 plot.hist(dtreat)
