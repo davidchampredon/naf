@@ -1,10 +1,10 @@
 build_world_only, 0
 build_world_stoch, 0
 baseline_only, 0
-start_time, -10
+start_time, -40
 horizon, 300
 initial_latent, 6
 popexport, 1
-scale_factor, 250
+scale_factor, 900
 mc,2
 cpu,2
