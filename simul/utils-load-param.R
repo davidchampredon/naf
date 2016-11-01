@@ -94,17 +94,6 @@ interv.prm.0 <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
 interv.prm   <- load.interv.prm(paste0(param.model.dir,fname.prm.interv))
 
 
-
-# prm.interv[['interv_target']]
-# prm.interv[['interv_start']]
-# prm.interv[['interv_cvg_rate']]
-# prm[['contact_rate_mean']]
-# prm[['contact_rate_stddev']]
-# prm[['imm_hum_baseline']]
-
-# filename <- 'toto.csv'
-# scen.id <- 1
-
 overwrite.selected.param <- function(filename, scen.id) {
 	
 	x <- read.csv(filename)
@@ -117,8 +106,11 @@ overwrite.selected.param <- function(filename, scen.id) {
 
 	prm[['contact_rate_mean']]   <<- y$contact_rate_mean
 	prm[['contact_rate_stddev']] <<- y$contact_rate_stddev
-	prm[['imm_hum_baseline']]    <<- y$imm_hum_baseline
 	
+	prm[['vax_imm_hum_incr']]    <<- y$vax_imm_hum_incr
+	prm[['vax_imm_cell_incr']]   <<- y$vax_imm_cell_incr
+	
+	prm[['imm_hum_baseline']]    <<- y$imm_hum_baseline
 }
 
 

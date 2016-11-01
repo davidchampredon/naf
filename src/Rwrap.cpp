@@ -183,7 +183,8 @@ List naf_run_det(List params,
 		set_parameter(MP, "treat_doi_reduc", "double", params);
 		set_parameter(MP, "treat_reduc_infect_mean", "double", params);
 		
-		set_parameter(MP, "vax_imm_incr",          "double", params);
+		set_parameter(MP, "vax_imm_hum_incr",	   "double", params);
+		set_parameter(MP, "vax_imm_cell_incr",     "double", params);
 		set_parameter(MP, "vax_frail_incr",        "double", params);
 		set_parameter(MP, "vax_lag_full_efficacy", "double", params);
 		
@@ -510,7 +511,8 @@ List naf_run(List params,
         set_parameter(MP, "treat_doi_reduc", "double", params);
         set_parameter(MP, "treat_reduc_infect_mean", "double", params);
         
-        set_parameter(MP, "vax_imm_incr",          "double", params);
+        set_parameter(MP, "vax_imm_hum_incr",          "double", params);
+		set_parameter(MP, "vax_imm_cell_incr",          "double", params);
         set_parameter(MP, "vax_frail_incr",        "double", params);
         set_parameter(MP, "vax_lag_full_efficacy", "double", params);
         
@@ -841,7 +843,8 @@ List naf_test(List params, List simulParams){
     double doi_reduc_treat			= params["treat_doi_reduc"];
     double treat_reduc_infect_mean	= params["treat_reduc_infect_mean"];
     
-    double vax_imm_incr         = params["vax_imm_incr"];
+    double vax_imm_hum_incr         = params["vax_imm_hum_incr"];
+	double vax_imm_cell_incr         = params["vax_imm_cell_incr"];
     double vax_frail_incr       = params["vax_frail_incr"];
     double vax_lag_full_efficacy= params["vax_lag_full_efficacy"];
     
@@ -894,7 +897,8 @@ List naf_test(List params, List simulParams){
     MP.add_prm_double   ("treat_doi_reduc", doi_reduc_treat);
     MP.add_prm_double   ("treat_reduc_infect_mean", treat_reduc_infect_mean);
     
-    MP.add_prm_double   ("vax_imm_incr", vax_imm_incr);
+    MP.add_prm_double   ("vax_imm_hum_incr", vax_imm_hum_incr);
+	MP.add_prm_double   ("vax_imm_cell_incr", vax_imm_cell_incr);
     MP.add_prm_double   ("vax_frail_incr", vax_frail_incr);
     MP.add_prm_double   ("vax_lag_full_efficacy", vax_lag_full_efficacy);
     

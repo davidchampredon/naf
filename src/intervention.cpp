@@ -47,13 +47,14 @@ void intervention::treat(vector<individual*> x,
 
 void intervention::vaccinate(vector<individual*> x,
                              float current_time,
-                             float imm_incr,
+                             float imm_hum_incr,
+                             float imm_cell_incr,
                              float frail_incr,
                              float vaxlag){
     /// Vaccinate selected symptomatic individuals.
     
     for (uint i = 0; i<x.size(); i++) {
-        x[i]->receive_vaccine(current_time, imm_incr, frail_incr, vaxlag);
+        x[i]->receive_vaccine(current_time, imm_hum_incr,imm_cell_incr, frail_incr, vaxlag);
     }
 }
 
@@ -72,7 +73,8 @@ void intervention::cure(vector<individual *> x){
 void intervention::act_on_individual(vector<individual*> x,
                                      float current_time,
                                      float doi_reduc_treat,
-                                     float imm_incr,
+                                     float imm_hum_incr,
+                                     float imm_cell_incr,
                                      float frail_incr,
                                      float vax_lag){
     /// Activate intervention at the individual level
@@ -86,7 +88,7 @@ void intervention::act_on_individual(vector<individual*> x,
     }
     
     else if (_type_intervention == "vaccination") {
-        vaccinate(x,current_time,imm_incr,frail_incr,vax_lag);
+        vaccinate(x,current_time,imm_hum_incr,imm_cell_incr,frail_incr,vax_lag);
         found = true;
     }
     

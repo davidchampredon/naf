@@ -50,7 +50,6 @@ protected:
 	bool    _is_infected;
 	bool    _is_infectious;
 	bool    _is_symptomatic;
-	bool    _was_symptomatic;  // records if was symptomatic (when checked after infection).
 
     bool    _is_recovered;
     bool    _is_hosp;
@@ -58,10 +57,13 @@ protected:
     bool    _is_discharged;
     bool    _will_die;      // whether death occurs at the end of hospitalization.
     
-    float   _dol; // duration of latency
-    float   _doi; // duration of infection
+    bool    _was_symptomatic;   // records if was symptomatic (when checked after infection).
+    bool    _was_hosp;          // records if has been hospitalized
+    
+    float   _dol;  // duration of latency
+    float   _doi;  // duration of infection
     float   _dobh; // duration before hospitalization
-    float   _doh; // duration of hospitalization
+    float   _doh;  // duration of hospitalization
 	
     // When individual is infected,
 	// disease stages durations are randomly drawn:
@@ -163,6 +165,7 @@ public:
     
     void set_is_symptomatic(bool x)     {_is_symptomatic = x;}
     void set_was_symptomatic(bool x)    {_was_symptomatic = x;}
+    void set_was_hosp(bool x)           {_was_hosp = x;}
     
     void set_is_treated(bool x)         {_is_treated = x;}
     void set_is_vaccinated(bool x)      {_is_vaccinated = x;}
@@ -227,6 +230,7 @@ public:
     bool is_infectious()    const {return _is_infectious;}
     bool is_symptomatic()   const {return _is_symptomatic;}
     bool was_symptomatic()  const {return _was_symptomatic;}
+    bool was_hosp()         const {return _was_hosp;}
     bool is_latent()        const {return _is_latent;}
     bool is_recovered()     const {return _is_recovered;}
     bool is_hosp()          const {return _is_hosp;}
@@ -260,7 +264,8 @@ public:
     void    receive_treatment(double doi_reduction);
     void    receive_vaccine(float time,
                             float vaxlag,
-                            float imm_incr,
+                            float imm_hum_incr,
+                            float imm_cell_incr,
                             float frail_incr);
     void    receive_cure();
 	

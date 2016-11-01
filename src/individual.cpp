@@ -42,6 +42,7 @@ void individual::base_constructor(){
     _was_symptomatic    = false;
 
     _is_hosp            = false;
+    _was_hosp           = false;
     _willbe_hosp        = false;
     _is_discharged      = false;
     _is_treated         = false;
@@ -484,8 +485,9 @@ void individual::receive_treatment(double doi_reduction){
 
 
 void individual::receive_vaccine(float time,
-                                 float imm_incr,
-                                 float frail_incr,
+                                 float imm_hum_incr,
+                                 float imm_cell_incr,
+                                 float frail_incr, // <-- frailty is not affected in this implementation.
                                  float vaxlag){
     /// Vaccinate this individual
     
@@ -499,12 +501,24 @@ void individual::receive_vaccine(float time,
     // Set the immunities level once vaccine fully effective
     // (after some lag time)
     // TO DO: more sophisticated (age dependence?), investigate literature
-    std::uniform_real_distribution<> unif_lag(vaxlag-vaxlag/2.0, vaxlag+vaxlag/2.0);
-    std::uniform_real_distribution<> unif_imm(imm_incr-imm_incr/2.0, imm_incr+imm_incr/2.0);
+    std::uniform_real_distribution<> unif_lag(0.80*vaxlag, 1.20*vaxlag);
+    
+    // translate mean and stddev into gamma parameters
+    double m_g = imm_hum_incr;
+    double v_g = imm_hum_incr/20.0;
+    double a_gamma = m_g*m_g/v_g;
+    double b_gamma = m_g/v_g;
+    std::gamma_distribution<float> gamm_imm_hum(a_gamma, 1.0 / b_gamma);
+    
+    m_g = imm_cell_incr;
+    v_g = imm_cell_incr/20.0;
+    a_gamma = m_g*m_g/v_g;
+    b_gamma = m_g/v_g;
+    std::gamma_distribution<float> gamm_imm_cell(a_gamma, 1.0 / b_gamma);
     
     _vax_time_received        = time;
-    _vax_target_immunity_hum  = _immunity_hum + unif_imm(_RANDOM_GENERATOR);
-    _vax_target_immunity_cell = _immunity_cell + unif_imm(_RANDOM_GENERATOR);
+    _vax_target_immunity_hum  = _immunity_hum  + gamm_imm_hum(_RANDOM_GENERATOR);
+    _vax_target_immunity_cell = _immunity_cell + gamm_imm_cell(_RANDOM_GENERATOR);
     _vax_lag_full_efficacy    = unif_lag(_RANDOM_GENERATOR);
     
     if(_vax_target_immunity_hum > 1.0)  _vax_target_immunity_hum  = 1.0;

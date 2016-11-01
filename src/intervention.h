@@ -60,13 +60,15 @@ public:
     void    act_on_individual(vector<individual*> x,
                               float current_time,
                               float doi_reduc_treat,
-                              float imm_incr,
+                              float imm_hum_incr,
+                              float imm_cell_incr,
                               float frail_incr,
                               float vax_lag);
     
     void    vaccinate(vector<individual*> x,
                       float current_time,
-                      float imm_incr,
+                      float imm_hum_incr,
+                      float imm_cell_incr,
                       float frail_incr,
                       float lag);
     

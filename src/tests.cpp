@@ -18,7 +18,7 @@ void main_run(){
     //     MODEL PARAMETERS
     // ================================================================
     
-    double start_time = -10.0;
+    double start_time = -30.0;
     double horizon    = 300.0;
     
     modelParam MP;
@@ -78,7 +78,8 @@ void main_run(){
     MP.add_prm_double ("treat_doi_reduc", 1.123);
     MP.add_prm_double ("treat_reduc_infect_mean",0.1);
     
-    MP.add_prm_double ("vax_imm_incr", 0.4);
+    MP.add_prm_double ("vax_imm_hum_incr", 0.2);
+    MP.add_prm_double ("vax_imm_cell_incr", 0.4);
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
@@ -89,10 +90,10 @@ void main_run(){
     // Define intervention
     vector<intervention> interv_vec;
     
-    float time_start = 2;
+    float time_start = -8;
     float time_end = 999;
-    float cvg_rate = 0.01;
-    float cvg_max_prop = 0.30;
+    float cvg_rate = 0.02;
+    float cvg_max_prop = 9999;
     intervention interv("vaccination",  // treatment  cure vaccination
                         "susceptible",  // symptomatic   susceptible
                         "interv_test",
@@ -115,7 +116,7 @@ void main_run(){
     string regionName = "RegionOne";
     vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
     
-    uint mult = 8;
+    uint mult = 2;
     
     
     // ====== PARAMETERS FOR STOCHASTIC WORLD =======
@@ -240,7 +241,7 @@ void main_run(){
     for(int a=0; a<n_au; a++) {
         size_hh_vec[a]     = p_hh.sample(1200*mult, a+1234);
         size_wrk_vec[a]    = p_wrk.sample(400*mult, a+1234);
-        size_school_vec[a] = p_school.sample(1*mult, a+1234);
+        size_school_vec[a] = p_school.sample(1000*mult, a+1234);
         size_pubt_vec[a]   = p_pubt.sample(1200*mult, a+1234);
         size_other_vec[a]  = p_other.sample(1000*mult, a+1234);
         size_hosp_vec[a]   = {50000};
@@ -306,7 +307,7 @@ void main_run(){
     //     RUN SIMULATION
     // ================================================================
     
-    bool build_world_only           = true;
+    bool build_world_only           = false;
     bool stoch_world_construction   = false;
     
     if(stoch_world_construction){
@@ -607,7 +608,8 @@ void main_test_naf(){
     MP.add_prm_double ("treat_doi_reduc", 1.123);
     MP.add_prm_double ("treat_reduc_infect_mean",0.1);
     
-    MP.add_prm_double ("vax_imm_incr", 0.4);
+    MP.add_prm_double ("vax_imm_hum_incr", 0.2);
+    MP.add_prm_double ("vax_imm_cell_incr", 0.4);
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     

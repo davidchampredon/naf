@@ -841,7 +841,8 @@ void Simulator::run(){
     // Interventions
     
     float treat_doi_reduc   = _modelParam.get_prm_double("treat_doi_reduc");
-    float vax_imm_incr      = _modelParam.get_prm_double("vax_imm_incr");
+    float vax_imm_hum_incr  = _modelParam.get_prm_double("vax_imm_hum_incr");
+    float vax_imm_cell_incr = _modelParam.get_prm_double("vax_imm_cell_incr");
     float vax_frail_incr    = _modelParam.get_prm_double("vax_frail_incr");
     float vax_lag           = _modelParam.get_prm_double("vax_lag_full_efficacy");
     
@@ -857,14 +858,15 @@ void Simulator::run(){
     // ----- MAIN LOOP FOR TIME ------
     
     _current_time = _start_time;
+    double tiny_time = 1E-6;
     
     while (_current_time < _horizon )
     {
         // If zero prevalence after the epidemic has starte, then stop.
-        if(!at_least_one_infected() && _current_time>0) {break;}
+        if(!at_least_one_infected() && _current_time>tiny_time) {break;}
         
         // Epidemic starts at time t = 0.0:
-        if (fabs(_current_time-0.0)<1E-6){
+        if (fabs(_current_time-0.0)<=tiny_time){
             initial_infections(_initial_prevalence);
         }
         
@@ -927,7 +929,8 @@ void Simulator::run(){
         for (uint k=0; k<_world.size(); k++) {
             activate_interventions(k, dt,
                                    treat_doi_reduc,
-                                   vax_imm_incr,
+                                   vax_imm_hum_incr,
+                                   vax_imm_cell_incr,
                                    vax_frail_incr,
                                    vax_lag);
         }
@@ -2223,10 +2226,11 @@ void Simulator::hospitalize(){
     }
 }
 
+/** Scan all infectious hospitalized individuals
+ * and discharge them if duration of hospitalization > than the one drawn (_doh_drawn)
+ */
 
 void Simulator::discharge_hospital(uint idx_timeslice){
-    /// Scan all infectious hospitalized individuals
-    /// and discharge them if duration of hospitalization > than the one drawn (_doh_drawn)
     
     for (uint k=0; k<_world.size(); k++)
     {
@@ -2245,7 +2249,7 @@ void Simulator::discharge_hospital(uint idx_timeslice){
                 
                 // If time to leave hospital:
                 if ( _world[k]._indiv_H[i]-> is_discharged() &&
-                    _world[k]._indiv_H[i]-> is_alive()      &&
+                     _world[k]._indiv_H[i]-> is_alive()      &&
                     !_world[k]._indiv_H[i]-> will_die()
                     )
                 {
@@ -2256,11 +2260,7 @@ void Simulator::discharge_hospital(uint idx_timeslice){
                     
                     // set the hospitalization flag for this individual
                     _world[k]._indiv_H[i]->set_is_hosp(false);
-                    
-                    // DELETE WHEN SURE:
-                    //                    uint pos_Is = _world[k].find_indiv_X_pos(id_indiv, "Is");
-                    //                    _world[k]._indiv_Is[pos_Is]->set_is_hosp(false);
-                    
+                    _world[k]._indiv_H[i]->set_was_hosp(true);
                     
                     // update counters
                     _n_H--;
@@ -2410,7 +2410,8 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
 
 void Simulator::activate_interventions(ID id_sp, double dt,
                                        float treat_doi_reduc,
-                                       float vax_imm_incr,
+                                       float vax_imm_hum_incr,
+                                       float vax_imm_cell_incr,
                                        float vax_frail_incr,
                                        float vax_lag){
     /// Activate all interventions for social place 'id_sp'
@@ -2425,7 +2426,8 @@ void Simulator::activate_interventions(ID id_sp, double dt,
             _intervention[i].act_on_individual(x,
                                                _current_time,
                                                treat_doi_reduc,
-                                               vax_imm_incr,
+                                               vax_imm_hum_incr,
+                                               vax_imm_cell_incr,
                                                vax_frail_incr,
                                                vax_lag);
             
