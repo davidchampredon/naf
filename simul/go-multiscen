@@ -1,0 +1,2 @@
+Rscript master-multi-scen.R > out-multiscen.txt &
+

@@ -5,6 +5,8 @@
 ######
 ##################################################################
 
+master0 <- as.numeric(Sys.time())
+
 # Load all default parameters:
 source('utils-load-param.R')
 source('utils-run.R')
@@ -34,3 +36,6 @@ for(i in seq_along(scen.id)){
 	compare.simul.scen(scen.id = scen.id[i])
 }
 
+master1 <- as.numeric(Sys.time()) ; msgt <- paste("Time elapsed for master:",round((master1-master0)/60,1),'minutes.')
+print(msgt)
+message(msgt)

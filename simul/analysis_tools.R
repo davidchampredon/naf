@@ -13,8 +13,39 @@ library(parallel)
 ###########################################################################
 ###########################################################################
 
+
+# Calculate vaccine efficacy on various outcomes
+vax.efficacy <- function(pop, outcome){
+	
+	v <- subset(pop, is_vaccinated==1)
+	n <- nrow(v)
+	
+	if(n==0) return(NA)
+	
+	if(outcome == 'infection') res <- 1-sum(v$is_recovered)/n
+	if(outcome == 'symptom')   res <- 1-sum(v$was_symptomatic)/n
+	if(outcome == 'hosp')      res <- 1-sum(v$was_hosp)/n
+	if(outcome == 'death')     res <- sum(v$is_alive)/n
+	
+	return(res)
+}
+
+plot.vax.efficacy <- function(pop) {
+	
+	outcome <- c('infection', 'symptom', 'hosp', 'death')
+
+	eff <- sapply(outcome, vax.efficacy, pop=pop)	
+	df <- data.frame(outcome, efficacy=eff)
+	
+	g <- ggplot(df)+geom_bar(aes(x=outcome, y=efficacy), stat='identity')
+	g <- g + ggtitle('Vaccine efficacy') + coord_cartesian(ylim=c(0,1))
+	return(g)
+}
+
+
+
+# Create a synthetic age distribution for adults.
 synthetic_age_adult <- function(age.adult){
-	# Create a synthetic age distribution for adults.
 	
 	age.thres <- 60
 	age.max <- max(age.adult)
@@ -631,6 +662,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 											  stat='identity', position='dodge')
 	g.sympt.vax <- g.sympt.vax + ggtitle('Symptomatic infection and vaccination')
 	
+	g.vax.eff <- plot.vax.efficacy(pop)
 	
 	# === Schedules ===
 	
@@ -657,6 +689,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 g.treat.hosp,
 				 g.vax.hosp,
 				 g.sympt.vax,
+				 g.vax.eff,
 				 g.sympt.imm.hum.dist,
 				 g.sympt.imm.cell.dist,
 				 g.sched.R

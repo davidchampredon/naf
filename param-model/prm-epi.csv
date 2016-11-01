@@ -22,11 +22,11 @@ frailty_pivot    , 0.50
 frailty_sd       , 0.1
 frailty_powerChild , 3
 
-imm_hum_baseline, 0.5
-imm_hum_agezero, 100
+imm_hum_baseline, 0.2
+imm_hum_agezero, 120
 imm_hum_p, 2
 
-imm_cell_max, 0.75
+imm_cell_max, 0.4
 imm_cell_slope, 2
 imm_cell_pivot, 20
 
@@ -51,6 +51,7 @@ asymptom_infectiousness_ratio , 0.8
 treat_doi_reduc , 1.1123
 treat_reduc_infect_mean , 0.1
 
-vax_imm_incr   , 0.1
-vax_frail_incr , 0.2
+vax_imm_hum_incr      , 0.1
+vax_imm_cell_incr     , 0.1
 vax_lag_full_efficacy , 12
+vax_frail_incr        , 0.0001

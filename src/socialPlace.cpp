@@ -516,6 +516,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     vector<double> n_sec_cases(n);
     vector<double> gi_bck(n);
     vector<double> was_symptomatic(n);
+    vector<double> was_hosp(n);
     
     vector<double> id_hh(n);
     vector<double> id_wrk(n);
@@ -551,6 +552,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
         n_sec_cases[i]   = _indiv[i].get_num_secondary_cases();
         gi_bck[i]        = _indiv[i].get_acquisition_time() - _indiv[i].get_acquisition_time_infector();
         was_symptomatic[i]= _indiv[i].was_symptomatic();
+        was_hosp[i]      = _indiv[i].was_hosp();
         
         id_hh[i]         = _indiv[i].get_id_sp_household();
         id_wrk[i]        = _indiv[i].get_id_sp_workplace();
@@ -587,6 +589,7 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
     df.addcol("n_secondary_cases", n_sec_cases);
     df.addcol("gi_bck", gi_bck);
     df.addcol("was_symptomatic", was_symptomatic);
+    df.addcol("was_hosp", was_hosp);
     df.addcol("id_hh", id_hh);
     df.addcol("id_wrk", id_wrk);
     df.addcol("id_school", id_school);
