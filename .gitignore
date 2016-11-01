@@ -52,3 +52,5 @@ simul/out-sim.txt
 simul/out.txt
 
 fit/out-fit.txt
+
+simul/out-multiscen.txt
