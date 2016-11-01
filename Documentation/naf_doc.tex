@@ -3,7 +3,7 @@
 
 \usepackage{amssymb}
 \usepackage{amsmath}
-\usepackage[a4paper, margin=2.25cm]{geometry}
+\usepackage[a4paper, margin=2.5cm]{geometry}
 %\usepackage{mathtools}
 \usepackage{graphicx}
 
@@ -244,6 +244,8 @@ Vaccination has the effect, with a time lag, to increase (by a pre-specified amo
 
 \section{Interventions}
 
+\subsection{Deployment}
+
 Antiviral treatment and vaccination are implemented as part of ``interventions''. There can be several simultaneous interventions of different nature (\eg vaccination, antiviral treatment).
 
 Any intervention is modelled as having the following features:
@@ -264,10 +266,45 @@ Effect of treatment and vaccination is modelled based on a summary of evidence (
 Treatment reduces the duration of infection and has no impact on frailty or immunity. Vaccine decreases frailty and increases immunity, both stochastically. The change on both immunity and frailty triggered by vaccination has a (stochastic) time lag and their values change exponentially to the new values drawn at time of vaccination.
 
 
+\subsection{Vaccination effects}
+
+Vaccination will potentially increase both humoral and cellular immunities because a reduction of morbidity is observed in vaccinated individuals. However, it is not clear if one is more affected than the other. 
+
+Following vaccination, each individual will have both its humoral and cellular immunity increased by a pre-specified amount. More precisely, the increase of humoral immunity is
+\begin{equation}
+\immh^{new} = \immh + G_h
+\end{equation}
+with $G_h$ a gamma distributed random variable with a pre-specified mean $g_h$ and variance $g_h/20$ (a variance 20 times smaller than mean is  only motivated by the resulting distribution shape, see Figure \ref{fig:vax_imm_incr}). 
+Similarly, after vaccination the cellular immunity is increased by
+\begin{equation}
+\immc^{new} = \immc + G_c
+\end{equation}
+with $G_c$ a gamma distributed random variable with a pre-specified mean $g_c$ and variance $g_c/20$. 
+Note that both parameters $g_h$ and $g_c$ are not age-dependent because no literature quantifying this effect was found.
+
+The increase in both immunities is not instantaneous but grows linearly during a pre-specified lag period uniformly distributed between two values around 2 weeks.
+
+Finally, influenza vaccination is assumed to have no effect on individuals' frailty. 
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.90\textwidth]{figures/vax_imm_incr.pdf}
+\caption{Example of the gamma distribution of additional immunity granted to individuals following vaccination. Mean was set at 0.3.}
+\label{fig:vax_imm_incr}
+\end{figure}
 
 
 
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newpage
+\appendix
 
 \section{Literature review}
 
@@ -275,7 +312,7 @@ Treatment reduces the duration of infection and has no impact on frailty or immu
 
 \textbf{Incubation.} Typically 1-4 days.
 
-\textbf{Viral shedding.} Typically 1 day before symptoms appear. Could be sooner for young children. Shedding sharply reduces after 3-5 days, but could take much longer in young children (up to 10 days after onset). 
+\textbf{Viral shedding.} Typically 1 day before symptoms appear. Could be sooner for young children. Shedding sharply reduces after 3-5 days, but could take much longer in young children (up to 10 days after onset) \cite{Carrat:2008bk}. 
 
 \textbf{Recovery.} Typically after 3-7 days after onset.
 
@@ -329,50 +366,31 @@ Adherence to treatment -- especially for long treatment durations -- is an issue
 
 
 
-\subsection{Vaccination against Influenza }
-
-Influenza vaccine seems to be effective at reducing disease symptoms and severity, if infected later (at least 10 days later?).
-
-
 \subsection{Age and immunity -- Immunosenescence}
 
 Immune response, for both humoral and cellular, decreases quantitatively, as well as qualitatively, with age \cite{Vallejo:2011fe}. In particular, this causes a decreased vaccine response. Some quantification of this decrease on B-cells is provided in \cite{Frasca:2011bj,LeMaoult:1997wf}.
 
-\section{Performance}
 
-\note{this section is not completed...}
+\subsection{Vaccination against Influenza }
 
+Influenza vaccine seems to be effective at reducing disease symptoms and severity, if infected later (probably about 2 weeks because immune response to vaccine takes about this duration to peak \cite{Cox:2004vo}). 
+Elderly seem to have a lower immune response to vaccine, but that may be caused by other comorbidities rather than age alone. Infants younger than 6 months may also have a lower immune response to vaccine \cite{Cox:2004vo}.
 
-\begin{table}[htp]
-\caption{Computing time on one CPU (3.2 GHz, 8GB memory) }
-\begin{center}
-\begin{tabular}{|ccc|}
-\hline
-Num. Indiv. & Num. SP & time\\
-\hline
-4600 & 67 & 11 sec\\
-9200 & 137 & 21 sec\\
-
-\hline
-\end{tabular}
-\end{center}
-\label{default}
-\end{table}%
+Influenza vaccine are about 60-100\% effective at reducing morbidity and mortality and about 30-70\% effective at reducing hospitalization of elderly  \cite{Cox:2004vo}.
 
 
+\section{Computing performances}
 
-\section{Tests}
+(( TO DO))
 
-\note{this section is not completed...}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{itemize}
-\item \textbf{SEIR ODEs.} One unique spatial location, homogeneous mixing. Compare solutions of the standard ODE model with \naf. Test passed, see figure xxx.
-\item \textbf{Migrations between social places.} Only two social places, no epidemic. Check if migrations occur as specified by schedule. Test passed. 
-\end{itemize}
-
+\newpage
 
 \bibliography{papers}
-\bibliographystyle{plain}
+\bibliographystyle{alpha}
 
 \end{document}
 

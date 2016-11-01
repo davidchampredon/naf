@@ -36,7 +36,7 @@ plot.cel <- function(imm.max, slope, pivot,add) {
 	}
 }
 
-save.plot <- F# TRUE
+save.plot <- TRUE
 if(save.plot) pdf('../figures/immunity.pdf',width = 12, height = 6)
 par(mfrow=c(1,2))
 h0 <- 0.5
