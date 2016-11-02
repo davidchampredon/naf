@@ -205,8 +205,6 @@ plot.multi.scen.res <- function(result.scen.all){
 plot.secondary.res <- function(df){
 	# df <- res.all[['secondary']]
 	# df$scenario <- df$scen
-	
-	
 	age.bucket <- 2
 	df$age.group <- round(df$age/age.bucket)*age.bucket
 	
