@@ -21,7 +21,7 @@ n.cpu <- parallel::detectCores() - 1
 
 # Merging populations of all MC iterations
 # can be very slow, and they very similar
-# across MC, so just display the first ('select.mc=1')
+# across MC, so just display the first ('select.mc=1')	
 
 if(simul.prm[['baseline_only']]) res.select <- res.list.0
 if(!simul.prm[['baseline_only']]) res.select <- res.list

@@ -13,7 +13,6 @@ analyze.simul.scen <- function(scen.id,
 	
 	source('analysis_tools.R')  
 	
-	
 	### ==== Merge all MC iterations ====
 	
 	n.cpu <- parallel::detectCores() - 1

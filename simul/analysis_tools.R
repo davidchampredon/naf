@@ -59,7 +59,7 @@ synthetic_age_adult <- function(age.adult){
 }
 
 
-merge.pop.mc <- function(res.list, n.cpu, 
+merge.pop.mc.old <- function(res.list, n.cpu, 
 						 doparallel = FALSE, 
 						 select.mc = NA) {
 	# Merge all MC iterations into one single data frame for population.
@@ -92,6 +92,36 @@ merge.pop.mc <- function(res.list, n.cpu,
 }
 
 
+merge.pop.mc <- function(res.list, n.cpu, 
+						 doparallel = FALSE, 
+						 select.mc = NA) {
+	# Merge all MC iterations into one single data frame for population.
+	
+	snwrap <- function(i){
+		res    <- res.list[[i]]
+		pop    <- as.data.frame(res[['world_final']])
+		pop$mc <- i
+		return(pop)
+	}
+	t00<- as.numeric(Sys.time())
+	seqmc <- seq_along(res.list)
+	if(!is.na(select.mc)) seqmc <- select.mc
+	
+	sfInit(parallel = doparallel, cpu = n.cpu) 
+	pop.list <- list()
+	print('Merging populations...')
+	pop.list <- sfSapply(seqmc, snwrap, simplify= FALSE)
+	sfStop()
+	
+	pop.all <- do.call('rbind.data.frame',pop.list)
+	t01  <- as.numeric(Sys.time())
+	msgt <- round((t01-t00)/60,2)
+	print(paste('... populations merged in',msgt,'minutes.'))
+	return(pop.all)
+}
+
+
+# DELETE THIS FUNCTION? SEEMS NOT USED...
 merge.pop.mc2 <- function(res.list, n.cpu) {
 	# Merge all MC iterations into one single data frame for population.
 	
