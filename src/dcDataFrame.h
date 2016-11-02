@@ -260,8 +260,16 @@ public:
 // ===== OUTSIDE CLASS ======
 // =================================
 
-dcDataFrame rbind(const dcDataFrame& x, const dcDataFrame& y);
+/** Binds two dcDataFrames along rows (same number of columns)
+ */
+dcDataFrame rbind( const dcDataFrame& x, const dcDataFrame& y);
+
+dcDataFrame rbind_old(const dcDataFrame& x, const dcDataFrame& y);
+
+
 void append( dcDataFrame& x, const dcDataFrame& y);
+
+
 
 void thetest(dcDataFrame& d);
 

@@ -31,8 +31,8 @@ public:
 	double & operator()(unsigned long,unsigned long);
 	double & operator[](unsigned long);
     
-    unsigned long getNbRows()     {return nbRows;}
-    unsigned long getNbCols()     {return nbCols;}
+    unsigned long getNbRows()     const {return nbRows;}
+    unsigned long getNbCols()     const {return nbCols;}
     
     
     // Constructors
@@ -68,7 +68,8 @@ public:
     
 	void    resize(unsigned long nRows, unsigned long nCols)  
 	{
-		nbRows=nRows; nbCols=nCols; 
+		nbRows = nRows;
+        nbCols = nCols;
 		this->val.resize(nRows*nCols);
 	}
     
@@ -158,6 +159,7 @@ dcMatrix cholesky(dcMatrix A);	//renvoi la dcMatrix triangul L tq://si A symetri
 
 double distance_Matrix(dcMatrix A, dcMatrix B, double power);	// Euclidian distance b/w two matrices
 
+dcMatrix rowBind_old(dcMatrix A, dcMatrix B);
 dcMatrix rowBind(dcMatrix A, dcMatrix B);
 
 dcMatrix	transpo(dcMatrix A);        // FIX ME : to delete if not used elsewhere

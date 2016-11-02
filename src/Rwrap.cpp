@@ -390,7 +390,7 @@ List naf_run_det(List params,
 			
 			// Retrieve all results from simulation:
 			// populations:
-			dcDataFrame pop_final = sim.get_world()[popexport].export_dcDataFrame();
+			dcDataFrame world_final = export_world(sim.get_world());
 			
 			// epidemic time series
 			dcDataFrame ts = sim.timeseries();
@@ -416,7 +416,7 @@ List naf_run_det(List params,
 			
 			
 			// Return R-formatted result:
-			return List::create(Named("population_final") = to_list(pop_final,false),
+			return List::create(Named("world_final")      = to_list(world_final,false),
 								Named("world")            = to_list_vector(W, false),
 								Named("ages")             = census_ages(sim.get_world()),
 								Named("census_sp")		  = to_list(world_sp,false),

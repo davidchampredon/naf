@@ -205,7 +205,6 @@ public:
      * Export this social place to a dcDataFrame
      */
     dcDataFrame export_dcDataFrame() const;
-    
 
     // Miscellenaous:
     void	displayInfo();
@@ -215,6 +214,12 @@ public:
  * Export the vector of social places to a vector of dcDataFrame
  */
 vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace> & df);
+
+
+/**
+ * Export the vector of social places to a single dcDataFrame
+ */
+dcDataFrame export_world(const vector<socialPlace>& x);
 
 
 vector<socialPlace> build_world_random(uint n_sp,

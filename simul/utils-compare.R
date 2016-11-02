@@ -75,7 +75,24 @@ compare.simul.scen <- function(scen.id) {
 	
 	dfall <- do.call('rbind.data.frame',tmp)
 	
-	# Plots
+	
+	# ----- Comparison tables -----
+	
+	n <- nrow(dfall)
+	
+	z <- ddply(u,c('mc','scen'),summarize, 
+			   popsize = max(nS), 
+			   finalsize=max(nR), 
+			   total.death=max(nD),
+			   total.treated = max(n_treated))
+	z
+	
+	# a <- res.list[[2]]$world
+	# 
+	
+	
+	
+	# ----- Plots -----
 	
 	plot.hist <- function(x) {
 		hist(x, xlim=range(0,x),

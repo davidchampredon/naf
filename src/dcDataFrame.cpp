@@ -166,7 +166,7 @@ void dcDataFrame::display()
 		coutline(20);
 	}
 	
-	
+    cout.precision(4);
 	if (ncol>1)
 	{
 		coutline(80);
@@ -183,6 +183,7 @@ void dcDataFrame::display()
 		
 		coutline(80);
 	}
+    cout.precision(15);
 	
 }
 
@@ -230,10 +231,26 @@ void dcDataFrame::saveToCSV(string filename, bool col_headers)
 // /////////////////////////////////////////////////////////////
 
 
-dcDataFrame rbind(const dcDataFrame& x, const dcDataFrame& y)
+dcDataFrame rbind( const dcDataFrame& x, const dcDataFrame& y){
+    unsigned long nx = x.get_colname().size();
+    unsigned long ny = y.get_colname().size();
+    
+    string errmsg = "cannot append if column number different ("+to_string(nx)+" != "+to_string(ny) + ")";
+    stopif( nx!=ny ,errmsg);
+    
+    dcMatrix Mx = x.get_value();
+    dcMatrix My = y.get_value();
+    
+    Mx = rowBind(Mx,My);
+    
+    dcDataFrame D(Mx);
+    D.set_colname(x.get_colname());
+    return D;
+}
+
+
+dcDataFrame rbind_old(const dcDataFrame& x, const dcDataFrame& y)
 {
-	/// Binds 2 dcDataFrames along rows (same number of columns)
-	
 	unsigned long nx = x.get_colname().size();
 	unsigned long ny = y.get_colname().size();
 	

@@ -75,7 +75,7 @@ void dcMatrix::RandomInit()
 	for(unsigned long i=0;i<nbRows;i++)		
 		for(unsigned long j=0;j<nbCols;j++)
 		{
-			val[nbCols*i+j]=rand() % 11 - 10;
+			val[nbCols*i+j]=rand() % 10;
 		}
     
 }
@@ -966,7 +966,7 @@ double distance_Matrix(dcMatrix A, dcMatrix B, double power)
 }
 
 
-dcMatrix rowBind(dcMatrix A, dcMatrix B)
+dcMatrix rowBind_old(dcMatrix A, dcMatrix B)
 {
 	if (A.getNbCols()!=B.getNbCols())
 	{
@@ -990,6 +990,30 @@ dcMatrix rowBind(dcMatrix A, dcMatrix B)
 	
 	return M;	
 }
+
+
+dcMatrix rowBind(dcMatrix A, dcMatrix B)
+{
+    unsigned long cA = A.getNbCols();
+    if (cA != B.getNbCols()){
+        cerr << "ERROR [rowBind]: matrix not the same column size!"<<endl;
+        exit(1);
+    }
+    
+    unsigned long nA = A.getNbRows();
+    unsigned long nB = B.getNbRows();
+    dcMatrix      M  = A;
+    
+    M.resize(nA+nB, cA);
+    
+    for (unsigned long ii=0; ii<nB; ii++) {
+        for (unsigned long j=0; j<cA; j++) {
+            M(nA+ii, j) = B(ii, j);
+        }
+    }
+    return M;	
+}
+
 
 
 

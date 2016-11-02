@@ -309,48 +309,49 @@ void main_run(){
     
     bool build_world_only           = false;
     bool stoch_world_construction   = false;
+    Simulator sim ;
     
     if(stoch_world_construction){
-        Simulator sim = run_stochWorld(auvec,
-                                       D_size_hh_vec,
-                                       D_size_wrk_vec,
-                                       D_size_pubt_vec,
-                                       D_size_school_vec,
-                                       D_size_hosp_vec,
-                                       D_size_other_vec,
-                                       pr_age_hh,
-                                       n_hh ,
-                                       n_wrk,
-                                       n_pubt ,
-                                       n_school,
-                                       n_hosp,
-                                       n_other,
-                                       unemployed_prop,
-                                       sched ,
-                                       MP,
-                                       start_time,
-                                       horizon,
-                                       i0,
-                                       interv_vec,
-                                       build_world_only);
+        sim = run_stochWorld(auvec,
+                             D_size_hh_vec,
+                             D_size_wrk_vec,
+                             D_size_pubt_vec,
+                             D_size_school_vec,
+                             D_size_hosp_vec,
+                             D_size_other_vec,
+                             pr_age_hh,
+                             n_hh ,
+                             n_wrk,
+                             n_pubt ,
+                             n_school,
+                             n_hosp,
+                             n_other,
+                             unemployed_prop,
+                             sched ,
+                             MP,
+                             start_time,
+                             horizon,
+                             i0,
+                             interv_vec,
+                             build_world_only);
     }
     else{
-        Simulator sim_det = run_detWorld(auvec,
-                                         size_hh_vec,
-                                         size_wrk_vec,
-                                         size_pubt_vec,
-                                         size_school_vec,
-                                         size_hosp_vec,
-                                         size_other_vec,
-                                         pr_age_hh,
-                                         unemployed_prop,
-                                         sched ,
-                                         MP,
-                                         start_time,
-                                         horizon,
-                                         i0,
-                                         interv_vec,
-                                         build_world_only);
+        sim = run_detWorld(auvec,
+                           size_hh_vec,
+                           size_wrk_vec,
+                           size_pubt_vec,
+                           size_school_vec,
+                           size_hosp_vec,
+                           size_other_vec,
+                           pr_age_hh,
+                           unemployed_prop,
+                           sched ,
+                           MP,
+                           start_time,
+                           horizon,
+                           i0,
+                           interv_vec,
+                           build_world_only);
     }
     
     // ================================================================
@@ -359,6 +360,11 @@ void main_run(){
     
     // insert code here ...
     double dummy = 1; dummy++;
+    
+    dcDataFrame x = export_world(sim.get_world());
+    
+    x.display();
+    
     //displayVector(census_ages(sim.get_world()));
     
 }

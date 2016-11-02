@@ -464,11 +464,11 @@ void socialPlace::set_disease_to_all_indiv(const disease & d){
     }
 }
 
-
+/** Individual at position 'pos'
+ * in '_indiv' acquires the disease.
+ * S --> E
+ */
 void socialPlace::acquireDisease(uint pos){
-    /// Individual at position 'pos'
-    /// in '_indiv' acquires the disease.
-    /// S --> E
     _indiv[pos].acquireDisease();
     
     // Book keeping: Update pointer tables:
@@ -611,6 +611,23 @@ vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace>& x){
 }
 
 
+dcDataFrame export_world(const vector<socialPlace>& x) {
+    dcDataFrame df;
+    bool tst = false;
+    for (uint i=0; i<x.size(); i++) {
+        /* DEBUG */ if(i%1000==0) {cout << "exporting world "<<i<<"/"<<x.size()<<endl;}
+        dcDataFrame tmp = x[i].export_dcDataFrame();
+        
+        if(!tst && tmp.get_nrows()>0){
+            df = tmp;
+            tst = true;
+        }
+        if(tst) df = rbind(df, tmp);
+    }
+    return df;
+}
+
+
 
 uint socialPlace::census_disease_stage(string stage){
     /// Counts the nuber of individuals in a given disease stage
@@ -619,11 +636,11 @@ uint socialPlace::census_disease_stage(string stage){
     
     for (ID i=0; i<_indiv.size(); i++) {
         if(stage == "S" && _indiv[i].is_susceptible()) cnt++;
-        else if(stage == "E" && _indiv[i].is_latent()) cnt++;
+        else if(stage == "E"  && _indiv[i].is_latent()) cnt++;
         else if(stage == "Is" && _indiv[i].is_infectious() && _indiv[i].is_symptomatic()) cnt++;
         else if(stage == "Ia" && _indiv[i].is_infectious() && !_indiv[i].is_symptomatic()) cnt++;
-        else if(stage == "R" && _indiv[i].is_recovered()) cnt++;
-        else if(stage == "H" && _indiv[i].is_hosp()) cnt++;
+        else if(stage == "R"  && _indiv[i].is_recovered()) cnt++;
+        else if(stage == "H"  && _indiv[i].is_hosp()) cnt++;
     }
     return cnt;
 }
@@ -653,7 +670,6 @@ uint socialPlace::census_schedule(string name){
     for (uint i=0; i<_indiv.size(); i++) {
         if (_indiv[i].get_schedule().get_name() == name) cnt++;
     }
-    
     return cnt;
 }
 

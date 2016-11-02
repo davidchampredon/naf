@@ -2,6 +2,8 @@
 === T O   D O   L I S T ===
 ===========================
 
+- STOPPED HERE: change function 'merge.pop.mc' using new output 'res.list[[1]]$world_final'
+
 
 === MAJOR ITEMS ===
 
@@ -12,16 +14,39 @@
 - Make table output for interventions comparison
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
-
 - Treatment & vax affects hospitalization outcome
-
 - Performance tests
 
 
 === MINOR ITEMS ===
 
-- _id_Is and _indiv_Is redundant
-
-- immunities are deterministically allocated: change to stochastic?
+- _id_Is and _indiv_Is redundant	
 
 - put age determinant for schedule as model parameters (currently hard coded)
+
+
+
+ ---  Notes  ---
+ 
+ INPUTS:
+ 	- Vax target population (2)
+	- Vax rate (2)
+	- Vax efficacy (2)
+	- Deployement lag (5)
+	- R0 (2)
+	- Pre-existing immuntity (2)
+	
+ OUTPUTS:
+ 	- Cumul symptomatic incidence
+	- Total # treated
+	- Total # hospitalizations
+	- Total # deaths
+	
+ RESULTS:
+ 	- Relative change cumulative symptomatic incidence
+	- Relative change treated
+	- Relative change hospitalizations
+	- Relative change deaths
+	
+ PLOTS: 
+ 	- x: relative change *** ; y: vax rate

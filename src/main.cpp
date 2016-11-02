@@ -30,6 +30,38 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     
+    
+    // ---------------
+//    
+//    auto T0 = std::chrono::system_clock::now();
+//    
+//    int n = 1000;
+//    
+//    dcMatrix A(n,12);
+//    A.RandomInit();
+//    
+//    dcDataFrame dfA(A);
+//    dfA.set_colname({"q","w","e","r","t","y","u","i","o","p","a","s"});
+//    
+//    
+//    dcDataFrame dfC;
+//    
+//    for(int i =0; i<1e1; i++){
+//        dcMatrix B(n,12);
+//        B.RandomInit();
+//        dcDataFrame dfB(B);
+//        
+//        dfC = rbind(dfA,dfB);
+//    }
+//    
+//    auto T1 = std::chrono::system_clock::now();
+//    std::chrono::duration<double> elapsed_seconds2 = T1-T0;
+//    cout.precision(3);
+//    cout << "TOTAL TIME ELAPSED: "<< elapsed_seconds2.count()/60.0 << " minutes" <<endl;
+//
+//    exit(999);
+    // ---------------
+    
     auto t0 = std::chrono::system_clock::now();
     
     system("pwd");
