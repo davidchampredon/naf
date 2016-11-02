@@ -105,7 +105,7 @@ merge.pop.mc <- function(res.list, n.cpu,
 	}
 	t00<- as.numeric(Sys.time())
 	seqmc <- seq_along(res.list)
-	if(!is.na(select.mc)) seqmc <- select.mc
+	if(!is.na(select.mc[1])) seqmc <- select.mc
 	
 	sfInit(parallel = doparallel, cpu = n.cpu) 
 	pop.list <- list()
