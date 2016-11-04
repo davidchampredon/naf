@@ -69,6 +69,9 @@ In order to have a similar hierarchical structure as real world data, social pla
 
 The programming language for the model is C++. The executable is wrapped in R, mostly for output analysis and debugging.
 
+\section{High-level summary}
+
+\warning{((TO DO))}
 
 \section{Population}
 
@@ -87,7 +90,7 @@ The size of a social place, that is the number of linked individuals, is pre-spe
 Individuals are uniquely identified in the model with an identification number (ID). The modelled features of an individual are its age, immunity to the disease and frailty. Immunity and frailty are modelled as real number between 0 and 1. They determine respectively the risk of acquiring the disease and of hospitalization. Immunity and frailty can be changed by vaccination and  treatment.
 
 These individuals are ``linked'' to social places. A link means that the individual will eventually visit and have contacts in this social place (according to its schedule, see details later).
-All individuals are linked to a social place of type ``household''. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace (Figure \ref{fig:SP_indiv}. 
+All individuals are linked to a social place of type ``household''. Link to other social places depends on individuals: for example, all children aged between 3 and 18 years old are linked to a school but none is linked to a workplace (Figure \ref{fig:SP_indiv}). 
 
 
 \begin{figure}[!ht]
@@ -124,6 +127,18 @@ To summarize, the high level algorithm for the construction of the simulated wor
 
 
 \section{Simulator}
+
+\subsection{Model structure}
+
+((write description of compartments and associated flows))
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.90\textwidth]{figures/compartments.pdf}
+\caption{((write caption!))}
+\label{fig:compartments}
+\end{figure}
+
 
 \subsection{Schedules and Spatial movements}
 
@@ -265,6 +280,11 @@ N_T \sim \text{Poisson}(r\,T\,dt)
 Effect of treatment and vaccination is modelled based on a summary of evidence (see section \ref{sec:antiviral})
 Treatment reduces the duration of infection and has no impact on frailty or immunity. Vaccine decreases frailty and increases immunity, both stochastically. The change on both immunity and frailty triggered by vaccination has a (stochastic) time lag and their values change exponentially to the new values drawn at time of vaccination.
 
+\subsection{Treatment effects}
+
+Literature on the effects of antiviral treatment on the course of influenza infection indicates that it marginally reduces the duration of symptoms \warning{((cites))}. It is unclear if antiviral treatment reduces the risk of severe complications, hospitalization or even death. 
+
+Hence, this model implements the effect of antiviral treatment as solely reducing the duration of infection. More specifically, if $d$ is the duration of infection drawn from the pre-specified distribution at infection time, the duration reduction amount $\delta$ is drawn from an exponential distribution: $\delta \sim \text{Exp}(1/\delta^*)$ with $\delta^*$ the pre-specified mean reduction duration. The new (overall) duration of infectiousness at time of treatment initiation is $\max(0, d-\delta)$.
 
 \subsection{Vaccination effects}
 
