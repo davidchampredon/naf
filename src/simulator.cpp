@@ -2461,8 +2461,12 @@ void Simulator::count_targeted_by_intervention(){
         uint cnt = 0;
         
         if(type_target == "symptomatic"){
+            
+            // WARNING : in this case, is is not possible
+            // to know in advance the targeted population,
+            // so max coverage is relative to total size (=susceptible at start)
             for(uint id_sp=0; id_sp< _world.size(); id_sp++)
-                cnt += (uint)_world[id_sp]._indiv_Is.size();
+                cnt += (uint)_world[id_sp]._indiv_S.size();
         }
         
         if(type_target == "susceptible"){

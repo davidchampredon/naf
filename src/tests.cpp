@@ -18,7 +18,7 @@ void main_run(){
     //     MODEL PARAMETERS
     // ================================================================
     
-    double start_time = -30.0;
+    double start_time = -5.0;
     double horizon    = 300.0;
     
     modelParam MP;
@@ -90,17 +90,27 @@ void main_run(){
     // Define intervention
     vector<intervention> interv_vec;
     
-    float time_start = -28;
+    float time_start = -2;
     float time_end = 999;
     float cvg_rate = 0.02;
     float cvg_max_prop = 0.10;
     intervention interv("vaccination",  // treatment  cure vaccination
                         "young_old",  // symptomatic   susceptible young_old
-                        "interv_test",
+                        "vax",
                         time_start, time_end,
                         cvg_rate, cvg_max_prop);
     
-    interv_vec.push_back(interv);
+    float time_start2 = 0;
+    float time_end2 = 999;
+    float cvg_rate2 = 0.60;
+    float cvg_max_prop2 = 0.99;
+    intervention interv2("treatment",  // treatment  cure vaccination
+                         "symptomatic",  // symptomatic   susceptible young_old
+                         "antiviral",
+                         time_start2, time_end2,
+                         cvg_rate2, cvg_max_prop2);
+    
+    interv_vec.push_back(interv2);
     
     
     

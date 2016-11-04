@@ -305,6 +305,9 @@ N_T \sim \text{Poisson}(r\,T\,dt)
 Effect of treatment and vaccination is modelled based on a summary of evidence (see section \ref{sec:antiviral})
 Treatment reduces the duration of infection and has no impact on frailty or immunity. Vaccine decreases frailty and increases immunity, both stochastically. The change on both immunity and frailty triggered by vaccination has a (stochastic) time lag and their values change exponentially to the new values drawn at time of vaccination.
 
+The rate of vaccination (in terms of individual vaccinated per day), for seasonal influenza, can be roughly implied by knowing the total proportion of a population that is vaccinated and the vaccination roll-out period. For example, assuming that 30\% of the population was vaccinated during a 3-months period, the average vaccination rate is 0.3\% of the population is vaccinated every day (30\%/90 days).
+That rough estimation can be a starting point for the vaccination rate of a pandemic influenza. Reports from 2009 H1N1 show that is can be (counter-intuitively) lower than the seasonal one. But in case of a very virulent strain, one could imagine a higher rate because of public perception. 
+
 \subsection{Treatment effects}
 
 Literature on the effects of antiviral treatment on the course of influenza infection indicates that it marginally reduces the duration of symptoms \warning{((cites))}. It is unclear if antiviral treatment reduces the risk of severe complications, hospitalization or even death. 

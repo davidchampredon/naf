@@ -5,11 +5,11 @@ plantvax, interv_target, susceptible
 plantvax, interv_start, -7
 plantvax, interv_end, 999
 plantvax, interv_cvg_rate, 0.02
-plantvax, interv_cvg_max_prop, 0.999
+plantvax, interv_cvg_max_prop, 0.40
 
 avr, interv_type, treatment
 avr, interv_target, symptomatic
 avr, interv_start, 0
 avr, interv_end, 999
 avr, interv_cvg_rate, 0.40
-avr, interv_cvg_max_prop, 0.999
+avr, interv_cvg_max_prop, 0.80
