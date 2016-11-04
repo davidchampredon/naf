@@ -2641,9 +2641,6 @@ void Simulator::assign_frailty(){
 
 
 void Simulator::timeseries_update(){
-    /// Update epidemiological time series
-    /// (at each time step)
-    
     _ts_times.push_back(_current_time);
     _ts_incidence.push_back(_incidence);
     _ts_prevalence.push_back(_prevalence);
@@ -2659,9 +2656,7 @@ void Simulator::timeseries_update(){
 }
 
 
-void Simulator::change_rnd_sp_other(){
-    /// Change randomly the link with SP_other for all individuals
-    
+void Simulator::change_rnd_sp_other(){    
     // Probability to change 'other' social place
     // during a time slice:
     double p = _modelParam.get_prm_double("proba_change_sp_other");

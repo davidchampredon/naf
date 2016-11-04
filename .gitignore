@@ -56,3 +56,5 @@ fit/out-fit.txt
 simul/out-multiscen.txt
 
 simul/~$scenario-builder.xlsm
+
+data/frailty/~$chronic-diseases-canada.xlsx

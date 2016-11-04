@@ -210,6 +210,9 @@ public:
 	
 	void	time_update(double dt);
 	void	update_pop_count();
+    
+    /** Update epidemiological time series (at each time step)
+     */
     void    timeseries_update();
 	
 	// Migration
@@ -218,6 +221,9 @@ public:
 	void move_individuals(const SPtype sptype, double proba);
 	void move_one_individual(uint pos_indiv, ID from, ID to);
     void assign_hospital_to_individuals();
+    
+    /** Change randomly the link with SP_other for all individuals
+     */
     void change_rnd_sp_other();
     
     socialPlace* pick_rnd_sp_other();
