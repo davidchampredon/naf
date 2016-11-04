@@ -2,16 +2,15 @@
 === T O   D O   L I S T ===
 ===========================
 
-- STOPPED HERE: change function 'merge.pop.mc' using new output 'res.list[[1]]$world_final'
+> Read Baguelin 2013
+> do something with large run on abm-lab server
 
 
 === MAJOR ITEMS ===
 
+- double check vaccinationtarget populations
+
 - Finalize data used for final stage, fit, robustness, etc...
-
-- Make simulations simple to run, such that launching multi-scenario will be simple
-
-- Make table output for interventions comparison
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
