@@ -90,10 +90,10 @@ void main_run(){
     // Define intervention
     vector<intervention> interv_vec;
     
-    float time_start = -8;
+    float time_start = -28;
     float time_end = 999;
     float cvg_rate = 0.02;
-    float cvg_max_prop = 9999;
+    float cvg_max_prop = 0.10;
     intervention interv("vaccination",  // treatment  cure vaccination
                         "young_old",  // symptomatic   susceptible young_old
                         "interv_test",

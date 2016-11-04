@@ -20,8 +20,8 @@ void Simulator::base_constructor(){
     _n_H  = 0;
     _n_D  = 0;
     _incidence = 0;
-    _n_treated = 0;
-    _n_vaccinated = 0;
+    _n_treated.clear();
+    _n_vaccinated.clear();
     _horizon = -999;
     
     _ts_times.clear();
@@ -852,8 +852,8 @@ void Simulator::run(){
     
     // set-up before time loop:
     double p_move   = _modelParam.get_prm_double("proba_move");
-    define_contactAssort(); 
-    
+    define_contactAssort();
+    count_targeted_by_intervention();
     
     // ----- MAIN LOOP FOR TIME ------
     
@@ -2404,8 +2404,8 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         // it is necessarily symptomatic, but not all symptomatic are treated)
     
         found = true;
-        float age_old   = 65.0;
-        float age_young = 12.0;
+        float age_old   = AGE_OLD;
+        float age_young = AGE_YOUNG;
         
         // First, count how many individuals
         // of the targeted ages are present
@@ -2450,49 +2450,106 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
 }
 
 
+void Simulator::count_targeted_by_intervention(){
+    
+    _max_cvg_interv.resize(_intervention.size());
+    
+    for (uint i=0; i<_intervention.size(); i++){
+        
+        string type_target     = _intervention[i].get_type_indiv_targeted();
+        
+        uint cnt = 0;
+        
+        if(type_target == "symptomatic"){
+            for(uint id_sp=0; id_sp< _world.size(); id_sp++)
+                cnt += (uint)_world[id_sp]._indiv_Is.size();
+        }
+        
+        if(type_target == "susceptible"){
+            for(uint id_sp=0; id_sp< _world.size(); id_sp++)
+                cnt += (uint)_world[id_sp]._indiv_S.size();
+        }
+        
+        if(type_target == "young_old"){
+            float age_old   = AGE_OLD;
+            float age_young = AGE_YOUNG;
+            
+            for(uint id_sp=0; id_sp< _world.size(); id_sp++){
+                uint n_yo = 0;
+                // counts individuals of the targeted age:
+                for (uint i=0; i< _world[id_sp].get_size(); i++) {
+                    double age = _world[id_sp].get_indiv(i).get_age();
+                    if(age <= age_young || age >= age_old) {
+                        n_yo++;
+                    }
+                }
+                cnt += n_yo;
+            }
+            
+        }
+        // Maximum number of individuals
+        // targeted by ith intervention:
+        _max_cvg_interv[i] = (uint)(cnt * _intervention[i].get_cvg_max_proportion());
+    }
+}
+    
+
+
+
 void Simulator::activate_interventions(ID id_sp, double dt,
                                        float treat_doi_reduc,
                                        float vax_imm_hum_incr,
                                        float vax_imm_cell_incr,
                                        float vax_frail_incr,
-                                       float vax_lag){
-    /// Activate all interventions for social place 'id_sp'
+                                       float vax_lag)
+{
+    _n_treated.resize(_intervention.size());
+    _n_vaccinated.resize(_intervention.size());
     
-    
-    for (uint i=0; i<_intervention.size(); i++) {
+    for (uint i=0; i<_intervention.size(); i++)
+    {
+        string interv_type = _intervention[i].get_type_intervention();
         
         if (_intervention[i].get_time_start() <= _current_time &&
             _intervention[i].get_time_end() > _current_time)
         {
-            vector<individual*> x = draw_targeted_individuals(i, id_sp, dt);
-            _intervention[i].act_on_individual(x,
-                                               _current_time,
-                                               treat_doi_reduc,
-                                               vax_imm_hum_incr,
-                                               vax_imm_cell_incr,
-                                               vax_frail_incr,
-                                               vax_lag);
+            bool cond1 = (_n_treated[i]    > _max_cvg_interv[i]) && (interv_type=="treatment");
+            bool cond2 = (_n_vaccinated[i] > _max_cvg_interv[i]) && (interv_type=="vaccination");
             
-            if (_intervention[i].get_type_intervention()=="treatment")
-                _n_treated += x.size();
-            else if (_intervention[i].get_type_intervention()=="vaccination")
-            {
-                _n_vaccinated += x.size();
-                _world[id_sp]._indiv_vax.insert(_world[id_sp]._indiv_vax.end(),
-                                                x.begin(),
-                                                x.end());
+            if ( ! (cond1 || cond2) ){  // <-- check if max number targeted reached.
+                
+                vector<individual*> x = draw_targeted_individuals(i, id_sp, dt);
+                _intervention[i].act_on_individual(x,
+                                                   _current_time,
+                                                   treat_doi_reduc,
+                                                   vax_imm_hum_incr,
+                                                   vax_imm_cell_incr,
+                                                   vax_frail_incr,
+                                                   vax_lag);
+                
+                if      (_intervention[i].get_type_intervention()=="treatment")
+                    _n_treated[i] += x.size();
+                
+                else if (_intervention[i].get_type_intervention()=="vaccination")
+                {
+                    _n_vaccinated[i] += x.size();
+                    _world[id_sp]._indiv_vax.insert(_world[id_sp]._indiv_vax.end(),
+                                                    x.begin(),
+                                                    x.end());
+                }
+            } // end-if con1 cond2
+            else{
+//                cout << "DEBUG: max targeted for intervention #"<<i<<" reached."<<endl;
+//                cout << "_n_treat="<<_n_treated[i]   <<">"<<_max_cvg_interv[i]<<endl;
+//                cout << "_n_vax="  <<_n_vaccinated[i]<<">"<<_max_cvg_interv[i]<<endl;
             }
-        }
-    }
+        } // end-if time
+    } // end-for intervention  size
 }
 
 
 void Simulator::update_immunities() {
-    /// Update immunity and frailty of vaccinated individuals
-    /// at each time step. Because vaccine takes some time
-    /// to reach its full efficacy, both immunity and frailty
-    /// need to be updated during this period of time.
-    
+
     for (uint k=0; k<_world.size(); k++) {
         unsigned long n_vax = _world[k]._indiv_vax.size();
         for (uint i=0; i<n_vax; i++)
@@ -2651,8 +2708,8 @@ void Simulator::timeseries_update(){
     _ts_H.push_back(_n_H);
     _ts_R.push_back(_n_R);
     _ts_D.push_back(_n_D);
-    _ts_n_treated.push_back(_n_treated);
-    _ts_n_vaccinated.push_back(_n_vaccinated);
+    _ts_n_treated.push_back(sumElements(_n_treated));
+    _ts_n_vaccinated.push_back(sumElements(_n_vaccinated));
 }
 
 

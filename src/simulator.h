@@ -44,8 +44,10 @@ protected:
     uint	_n_H;   // hospitalized
     uint    _n_D;   // dead
     
-    uint    _n_treated;
-    uint    _n_vaccinated;
+    // Number of individuals treated or vaccinated
+    // for each intervention:
+    vector<uint>    _n_treated;
+    vector<uint>    _n_vaccinated;
 	
     vector<socialPlace*>  _sp_other;  // keep track of 'other' social places
     
@@ -70,6 +72,7 @@ protected:
     vector<uint>    _ts_census_sp_nE;
 
     vector<intervention> _intervention;
+    vector<uint>         _max_cvg_interv; // Maximum number of indiv receiving associated intervention
 
     /**
      * Calculate the contact rate ratio based on features of individual and social place.
@@ -304,6 +307,12 @@ public:
     // Interventions
     
     void    add_intervention(intervention x) {_intervention.push_back(x);}
+    
+    
+    void    count_targeted_by_intervention();
+    
+    /** Activate all interventions for social place 'id_sp'.
+     */
     void    activate_interventions(ID id_sp, double dt,
                                    float treat_doi_reduc,
                                    float vax_imm_hum_incr,
@@ -313,8 +322,14 @@ public:
     
    
     
-    
+    /** Update immunity and frailty of vaccinated individuals
+     * at each time step. Because vaccine takes some time
+     * to reach its full efficacy, both immunity and frailty
+     * need to be updated during this period of time.
+     */
     void    update_immunities();
+    
+    
     bool    at_least_one_vaccination_intervention();
     
     /** Draw the targeted individuals of the ith intervention,

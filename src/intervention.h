@@ -57,6 +57,8 @@ public:
     
     // Actions
     
+    /** Activate intervention at the individual level according to intervention type.
+     */
     void    act_on_individual(vector<individual*> x,
                               float current_time,
                               float doi_reduc_treat,

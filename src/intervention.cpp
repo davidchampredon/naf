@@ -63,7 +63,6 @@ void intervention::vaccinate(vector<individual*> x,
 void intervention::cure(vector<individual *> x){
     /// Instantaneously cure individual (--> doi_drawn=0)
     /// Used for debuging.
-    
     for (uint i = 0; i<x.size(); i++) {
         x[i]->receive_cure();
     }
@@ -77,9 +76,6 @@ void intervention::act_on_individual(vector<individual*> x,
                                      float imm_cell_incr,
                                      float frail_incr,
                                      float vax_lag){
-    /// Activate intervention at the individual level
-    /// according to intervention type.
-
     bool found = false;
     
     if (_type_intervention == "treatment") {

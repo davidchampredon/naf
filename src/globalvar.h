@@ -36,6 +36,8 @@ const std::string   _DIR_INPUT = "./INPUT/";
 
 const uint          _AGE_MAX = 99;
 
+const float         AGE_YOUNG = 12.0;
+const float         AGE_OLD   = 65.0;
 
 
 

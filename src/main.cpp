@@ -32,10 +32,10 @@ int main(int argc, const char * argv[]) {
     
     
     // ---------------
-//    
+    
 //    auto T0 = std::chrono::system_clock::now();
 //    
-//    int n = 1000;
+//    int n = 10;
 //    
 //    dcMatrix A(n,12);
 //    A.RandomInit();
@@ -43,16 +43,20 @@ int main(int argc, const char * argv[]) {
 //    dcDataFrame dfA(A);
 //    dfA.set_colname({"q","w","e","r","t","y","u","i","o","p","a","s"});
 //    
+//    dfA.display();
 //    
-//    dcDataFrame dfC;
+//    dcDataFrame dfC = dfA;
 //    
-//    for(int i =0; i<1e1; i++){
+//    for(int i =0; i<1; i++){
 //        dcMatrix B(n,12);
 //        B.RandomInit();
 //        dcDataFrame dfB(B);
+//        dfB.display();
 //        
-//        dfC = rbind(dfA,dfB);
+//        dfC = rbind(dfC,dfB);
 //    }
+//    dfC.display();
+//    
 //    
 //    auto T1 = std::chrono::system_clock::now();
 //    std::chrono::duration<double> elapsed_seconds2 = T1-T0;
