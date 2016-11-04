@@ -95,7 +95,7 @@ void main_run(){
     float cvg_rate = 0.02;
     float cvg_max_prop = 9999;
     intervention interv("vaccination",  // treatment  cure vaccination
-                        "susceptible",  // symptomatic   susceptible
+                        "young_old",  // symptomatic   susceptible young_old
                         "interv_test",
                         time_start, time_end,
                         cvg_rate, cvg_max_prop);

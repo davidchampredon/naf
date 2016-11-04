@@ -261,7 +261,12 @@ public:
     void    recoverDisease();
     void    futureHospitalization();
     void    futureDeath();
+    
+    /** This individual receives a treamtment
+     * that is supposed to reduced its DOI.
+     */
     void    receive_treatment(double doi_reduction);
+    
     void    receive_vaccine(float time,
                             float vaxlag,
                             float imm_hum_incr,

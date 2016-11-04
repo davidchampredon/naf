@@ -472,15 +472,11 @@ void individual::reduce_doi_drawn(double x)
 
 
 void individual::receive_treatment(double doi_reduction){
-    /// This individual receives a treamtment
-    /// that is supposed to reduced its DOI
-    
     set_is_treated(true);
     std::exponential_distribution<double> expdist(1.0/doi_reduction);
     double tmp = _doi_drawn - expdist(_RANDOM_GENERATOR);
     double new_doi_drawn = (tmp>0)?tmp:SUPERTINY;
     set_doi_drawn(new_doi_drawn);
-
 }
 
 

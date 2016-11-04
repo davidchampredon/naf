@@ -311,6 +311,9 @@ public:
     void    update_immunities();
     bool    at_least_one_vaccination_intervention();
     
+    /** Draw the targeted individuals of the ith intervention,
+     *  in social place with ID 'id_sp'.
+     */
     vector<individual*> draw_targeted_individuals(uint i_intervention,
                                                   ID id_sp,
                                                   double dt);

@@ -2342,15 +2342,11 @@ void Simulator::death_hospital(){
 vector<individual*> Simulator::draw_targeted_individuals(uint i,
                                                          ID id_sp,
                                                          double dt){
-    /// Draw the targeted individuals of the ith intervention,
-    /// in sociale place with ID 'id_sp'
-    
     vector<individual*> indiv_drawn;
     bool found = false;
     
     float cvg_rate         = _intervention[i].get_cvg_rate();
     string type_target     = _intervention[i].get_type_indiv_targeted();
-    float interv_intensity = cvg_rate * _world[id_sp].get_size() * dt;
     
     if(type_target == "symptomatic"){
         
@@ -2361,7 +2357,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         
         if (nI > 0){
             // Draw the total number of individuals that are targeted
-            std::poisson_distribution<> poiss(interv_intensity);
+            std::poisson_distribution<> poiss(cvg_rate * nI * dt);
             uint n_target = poiss(_RANDOM_GENERATOR);
             if (n_target > nI) n_target = nI;
             // Select targeted individuals:
@@ -2378,14 +2374,14 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
     
     else if(type_target == "susceptible"){
         
-        // * * WARNING * * excludes susceptiblr already treated & vaccinated!
+        // * * WARNING * * excludes susceptible already treated & vaccinated!
         
         found = true;
         uint nS  = (uint)_world[id_sp]._indiv_S.size();
         
         if (nS > 0){
             // Draw the total number of individuals that are targeted
-            std::poisson_distribution<> poiss(interv_intensity);
+            std::poisson_distribution<> poiss(cvg_rate * nS * dt);
             uint n_target = poiss(_RANDOM_GENERATOR);
             if (n_target > nS) n_target = nS;
             // Select targeted individuals:
@@ -2401,9 +2397,55 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         }
     } // end-if-type_target == "susceptible"
     
+    else if(type_target == "young_old"){
+        
+        // * * WARNING * * targets _ALL_ (including infected) young/old individuals
+        // as long as not already vaccinated or treated (if treated,
+        // it is necessarily symptomatic, but not all symptomatic are treated)
+    
+        found = true;
+        float age_old   = 65.0;
+        float age_young = 12.0;
+        
+        // First, count how many individuals
+        // of the targeted ages are present
+        // in this social place:
+        uint n_yo = 0;
+        vector<uint> pos_yo;
+        
+        for (uint i=0; i< _world[id_sp].get_size(); i++) {
+            double age = _world[id_sp].get_indiv(i).get_age();
+            if(age <= age_young || age >= age_old) {
+                n_yo++;
+                pos_yo.push_back(i);
+            }
+        }
+        
+        if(n_yo>0){
+            // Draw the total number of individuals
+            // that are targeted:
+            float intensity = cvg_rate * n_yo * dt;
+            std::poisson_distribution<> poiss(intensity);
+            uint n_target = poiss(_RANDOM_GENERATOR);
+            if (n_target > n_yo) n_target = n_yo;
+            
+            // Select targeted individuals:
+            uint cnt = 0;
+            for(uint i=0; i<pos_yo.size(); i++) {
+                bool is_treated = _world[id_sp].get_indiv(i).is_treated();
+                bool is_vax     = _world[id_sp].get_indiv(i).is_vaccinated();
+                if (!is_treated && !is_vax){
+                    individual* tmp = _world[id_sp].get_mem_indiv(pos_yo[i]);
+                    indiv_drawn.push_back(tmp);
+                    cnt ++;
+                }
+                //DEBUG
+                //cout << "DEBUG:: YO vax = "<< cnt <<endl;
+            }
+        }
+    }// end-if-type_target == "young_old"
     
     stopif(!found, "Type of targeted individual unknown: " + type_target);
-    
     return indiv_drawn;
 }
 
