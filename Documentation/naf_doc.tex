@@ -224,6 +224,31 @@ Deciding these events and durations at acquisition time is more computationally 
 If an individual is hospitalized, it is moved to its linked social place labelled ``hospital'' and stays there for the duration of its hospitalization (movements to other social places directed by its schedule are ignored during hospitalization). Disease-induced death can only occur for hospitalized individuals.
 
 
+\section{Frailty}
+
+Individuals have different levels of vulnerability to influenza infection that translates into risk of severe illness, or even death, caused by influenza. This vulnerability is represented in the model by a frailty index with a value between 0 and 1 (1 means extreme vulnerability) and depends on age. 
+
+Individuals at higher risk of influenza-induced complications include those with chronic respiratory, cardiovascular diseases, immunosuppression or diabetes. Hence, in order to represent the age profile, frailty shape is fitted on survey data of chronic diseases. Then, the final level of the frailty index is multiplied by an arbitrary constant (which is subject to sensitivity analysis). 
+
+The frailty shape $f(a)$, as a function of age, is parametrized the following way
+
+\begin{eqnarray}
+f(a) & = & \frac{ f_0 - f_{\min} }{a_{\min} } (a_{\min} - a)^q + f_{\min}   \,\,\,\,\,\,(\text{for } a<30)  \\
+f(a) & = & \left(1+b\exp^{-\alpha(a-a^*)} \right)^{-1}  \,\,\,\,\,\, (\text{for } a\geq30)
+\end{eqnarray}
+with $f_0$, $f_{\min}$, $a_{\min}$, $a^*$, $b$ and $\alpha=-\log((f_{\min}b)^{-1}-b^{-1})/(a_{\min}-a^*)$ parameters to be fitted to data. 
+Figure \ref{fig:frailty} shows an example of the frailty index where the parametric shape has been fitted to data.
+
+\begin{figure}[!ht]
+\centering
+    \includegraphics[angle=0,width=0.90\textwidth]{figures/frailty.pdf}
+\caption{Frailty index (back line) as a function of individual's age. Red circles plot data from the Canadian Community Health Survey 2014, representing the proportion of individual having a major chronic disease. Data were multiplied arbitrarily by 1.5 in order to set the frailty index.}
+\label{fig:frailty}
+\end{figure}
+
+Finally, each individual in the simulation is assigned a frailty index based on its age (only). The value of the frailty index is drawn from a normal distribution with mean $f(a)$ (where $a$ is the individual's age) and standard deviation arbitrarily set at 0.1.
+
+
 \section{Immunity}
 
 Two types of immunity is modelled: humoral and cell-mediated (``cellular'' hereafter). 
