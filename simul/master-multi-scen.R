@@ -19,6 +19,8 @@ x <- read.csv(scen.list.file)
 x <- na.omit(x)
 scen.id <- x$scenario_id
 
+dir.results <- '../results/'
+
 # Run the simulations on all scenarios:
 for(i in seq_along(scen.id)){
 	# Overwrite parameter values
@@ -56,10 +58,8 @@ for(i in seq_along(scen.id)){
 
 
 for(i in seq_along(scen.id)){
-
 	# In-depth analysis of the results:
 	if(FALSE) analyze.simul.scen(scen.id = scen.id[i])
-	
 	# Compare intervention of this scenario
 	# with common baseline:
 	compare.simul.scen(scen.id = scen.id[i])
@@ -69,8 +69,8 @@ for(i in seq_along(scen.id)){
 res.all <- merge.result.scen(scen.id)
 
 # Plot results for all scenarios:
-plot.multi.scen.res(res.all[['main']])
-plot.secondary.res(res.all[['secondary']])
+plot.multi.scen.res(res.all[['main']], dir=dir.results)
+plot.secondary.res(res.all[['secondary']], dir=dir.results)
 
 master1 <- as.numeric(Sys.time()) ; msgt <- paste("Time elapsed for master:",round((master1-master0)/60,1),'minutes.')
 print(msgt)

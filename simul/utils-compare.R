@@ -181,11 +181,11 @@ merge.result.scen <- function(scen.id) {
 				secondary = secondary.all) )
 }
 
-plot.multi.scen.res <- function(result.scen.all){
+plot.multi.scen.res <- function(result.scen.all, dir){
 	idx <- which( substr(names(result.scen.all),1,6)=='rel.d.'  )
 	x <- gather(result.scen.all,'type','rel.diff',idx)
 	
-	pdf('plot-compare-all.pdf', width=12, height=8)
+	pdf(paste0(dir,'plot-compare-all.pdf'), width=12, height=8)
 	g <- ggplot(x) + geom_boxplot(aes(x=factor(type),y=rel.diff, 
 									  fill=factor(scenario)))
 	g <- g + geom_hline(yintercept=0, colour='black',linetype=2)
@@ -202,7 +202,7 @@ plot.multi.scen.res <- function(result.scen.all){
 	dev.off()
 }
 
-plot.secondary.res <- function(df){
+plot.secondary.res <- function(df, dir){
 	# df <- res.all[['secondary']]
 	# df$scenario <- df$scen
 	age.bucket <- 2
@@ -248,8 +248,8 @@ plot.secondary.res <- function(df){
 										shape = intervention))
 	g.doi <- g.doi + ggtitle('Mean DOI')
 	
-	pdf('plot-secondary.pdf')
-	grid.arrange(g.immh,g.immh, g.frail)
+	pdf(paste0(dir,'plot-secondary.pdf'), width=15, height = 10)
+	grid.arrange(g.immh,g.immc, g.frail)
 	grid.arrange(g.R, g.doi)
 	grid.arrange(g.age)
 	dev.off()

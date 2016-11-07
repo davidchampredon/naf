@@ -1,3 +1,4 @@
+cd $(dirname $0)
 Rscript age-contacts.R &
 Rscript frailty_age.R &
 Rscript immunity.R &

@@ -18,7 +18,7 @@ print(paste('Number of MC iterations:',n.mc))
 source('analysis_tools.R')  
 save.plot.to.file <- TRUE
 max.cpu <- 2
-
+dir.results <- '../results/'
 
 ### ==== Merge all MC iterations ====
 
@@ -86,7 +86,7 @@ plot.hist <- function(x) {
   abline(v=0,lty=2, lwd=2,col='black')
 }
 
-pdf('plot-compare.pdf',width = 15, height = 10)
+pdf(paste0(dir.results,'plot-compare.pdf'), width = 15, height = 10)
 
 plot.epi.timeseries.comp(u)
 plot.ts.comp.all(dfall)

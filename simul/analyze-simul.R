@@ -13,6 +13,7 @@ print(paste('... simulation results loaded in',msgt,'minutes.'))
 
 source('analysis_tools.R')  
 save.plot.to.file <- TRUE
+dir.results <- '../results/'
 
 
 ### ==== Merge all MC iterations ====
@@ -44,15 +45,20 @@ if(exists('res.list')){
 
 ### ==== Plots ====
 
+# filenames
+fname.world <- paste0(dir.results,'plot_world.pdf')
+fname.pop   <- paste0(dir.results,'plot_pop.pdf')
+fname.ts    <- paste0(dir.results,'plot_ts.pdf')
+
 # World (all social places):
 print(' -> Ploting world ...')
-if (save.plot.to.file) pdf('plot_world.pdf', width = 10, height = 8)
+if (save.plot.to.file) pdf(fname.world, width = 10, height = 8)
 try( plot.world(res.list.0),  silent = T)
 if (save.plot.to.file) dev.off()
 
 # Population:
 print(' -> Ploting population ...')
-if (save.plot.to.file) pdf('plot_pop.pdf', width = 30, height = 18)
+if (save.plot.to.file) pdf(fname.pop, width = 30, height = 18)
 try( plot.population(pop, split.mc=T),  silent = T)
 try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.list),  silent = T)
@@ -62,7 +68,7 @@ if (save.plot.to.file) dev.off()
 
 # Time series:
 print(' -> Ploting time series ...')
-if (save.plot.to.file) pdf('plot_ts.pdf', width = 25,height = 15)
+if (save.plot.to.file) pdf(fname.ts, width = 25,height = 15)
 try( plot.epi.timeseries(ts),  silent = T)
 try( plot.ts.sp(tssp),  silent = T)
 if(exists('res.list')){
