@@ -200,6 +200,18 @@ average.age.contact <- function(res.list){
 		}
 		A.list[[l]] <- log(1+A)
 	}
+	
+	# make sure all matrices (one for each MC)
+	# are of the same size. If not, crop the largest ones.
+	mxsz <- 1E6
+	for(l in seq_along(A.list)){
+		mxsz <- min(mxsz, nrow(A.list[[l]]))
+	}
+	for(l in seq_along(A.list)){
+		A.list[[l]] <- A.list[[l]][1:mxsz,1:mxsz]
+	}
+	
+	# Mean calculation:
 	A.mean <- apply(simplify2array(A.list), 1:2, mean)
 	print('... matrices averaged.')
 	return(list(A.mean,m.max))

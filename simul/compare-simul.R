@@ -12,6 +12,11 @@ load('mc-simul.RData')
 t1 <- as.numeric(Sys.time())
 print(paste('... simulation results loaded in',round((t1-ct0)/60,1),'minutes.'))
 
+if(!exists("res.list")){
+	print('NOTHING TO COMPARE... EXITING.')
+	quit()
+}
+
 n.mc  <- length(res.list)
 print(paste('Number of MC iterations:',n.mc))
 
