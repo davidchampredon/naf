@@ -44,6 +44,7 @@ contact_ratio_sp_pubTransport  , 1.50
 contactAssort_lambda, 0.1
 
 proba_move, 0.98
+proba_move_reduc_sympt, 0.40
 proba_change_sp_other, 0.0
 
 asymptom_infectiousness_ratio , 0.8

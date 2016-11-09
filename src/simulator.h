@@ -220,9 +220,20 @@ public:
 	
 	// Migration
 
-	void move_individuals_sched(uint idx_timeslice, double proba);
-	void move_individuals(const SPtype sptype, double proba);
+    /** Move individuals across social places according to their schedule
+    */
+	void move_individuals_sched(uint idx_timeslice,
+                                double proba,
+                                double red_sympt);
+	
+    void move_individuals(const SPtype sptype, double proba);
+    
+    /** Move the individual in position "pos_indiv" in thevector "_indiv"
+      * from one social place to another.
+      * (social places are identified by their IDs/position)
+     */
 	void move_one_individual(uint pos_indiv, ID from, ID to);
+    
     void assign_hospital_to_individuals();
     
     /** Change randomly the link with SP_other for all individuals

@@ -165,8 +165,9 @@ List naf_run_det(List params,
 		set_parameter(MP, "doi_var", "double", params);
 		set_parameter(MP, "doh_var", "double", params);
 		
-		set_parameter(MP, "proba_move", "double", params);
-		set_parameter(MP, "proba_change_sp_other", "double", params);
+		set_parameter(MP, "proba_move",             "double", params);
+		set_parameter(MP, "proba_move_reduc_sympt", "double", params);
+		set_parameter(MP, "proba_change_sp_other",  "double", params);
 		
 		set_parameter(MP, "contact_rate_mean",             "double", params);
 		set_parameter(MP, "contact_rate_stddev",           "double", params);

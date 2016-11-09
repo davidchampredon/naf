@@ -275,7 +275,12 @@ public:
     void    receive_cure();
 	
 	// Miscellenaous
+    
+    /** Find the ID of the social place this
+      * individual is supposed to go at a given times slice.
+     */
 	ID find_dest(uint idx_timeslice, bool print_error = false);
+    
 	void displayInfo();
 };
 

@@ -432,9 +432,6 @@ vector<ID>	socialPlace::id_infected_bruteforce(){
 
 
 ID socialPlace::find_dest(uint pos, uint idx_timeslice){
-    /// Find the ID of the social place the individual is supposed to move to
-    /// at the timeslice 'idx_timeslice' of the schedule.
-    /// (individual is in position 'pos' in the vector '_indiv')
 
     stopif(pos >= _indiv.size(), "Indiv #"+to_string(pos)+"doesn't exist in SP_"+to_string(_id_sp) );
     

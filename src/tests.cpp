@@ -37,7 +37,9 @@ void main_run(){
     MP.add_prm_double ("doi_var", 2.5);
     MP.add_prm_double ("doh_var", 0.2);
     
-    MP.add_prm_double ("proba_move", 1.0);
+    MP.add_prm_double ("proba_move", 0.9);
+    MP.add_prm_double ("proba_move_reduc_sympt", 0.15);
+
     MP.add_prm_double ("proba_change_sp_other", 0.01);
     
     MP.add_prm_double ("proba_death_prm_1", 0.59999999999999); // <-- TEST!
@@ -126,7 +128,7 @@ void main_run(){
     string regionName = "RegionOne";
     vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
     
-    uint mult = 2;
+    uint mult = 1;
     
     
     // ====== PARAMETERS FOR STOCHASTIC WORLD =======
@@ -373,10 +375,8 @@ void main_run(){
     
     dcDataFrame x = export_world(sim.get_world());
     
-    x.display();
-    
+    //x.display();
     //displayVector(census_ages(sim.get_world()));
-    
 }
 
 

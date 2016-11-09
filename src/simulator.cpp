@@ -851,7 +851,8 @@ void Simulator::run(){
     display_summary_info();
     
     // set-up before time loop:
-    double p_move   = _modelParam.get_prm_double("proba_move");
+    double p_move    = _modelParam.get_prm_double("proba_move");
+    double red_sympt = _modelParam.get_prm_double("proba_move_reduc_sympt");
     define_contactAssort();
     count_targeted_by_intervention();
     
@@ -901,7 +902,7 @@ void Simulator::run(){
         if(debug_mode) cout << "hospitalization stuff done." <<endl;
         
         if(p_move>0) {
-            move_individuals_sched(idx_timeslice, p_move);
+            move_individuals_sched(idx_timeslice, p_move, red_sympt);
             if(debug_mode) cout << "movements done."<<endl;
             define_all_id_tables();
             if(debug_mode) {
@@ -983,9 +984,6 @@ void Simulator::set_disease(const disease &d){
 
 
 void Simulator::move_one_individual(uint pos_indiv, ID from, ID to){
-    /// Move the individual in position "pos_indiv" in thevector "_indiv"
-    /// from one social place to another.
-    /// (social places are identified by their IDs/position)
     
     individual tmp = _world[from].get_indiv(pos_indiv);
     
@@ -993,7 +991,6 @@ void Simulator::move_one_individual(uint pos_indiv, ID from, ID to){
     _world[to].add_indiv(tmp);
     // remove this individual (in pos_indiv^th position in '_indiv' vector) from here
     _world[from].remove_indiv(pos_indiv);
-    
     // DEBUG
     // ID tmpid =_world[from].get_indiv(pos_indiv).get_id();
     //cout << "DEBUG --> id_" <<tmpid << "moved from SP_"<<from << " to SP_"<<to <<endl;
@@ -1001,18 +998,17 @@ void Simulator::move_one_individual(uint pos_indiv, ID from, ID to){
 
 
 void Simulator::move_individuals_sched(uint idx_timeslice,
-                                        double proba){
-    /// Move individuals across social places according to their schedule
-    
+                                       double proba,
+                                       double red_sympt){
     bool debug_mode = _modelParam.get_prm_bool("debug_mode");
     unsigned long N = _world.size();
     std::uniform_real_distribution<double> unif(0.0,1.0);
     
     for (int k=0; k<N; k++)
     {
-        if(debug_mode) cout<<"moving indiv in SP "<<k<<"/"<< N <<" ... ";
+        //if(debug_mode) cout<<"moving indiv in SP "<<k<<"/"<< N <<" ... ";
         uint n = (uint)_world[k].get_size();
-        if(debug_mode && n==0) cout << " (empty)."<<endl;
+        //if(debug_mode && n==0) cout << " (empty)."<<endl;
         if(n>0){
             
             // * * * IMPORTANT * * *
@@ -1029,25 +1025,25 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                     // Retrieve its actual destination
                     ID id_dest = _world[k].find_dest(i, idx_timeslice);
 
-                    string errmsg = "Undefined destination for indiv ID_";
-                    errmsg += to_string(_world[k].get_indiv(i).get_id());
-                    errmsg += " who is currently in SP_id_";
-                    errmsg += to_string(k);
+                    if( id_dest == __UNDEFINED_ID){
+                        string errmsg = "Undefined destination for indiv ID_";
+                        errmsg += to_string(_world[k].get_indiv(i).get_id());
+                        errmsg += " who is currently in SP_id_";
+                        errmsg += to_string(k);
+                        _world[k].get_indiv(i).displayInfo();
+                        stopif(id_dest==__UNDEFINED_ID,errmsg);
+                    }
                     
-                    if(id_dest==__UNDEFINED_ID) _world[k].get_indiv(i).displayInfo();
-                    stopif(id_dest==__UNDEFINED_ID,errmsg);
-                    
-                    if ( id_dest!=k )
-                    {
-                        // take a copy of the individual
-                        individual tmp = _world[k].get_indiv(i);
-
+                    if ( id_dest != k ){
                         // Draw the chance move will actually happen:
-                        // TO DO: make this proba individual-dependent
                         double u = unif(_RANDOM_GENERATOR);
-                        if ( u < proba ){
-                            move_one_individual(i, k, id_dest);
-                        }
+                        
+                        // Probability reduction if symptomatic:
+                        double m = 1.0;
+                        if(_world[k].get_indiv(i).is_symptomatic()) m = red_sympt;
+                        
+                        // Draw if move happens:
+                        if ( u < proba * m ) move_one_individual(i, k, id_dest);
                     }
                 } // end-if-not-hospitalized
             }

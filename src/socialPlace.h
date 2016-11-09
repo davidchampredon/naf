@@ -146,7 +146,13 @@ public:
     
     // Movements of individuals
     
+    
+    /** Find the ID of the social place the individual is supposed to move to
+      * at the timeslice 'idx_timeslice' of the schedule.
+      * (individual is in position 'pos' in the vector '_indiv')
+     */
     ID find_dest(uint pos, uint idx_timeslice);
+    
     ID find_dest_linked(uint pos,
                         uint idx_timeslice,
                         const vector<individual>& indiv_vec);
