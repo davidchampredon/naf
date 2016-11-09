@@ -17,28 +17,32 @@ library(parallel)
 # Calculate vaccine efficacy on various outcomes
 vax.efficacy <- function(pop, outcome){
 	
-	v <- subset(pop, is_vaccinated==1)
-	n <- nrow(v)
+	u   <- subset(pop, is_vaccinated==0)
+	v   <- subset(pop, is_vaccinated==1)
 	
-	if(n==0) return(NA)
+	# Total number:
+	n.u <- nrow(u)
+	n.v <- nrow(v)
 	
-	if(outcome == 'infection') res <- 1-sum(v$is_recovered)/n
-	if(outcome == 'symptom')   res <- 1-sum(v$was_symptomatic)/n
-	if(outcome == 'hosp')      res <- 1-sum(v$was_hosp)/n
-	if(outcome == 'death')     res <- sum(v$is_alive)/n
+	# Count individual with outcome:
+	cnt.u <- sum(u[[outcome]])
+	cnt.v <- sum(v[[outcome]])
 	
-	return(res)
+	# proportions:
+	p.u <- cnt.u/n.u
+	p.v <- cnt.v/n.v
+	
+	efficacy <- 1 - p.v/p.u
+	return(efficacy)
 }
 
 plot.vax.efficacy <- function(pop) {
-	
-	outcome <- c('infection', 'symptom', 'hosp', 'death')
-
-	eff <- sapply(outcome, vax.efficacy, pop=pop)	
-	df <- data.frame(outcome, efficacy=eff)
+	outcome <- c('is_recovered', 'was_symptomatic', 'was_hosp', 'is_alive')
+	eff     <- sapply(outcome, vax.efficacy, pop=pop)	
+	df      <- data.frame(outcome, efficacy=eff)
 	
 	g <- ggplot(df)+geom_bar(aes(x=outcome, y=efficacy), stat='identity')
-	g <- g + ggtitle('Vaccine efficacy') + coord_cartesian(ylim=c(0,1))
+	g <- g + ggtitle('Vaccine efficacy') #+ coord_cartesian(ylim=c(0,1))
 	return(g)
 }
 
@@ -46,7 +50,6 @@ plot.vax.efficacy <- function(pop) {
 
 # Create a synthetic age distribution for adults.
 synthetic_age_adult <- function(age.adult){
-	
 	age.thres <- 60
 	age.max <- max(age.adult)
 	idx <- which(age.adult > age.thres)
@@ -698,7 +701,17 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	
 	sympt.vax <- ddply(pop.inf,c("is_vaccinated","was_symptomatic"), summarize, n=length(id_indiv))
-	sympt.vax
+
+	# Vaccine efficacy:
+	# u   <- subset(sympt.vax, is_vaccinated==0)
+	# u.s <- subset(sympt.vax, is_vaccinated==0 & was_symptomatic==1)
+	# prop.sympt.no.vax <- u.s$n / sum(u$n)
+	# 
+	# v   <- subset(sympt.vax, is_vaccinated==1)
+	# v.s <- subset(sympt.vax, is_vaccinated==1 & was_symptomatic==1)
+	# prop.sympt.vax <- v.s$n / sum(v$n)
+	# 
+	# vax.eff <- 1 - prop.sympt.vax/prop.sympt.no.vax
 	
 	g.sympt.vax <- ggplot(sympt.vax)+geom_bar(aes(x=factor(is_vaccinated), y=n, fill=factor(was_symptomatic)),
 											  stat='identity', position='dodge')
