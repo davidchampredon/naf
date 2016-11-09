@@ -10,10 +10,11 @@ _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
+- Optimization: instead of doing a vlookup to find destination of each indiv at every time slice, why not recording the table of destination [timeslice ; id_sp] after the world is built? That should bring a significant speedup... (check in XCode Instruments)
+
 - find ILI visits and virological/serological test by age group in Ontario for seasonal flu in order to double check which are the most exposed groups
 
-- Add Outputs: 
-	CFR
+- Add Outputs: 	CFR
 
 - Extract case-fatality-ratio from simulation and compare with real ones (by age). See :Hardelid P, Pebody R, Andrews N (2012) Mortality caused by influenza and respiratory syncytial virus by age group in England and Wales 1999–2010. Influenza Other Respi Viruses 7: 35–45. 
 
@@ -21,7 +22,7 @@ _____________________
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
-- Performance tests
+
 
 
 _____________________
