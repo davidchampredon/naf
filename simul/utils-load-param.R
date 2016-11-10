@@ -100,6 +100,9 @@ overwrite.selected.param <- function(filename, scen.id) {
 	i <- which(x$scenario_id == scen.id)
 	y <- x[i,]
 	
+	# WARNING:
+	# interv.prm[[1]] means the FIRST intervention is overwritten.
+	
 	interv.prm[[1]][['interv_target']]   <<- as.character(y$interv_target)
 	interv.prm[[1]][['interv_start']]    <<- y$interv_start
 	interv.prm[[1]][['interv_cvg_rate']] <<- y$interv_cvg_rate

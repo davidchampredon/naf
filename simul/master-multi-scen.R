@@ -13,6 +13,9 @@ source('utils-run.R')
 source('utils-analyze.R')
 source('utils-compare.R')
 
+# Generate list of parameters for all scenarios:
+source('scenario-builder.R')
+
 # File defining parameters for various scenarios:
 scen.list.file <- 'scenario-prm-list.csv'
 x <- read.csv(scen.list.file)
