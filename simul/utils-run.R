@@ -75,7 +75,9 @@ run.simul <- function(scen.id) {
 	
 	print('Saving RData file...')
 	# save.image(file= paste0('mc-simul-',scen.id,'.RData'))
-	save(list=c('res.list.0','res.list'), file= paste0('mc-simul-',scen.id,'.RData'))
+	save(list=c('res.list.0','res.list'), 
+		 file= paste0('mc-simul-',scen.id,'.RData'),
+		 compress = FALSE)
 	print('... RData file saved.')
 	
 	t1 <- as.numeric(Sys.time())
