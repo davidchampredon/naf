@@ -157,7 +157,7 @@ if(!baseonly){
 sfStop()
 
 print('Saving RData file...')
-save.image(file='mc-simul.RData')
+save.image(file='mc-simul.RData', compress = FALSE)
 print('... RData file saved.')
 
 t1 <- as.numeric(Sys.time())
