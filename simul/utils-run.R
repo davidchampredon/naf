@@ -74,12 +74,10 @@ run.simul <- function(scen.id) {
 	sfStop()
 	
 	print('Saving RData file...')
-	# save.image(file= paste0('mc-simul-',scen.id,'.RData'))
 	save(list=c('res.list.0','res.list'), 
 		 file= paste0('mc-simul-',scen.id,'.RData'),
 		 compress = FALSE)
 	print('... RData file saved.')
-	
 	t1 <- as.numeric(Sys.time())
 	print(paste("Scenario",scen.id,": Simulation computing time is",round((t1-t0)/60,1),"min"))
 }

@@ -10,8 +10,6 @@ _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Optimization: instead of doing a vlookup to find destination of each indiv at every time slice, why not recording the table of destination [timeslice ; id_sp] after the world is built? That should bring a significant speedup... (check in XCode Instruments)
-
 - find ILI visits and virological/serological test by age group in Ontario for seasonal flu in order to double check which are the most exposed groups
 
 - Add Outputs: 	CFR

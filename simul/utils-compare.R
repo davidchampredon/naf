@@ -122,7 +122,8 @@ compare.simul.scen <- function(scen.id) {
 	# Save main results:
 	result.scen <- d
 	save(list = 'result.scen',
-		 file = paste0('result-scen-',scen.id,'.RData'))
+		 file = paste0('result-scen-',scen.id,'.RData'), 
+		 compress = FALSE)
 	
 	
 	# ==== Secondary results ====
@@ -143,7 +144,8 @@ compare.simul.scen <- function(scen.id) {
 	# Save secondary results
 	result.secondary <- rbind(b0,b)
 	save(list = 'result.secondary',
-		 file = paste0('result-secondary-',scen.id,'.RData'))
+		 file = paste0('result-secondary-',scen.id,'.RData'),
+		 compress = FALSE)
 	
 	
 	# ----- Plots time series -----
@@ -169,7 +171,8 @@ merge.result.scen <- function(scen.id) {
 		else result.scen.all <- rbind(result.scen.all, result.scen)
 	}
 	save(list = 'result.scen.all', 
-		 file = 'result-scen-all.RData')
+		 file = 'result-scen-all.RData',
+		 compress = FALSE)
 	
 	# Secondary results:
 	for(i in seq_along(scen.id)){
@@ -178,7 +181,8 @@ merge.result.scen <- function(scen.id) {
 		else secondary.all <- rbind(secondary.all, result.secondary)
 	}
 	save(list = 'secondary.all', 
-		 file = 'secondary-all.RData')
+		 file = 'secondary-all.RData',
+		 compress = FALSE)
 	
 	return(list(main = result.scen.all,
 				secondary = secondary.all) )
