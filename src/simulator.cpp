@@ -886,7 +886,7 @@ void Simulator::run(){
         }
         else{
             cout.precision(3);
-            if(k % 5 == 0){
+            if(k % 1 == 0){
                 cout << "simulation time: " << _current_time;
                 cout << "  (prevalence = "<<_prevalence<<")"<< endl;
             }
@@ -935,6 +935,7 @@ void Simulator::run(){
                                    vax_frail_incr,
                                    vax_lag);
         }
+        
         if(debug_mode) cout << "interventions done." <<endl;
         
         if(at_least_one_vaccination_intervention())
@@ -2377,16 +2378,18 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         
         if (nS > 0){
             // Draw the total number of individuals that are targeted
-            std::poisson_distribution<> poiss(cvg_rate * nS * dt);
+            
+            float intensity = cvg_rate * nS * dt;
+            std::poisson_distribution<> poiss(intensity);
             uint n_target = poiss(_RANDOM_GENERATOR);
             if (n_target > nS) n_target = nS;
             // Select targeted individuals:
             uint cnt = 0;
-            for(uint i=0; i<nS && cnt<n_target; i++) {
-                bool is_treated = _world[id_sp]._indiv_S[i]->is_treated();
-                bool is_vax     = _world[id_sp]._indiv_S[i]->is_vaccinated();
+            for(uint j=0; j<nS && cnt<n_target; j++) {
+                bool is_treated = _world[id_sp]._indiv_S[j]->is_treated();
+                bool is_vax     = _world[id_sp]._indiv_S[j]->is_vaccinated();
                 if (!is_treated && !is_vax){
-                    indiv_drawn.push_back(_world[id_sp]._indiv_S[i]);
+                    indiv_drawn.push_back(_world[id_sp]._indiv_S[j]);
                     cnt ++;
                 }
             }
@@ -2409,11 +2412,11 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         uint n_yo = 0;
         vector<uint> pos_yo;
         
-        for (uint i=0; i< _world[id_sp].get_size(); i++) {
-            double age = _world[id_sp].get_indiv(i).get_age();
+        for (uint j=0; j< _world[id_sp].get_size(); j++) {
+            double age = _world[id_sp].get_indiv(j).get_age();
             if(age <= age_young || age >= age_old) {
                 n_yo++;
-                pos_yo.push_back(i);
+                pos_yo.push_back(j);
             }
         }
         
@@ -2421,17 +2424,23 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
             // Draw the total number of individuals
             // that are targeted:
             float intensity = cvg_rate * n_yo * dt;
+            
+            //DEBUG
+//            cout << " DEBUG YO: SP_id = "<< id_sp << endl;
+//            cout << " DEBUG YO: n_yo = "<< n_yo<< endl;
+//            cout << " DEBUG YO: intensity = "<< intensity << endl;
+            
             std::poisson_distribution<> poiss(intensity);
             uint n_target = poiss(_RANDOM_GENERATOR);
             if (n_target > n_yo) n_target = n_yo;
             
             // Select targeted individuals:
             uint cnt = 0;
-            for(uint i=0; i<pos_yo.size(); i++) {
-                bool is_treated = _world[id_sp].get_indiv(i).is_treated();
-                bool is_vax     = _world[id_sp].get_indiv(i).is_vaccinated();
+            for(uint j=0; j<pos_yo.size() && cnt<n_target ; j++) {
+                bool is_treated = _world[id_sp].get_indiv(pos_yo[j]).is_treated();
+                bool is_vax     = _world[id_sp].get_indiv(pos_yo[j]).is_vaccinated();
                 if (!is_treated && !is_vax){
-                    individual* tmp = _world[id_sp].get_mem_indiv(pos_yo[i]);
+                    individual* tmp = _world[id_sp].get_mem_indiv(pos_yo[j]);
                     indiv_drawn.push_back(tmp);
                     cnt ++;
                 }
@@ -2519,6 +2528,13 @@ void Simulator::activate_interventions(ID id_sp, double dt,
             if ( ! (cond1 || cond2) ){  // <-- check if max number targeted reached.
                 
                 vector<individual*> x = draw_targeted_individuals(i, id_sp, dt);
+                
+                // DEBUG:
+//                if(x.size()>0){
+//                    cout << " DEBUG: drawn size = "<< x.size()<< " from SP_id:"<< id_sp <<endl;
+//                    
+//                }
+                
                 _intervention[i].act_on_individual(x,
                                                    _current_time,
                                                    treat_doi_reduc,
