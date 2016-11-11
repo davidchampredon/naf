@@ -243,7 +243,7 @@ dcDataFrame rbind( const dcDataFrame& x, const dcDataFrame& y){
     
     Mx = rowBind(Mx,My);
     
-    dcDataFrame D(Mx);
+    dcDataFrame D(false, Mx); // 'false' turns off column and rows names, which is time consuming when matrix is large
     D.set_colname(x.get_colname());
     return D;
 }

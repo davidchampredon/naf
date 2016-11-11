@@ -128,30 +128,57 @@ public:
 	
 	dcDataFrame(dcMatrix M)
 	{
-		/// Construct a dcDataFrame from a dcMatrix
-		/// (row and column names are given defualt values)
-		
-		unsigned long ncol = M.getNbCols();
-		unsigned long nrow = M.getNbRows();
-		stopif(nrow==0 || ncol==0, "Cannot construct  a dcDataFrame from empty matrix");
-		
-		_value = M;
-		
-		// Default column names
-		vector<string> tmp(0);
-		for (int j=0;j<ncol; j++)
-			tmp.push_back("C"+to_string(j));
-		
-		_colname = tmp;
-		
-		// Default row names
-		tmp.clear();
-		for (int j=0;j<nrow; j++)
-			tmp.push_back("R"+to_string(j));
-		
-		_rowname = tmp;
-	}
+        /// Construct a dcDataFrame from a dcMatrix
+        /// (row and column names are given defualt values)
+        
+        unsigned long ncol = M.getNbCols();
+        unsigned long nrow = M.getNbRows();
+        stopif(nrow==0 || ncol==0, "Cannot construct a dcDataFrame from empty matrix");
+        
+        _value = M;
+        
+        // Default column names
+        vector<string> tmp(0);
+        for (int j=0;j<ncol; j++)
+            tmp.push_back("C"+to_string(j));
+        
+        _colname = tmp;
+        
+        // Default row names
+        tmp.clear();
+        for (int j=0;j<nrow; j++)
+            tmp.push_back("R"+to_string(j));
+        
+        _rowname = tmp;
+    }
+    
+    
+    dcDataFrame(bool colRowNames , dcMatrix M)
+    {
+        /// Construct a dcDataFrame from a dcMatrix
+        /// (row and column names are given defualt values)
+        
+        unsigned long ncol = M.getNbCols();
+        unsigned long nrow = M.getNbRows();
+         stopif(nrow==0 || ncol==0,
+                "Cannot construct a dcDataFrame from empty matrix");
+        
+        _value = M;
+        
+        if(colRowNames)
+        {
+            // Default column names
+            _colname.resize(ncol);
+            for (unsigned long j=0;j<ncol; j++) _colname[j] = "C" + to_string(j);
+            
+            // Default row names
+            _rowname.resize(nrow);
+            for (unsigned long j=0;j<nrow; j++) _rowname[j] = "R" + to_string(j);
+        }
+    }
 
+    
+    
 	
 	dcDataFrame(string filename, bool headers)
 	{

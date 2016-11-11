@@ -35,6 +35,9 @@ public:
     unsigned long getNbCols()     const {return nbCols;}
     
     
+    double  get_val(unsigned long i,unsigned long j) const {return val[nbCols*i+j];}
+    
+    
     // Constructors
 	
 	//dcMatrix(){nbRows=0;nbCols=0;}
@@ -160,7 +163,8 @@ dcMatrix cholesky(dcMatrix A);	//renvoi la dcMatrix triangul L tq://si A symetri
 double distance_Matrix(dcMatrix A, dcMatrix B, double power);	// Euclidian distance b/w two matrices
 
 dcMatrix rowBind_old(dcMatrix A, dcMatrix B);
-dcMatrix rowBind(dcMatrix A, dcMatrix B);
+//dcMatrix rowBind(dcMatrix A, dcMatrix B);
+dcMatrix rowBind(const dcMatrix & A, const dcMatrix & B);
 
 dcMatrix	transpo(dcMatrix A);        // FIX ME : to delete if not used elsewhere
 double	Det(dcMatrix A);           // FIX ME : to delete if not used elsewhere

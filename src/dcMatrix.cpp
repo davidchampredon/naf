@@ -992,7 +992,8 @@ dcMatrix rowBind_old(dcMatrix A, dcMatrix B)
 }
 
 
-dcMatrix rowBind(dcMatrix A, dcMatrix B)
+
+dcMatrix rowBind(const dcMatrix & A, const dcMatrix & B)
 {
     unsigned long cA = A.getNbCols();
     if (cA != B.getNbCols()){
@@ -1008,12 +1009,11 @@ dcMatrix rowBind(dcMatrix A, dcMatrix B)
     
     for (unsigned long ii=0; ii<nB; ii++) {
         for (unsigned long j=0; j<cA; j++) {
-            M(nA+ii, j) = B(ii, j);
+            M(nA+ii, j) = B.get_val(ii, j);
         }
     }
-    return M;	
+    return M;
 }
-
 
 
 
