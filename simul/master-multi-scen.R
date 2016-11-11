@@ -68,12 +68,15 @@ for(i in seq_along(scen.id)){
 	compare.simul.scen(scen.id = scen.id[i])
 }
 
-# Merge results from all scenarios:
+# Merge results from all scenarios
+# in file 'result-scen-all.RData':
 res.all <- merge.result.scen(scen.id)
 
 # Plot results for all scenarios:
 plot.multi.scen.res(res.all[['main']], dir=dir.results)
-plot.secondary.res(res.all[['secondary']], dir=dir.results)
+plot.secondary.res(res.all[['secondary']], 
+				   dir=dir.results,
+				   file.scen.prm.list = 'scenario-prm-list.csv')
 
 master1 <- as.numeric(Sys.time()) ; msgt <- paste("Time elapsed for master:",round((master1-master0)/60,1),'minutes.')
 print(msgt)

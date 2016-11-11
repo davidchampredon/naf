@@ -2,6 +2,9 @@
 ###   COMPARE SIMULATIONS (BASELINE vs INTERVENTION) ALREADY RUN
 ###
 
+library(plyr)
+library(ggplot2)
+
 
 compare.simul.scen <- function(scen.id) {
 	
@@ -181,7 +184,9 @@ merge.result.scen <- function(scen.id) {
 				secondary = secondary.all) )
 }
 
-plot.multi.scen.res <- function(result.scen.all, dir){
+plot.multi.scen.res <- function(result.scen.all, 
+								dir,
+								file.scen.prm.list){
 	idx <- which( substr(names(result.scen.all),1,6)=='rel.d.'  )
 	x <- gather(result.scen.all,'type','rel.diff',idx)
 	
@@ -198,6 +203,20 @@ plot.multi.scen.res <- function(result.scen.all, dir){
 									   fill=factor(scenario)))+ facet_wrap(~type, scales = 'free_y')
 	g2 <- g2 + geom_hline(yintercept=0, colour='black',linetype=2)
 	plot(g2)
+	
+	# - - - - Change this plot - - - - 
+	# Retrieve scenarios definitions:
+	spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
+	names(result.scen.all)[names(result.scen.all)=='scenario'] <- 'scenario_id' 
+	# Merge results and scenarios definition:
+	x <- join(result.scen.all, spl, by='scenario_id')
+	# Plots
+	g3 <- ggplot(x)
+	g3 <- g3 + geom_point(aes(x = interv_cvg_rate,
+							  y = -rel.d.sympt,
+							  colour = factor(interv_start)), alpha=0.6)
+	g3 <- g3 + facet_wrap(~interv_target+contact_rate_mean+interv_cvg_max_prop)
+	plot(g3)
 	
 	dev.off()
 }
@@ -253,4 +272,28 @@ plot.secondary.res <- function(df, dir){
 	grid.arrange(g.R, g.doi)
 	grid.arrange(g.age)
 	dev.off()
+}
+
+plot2 <- function(result.scen.all, dir, file.scen.prm.list){
+	
+	# Retrieve scenarios definitions:
+	spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
+	names(result.scen.all)[names(result.scen.all)=='scenario'] <- 'scenario_id' 
+	
+	# Merge results and scenarios definition:
+	x <- join(result.scen.all, spl, by='scenario_id')
+	
+	# Plots
+	g <- ggplot(x)
+	
+	g <- g + geom_point(aes(x = interv_cvg_rate,
+								   y = -rel.d.sympt,
+								   colour = factor(interv_start)), alpha=0.6)
+	
+	# g <- g + geom_boxplot(aes(x=factor(interv_cvg_rate), 
+	# 						  y = -rel.d.sympt,
+	# 						  colour = factor(interv_start)))
+	
+	g <- g + facet_wrap(~interv_target+contact_rate_mean+interv_cvg_max_prop)
+	plot(g)
 }
