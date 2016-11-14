@@ -1,0 +1,55 @@
+###
+###   RUN MULTIPLE SCENARIOS AS DEFINED IN A FILE
+###
+
+
+# Load all default parameters:
+source('utils-load-param.R')
+source('utils-run.R')
+source('utils-misc.R')
+
+dir.results    <- dir.def('dir-def.csv')[['results']]
+dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
+
+# File defining parameters for various scenarios:
+scen.list.file <- 'scenario-prm-list.csv'
+x <- read.csv(scen.list.file)
+x <- na.omit(x)
+scen.id <- x$scenario_id
+
+# Run the simulations on all scenarios:
+for(i in seq_along(scen.id)){
+	# Overwrite parameter values
+	# associated with current scenario:
+	overwrite.selected.param(filename = scen.list.file,
+							 scen.id = scen.id[i])
+	
+	# Run the simulation for that scenario:
+	run.simul(scen.id = scen.id[i], 
+			  dir.save.rdata = dir.save.rdata)
+}
+
+
+# do.parallel <- TRUE
+# 
+# snwrap <- function(i, scen.id, scen.list.file){
+# 	# Overwrite parameter values
+# 	# associated with current scenario:
+# 	overwrite.selected.param(filename = scen.list.file, 
+# 							 scen.id = scen.id[i]) 
+# 	
+# 	# Run the simulation for that scenario:
+# 	run.simul(scen.id = scen.id[i])
+# }
+# 
+# cpumax <- parallel::detectCores()
+# sfInit(parallel = do.parallel,
+# 	   cpus = min(cpumax,length(scen.id)))
+# sfLibrary(naf, lib.loc = R.library.dir) 
+# sfExportAll()
+# res <- sfSapply(x          = seq_along(scen.id), 
+# 				fun        = snwrap,
+# 				scen.id = scen.id, 
+# 				scen.list.file = scen.list.file,
+# 				simplify   = FALSE)
+# sfStop()

@@ -37,7 +37,7 @@ run.snow.wrap <- function(seedMC,
 
 # Run the simulation for a given 
 # set of scenario parameters
-run.simul <- function(scen.id) {
+run.simul <- function(scen.id, dir.save.rdata = './') {
 	
 	t0 <- as.numeric(Sys.time())
 	baseonly  <- FALSE # <-- force scneario comparison   ((simul.prm[['baseline_only']]))
@@ -75,7 +75,7 @@ run.simul <- function(scen.id) {
 	
 	print('Saving RData file...')
 	save(list=c('res.list.0','res.list'), 
-		 file= paste0('mc-simul-',scen.id,'.RData'),
+		 file= paste0(dir.save.rdata,'mc-simul-',scen.id,'.RData'),
 		 compress = FALSE)
 	print('... RData file saved.')
 	t1 <- as.numeric(Sys.time())

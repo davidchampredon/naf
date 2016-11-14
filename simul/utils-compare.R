@@ -6,8 +6,9 @@ library(plyr)
 library(ggplot2)
 
 
-compare.simul.scen <- function(scen.id) {
-	
+compare.simul.scen <- function(scen.id, 
+							   dir.save.rdata,
+							   dir.results) {
 	ct0 <- as.numeric(Sys.time())
 	library(tidyr)
 	library(dplyr)
@@ -15,7 +16,7 @@ compare.simul.scen <- function(scen.id) {
 	### ==== Load simulation results ====
 	
 	print(paste('Loading simulation results for scenario',scen.id,'...'))
-	load(paste0('mc-simul-',scen.id,'.RData'))
+	load(paste0(dir.save.rdata,'mc-simul-',scen.id,'.RData'))
 	t1 <- as.numeric(Sys.time())
 	print(paste('... simulation results for scenario',scen.id,'loaded in',round((t1-ct0)/60,1),'minutes.'))
 	
@@ -88,6 +89,7 @@ compare.simul.scen <- function(scen.id) {
 					 tot.hosp  = sum(was_hosp),
 					 tot.death = sum(1-is_alive)))
 	}
+	
 	a0 <- main.results(pop0)
 	a0$intervention <- 'baseline'
 	a <- main.results(pop)
@@ -122,7 +124,7 @@ compare.simul.scen <- function(scen.id) {
 	# Save main results:
 	result.scen <- d
 	save(list = 'result.scen',
-		 file = paste0('result-scen-',scen.id,'.RData'), 
+		 file = paste0(dir.save.rdata,'result-scen-',scen.id,'.RData'), 
 		 compress = FALSE)
 	
 	
@@ -144,13 +146,12 @@ compare.simul.scen <- function(scen.id) {
 	# Save secondary results
 	result.secondary <- rbind(b0,b)
 	save(list = 'result.secondary',
-		 file = paste0('result-secondary-',scen.id,'.RData'),
+		 file = paste0(dir.save.rdata,'result-secondary-',scen.id,'.RData'),
 		 compress = FALSE)
-	
 	
 	# ----- Plots time series -----
 	
-	pdf(paste0('plot-compare-',scen.id,'.pdf'),
+	pdf(paste0(dir.results,'plot-compare-',scen.id,'.pdf'),
 		width = 15, height = 10)
 	
 	plot.epi.timeseries.comp(u)
@@ -162,26 +163,25 @@ compare.simul.scen <- function(scen.id) {
 				round((t2-ct0)/60,2),'minutes for scenario',scen.id,'.'))
 }
 
-merge.result.scen <- function(scen.id) {
-	
+merge.result.scen <- function(scen.id, dir.save.rdata) {
 	# Main results:
 	for(i in seq_along(scen.id)){
-		load(paste0('result-scen-',scen.id[i],'.RData'))
+		load(paste0(dir.save.rdata,'result-scen-',scen.id[i],'.RData'))
 		if(i==scen.id[1]) result.scen.all <- result.scen
 		else result.scen.all <- rbind(result.scen.all, result.scen)
 	}
 	save(list = 'result.scen.all', 
-		 file = 'result-scen-all.RData',
+		 file = paste0(dir.save.rdata,'result-scen-all.RData'),
 		 compress = FALSE)
 	
 	# Secondary results:
 	for(i in seq_along(scen.id)){
-		load(paste0('result-secondary-',scen.id[i],'.RData'))
+		load(paste0(dir.save.rdata,'result-secondary-',scen.id[i],'.RData'))
 		if(i==scen.id[1]) secondary.all <- result.secondary
 		else secondary.all <- rbind(secondary.all, result.secondary)
 	}
 	save(list = 'secondary.all', 
-		 file = 'secondary-all.RData',
+		 file = paste0(dir.save.rdata,'secondary-all.RData'),
 		 compress = FALSE)
 	
 	return(list(main = result.scen.all,
@@ -278,7 +278,9 @@ plot.secondary.res <- function(df, dir){
 	dev.off()
 }
 
-plot2 <- function(result.scen.all, dir, file.scen.prm.list){
+plot2 <- function(result.scen.all, 
+				  dir, 
+				  file.scen.prm.list){
 	
 	# Retrieve scenarios definitions:
 	spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
@@ -289,15 +291,13 @@ plot2 <- function(result.scen.all, dir, file.scen.prm.list){
 	
 	# Plots
 	g <- ggplot(x)
-	
 	g <- g + geom_point(aes(x = interv_cvg_rate,
 								   y = -rel.d.sympt,
 								   colour = factor(interv_start)), alpha=0.6)
-	
-	# g <- g + geom_boxplot(aes(x=factor(interv_cvg_rate), 
-	# 						  y = -rel.d.sympt,
-	# 						  colour = factor(interv_start)))
-	
 	g <- g + facet_wrap(~interv_target+contact_rate_mean+interv_cvg_max_prop)
+	
+	pdf(paste0(dir,'plot2.pdf'), width=15, height = 10)
 	plot(g)
+	dev.off()
+	
 }

@@ -1,13 +1,14 @@
 
 
 analyze.simul.scen <- function(scen.id,	
+							   dir.save.rdata,
 							   save.plot.to.file = TRUE) {
 	
 	t00 <- as.numeric(Sys.time())
 	
 	# Load simulation results
 	print(paste('Loading simulation results for scenario',scen.id,'...'))
-	load(paste0('mc-simul-',scen.id, '.RData'))
+	load(paste0(dir.save.rdata,'mc-simul-',scen.id, '.RData'))
 	t01 <- as.numeric(Sys.time()) ; msgt <- round((t01-t00)/60,2)
 	print(paste('... simulation results for scenario',scen.id,'loaded in',msgt,'minutes.'))
 	
