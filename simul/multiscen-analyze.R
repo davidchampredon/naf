@@ -2,6 +2,10 @@
 ###   ANALYZE & COMPARE MULTIPLE SCENARIOS PREVIOUSLY RUN
 ###
 
+library(tidyr)
+library(dplyr)
+library(gridExtra)
+
 source('utils-analyze.R')
 source('utils-compare.R')
 source('utils-misc.R')
@@ -33,6 +37,7 @@ for(i in seq_along(scen.id)){
 res.all <- merge.result.scen(scen.id, dir.save.rdata)
 
 # Plot results for all scenarios:
+
 plot.multi.scen.res(res.all[['main']], 
 					dir=dir.results,
 					file.scen.prm.list = 'scenario-prm-list.csv')

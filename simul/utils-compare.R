@@ -165,20 +165,24 @@ compare.simul.scen <- function(scen.id,
 
 merge.result.scen <- function(scen.id, dir.save.rdata) {
 	# Main results:
+	bfirst <- TRUE
 	for(i in seq_along(scen.id)){
 		load(paste0(dir.save.rdata,'result-scen-',scen.id[i],'.RData'))
-		if(i==scen.id[1]) result.scen.all <- result.scen
-		else result.scen.all <- rbind(result.scen.all, result.scen)
+		if(bfirst)  result.scen.all <- result.scen
+		if(!bfirst) result.scen.all <- rbind(result.scen.all, result.scen)
+		bfirst <- FALSE
 	}
 	save(list = 'result.scen.all', 
 		 file = paste0(dir.save.rdata,'result-scen-all.RData'),
 		 compress = FALSE)
 	
 	# Secondary results:
+	bfirst <- TRUE
 	for(i in seq_along(scen.id)){
 		load(paste0(dir.save.rdata,'result-secondary-',scen.id[i],'.RData'))
-		if(i==scen.id[1]) secondary.all <- result.secondary
-		else secondary.all <- rbind(secondary.all, result.secondary)
+		if(bfirst)  secondary.all <- result.secondary
+		if(!bfirst) secondary.all <- rbind(secondary.all, result.secondary)
+		bfirst <- FALSE
 	}
 	save(list = 'secondary.all', 
 		 file = paste0(dir.save.rdata,'secondary-all.RData'),
