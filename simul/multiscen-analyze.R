@@ -21,10 +21,14 @@ tmp     <- system(command = paste0('ls ',dir.save.rdata,'mc-simul-*.RData'),
 tmp     <- gsub(x = tmp, pattern = paste0(dir.save.rdata,'mc-simul-'),replacement = '')
 scen.id <- gsub(x = tmp, pattern = '.RData',   replacement = '')
 
+bfirst <- TRUE
+
 for(i in seq_along(scen.id)){
 	# In-depth analysis of the results:
-	if(FALSE) analyze.simul.scen(scen.id = scen.id[i],
-								 dir.save.rdata = dir.save.rdata)
+	if(bfirst) analyze.simul.scen(scen.id = scen.id[i],
+								 dir.save.rdata = dir.save.rdata,
+								 dir.results = dir.results)
+	bfirst <- FALSE
 	# Compare intervention of this scenario
 	# with common baseline:
 	compare.simul.scen(scen.id = scen.id[i], 

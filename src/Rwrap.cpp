@@ -386,7 +386,11 @@ List naf_run_det(List params,
 		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
 		dcDataFrame world_sp  = sim.census_sp();
 	
+		Rcpp::List empty_list;
 		
+		bool debug_mode = MP.get_prm_bool("debug_mode");
+		
+
 		if(!build_world_only){
 			
 			// Retrieve all results from simulation:
@@ -396,15 +400,26 @@ List naf_run_det(List params,
 			// epidemic time series
 			dcDataFrame ts = sim.timeseries();
 			
-			// Time series of census for every social places:
+			// Time series of census for every social places.
+			//
+			// Note: this is activated only in debug mode
+			// because the exported objects are very large
+			// and slow everything down.
+			
 			Rcpp::List census_sp;
-			census_sp.push_back(sim.get_ts_census_sp_time());
-			census_sp.push_back(sim.get_ts_census_sp_id());
-			census_sp.push_back(sim.get_ts_census_sp_type());
-			census_sp.push_back(sim.get_ts_census_sp_nS());
-			census_sp.push_back(sim.get_ts_census_sp_nE());
 			vector<string> tmp_names = {"time","id_sp","type","nS","nE"};
-			census_sp.attr("names") = tmp_names;
+			
+			if(debug_mode){
+				census_sp.push_back(sim.get_ts_census_sp_time());
+				census_sp.push_back(sim.get_ts_census_sp_id());
+				census_sp.push_back(sim.get_ts_census_sp_type());
+				census_sp.push_back(sim.get_ts_census_sp_nS());
+				census_sp.push_back(sim.get_ts_census_sp_nE());
+				census_sp.attr("names") = tmp_names;
+			}
+			else{
+				census_sp = empty_list;
+			}
 			
 			// Number of contacts tracker
 			Rcpp::List track_n_contacts;
@@ -418,7 +433,7 @@ List naf_run_det(List params,
 			
 			// Return R-formatted result:
 			return List::create(Named("world_final")      = to_list(world_final,false),
-								Named("world")            = to_list_vector(W, false),
+								// DELETE WHEN SURE: Named("world")            = to_list_vector(W, false),
 								Named("ages")             = census_ages(sim.get_world()),
 								Named("census_sp")		  = to_list(world_sp,false),
 								Named("time_series")      = to_list(ts, false),
@@ -433,10 +448,8 @@ List naf_run_det(List params,
 		// return only information about the World created.
 		if(build_world_only){
 			
-			Rcpp::List empty_list;
-			
 			// Return R-formatted result:
-			return List::create(Named("world")            = to_list_vector(W, false),
+			return List::create(// DELETE WHEN SURE:Named("world")            = to_list_vector(W, false),
 								Named("ages")             = census_ages(sim.get_world()),
 								Named("census_sp")		  = to_list(world_sp,false),
 								
@@ -732,6 +745,7 @@ List naf_run(List params,
 		
 		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
 		
+		Rcpp::List empty_list;
 		
 		if(!build_world_only){
 			
@@ -764,7 +778,7 @@ List naf_run(List params,
 			
 			// Return R-formatted result:
 			return List::create(Named("population_final") = to_list(pop_final,false),
-								Named("world")            = to_list_vector(W, false),
+								// DELETE WHEN SURE:Named("world")            = to_list_vector(W, false),
 								Named("time_series")      = to_list(ts, false),
 								Named("time_series_sp")   = census_sp,
 								Named("track_n_contacts") = track_n_contacts,
@@ -777,12 +791,10 @@ List naf_run(List params,
 		// return only information about the World created.
 		if(build_world_only){
 			
-			Rcpp::List empty_list;
-			
 			dcDataFrame world_sp = sim.census_sp();
 			
 			// Return R-formatted result:
-			return List::create(Named("world")            = to_list_vector(W, false),
+			return List::create(// DELETE WHEN SURE:Named("world")            = to_list_vector(W, false),
 								Named("ages")             = census_ages(sim.get_world()),
 								Named("census_sp")		  = to_list(world_sp,false),
 								
