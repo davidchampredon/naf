@@ -249,12 +249,12 @@ plot.secondary.res <- function(df, dir){
 										   linetype = factor(intervention)))
 	
 	g.immh <- ggplot(x) + geom_line(aes(x=age.group,y=immh,
-								   colour=factor(scenario),
-								   linetype = factor(intervention)))
+										colour=factor(scenario),
+										linetype = factor(intervention)))
 	
 	g.immc <- ggplot(x) + geom_line(aes(x=age.group,y=immc,
-									colour=factor(scenario),
-									linetype = factor(intervention)))
+										colour=factor(scenario),
+										linetype = factor(intervention)))
 	
 	g.frail <- ggplot(x) + geom_line(aes(x=age.group, y=frailty,
 										 colour=factor(scenario),
@@ -285,9 +285,9 @@ plot.secondary.res <- function(df, dir){
 	dev.off()
 }
 
-plot2 <- function(result.scen.all, 
-				  dir, 
-				  file.scen.prm.list){
+plot.rate.reduc <- function(result.scen.all, 
+							dir, 
+							file.scen.prm.list){
 	
 	# Retrieve scenarios definitions:
 	spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
@@ -296,14 +296,24 @@ plot2 <- function(result.scen.all,
 	# Merge results and scenarios definition:
 	x <- join(result.scen.all, spl, by='scenario_id')
 	
+	# Use only what's necessary for plot:
+	z <- ddply(x,
+			   c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
+			     'interv_cvg_max_prop','interv_start'),
+			   summarise,
+			   md  = quantile(-rel.d.sympt, probs = 0.50),
+			   qlo = quantile(-rel.d.sympt, probs = 0.05),
+			   qhi = quantile(-rel.d.sympt, probs = 0.95)
+	)
+
 	# Plots
-	g <- ggplot(x)
-	g <- g + geom_point(aes(x = interv_cvg_rate,
-								   y = -rel.d.sympt,
-								   colour = factor(interv_start)), alpha=0.6)
-	g <- g + facet_wrap(~interv_target+contact_rate_mean+interv_cvg_max_prop)
 	
-	pdf(paste0(dir,'plot2.pdf'), width=15, height = 10)
+	g <- ggplot(z,aes(x=interv_cvg_rate, y=md, colour = factor(interv_start)), alpha=0.6) 
+	g <- g + geom_point(size=2) + geom_line(size=0.5) + geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
+	g <- g + facet_wrap(~interv_target + contact_rate_mean + interv_cvg_max_prop)
+	g <- g + scale_x_log10()
+	
+	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=15, height = 10)
 	plot(g)
 	dev.off()
 	

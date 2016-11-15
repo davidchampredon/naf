@@ -49,7 +49,7 @@ plot.multi.scen.res(res.all[['main']],
 plot.secondary.res(res.all[['secondary']], 
 				   dir = dir.results)
 
-plot2(res.all[['main']], 
+plot.rate.reduc(res.all[['main']], 
 	  dir = dir.results,
 	  file.scen.prm.list = 'scenario-prm-list.csv')
 
