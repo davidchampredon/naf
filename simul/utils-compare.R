@@ -87,7 +87,8 @@ compare.simul.scen <- function(scen.id,
 					 tot.inf   = sum(is_recovered),
 					 tot.sympt = sum(was_symptomatic),
 					 tot.hosp  = sum(was_hosp),
-					 tot.death = sum(1-is_alive)))
+					 tot.death = sum(1-is_alive),
+					 tot.treat = sum(is_treated)))
 	}
 	
 	a0 <- main.results(pop0)
@@ -103,11 +104,13 @@ compare.simul.scen <- function(scen.id,
 					tot.sympt.baseline = a0$tot.sympt,
 					tot.hosp.baseline  = a0$tot.hosp,
 					tot.death.baseline = a0$tot.death,
+					tot.treat.baseline = a0$tot.treat,
 					# Raw diffences with baseline:
 					d.inf   = a$tot.inf   - a0$tot.inf,
 					d.sympt = a$tot.sympt - a0$tot.sympt,
 					d.hosp  = a$tot.hosp  - a0$tot.hosp,
-					d.death = a$tot.death - a0$tot.death)
+					d.death = a$tot.death - a0$tot.death,
+					d.treat = a$tot.treat - a0$tot.treat)
 	
 	# Add _relative_ differences calculations
 	n <- ncol(d)
@@ -198,7 +201,7 @@ plot.multi.scen.res <- function(result.scen.all,
 	idx <- which( substr(names(result.scen.all),1,6)=='rel.d.'  )
 	x <- gather(result.scen.all,'type','rel.diff',idx)
 	
-	pdf(paste0(dir,'plot-compare-all.pdf'), width=12, height=8)
+	pdf(paste0(dir,'plot-compare-all.pdf'), width=20, height=15)
 	g <- ggplot(x) + geom_boxplot(aes(x=factor(type),y=rel.diff, 
 									  fill=factor(scenario)))
 	g <- g + geom_hline(yintercept=0, colour='black',linetype=2)

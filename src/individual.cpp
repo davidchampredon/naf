@@ -482,9 +482,7 @@ void individual::receive_vaccine(float time,
                                  float imm_hum_incr,
                                  float imm_cell_incr,
                                  float frail_incr, // <-- frailty is not affected in this implementation.
-                                 float vaxlag){
-    /// Vaccinate this individual
-    
+                                 float vaxlag){    
     _is_vaccinated = true;
     
     _imm_hum_when_recv_vax  = _immunity_hum;

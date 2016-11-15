@@ -267,6 +267,9 @@ public:
      */
     void    receive_treatment(double doi_reduction);
     
+    
+    /** Vaccinate this individual
+     */
     void    receive_vaccine(float time,
                             float vaxlag,
                             float imm_hum_incr,
