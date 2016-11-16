@@ -311,7 +311,7 @@ plot.rate.reduc <- function(result.scen.all,
 	g <- ggplot(z,aes(x=interv_cvg_rate, y=md, colour = factor(interv_start)), alpha=0.6) 
 	g <- g + geom_point(size=2) + geom_line(size=0.5) + geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
 	g <- g + facet_wrap(~interv_target + contact_rate_mean + interv_cvg_max_prop)
-	g <- g + scale_x_log10()
+	g <- g + scale_color_brewer(palette = 'Dark2')
 	
 	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=15, height = 10)
 	plot(g)
