@@ -17,6 +17,8 @@
 double linear_interpol(double x, double x1, double y1, double x2, double y2);
 
 
+/** Defines mean frailty
+ */
 float frailty_mean(float age,
                    float f0,
                    float fmin,

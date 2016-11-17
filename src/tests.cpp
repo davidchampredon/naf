@@ -40,6 +40,8 @@ void main_run(){
     MP.add_prm_double ("proba_move", 0.9);
     MP.add_prm_double ("proba_move_reduc_sympt", 0.15);
 
+    MP.add_prm_double ("proba_hosp", 0.01);
+    
     MP.add_prm_double ("proba_change_sp_other", 0.01);
     
     MP.add_prm_double ("proba_death_prm_1", 0.59999999999999); // <-- TEST!

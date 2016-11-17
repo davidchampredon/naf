@@ -15,6 +15,8 @@ source('analysis_tools.R')
 save.plot.to.file <- TRUE
 dir.results <- '../results/'
 
+# If outputs for all social places are produced separately:
+detailed.analysis <- FALSE
 
 ### ==== Merge all MC iterations ====
 
@@ -36,11 +38,11 @@ pop   <- merge.pop.mc(res.select,
 # so it is done across all MC iterations:
 ts    <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
 tsc   <- merge.ts.mc(res.list.0, n.cpu = n.cpu, is.contact = TRUE)
-tssp  <- merge.ts.mc(res.list.0, n.cpu = n.cpu, is.sp = TRUE)
+if(detailed.analysis) tssp  <- merge.ts.mc(res.list.0, n.cpu = n.cpu, is.sp = TRUE)
 
 if(exists('res.list')){
 	ts.intrv    <- merge.ts.mc(res.list, n.cpu = n.cpu)
-	tssp.intrv  <- merge.ts.mc(res.list, n.cpu = n.cpu, is.sp = TRUE)
+	if(detailed.analysis) tssp.intrv  <- merge.ts.mc(res.list, n.cpu = n.cpu, is.sp = TRUE)
 }
 
 ### ==== Plots ====

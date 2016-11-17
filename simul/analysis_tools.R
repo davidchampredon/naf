@@ -502,11 +502,11 @@ plot.population <- function(pop, split.mc = TRUE) {
 												title = 'Hospitalization and cellular immunity',
 												split.mc=split.mc)
 	
-	
 	g.age.hosp <- plot.binomial.regression(dat = pop, xvar = 'age',
 										   binomial_response = 'hosp',
 										   title = 'Hospitalization and age',
 										   split.mc=split.mc)
+	
 	
 	
 	pop.treat.hosp <- ddply(pop,c('hosp','is_treated'),summarize, n=length(id_indiv))
@@ -524,6 +524,23 @@ plot.population <- function(pop, split.mc = TRUE) {
 												  position = 'dodge', stat = 'identity')
 	g.vax.hosp <- g.vax.hosp + ggtitle('Hospitalization and vaccination')
 	
+	
+	# Summarize data
+	pop$is_dead <- 1-pop$is_alive
+	tmp <- ddply(pop,c('age'),summarize,
+				 nh = sum(was_hosp),
+				 nd = sum(is_dead),
+				 n = length(id_indiv))
+	tmp$prop.hosp <- tmp$nh/tmp$n
+	tmp$prop.dead <- tmp$nd/tmp$n
+	
+	g.age.hosp.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.hosp),stat = 'identity')
+	g.age.hosp.raw <- g.age.hosp.raw + ggtitle('Hospitalizations by age')
+	g.age.hosp.raw <- g.age.hosp.raw + xlab('age')+ylab('proportion')
+	
+	g.age.dead.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.dead),stat = 'identity')
+	g.age.dead.raw <- g.age.dead.raw + ggtitle('Deaths by age')
+	g.age.dead.raw <- g.age.dead.raw + xlab('age')+ylab('proportion')
 	
 	### ==== Secondary cases distribution ==== 
 	
@@ -678,7 +695,10 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 g.death.imm.cell,
 				 g.death.frailty.dist,
 				 g.death.imm.hum.dist,
-				 g.death.imm.cell.dist,
+				 g.death.imm.cell.dist)
+	
+	grid.arrange(g.age.hosp.raw,
+				 g.age.dead.raw,
 				 g.imm.hum.hosp,
 				 g.imm.cell.hosp,
 				 g.frail.hosp,

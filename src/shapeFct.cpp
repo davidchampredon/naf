@@ -21,16 +21,18 @@ float frailty_mean(float age,
                    float agemin,
                    float agepivot,
                    float fpivot,
-                   float powerChild){
-    
-    /// Defines mean frailty
-    
+                   float powerChild)
+{
     float res = -999.99;
+    float age_infant = 2.0;
     
-    if (age<=agemin){
-        res = (f0-fmin)/pow(agemin,powerChild) * pow(agemin-age,powerChild) + fmin;
+    if (age <= age_infant){
+        res = (f0-fmin)/pow(age_infant,powerChild) * pow(age_infant-age,powerChild) + fmin;
     }
-    else{
+    else if (age_infant < age && age <= agemin){
+        res = fmin;
+    }
+    else if (agemin < age){
         float b = 1/fpivot - 1;
         float alpha =  -log(1/fmin/b-1/b)/(agemin-agepivot);
         res = 1/(1+b*exp(-alpha*(age-agepivot)));

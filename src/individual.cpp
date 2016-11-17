@@ -324,12 +324,8 @@ void individual::acquireDisease(){
     stopif(!found, "Unknown distribution for DOI.");
 }
 
-void individual::futureHospitalization(){
-    /// This individual will be hopitalized,
-    /// determine when and duration.
-    /// Also determine if death occur at
-    /// the end of the hospitalization period.
-    
+void individual::futureHospitalization()
+{
     _willbe_hosp = true;
     
     // hospitalization will happen after (drawn) latent,

@@ -1222,13 +1222,9 @@ double Simulator::calc_proba_symptomatic(float immunity, float frailty){
 }
 
 
-double Simulator::calc_proba_hospitalized(float frailty){
-    /// Probability to be symptomatic given
-    /// an individual's frailty
-    
-    // TO DO: more sophisticated!
-    
-    return frailty ;
+double Simulator::calc_proba_hospitalized(float frailty)
+{
+    return frailty * _modelParam.get_prm_double("proba_hosp") ;
 }
 
 
@@ -1596,9 +1592,6 @@ uint Simulator::transmission_activation(int k,
 
 
 uint Simulator::transmission_process(uint k, double dt, string infectious_type){
-    /// Full transmission process:
-    /// draw number of contacts, identify susceptible contacted,
-    /// attempts transmission, activate successful attempts.
     
     stopif(k >= _world.size(), "Asking for an inexistent social place.");
     
@@ -2172,8 +2165,6 @@ void Simulator::assign_hospital_to_individuals(){
 
 
 void Simulator::hospitalize(){
-    /// Scan all infectious symptomatic individuals
-    /// and hospitalize them if they were meant to and if it's time to do so.
     
     std::uniform_real_distribution<> unif(0.0, 1.0);
     
@@ -2223,9 +2214,6 @@ void Simulator::hospitalize(){
     }
 }
 
-/** Scan all infectious hospitalized individuals
- * and discharge them if duration of hospitalization > than the one drawn (_doh_drawn)
- */
 
 void Simulator::discharge_hospital(uint idx_timeslice){
     

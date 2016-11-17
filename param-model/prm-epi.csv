@@ -6,7 +6,7 @@ dol_mean , 1.0
 doi_mean , 2.0
 doh_mean , 5.0
 
-dol_var , 2.1
+dol_var , 0.75
 doi_var , 2.5
 doh_var , 1.00
 
@@ -14,13 +14,15 @@ proba_death_prm_1 , 0.08
 proba_death_prm_2 , 0.75
 proba_death_prm_3 , 9.999
 
-frailty_0        , 0.20
+frailty_0        , 0.60
+frailty_powerChild , 1
 frailty_min      , 0.12
 frailty_agemin   , 30.0
 frailty_agepivot , 60
 frailty_pivot    , 0.43
 frailty_sd       , 0.1
-frailty_powerChild , 3
+
+proba_hosp, 0.01
 
 imm_hum_baseline, 0.2
 imm_hum_agezero, 120

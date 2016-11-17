@@ -259,7 +259,14 @@ public:
     void    die();
     void    acquireDisease();
     void    recoverDisease();
+    
+    /** This individual will be hopitalized,
+      * determine when and duration.
+      * Also determine if death occur at
+      * the end of the hospitalization period.
+     */
     void    futureHospitalization();
+    
     void    futureDeath();
     
     /** This individual receives a treamtment

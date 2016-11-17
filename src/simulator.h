@@ -293,9 +293,18 @@ public:
                                             individual* susceptible);
     
     double calc_proba_symptomatic(float immunity, float frailty);
+    
+    /** Probability to be symptomatic given
+      * an individual's frailty.
+     */
     double calc_proba_hospitalized(float frailty);
+    
     double calc_proba_death(float frailty);
     
+    /** Full transmission process:
+      * draw number of contacts, identify susceptible contacted,
+      * attempts transmission, activate successful attempts.
+     */
     uint    transmission_process(uint k, double dt, string infectious_type);
     
     vector< vector<uint> > transmission_attempts(uint k,
@@ -311,8 +320,17 @@ public:
                                     vector< vector<uint> > selected_S,
                                     vector< vector<uint> > transm_success);
     void    hospitalize_indiv(uint k, uint i);
+    
+    /** Scan all infectious symptomatic individuals
+      * and hospitalize them if they were meant to and if it's time to do so.
+     */
     void    hospitalize();
+    
+    /** Scan all infectious hospitalized individuals
+     * and discharge them if duration of hospitalization > than the one drawn (_doh_drawn)
+     */
     void    discharge_hospital(uint idx_timeslice);
+    
     void    death_hospital();
 
     // Interventions

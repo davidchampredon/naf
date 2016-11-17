@@ -6,11 +6,14 @@
 
 > justification of lower humoral immunity for elderly may be found in: Fleming DM, Andrews NJ, Ellis JS, Bermingham A, Sebastianpillai P, et al. (2010) Estimating influenza vaccine effectiveness using routinely collected laboratory data. J Epidemiol Community Health 64: 1062– 1067.
 
+> Move (copy?) files in naf/data/frailty to Drapbox/Epidata
+
 _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
-- find ILI visits and virological/serological test by age group in Ontario for seasonal flu in order to double check which are the most exposed groups
+
+- fit model (prm: proba_hosp, proba_death_xxx) to hospitalization and deaths by age 
 
 - Add Outputs: 	CFR
 
