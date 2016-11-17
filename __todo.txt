@@ -2,22 +2,10 @@
 === T O   D O   L I S T ===
 ===========================
 
-> Read Baguelin 2013
-
-> justification of lower humoral immunity for elderly may be found in: Fleming DM, Andrews NJ, Ellis JS, Bermingham A, Sebastianpillai P, et al. (2010) Estimating influenza vaccine effectiveness using routinely collected laboratory data. J Epidemiol Community Health 64: 1062– 1067.
-
-> Move (copy?) files in naf/data/frailty to Drapbox/Epidata
 
 _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
-
-
-- fit model (prm: proba_hosp, proba_death_xxx) to hospitalization and deaths by age 
-
-- Add Outputs: 	CFR
-
-- Extract case-fatality-ratio from simulation and compare with real ones (by age). See :Hardelid P, Pebody R, Andrews N (2012) Mortality caused by influenza and respiratory syncytial virus by age group in England and Wales 1999–2010. Influenza Other Respi Viruses 7: 35–45. 
 
 - Finalize data used for final stage, fit, robustness, etc...
 
@@ -30,9 +18,20 @@ _____________________
 ===  MINOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
+- change "test.cpp/h" to "run.cpp/h"
+
 - _id_Is and _indiv_Is redundant	
 
 - put age determinant for schedule as model parameters (currently hard coded)
+
+
+________________________
+===  REFERENCES TO USE  ===
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+> Read Baguelin 2013
+
+> justification of lower humoral immunity for elderly may be found in: Fleming DM, Andrews NJ, Ellis JS, Bermingham A, Sebastianpillai P, et al. (2010) Estimating influenza vaccine effectiveness using routinely collected laboratory data. J Epidemiol Community Health 64: 1062– 1067.
 
 
 

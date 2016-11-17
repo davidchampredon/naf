@@ -2,7 +2,7 @@
 \documentclass[10pt,twocolumn]{article}
 \usepackage{geometry} 
 \usepackage[parfill]{parskip}
-
+\usepackage{graphicx}
 
 \title{Notes on Fitting NAF}
 \author{David Champredon}
@@ -39,10 +39,17 @@ where $f$ is the individual's frailty and $\alpha$ the parameter to fit to data.
 
 The data used is the proportion of hospitalization caused by influenza per 100,000 population, by age group. The shape of the hospitalization probability as a function of age is driven by the frailty index. Hence $\alpha$ only affects the overall level of $p_H$.
 
-The fit is done manually: choose a value for $\alpha$ such that the probabilities for all age group fall in the range of value collected over several years (which are pretty stable\cite{Schanzer:2013dn}).
+The fit is done manually: choose a value for $\alpha$ such that the probabilities for all age group fall in the range of value collected over several years (which are pretty stable\cite{Schanzer:2013dn}). See Figure \ref{fig:probaHospDeath}.
+
 
 So it's not really a ``fit'', more a value that is set arbitrarily, but based on existing data.
 
+\begin{figure}[htbp]
+   \centering
+   \includegraphics[width=0.49\textwidth]{proba-hosp-death-ontario.pdf} % requires the graphicx package
+   \caption{Rate of hospitalization and death caused by influenza for Ontario.}
+   \label{fig:probaHospDeath}
+\end{figure}
 
 
 \section{Probability of death after hospitalization}
