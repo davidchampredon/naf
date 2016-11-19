@@ -248,6 +248,35 @@ Figure \ref{fig:frailty} shows an example of the frailty index where the paramet
 
 Finally, each individual in the simulation is assigned a frailty index based on its age (only). The value of the frailty index is drawn from a normal distribution with mean $f(a)$ (where $a$ is the individual's age) and standard deviation arbitrarily set at 0.1.
 
+\section{Symptomatic infection}
+
+The symptomatic nature of the infection is determined stochastically at the time of disease acquisition. The probability of a symptomatic infection is based on both the frailty $f$ and the cellular immunity index $\immc$:
+\begin{equation}
+p_{sympt} = f (1-\immc)
+\end{equation}
+\warning{TO DO: CHANGE THAT FORMULA}
+
+
+\section{Hospitalization and death}
+
+If an infection is symptomatic, then there is a risk of hospitalization and subsequently, a risk of death. Note that only influenza-induced death is modeled here.
+
+For any symptomatic infection, the hospitalization event is drawn from a Bernoulli distribution with probability $p_{hosp}$ that depends on the individual's frailty $f$ with the following functional relationship: \warning{explain more...}
+\begin{equation}
+p_{hosp}(f) = f * \alpha 
+\end{equation}
+
+If hospitalization occurs, then the duration of hospitalization is drawn from an exponential distribution. Moreover, the event of death is drawn from a Bernoulli with probability 
+\begin{equation}
+p_{death} = p_1 + p_2 1_{f>threshold}
+\end{equation}
+
+The parameters defining the hospitalization and death probabilities are set to values such that the hospitalization and death rates by age groups retrieved from the simulations are consistent with the data. 
+
+\warning{TO FINISH}
+
+
+
 
 \section{Immunity}
 
@@ -313,6 +342,8 @@ That rough estimation can be a starting point for the vaccination rate of a pand
 Literature on the effects of antiviral treatment on the course of influenza infection indicates that it marginally reduces the duration of symptoms \warning{((cites))}. It is unclear if antiviral treatment reduces the risk of severe complications, hospitalization or even death. 
 
 Hence, this model implements the effect of antiviral treatment as solely reducing the duration of infection. More specifically, if $d$ is the duration of infection drawn from the pre-specified distribution at infection time, the duration reduction amount $\delta$ is drawn from an exponential distribution: $\delta \sim \text{Exp}(1/\delta^*)$ with $\delta^*$ the pre-specified mean reduction duration. The new (overall) duration of infectiousness at time of treatment initiation is $\max(0, d-\delta)$.
+
+\warning{TO DO: describe reduction of infectiousness from antiviral treatment}
 
 \subsection{Vaccination effects}
 

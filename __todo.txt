@@ -2,16 +2,24 @@
 === T O   D O   L I S T ===
 ===========================
 
+> >
 
 _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
+- Reduce # of 'Arbitrary' in "_all_param_value_source.xlsx"
+
+- Change shape clac_proba_hosp from 'step' to logistic
+
+- Display and Calibrate asymptomatic proportion
+
+- Implement sensitivity analysis 
+
 - Finalize data used for final stage, fit, robustness, etc...
 
 - Hospitalized are both in _indiv_Is and _indiv_H: change that to only _indiv_H???
 - Treatment & vax affects hospitalization outcome
-
 
 
 _____________________

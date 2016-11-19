@@ -1181,10 +1181,8 @@ socialPlace* Simulator::pick_rnd_sp_other(){
 
 double Simulator::calc_proba_transmission(individual *infectious,
                                           individual *susceptible){
-    /// Calculate probability of transmission given contact
-    /// between an infectious and susceptible individuals
     
-    // TO DO: implement something more elaborate!
+    // TO DO: implement something more elaborate!?
     
     // Susceptible side (acquisition risk):
     double p_susc = 1.0 - susceptible->get_immunity_hum();
@@ -1194,19 +1192,15 @@ double Simulator::calc_proba_transmission(individual *infectious,
     if(! infectious->is_symptomatic())
         p_inf = _modelParam.get_prm_double("asymptom_infectiousness_ratio");
     
+    // Infectiousness is reduced
+    // if patient is treated:
     if (infectious->is_treated()){
-        // Infectiousness reduction if patient is treated
-        //
         double m = _modelParam.get_prm_double("treat_reduc_infect_mean");
         if(m>0){
             double reduc = beta_distribution(1.0, 1/m - 1.0, _RANDOM_GENERATOR);
             p_inf = p_inf * (1-reduc);
         }
     }
-    
-    // DEBUG
-    //    cout << " DEBUG: p_susc = "<< p_susc << " ; p_inf = " << p_inf << endl;
-    
     return p_susc * p_inf;
 }
 
@@ -1229,8 +1223,6 @@ double Simulator::calc_proba_hospitalized(float frailty)
 
 
 double Simulator::calc_proba_death(float frailty){
-    /// Probability to die at the end of hospitalization period.
-    
     // TO DO: more sophisticated!
     double p        = _modelParam.get_prm_double("proba_death_prm_1");
     double thres    = _modelParam.get_prm_double("proba_death_prm_2");
@@ -2091,6 +2083,7 @@ double Simulator::select_contact_rate_ratio(double age,
     // social place:
     if (sp_type == SP_household) ratio_sp = ratio_sp * _modelParam.get_prm_double("contact_ratio_sp_household");
     if (sp_type == SP_pubTransp) ratio_sp = ratio_sp * _modelParam.get_prm_double("contact_ratio_sp_pubTransport");
+    if (sp_type == SP_school)    ratio_sp = ratio_sp * _modelParam.get_prm_double("contact_ratio_sp_school");
     
     return ratio_indiv * ratio_sp;
 }

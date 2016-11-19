@@ -1,18 +1,18 @@
 dol_distrib , lognorm
 doi_distrib , lognorm
-doh_distrib , exp
+doh_distrib , lognorm
 
 dol_mean , 1.0
 doi_mean , 2.0
-doh_mean , 5.0
+doh_mean , 12.0
 
-dol_var , 0.75
+dol_var , 0.25
 doi_var , 2.5
-doh_var , 1.00
+doh_var , 21.00
 
 proba_death_prm_1 , 0.08
 proba_death_prm_2 , 0.75
-proba_death_prm_3 , 9.999
+proba_death_prm_3 , 0.90
 
 frailty_0        , 0.60
 frailty_powerChild , 1
@@ -41,7 +41,8 @@ contact_ratio_age_10_16    , 1.0
 contact_ratio_age_over_65  , 0.8
 
 contact_ratio_sp_household     , 1.75
-contact_ratio_sp_pubTransport  , 1.50
+contact_ratio_sp_pubTransport  , 1.00
+contact_ratio_sp_school        , 1.90
 
 contactAssort_lambda, 0.1
 
@@ -49,9 +50,9 @@ proba_move, 0.98
 proba_move_reduc_sympt, 0.40
 proba_change_sp_other, 0.0
 
-asymptom_infectiousness_ratio , 0.8
+asymptom_infectiousness_ratio , 0.01
 
-treat_doi_reduc , 1.1123
+treat_doi_reduc , 1.0
 treat_reduc_infect_mean , 0.1
 
 vax_imm_hum_incr      , 0.1

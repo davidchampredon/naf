@@ -328,19 +328,36 @@ void individual::futureHospitalization()
 {
     _willbe_hosp = true;
     
+    bool found   = false;
+    
     // hospitalization will happen after (drawn) latent,
     // but before end of (drawn) infectiousness
     std::uniform_real_distribution<> unif(0, _doi_drawn);
     _dobh_drawn = _dol_drawn + unif(_RANDOM_GENERATOR);
     
     float doh_mean = _disease.get_doh_mean();
-    if (_doh_distrib == "dirac") _doh_drawn = doh_mean;
+    if (_doh_distrib == "dirac") {
+        _doh_drawn = doh_mean;
+        found = true;
+    }
     if (_doh_distrib == "exp") {
         std::exponential_distribution<float> d(1.0/doh_mean);
         _doh_drawn = d(_RANDOM_GENERATOR);
+        found = true;
     }
-    // DEBUG
-//    cout << "  DEBUG: doh_drawn = " << _doh_drawn << " " << _doh_distrib <<" mean: " <<doh_mean << endl;
+    else if (_doh_distrib == "lognorm") {
+        float doh_mean = _disease.get_doh_mean();
+        float doh_var  = _disease.get_doh_var();
+        float doh_mean2 = doh_mean * doh_mean;
+        
+        float mu = log(doh_mean2/sqrt(doh_var+doh_mean2));
+        float sigma = log(1.0 + doh_var/doh_mean2);
+        
+        std::lognormal_distribution<float> d(mu,sigma);
+        _doh_drawn = d(_RANDOM_GENERATOR);
+        found = true;
+    }
+    stopif(!found, "Unknown distribution for DOI.");
 }
 
 

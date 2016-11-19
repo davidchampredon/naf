@@ -288,7 +288,9 @@ public:
                                                            vector<uint> n_contacts,
                                                            string infectious_type);
     
-    
+    /** Calculate probability of transmission given contact
+      * between an infectious and susceptible individuals.
+    */
     double calc_proba_transmission(individual* infectious,
                                             individual* susceptible);
     
@@ -298,7 +300,9 @@ public:
       * an individual's frailty.
      */
     double calc_proba_hospitalized(float frailty);
-    
+
+    /** Probability to die at the end of hospitalization period.
+     */
     double calc_proba_death(float frailty);
     
     /** Full transmission process:
