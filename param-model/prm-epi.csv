@@ -10,9 +10,10 @@ dol_var , 0.25
 doi_var , 2.5
 doh_var , 21.00
 
-proba_death_prm_1 , 0.08
-proba_death_prm_2 , 0.75
-proba_death_prm_3 , 0.90
+proba_death_min , 0.10
+proba_death_max , 0.90
+proba_death_frailCvx , 0.60
+proba_death_slope , 15.0
 
 frailty_0        , 0.60
 frailty_powerChild , 1
@@ -33,10 +34,10 @@ imm_cell_slope, 2
 imm_cell_pivot, 20
 
 homogeneous_contact , 0
-contact_rate_mean   , 2.1
-contact_rate_stddev , 0.4
+contact_rate_mean   , 8
+contact_rate_stddev , 5
 
-contact_ratio_age_1_10     , 1.0
+contact_ratio_age_1_10     , 2.00009999
 contact_ratio_age_10_16    , 1.0
 contact_ratio_age_over_65  , 0.8
 

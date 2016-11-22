@@ -27,15 +27,15 @@ void main_run(){
     
     MP.add_prm_string("dol_distrib", "lognorm");
     MP.add_prm_string("doi_distrib", "lognorm");
-    MP.add_prm_string("doh_distrib", "exp");
+    MP.add_prm_string("doh_distrib", "lognorm");
     
     MP.add_prm_double ("dol_mean", 2.0);
     MP.add_prm_double ("doi_mean", 4.789);
-    MP.add_prm_double ("doh_mean", 4.123);
+    MP.add_prm_double ("doh_mean", 12.345);
     
     MP.add_prm_double ("dol_var", 2.1);
     MP.add_prm_double ("doi_var", 2.5);
-    MP.add_prm_double ("doh_var", 0.2);
+    MP.add_prm_double ("doh_var", 21);
     
     MP.add_prm_double ("proba_move", 0.9);
     MP.add_prm_double ("proba_move_reduc_sympt", 0.15);
@@ -44,9 +44,10 @@ void main_run(){
     
     MP.add_prm_double ("proba_change_sp_other", 0.01);
     
-    MP.add_prm_double ("proba_death_prm_1", 0.59999999999999); // <-- TEST!
-    MP.add_prm_double ("proba_death_prm_2", 0.85);
-    MP.add_prm_double ("proba_death_prm_3", 0.80);
+    MP.add_prm_double ("proba_death_min", 0.1);
+    MP.add_prm_double ("proba_death_max", 0.85);
+    MP.add_prm_double ("proba_death_frailCvx", 0.60);
+    MP.add_prm_double ("proba_death_slope", 15.0);
     
     MP.add_prm_double("frailty_0", 0.60);
     MP.add_prm_double("frailty_min", 0.15);
@@ -73,6 +74,7 @@ void main_run(){
     MP.add_prm_double ("contact_ratio_age_over_65", 0.8);
     MP.add_prm_double ("contact_ratio_sp_household", 2.2);
     MP.add_prm_double ("contact_ratio_sp_pubTransport", 1.75);
+    MP.add_prm_double ("contact_ratio_sp_school", 1.75);
     
     MP.add_prm_double("contactAssort_lambda", 1.0/1.0);
     

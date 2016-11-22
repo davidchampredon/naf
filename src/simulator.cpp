@@ -1151,7 +1151,6 @@ vector<uint> Simulator::draw_n_contacts(uint k,
 
 
 void Simulator::set_sp_other(){
-        
     for (uint k=0; k<_world.size(); k++) {
         if(_world[k].get_type() == SP_other){
             _sp_other.push_back(&_world[k]);
@@ -1161,29 +1160,19 @@ void Simulator::set_sp_other(){
 
 
 void Simulator::set_sp_other_link(uint k, uint pos_indiv, socialPlace &sp){
-    /// link social place 'other' whose ID is 'id_sp'
-    /// with the individual in _position_ 'pos' currently in kth social place
-    
     _world[k].set_sp_other_link(pos_indiv, sp);
 }
 
 
 socialPlace* Simulator::pick_rnd_sp_other(){
-    /// Choose randomly a social place
-    /// of type 'other'
-    
     std::uniform_int_distribution<uint> unif(0,(uint)_sp_other.size()-1);
     uint rnd_idx = unif(_RANDOM_GENERATOR);
-    
     return _sp_other[rnd_idx];
 }
 
 
 double Simulator::calc_proba_transmission(individual *infectious,
                                           individual *susceptible){
-    
-    // TO DO: implement something more elaborate!?
-    
     // Susceptible side (acquisition risk):
     double p_susc = 1.0 - susceptible->get_immunity_hum();
     
@@ -1223,12 +1212,14 @@ double Simulator::calc_proba_hospitalized(float frailty)
 
 
 double Simulator::calc_proba_death(float frailty){
-    // TO DO: more sophisticated!
-    double p        = _modelParam.get_prm_double("proba_death_prm_1");
-    double thres    = _modelParam.get_prm_double("proba_death_prm_2");
-    double p_hi     = _modelParam.get_prm_double("proba_death_prm_3");
-    if (frailty > thres) p = p_hi;
-    return p;
+    double pmin     = _modelParam.get_prm_double("proba_death_min");
+    double pmax     = _modelParam.get_prm_double("proba_death_max");
+    double fcvx     = _modelParam.get_prm_double("proba_death_frailCvx");
+    double slop     = _modelParam.get_prm_double("proba_death_slope");
+    // Logistic shape:
+    double m = pmin + (pmax-pmin) / (1.0 + exp(-slop*(frailty-fcvx))) ;
+    
+    return m * frailty;
 }
 
 
@@ -2117,7 +2108,6 @@ double  Simulator::draw_contact_rate(individual* indiv, uint k){
         double cr_mean = ratio * _modelParam.get_prm_double("contact_rate_mean");
         double cr_sd   = _modelParam.get_prm_double("contact_rate_stddev");
         
-        //DELETE: std::exponential_distribution<double> expdist(1.0 / (ratio * cr_baseline));
         double tmp  = 1 + cr_sd*cr_sd/cr_mean/cr_mean;
         double m_ln = log(cr_mean/sqrt(tmp));
         double s_ln = sqrt(log(tmp));

@@ -178,6 +178,7 @@ List naf_run_det(List params,
 		set_parameter(MP, "contact_ratio_age_over_65",     "double", params);
 		set_parameter(MP, "contact_ratio_sp_household",    "double", params);
 		set_parameter(MP, "contact_ratio_sp_pubTransport", "double", params);
+		set_parameter(MP, "contact_ratio_sp_school",       "double", params);
 		
 		set_parameter(MP, "contactAssort_lambda", "double", params);
 		
@@ -191,9 +192,10 @@ List naf_run_det(List params,
 		set_parameter(MP, "vax_frail_incr",        "double", params);
 		set_parameter(MP, "vax_lag_full_efficacy", "double", params);
 		
-		set_parameter(MP, "proba_death_prm_1", "double", params);
-		set_parameter(MP, "proba_death_prm_2", "double", params);
-		set_parameter(MP, "proba_death_prm_3", "double", params);
+		set_parameter(MP, "proba_death_min",      "double", params);
+		set_parameter(MP, "proba_death_max",      "double", params);
+		set_parameter(MP, "proba_death_frailCvx", "double", params);
+		set_parameter(MP, "proba_death_slope",    "double", params);
 		
 		set_parameter(MP, "frailty_0",         "double", params);
 		set_parameter(MP, "frailty_min",       "double", params);

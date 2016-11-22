@@ -2,15 +2,17 @@
 === T O   D O   L I S T ===
 ===========================
 
-> >
-
 _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Reduce # of 'Arbitrary' in "_all_param_value_source.xlsx"
+- Find contact rate in order to have r0~2
 
-- Change shape clac_proba_hosp from 'step' to logistic
+- TEST Change shape calc_proba_hosp from 'step' to logistic
+
+- Make diagram 
+
+- Reduce # of 'Arbitrary' in "_all_param_value_source.xlsx"
 
 - Display and Calibrate asymptomatic proportion
 
@@ -40,6 +42,12 @@ ________________________
 > Read Baguelin 2013
 
 > justification of lower humoral immunity for elderly may be found in: Fleming DM, Andrews NJ, Ellis JS, Bermingham A, Sebastianpillai P, et al. (2010) Estimating influenza vaccine effectiveness using routinely collected laboratory data. J Epidemiol Community Health 64: 1062– 1067.
+
+>> Data on contacts in social places: 
+
+- Génois M, Vestergaard CL, Fournet J, Panisson A, Bonmarin I, Barrat A. Data on face-to-face contacts in an office building suggest a low-cost vaccination strategy based on community linkers. Netw Sci. 2015; 3(03):326–47. doi:10.1017/nws.2015.10. 
+
+- SocioPatterns Dataset: Contacts in a workplace. http://www.sociopatterns.org/datasets/contacts-in-a-workplace. 
 
 
 

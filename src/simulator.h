@@ -183,6 +183,10 @@ public:
      */
     void set_sp_other();
     
+    
+    /** link social place 'other' whose ID is 'id_sp'
+     *  with the individual in _position_ 'pos' currently in kth social place
+     */
     void set_sp_other_link(uint k, uint pos_indiv, socialPlace &sp);
 	
 	// Get functions
@@ -240,6 +244,7 @@ public:
      */
     void change_rnd_sp_other();
     
+    /** Choose randomly a social place of type 'other' */
     socialPlace* pick_rnd_sp_other();
     
     // Book keeping
@@ -252,6 +257,7 @@ public:
      * in all social places.
      */
     void    define_all_id_tables();
+    
     void    check_schedules_consistency();
 	
 
