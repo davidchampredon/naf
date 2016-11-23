@@ -40,7 +40,7 @@ for(i in seq_along(cr.mean)){
 		
 		# Run the simulation for that scenario:
 		stoch_build_world <- simul.prm[['build_world_stoch']]
-		res.list.0 <- run.simul.fit.R()	
+		res.list.0 <- run.simul.fit.R(n.MC,n.cpu)	
 		
 		# merge all MC iterations:
 		pop   <- merge.pop.mc(res.list = res.list.0,
