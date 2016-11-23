@@ -385,5 +385,88 @@ plot.best.fit.manual <- function(x1,
 
 
 
+load.all.parameters <- function(R.library.dir,
+								param.model.dir,
+								data.dir,
+								simul.dir) {
+	
+	library(naf,lib.loc = R.library.dir)
+	
+	source(paste0(simul.dir,'analysis_tools.R'))
+	source(paste0(simul.dir,'build-world-det-sizegen.R'))
+	source(paste0(param.model.dir,'read-prm.R'))
+	source(paste0(param.model.dir,'read-world-prm.R'))
+	source(paste0(param.model.dir,'read-interv.R'))
+	source(paste0(param.model.dir,'read-sched.R'))
+	
+	
+	# Parameter file names
+	fname.prm.epi      <- 'prm-epi.csv'
+	fname.prm.simul    <- 'prm-simul.csv'
+	fname.prm.au       <- 'prm-au-ontario.csv'
+	fname.prm.interv.0 <- 'prm-interv-0.csv'
+	fname.prm.interv   <- 'prm-interv.csv'
+	fname.schedules    <- 'schedules.csv'
+	
+	prm        <- list()
+	simul.prm  <- list()
+	interv.prm <- list()
+	world.prm  <- list()
+	sched.prm  <- list()
+	
+	###  Model Parameters
+	
+	prm[['debug_mode']] <- FALSE
+	
+	prm       <- read.prm(filename = paste0(param.model.dir, fname.prm.epi), 
+						  prm = prm)
+	simul.prm <- read.prm(filename = paste0(param.model.dir, fname.prm.simul), 
+						  prm = simul.prm)
+	
+	### World parameters
+	
+	world.prm <- load.world.prm(filename = paste0(param.model.dir, fname.prm.au), 
+								path.prm = param.model.dir)
+	world.prm[['id_region']]  <- 0
+	world.prm[['regionName']] <- "Canada"
+	world.prm[['unemployed_prop']] <- 0.10
+	
+	# rescale world size:
+	sf           <- as.numeric(simul.prm[['scale_factor']])
+	world.prm    <- scale.world(1/sf, world.prm)
+	print(paste('World size reduced by',sf))
+	
+	# age distributions, conditional on 
+	# household composition:
+	base.fname  <- paste0(data.dir,'households/hh_size_ad')
+	world.prm   <- c(world.prm,
+					 load.age.hh(base.fname, 
+					 			max.hh.size = max(world.prm[['max_hh_size']])) )
+	
+	world.prm <- gen_world_ontario(world.prm)
+	
+	#  Schedules
+	
+	sched.prm[['timeslice']]   <- c(1.0/24, 4.0/24, 4.0/24, 
+									1.0/24, 2.0/24, 12.0/24)
+	sched.prm[['sched_desc']]  <- read.schedules(paste0(param.model.dir,fname.schedules), return.names = FALSE)
+	sched.prm[['sched_names']] <- read.schedules(paste0(param.model.dir,fname.schedules), return.names = TRUE)
+	
+	### Intervention parameters
+	
+	# Baseline, no vax intervention:
+	interv.prm.0 <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
+	# Vax intervention:
+	interv.prm   <- load.interv.prm(paste0(param.model.dir,fname.prm.interv))
+	
+	return(list(prm = prm,
+				simul.prm = simul.prm,
+				world.prm = world.prm,
+				sched.prm = sched.prm,
+				interv.prm.0 = interv.prm.0,
+				interv.prm = interv.prm))
+}
+
+
 
 

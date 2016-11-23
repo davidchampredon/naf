@@ -81,3 +81,30 @@ run.simul <- function(scen.id, dir.save.rdata = './') {
 	t1 <- as.numeric(Sys.time())
 	print(paste("Scenario",scen.id,": Simulation computing time is",round((t1-t0)/60,1),"min"))
 }
+
+
+
+# Run the simulation. Used to fit R
+run.simul.fit.R <- function(n.MC,n.cpu) {
+	
+	t0 <- as.numeric(Sys.time())
+	baseonly  <- TRUE # <-- force baseline only
+	seeds     <- 1:n.MC
+	
+	sfInit(parallel = (n.cpu>1), cpu = n.cpu)
+	sfLibrary(naf,lib.loc = R.library.dir) 
+	
+	# Baseline scenario only:
+	res.list.0 <- sfSapply(seeds, run.snow.wrap,
+						   prm        = prm, 
+						   simul.prm  = simul.prm, 
+						   interv.prm = interv.prm.0, 
+						   world.prm  = world.prm, 
+						   sched.prm  = sched.prm,
+						   stoch_build_world = stoch_build_world,
+						   simplify   = FALSE)
+	
+	sfStop()
+	return(res.list.0)
+}
+

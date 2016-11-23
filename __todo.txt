@@ -6,7 +6,7 @@ _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Find contact rate in order to have r0~2
+- Find contact rate in order to have r0~2  ("calc.R" to fit...)
 
 - TEST Change shape calc_proba_hosp from 'step' to logistic
 

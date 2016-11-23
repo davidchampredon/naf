@@ -372,6 +372,7 @@ plot.age.distrib.mc <- function(pop){
 	return(g.age)
 }
 
+
 plot.population <- function(pop, split.mc = TRUE) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
@@ -544,7 +545,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	### ==== Secondary cases distribution ==== 
 	
-	R0 <- mean(pop.transm$n_secondary_cases)
+	R0    <- mean(pop.transm$n_secondary_cases)
 	nsmax <- max(pop.transm$n_secondary_cases)
 	g.R <- ggplot(pop.transm) + geom_histogram(aes(n_secondary_cases), 
 											   fill = 'red3',
@@ -1002,4 +1003,17 @@ plot.ts.comp.all <- function(df){
 		plot.ts.comp(df,'dIs'),
 		plot.ts.comp(df,'dIa')
 	)
+}
+
+
+calc.R <- function(pop) {
+	pop.transm <- subset(pop, n_secondary_cases>0)
+	
+	nsec   <- pop.transm$n_secondary_cases
+	R.mean <- mean(nsec)
+	R.qt   <- quantile(nsec, probs = c(0.01,0.25, 0.5, 0.75, 0.99))
+	R.rng  <- max(pop.transm$n_secondary_cases)
+	return(list(R.mean = R.mean, 
+				R.quantile = R.qt, 
+				R.range = R.rng))
 }
