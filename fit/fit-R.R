@@ -25,8 +25,8 @@ for(i in seq_along(PRM)){
 n.MC  <- 10
 n.cpu <- 10
 
-cr.mean <- c(9, 16)
-cr.sd   <- c(5.1, 7.1)
+cr.mean <- seq(1.0, 4.0, by=1)
+cr.sd   <- seq(0.5, 4.0, by=0.5)
 
 res <- matrix(nrow = length(cr.mean), ncol=length(cr.sd))
 
@@ -55,14 +55,15 @@ save(list = 'res',file = 'tmp.RData')
 plot(1,xlim=range(cr.mean), ylim=range(res))
 for(j in seq_along(cr.sd)){
 	lines(x=cr.mean, y=res[,j], typ='o')
+	text(x=cr.mean[1], y=res[1,j],labels = cr.sd[j],pos=2)
 }
 
 
 image(x=cr.mean, y=cr.sd, z=res, 
-	  col = topo.colors(12,0.5),
+	  col = heat.colors(12),
 	  main = 'R', 
 	  las=1, xlab='mean',ylab='sd')
-contour(x=x, y=y, z=z, add = TRUE,nlevels = 6)
+contour(x=cr.mean, y=cr.sd, z=res, add = TRUE,nlevels = 6)
 grid()
 
 t1 <- as.numeric(Sys.time())
