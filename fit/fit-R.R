@@ -50,7 +50,7 @@ for(i in seq_along(cr.mean)){
 		res[i,j] <- R[['R.mean']]
 	}
 }
-save(list = 'res',file = 'tmp.RData')
+save.image(file = 'tmp.RData')
 
 plot(1,xlim=range(cr.mean), ylim=range(res))
 for(j in seq_along(cr.sd)){
