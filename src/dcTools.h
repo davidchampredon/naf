@@ -303,9 +303,9 @@ template <class T> void removeValue(vector<T>& x, T valueToRemove)
 {
     auto position = std::find(x.begin(), x.end(), valueToRemove);
     // Error management:
-    string msg = "Value to remove ("+ to_string(valueToRemove) +") not found in the vector displayed above.";
-    if(position >= x.end()) displayVector(x);
-    stopif(position >= x.end(), msg);
+    string msg = "Value to remove not found in vector of size ";
+    string ms = to_string(x.size());
+    stopif(position >= x.end(), msg + ms);
     
     x.erase(position);
 }
