@@ -14,6 +14,33 @@ library(parallel)
 ###########################################################################
 
 
+# Calculate the proportion of fizzled simulations
+proportion.fizzles <- function(pop) {
+	a <- ddply(pop,c('mc'),summarize, 
+			   n = length(unique(id_indiv)),
+			   m = sum(is_recovered))
+	# Final size as a proportion
+	a$r <- a$m / a$n
+	# Identify fizzle:
+	a$is.fizzle <- FALSE
+	thresh <- 0.11
+	a$is.fizzle[a$r < thresh] <- TRUE
+	# Proportion of fizzles:
+	return(list(p=sum(a$is.fizzle)/nrow(a),
+				n=nrow(a))
+	)
+}
+
+plot.prop.fizzles <- function(pop){
+	p <- proportion.fizzles(pop)
+	barplot(p$p,ylim = c(0,1), 
+			main=paste('Proportion of fizzles =',
+					   round(p$p,3),
+					   '(n.MC =',p$n,')'))
+	abline(h=1)
+}
+
+
 # Calculate vaccine efficacy on various outcomes
 vax.efficacy <- function(pop, outcome){
 	

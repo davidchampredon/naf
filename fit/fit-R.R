@@ -52,10 +52,18 @@ for(i in seq_along(cr.mean)){
 }
 save.image(file = 'tmp.RData')
 
-plot(1,xlim=range(cr.mean), ylim=range(res))
+plot(1,xlim=range(cr.sd), ylim=range(res),
+	 xlab = 'sd', ylab='R')
+for(i in seq_along(cr.mean)){
+	lines(x=cr.sd, y=res[i,], typ='o', col=i)
+	text(x=cr.sd[1], y=res[i,1],labels = cr.mean[i],pos=4,col=i)
+}
+
+plot(1,xlim=range(cr.mean), ylim=range(res),
+	 xlab = 'mean', ylab='R')
 for(j in seq_along(cr.sd)){
-	lines(x=cr.mean, y=res[,j], typ='o')
-	text(x=cr.mean[1], y=res[1,j],labels = cr.sd[j],pos=2)
+	lines(x=cr.mean, y=res[,j], typ='o',col=j)
+	text(x=cr.mean[1], y=res[1,j],labels = cr.sd[j],pos=4,col=j)
 }
 
 

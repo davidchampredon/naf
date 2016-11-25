@@ -34,6 +34,13 @@ pop   <- merge.pop.mc(res.select,
 					  doparallel = TRUE, 
 					  select.mc = 1)
 
+calc.fizzles <- TRUE
+if(calc.fizzles){
+	pop.all.mc   <- merge.pop.mc(res.select,
+						  n.cpu = n.cpu, 
+						  doparallel = TRUE)
+}
+
 # Merging time series if faster and more informative,
 # so it is done across all MC iterations:
 ts    <- merge.ts.mc(res.list.0, n.cpu = n.cpu)
@@ -66,6 +73,7 @@ try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.list.0),  silent = T)
 try( plot.sp.sz.distrib.new(pop,world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
+if(calc.fizzles) try( plot.prop.fizzles(pop.all.mc), silent = T)
 if (save.plot.to.file) dev.off()
 
 # Time series:
