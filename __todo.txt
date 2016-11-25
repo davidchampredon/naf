@@ -2,11 +2,14 @@
 === T O   D O   L I S T ===
 ===========================
 
+* * LEFT HERE * *
+you ran 1000 MC on abm-lab with relatively low contact rate. You want to check the fizzle probability is high, but strictly <1. 
+
 _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
-- Find contact rate in order to have r0~2  ("calc.R" to fit...)
+- Find contact rate in order to have r0~2  ('fit-R.R'). Filter out the fizzles.
 
 - TEST Change shape calc_proba_hosp from 'step' to logistic
 
