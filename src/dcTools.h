@@ -289,26 +289,24 @@ template <class T> unsigned long findIndexElement(vector<T> x, T elemValue)
 	return s;
 }
 
+/** Removes the element of a vector that has a given value. */
 template <class T> vector<T> popElementValue(vector<T> x, T valueElementToDelete) 
 {
-	/// Removes the element of a vector that has a given value.
-	
 	vector<T> y=x;
-
 	unsigned long ii = findIndexElement(x, valueElementToDelete);
-	
 	y.erase(y.begin()+ii);
-
 	return y;
 }
 
-
-template <class T> void removeValue(vector<T>& x, T valueToRemove){
-    /// Removes the element of a vector that has a given value.
-    
+/** Removes the element of a vector that has a given value. */
+template <class T> void removeValue(vector<T>& x, T valueToRemove)
+{
     auto position = std::find(x.begin(), x.end(), valueToRemove);
+    // Error management:
+    string msg = "Value to remove ("+ to_string(valueToRemove) +") not found in the vector displayed above.";
+    if(position >= x.end()) displayVector(x);
+    stopif(position >= x.end(), msg);
     
-    stopif(position >= x.end(), "Value to remove not found in vector.");
     x.erase(position);
 }
 
@@ -316,9 +314,7 @@ template <class T> void removeValue(vector<T>& x, T valueToRemove){
 
 template <class T> vector<double> to_vector_double(vector<T> x){
 	/// Force double conversion.
-	
 	vector<double> y(x.size());
-	
 	for (unsigned long i=0; i<x.size(); i++) {
 		y[i] = (double)(x[i]);
 	}
