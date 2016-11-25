@@ -89,7 +89,7 @@ void main_run(){
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
-    uint i0 = 30;
+    uint i0 = 200;
     
     _RANDOM_GENERATOR.seed(123);
     

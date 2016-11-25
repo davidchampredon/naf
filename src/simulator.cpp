@@ -808,11 +808,18 @@ void Simulator::initial_infections(uint i0)
     vector<ID> id_pres = at_least_one_indiv_present(_world);
     vector<ID> sp_initially_infected;
     vector<uint> I0;
+    uint N = (uint)id_pres.size();
+    
+    // Shuffle 1:N vector, and will
+    // take the first 'i0' elements
+    // (i.e. sampling with _NO_ replacement):
+    vector<uint> tmp(N);
+    for(uint k=0; k<N; k++){tmp[k] = k;}
+    std::shuffle(tmp.begin(), tmp.end(), _RANDOM_GENERATOR);
+    
     for(uint m=0; m<i0; m++){
         // Randomly select where infections are seeded
-        std::uniform_int_distribution<uint> unif(0,(uint)id_pres.size());
-        uint idx_rnd = unif(_RANDOM_GENERATOR);
-        sp_initially_infected.push_back(id_pres[idx_rnd]);
+        sp_initially_infected.push_back(id_pres[tmp[m]]);
         I0.push_back(1);
     }
     define_all_id_tables();
