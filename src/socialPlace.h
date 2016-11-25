@@ -187,9 +187,9 @@ public:
     void        add_id_Is(ID x)  {_id_Is.push_back(x);}
     void        add_id_Ia(ID x)  {_id_Ia.push_back(x);}
     
-    void        remove_id_S(ID x)  { stopif(_id_S.size()==0,"_id_S is empty and shouldn't be.") ; removeValue(_id_S, x);}
-    void        remove_id_Is(ID x) { stopif(_id_S.size()==0,"_id_Is is empty and shouldn't be.") ; removeValue(_id_Is, x);}
-    void        remove_id_Ia(ID x) { stopif(_id_S.size()==0,"_id_Ia is empty and shouldn't be.") ; removeValue(_id_Ia, x);}
+    void        remove_id_S(ID x)  { stopif(_id_S.size()==0, "_id_S is empty and shouldn't be.") ;  removeValue(_id_S, x);}
+    void        remove_id_Is(ID x) { stopif(_id_Is.size()==0,"_id_Is is empty and shouldn't be.") ; removeValue(_id_Is, x);}
+    void        remove_id_Ia(ID x) { stopif(_id_Ia.size()==0,"_id_Ia is empty and shouldn't be.") ; removeValue(_id_Ia, x);}
     
     uint        find_indiv_pos(ID id);
     uint        find_indiv_X_pos(ID id, string X);

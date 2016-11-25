@@ -803,10 +803,9 @@ void Simulator::test(){
     
 }
 
-void Simulator::initial_infections(uint i0){
-    
+void Simulator::initial_infections(uint i0)
+{
     vector<ID> id_pres = at_least_one_indiv_present(_world);
-
     vector<ID> sp_initially_infected;
     vector<uint> I0;
     for(uint m=0; m<i0; m++){
@@ -1791,7 +1790,7 @@ void Simulator::display_split_pop_linked(){
 
 void Simulator::seed_infection(vector<ID> id_sp, vector<uint> I0){
     
-    stopif(id_sp.size() != I0.size(), "vectors must be same size");
+    stopif(id_sp.size() != I0.size(), "Vectors must be same size.");
     
     vector<vector<uint> > selected_S(1);
     vector<vector<uint> > transm_success(id_sp.size());
