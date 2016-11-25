@@ -469,6 +469,7 @@ void socialPlace::acquireDisease(uint pos){
     _indiv[pos].acquireDisease();
     
     // Book keeping: Update pointer tables:
+    stopif(_indiv_S.size()==0, "_indiv_S is empty and should not be.");
     removeValue(_indiv_S, & _indiv[pos]);
     
     // Book keeping: Update counters
@@ -714,6 +715,8 @@ void socialPlace::time_update(double dt){
         else if (event == "I_to_R" && _indiv[i].was_symptomatic() ) {
             stopif(_n_Is==0, "Book keeping problem with Is!");
             _n_Is--;
+
+            stopif(_indiv_Is.size()==0, "_indiv_Is is empty and should not be.");            
             removeValue(_indiv_Is, &_indiv[i]);
             remove_id_Is(_indiv[i].get_id());
             _n_R++;

@@ -2296,6 +2296,9 @@ void Simulator::death_hospital(){
                     // An hospitalized individual
                     // is in _both_ Is and H, so must
                     // remove it from these 2 categories:
+                    
+                    stopif(_world[id_sp_hospital]._indiv_Is.size()==0, "_indiv_Is is empty and should not be.");
+                    stopif(_world[id_sp_hospital]._indiv_H.size()==0,  "_indiv_H is empty and should not be.");
                     removeValue(_world[id_sp_hospital]._indiv_Is, _world[k]._indiv_H[i]);
                     removeValue(_world[id_sp_hospital]._indiv_H,  _world[k]._indiv_H[i]); // <-- remove in _indiv_H after all other _indiv_X !!!
                     _world[id_sp_hospital].remove_id_Is(id_indiv);
