@@ -2086,11 +2086,10 @@ double Simulator::select_contact_rate_ratio(double age,
 }
 
 
-double  Simulator::draw_contact_rate(individual* indiv, uint k){
-
-    
-    bool homog = _modelParam.get_prm_bool("homogeneous_contact");
-    
+double  Simulator::draw_contact_rate(individual* indiv, uint k)
+{
+    bool homog        = _modelParam.get_prm_bool("homogeneous_contact");
+    string cr_distrib = _modelParam.get_prm_string("contact_rate_distrib");
     double cr = __UNDEFINED_DOUBLE;
     
     if(homog){
@@ -2114,13 +2113,21 @@ double  Simulator::draw_contact_rate(individual* indiv, uint k){
         double cr_mean = ratio * _modelParam.get_prm_double("contact_rate_mean");
         double cr_sd   = _modelParam.get_prm_double("contact_rate_stddev");
         
-        double tmp  = 1 + cr_sd*cr_sd/cr_mean/cr_mean;
-        double m_ln = log(cr_mean/sqrt(tmp));
-        double s_ln = sqrt(log(tmp));
-        std::lognormal_distribution<double> lndist(m_ln, s_ln);
+        if(cr_distrib == "lognorm"){
+            double tmp  = 1 + cr_sd*cr_sd/cr_mean/cr_mean;
+            double m_ln = log(cr_mean/sqrt(tmp));
+            double s_ln = sqrt(log(tmp));
+            std::lognormal_distribution<double> lndist(m_ln, s_ln);
+            
+            cr = lndist(_RANDOM_GENERATOR);
+        }
         
-        cr = lndist(_RANDOM_GENERATOR);
-        
+        if(cr_distrib == "gamma"){
+            double beta = cr_sd * cr_sd / cr_mean;
+            double alpha = cr_mean / beta;
+            std::gamma_distribution<double> gam(alpha,beta);
+            cr = gam(_RANDOM_GENERATOR);
+        }
         
         //DEBUG:
         //cout<<"cr_mean= " << cr_mean << " ; ratio = "<< ratio << " ; cr = " << cr << endl;

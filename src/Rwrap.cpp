@@ -171,6 +171,7 @@ List naf_run_det(List params,
 		set_parameter(MP, "proba_move_reduc_sympt", "double", params);
 		set_parameter(MP, "proba_change_sp_other",  "double", params);
 		
+		set_parameter(MP, "contact_rate_distrib",          "string", params);
 		set_parameter(MP, "contact_rate_mean",             "double", params);
 		set_parameter(MP, "contact_rate_stddev",           "double", params);
 		set_parameter(MP, "contact_ratio_age_1_10",        "double", params);
