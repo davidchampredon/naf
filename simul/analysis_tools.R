@@ -740,10 +740,12 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 g.sched.R
 	)
 	
-	grid.arrange( g.dol.drawn, 
+	try(grid.arrange( g.dol.drawn, 
 				  g.doi.drawn,
 				  g.dobh.drawn,
-				  g.doh.drawn, g.R,
+				  g.doh.drawn), silent = TRUE)
+	
+	grid.arrange( g.R,
 				  g.R.symptom,
 				  g.R.treat,
 				  g.gibck,
@@ -1044,3 +1046,20 @@ calc.R <- function(pop) {
 				R.quantile = R.qt, 
 				R.range = R.rng))
 }
+
+identify.fizzle <- function(pop.all.mc){
+	# Return the MC iterations that were fizzles
+	x <- ddply(pop.all.mc,c('mc'),summarize, fz = sum(is_recovered), n=length(id_indiv))
+	
+	x$r <- x$fz / x$n
+	x$fizzle <- FALSE
+	x$fizzle[x$r<0.03] <- TRUE
+	
+	fizz <- x$fizzle
+	names(fizz) <- x$mc
+	return(fizz)
+}
+
+
+
+
