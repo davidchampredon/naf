@@ -60,7 +60,6 @@ for(i in seq_along(cr.mean)){
 		if(length(idx.mc.no.fizz) == 0) {
 			res[i,j] <- NA
 		}
-
 	}
 }
 save.image(file = 'tmp.RData')
