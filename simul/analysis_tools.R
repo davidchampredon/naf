@@ -8,10 +8,36 @@ library(parallel)
 
 
 ###########################################################################
-###########################################################################
-###      H E L P E R   F U N C T I O N S 
-###########################################################################
-###########################################################################
+###   =====   H E L P E R   F U N C T I O N S =====
+
+
+calc.R <- function(pop) {
+	pop.transm <- subset(pop, n_secondary_cases>0)
+	
+	nsec   <- pop.transm$n_secondary_cases
+	R.mean <- mean(nsec)
+	R.qt   <- quantile(nsec, probs = c(0.01,0.25, 0.5, 0.75, 0.99))
+	R.rng  <- max(pop.transm$n_secondary_cases)
+	return(list(R.mean = R.mean, 
+				R.quantile = R.qt, 
+				R.range = R.rng))
+}
+
+identify.fizzle <- function(pop.all.mc){
+	# Return the MC iterations that were fizzles
+	x <- ddply(pop.all.mc,c('mc'),summarize, fz = sum(is_recovered), n=length(id_indiv))
+	
+	x$r <- x$fz / x$n
+	x$fizzle <- FALSE
+	x$fizzle[x$r<0.03] <- TRUE
+	
+	fizz <- x$fizzle
+	names(fizz) <- x$mc
+	return(fizz)
+}
+
+
+
 
 
 # Calculate the proportion of fizzled simulations
@@ -226,11 +252,7 @@ sp.to.string <- function(i) {
 
 
 
-###########################################################################
-###########################################################################
-###      P O P U L A T I O N    P L O T S 
-###########################################################################
-###########################################################################
+###   =====   P O P U L A T I O N    P L O T S =====
 
 plot.binomial.regression <- function(dat, xvar, binomial_response, title, split.mc=FALSE) {
 	n <- nrow(dat)
@@ -358,25 +380,25 @@ plot.n.contacts <- function(nc){
 	df0 <- data.frame(time=nc$time, uid=nc$uid, n=nc$nContacts, mc=nc$mc)
 	df0$timeround <- ceiling(df0$time)
 	
-	df    <- ddply(df0, c('timeround','uid'),summarize, ncontacts = sum(n))
 	df.ts <- ddply(df0, c('timeround','mc'), summarize, tot.contacts = sum(n))
 	
-	gts <- ggplot(df.ts, aes(x=timeround, y=tot.contacts, colour=factor(mc)))+ geom_step(size=2, alpha=0.5)
-	gts <- gts + scale_y_log10() + ggtitle('Total number of contacts')+xlab('time')+ylab('')
+	gts <- ggplot(df.ts, aes(x=timeround, y=tot.contacts, dummy=factor(mc)))
+	gts <- gts + geom_step(size=2, alpha=0.5)
+	gts <- gts + scale_y_log10() + ggtitle('Total number of contacts\n(no fizzles)')+xlab('time')+ylab('')
 	
 	# Distribution
-	m <- mean(df$ncontacts)
-	ci <- 0.95
+	m   <- mean(df$ncontacts)
+	ci  <- 0.95
 	qlo <- quantile(df$ncontacts, probs=(1-ci)/2)
 	qhi <- quantile(df$ncontacts, probs=0.5 + ci/2)
 	
 	g <- ggplot(df,aes(x=ncontacts)) + geom_histogram(binwidth=1,fill='gold2',colour='gold3') 
-	g <- g + ggtitle(paste0('Distribution for the number of contacts (mean = ',round(m,2),' ; ',
+	g <- g + ggtitle(paste0('Distribution for the number of contacts (no fizzles)\n (mean = ',round(m,2),' ; ',
 							ci*100,'%CI: ',round(qlo,2),' -- ',round(qhi,2),')'))
 	g <- g + xlab('Contacts per day, per individual')#+scale_y_log10()
-	g <- g + geom_vline(xintercept=m, linetype=2, colour='gold3', size=2)
+	g <- g + geom_vline(xintercept=m, linetype=1, colour='gold3', size=2)
 	
-	grid.arrange(gts,g)	
+	grid.arrange(gts,g, ncol=2)	
 }
 
 plot.sched <- function(pop){
@@ -414,7 +436,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	g.age <- g + geom_histogram(aes(x=age), binwidth=2, fill='darkgrey', colour = 'black')
 	g.age <- g.age + ggtitle('Age distribution')
 	
-	g.age.dist <- plot.age.distrib.mc(pop)
+	#USELESS: g.age.dist <- plot.age.distrib.mc(pop)
 	
 	g.age.death.dist <- plot.density.categ(dat = pop, 
 										   xvar='age',
@@ -714,12 +736,12 @@ plot.population <- function(pop, split.mc = TRUE) {
 	### ==== Final ====
 	
 	grid.arrange(g.age, 
-				 g.age.dist,
 				 g.age.imm.hum,
 				 g.age.imm.cell,
 				 g.age.fra,
-				 g.age.death.dist,
-				 g.death.frailty,
+				 g.age.death.dist)
+	
+	grid.arrange(g.death.frailty,
 				 g.death.imm.hum,
 				 g.death.imm.cell,
 				 g.death.frailty.dist,
@@ -733,13 +755,13 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 g.frail.hosp,
 				 g.age.hosp, 
 				 g.treat.hosp,
-				 g.vax.hosp,
-				 g.sympt.vax,
+				 g.vax.hosp)
+	
+	grid.arrange(g.sympt.vax,
 				 g.vax.eff,
 				 g.sympt.imm.hum.dist,
 				 g.sympt.imm.cell.dist,
-				 g.sched.R
-	)
+				 g.sched.R)
 	
 	try(grid.arrange( g.dol.drawn, 
 				  g.doi.drawn,
@@ -756,11 +778,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 
 
 
-###########################################################################
-###########################################################################
-###      S O C I A L   P L A C E S      P L O T S 
-###########################################################################
-###########################################################################
+###   =====   S O C I A L   P L A C E S   P L O T S =====
 
 plot.world <- function(x) {
 	stopifnot(length(x)>=1)
@@ -812,11 +830,7 @@ plot.world <- function(x) {
 }
 
 
-###########################################################################
-###########################################################################
-###      T I M E  S E R I E S     P L O T S 
-###########################################################################
-###########################################################################
+###   =====   T I M E  S E R I E S     P L O T S =====
 
 plot.epi.timeseries <- function(ts){
 	ts$death_incidence <- c(ts$nD[1],diff(ts$nD))
@@ -1034,33 +1048,6 @@ plot.ts.comp.all <- function(df){
 		plot.ts.comp(df,'dIa')
 	)
 }
-
-
-calc.R <- function(pop) {
-	pop.transm <- subset(pop, n_secondary_cases>0)
-	
-	nsec   <- pop.transm$n_secondary_cases
-	R.mean <- mean(nsec)
-	R.qt   <- quantile(nsec, probs = c(0.01,0.25, 0.5, 0.75, 0.99))
-	R.rng  <- max(pop.transm$n_secondary_cases)
-	return(list(R.mean = R.mean, 
-				R.quantile = R.qt, 
-				R.range = R.rng))
-}
-
-identify.fizzle <- function(pop.all.mc){
-	# Return the MC iterations that were fizzles
-	x <- ddply(pop.all.mc,c('mc'),summarize, fz = sum(is_recovered), n=length(id_indiv))
-	
-	x$r <- x$fz / x$n
-	x$fizzle <- FALSE
-	x$fizzle[x$r<0.03] <- TRUE
-	
-	fizz <- x$fizzle
-	names(fizz) <- x$mc
-	return(fizz)
-}
-
 
 
 

@@ -43,10 +43,7 @@ fizz.mc        <- identify.fizzle(pop.all.mc)
 fizz.mc.idx    <- which(fizz.mc==TRUE)
 idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
 
-pop   <- merge.pop.mc(res.select,
-					  n.cpu = n.cpu, 
-					  doparallel = TRUE, 
-					  select.mc = idx.mc.no.fizz[1])
+pop <- subset(pop.all.mc, mc==idx.mc.no.fizz[1])
 
 # Merging time series if faster and more informative,
 # so it is done across all MC iterations:
@@ -55,6 +52,7 @@ for(i in seq_along(idx.mc.no.fizz)) res.no.fizz[[i]] <- res.list.0[[i]]
 
 ts    <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu)
 tsc   <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu, is.contact = TRUE)
+
 if(detailed.analysis) tssp  <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu, is.sp = TRUE)
 
 if(exists('res.list')){
@@ -75,15 +73,18 @@ if (save.plot.to.file) pdf(fname.world, width = 10, height = 8)
 try( plot.world(res.list.0),  silent = T)
 if (save.plot.to.file) dev.off()
 
+
 # Population:
 print(' -> Ploting population ...')
 if (save.plot.to.file) pdf(fname.pop, width = 30, height = 18)
+
 try( plot.population(pop, split.mc=F),  silent = T)
 try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
 try( plot.sp.sz.distrib.new(pop,world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
 if(calc.fizzles) try( plot.prop.fizzles(pop.all.mc), silent = T)
+	
 if (save.plot.to.file) dev.off()
 
 # Time series:
