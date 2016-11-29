@@ -41,7 +41,11 @@ if(calc.fizzles){
 idx.mc         <- unique(pop.all.mc$mc)
 fizz.mc        <- identify.fizzle(pop.all.mc)
 fizz.mc.idx    <- which(fizz.mc==TRUE)
-idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+
+if(length(fizz.mc.idx)==0) 
+	idx.mc.no.fizz <- idx.mc
+if(length(fizz.mc.idx)>0) 
+	idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
 
 pop <- subset(pop.all.mc, mc==idx.mc.no.fizz[1])
 

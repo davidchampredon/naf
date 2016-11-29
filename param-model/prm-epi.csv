@@ -2,12 +2,12 @@ dol_distrib , lognorm
 doi_distrib , lognorm
 doh_distrib , lognorm
 
-dol_mean , 1.0
-doi_mean , 2.0
+dol_mean , 1.50
+doi_mean , 1.25
 doh_mean , 12.0
 
-dol_var , 0.25
-doi_var , 2.5
+dol_var , 0.1
+doi_var , 0.4
 doh_var , 21.00
 
 proba_death_min , 0.10
@@ -34,12 +34,12 @@ imm_cell_slope, 2
 imm_cell_pivot, 20
 
 homogeneous_contact , 0
-contact_rate_distrib, gamma
-contact_rate_mean   , 2.0
+contact_rate_distrib, lognorm
+contact_rate_mean   , 4.0
 contact_rate_stddev , 4.0
 
-contact_ratio_age_1_10     , 10.0
-contact_ratio_age_10_16    , 2.0
+contact_ratio_age_1_10     , 5.0
+contact_ratio_age_10_16    , 3.0
 contact_ratio_age_over_65  , 1.0
 
 contact_ratio_sp_household     , 1.00
@@ -52,7 +52,7 @@ proba_move, 0.98
 proba_move_reduc_sympt, 0.40
 proba_change_sp_other, 0.0
 
-asymptom_infectiousness_ratio , 0.01
+asymptom_infectiousness_ratio , 0.1
 
 treat_doi_reduc , 1.0
 treat_reduc_infect_mean , 0.1
