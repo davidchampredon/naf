@@ -34,11 +34,11 @@ imm_cell_slope, 2
 imm_cell_pivot, 20
 
 homogeneous_contact , 0
-contact_rate_mean   , 2
-contact_rate_stddev , 2
+contact_rate_mean   , 4.0
+contact_rate_stddev , 2.0
 
-contact_ratio_age_1_10     , 12.0
-contact_ratio_age_10_16    , 3.0
+contact_ratio_age_1_10     , 5.0
+contact_ratio_age_10_16    , 2.0
 contact_ratio_age_over_65  , 1.0
 
 contact_ratio_sp_household     , 1.75

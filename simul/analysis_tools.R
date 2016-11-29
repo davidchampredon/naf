@@ -342,7 +342,8 @@ plot.age.contact.matrix.avg <- function(res.list) {
 		  xlab = 'age', ylab='age', las=1)
 	abline(a=0,b=1,lty=2); grid()
 	
-	image(A.plot,x = 1:m.max, y=1:m.max, zlim = c(0,max(A.plot)), 
+	image(A.plot, x = 1:nrow(A.plot), y=1:nrow(A.plot), 
+		  zlim = c(0,max(A.plot)), 
 		  ylab = 'infector\'s age',
 		  xlab = 'infectee\'s age',
 		  las = 1,

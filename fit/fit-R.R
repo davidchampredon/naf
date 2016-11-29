@@ -22,8 +22,8 @@ for(i in seq_along(PRM)){
 	assign(x = names(PRM)[i], value = PRM[[i]])
 }
 
-n.MC  <- 10
-n.cpu <- 10
+n.MC  <- 4
+n.cpu <- 4
 
 cr.mean <- seq(1.0, 4.0, by=1)
 cr.sd   <- seq(0.5, 4.0, by=0.5)
@@ -46,20 +46,33 @@ for(i in seq_along(cr.mean)){
 		pop   <- merge.pop.mc(res.list = res.list.0,
 							  n.cpu = n.cpu, 
 							  doparallel = TRUE)
-		R <- calc.R(pop)
-		res[i,j] <- R[['R.mean']]
+		
+		# Filter out fizzles:
+		idx.mc         <- unique(pop$mc)
+		fizz.mc        <- identify.fizzle(pop)
+		fizz.mc.idx    <- which(fizz.mc==TRUE)
+		idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+		
+		if(length(idx.mc.no.fizz) > 0){
+			R <- calc.R(pop)
+			res[i,j] <- R[['R.mean']]
+		}
+		if(length(idx.mc.no.fizz) == 0) {
+			res[i,j] <- NA
+		}
+
 	}
 }
 save.image(file = 'tmp.RData')
 
-plot(1,xlim=range(cr.sd), ylim=range(res),
+plot(1,xlim=range(cr.sd), ylim=range(res,na.rm = TRUE),
 	 xlab = 'sd', ylab='R')
 for(i in seq_along(cr.mean)){
 	lines(x=cr.sd, y=res[i,], typ='o', col=i)
 	text(x=cr.sd[1], y=res[i,1],labels = cr.mean[i],pos=4,col=i)
 }
 
-plot(1,xlim=range(cr.mean), ylim=range(res),
+plot(1,xlim=range(cr.mean), ylim=range(res,na.rm = TRUE),
 	 xlab = 'mean', ylab='R')
 for(j in seq_along(cr.sd)){
 	lines(x=cr.mean, y=res[,j], typ='o',col=j)
