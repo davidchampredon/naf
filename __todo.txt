@@ -10,8 +10,6 @@ _____________________
 
 - TEST Change shape calc_proba_hosp from 'step' to logistic
 
-- Make diagram 
-
 - Reduce # of 'Arbitrary' in "_all_param_value_source.xlsx"
 
 - Implement sensitivity analysis 
@@ -23,6 +21,8 @@ _____________________
 _____________________
 ===  MINOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
+
+- Make more diagrams (?)
 
 - change "test.cpp/h" to "run.cpp/h"
 
