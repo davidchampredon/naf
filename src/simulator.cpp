@@ -1202,11 +1202,7 @@ double Simulator::calc_proba_transmission(individual *infectious,
 
 
 double Simulator::calc_proba_symptomatic(float immunity, float frailty){
-    /// Probability to be symptomatic given
-    /// an individual's immunity and frailty
-    
-    // TO DO: more sophisticated!
-    double res = frailty * (1-immunity); //(frailty * (1-immunity) < 0.5)? 0.2 : 1.0;
+    double res = frailty * (1-immunity) * _modelParam.get_prm_double("mult_proba_symptomatic");
     return res;
 }
 

@@ -183,6 +183,8 @@ List naf_run_det(List params,
 		
 		set_parameter(MP, "contactAssort_lambda", "double", params);
 		
+		
+		set_parameter(MP, "mult_proba_symptomatic",        "double", params);
 		set_parameter(MP, "asymptom_infectiousness_ratio", "double", params);
 		
 		set_parameter(MP, "treat_doi_reduc", "double", params);

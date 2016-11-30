@@ -259,9 +259,9 @@ Finally, each individual in the simulation is assigned a frailty index based on 
 
 The symptomatic nature of the infection is determined stochastically at the time of disease acquisition. The probability of a symptomatic infection is based on both the frailty $f$ and the cellular immunity index $\immc$:
 \begin{equation}
-p_{sympt} = f (1-\immc)
+p_{sympt} = f (1-\immc) \mu
 \end{equation}
-\warning{TO DO: CHANGE THAT FORMULA}
+where $\mu$ is a parameter fitted to the desired asymptomatic fraction (the proportion of asymptomatic infections among all infections). 
 
 
 \section{Hospitalization and death}

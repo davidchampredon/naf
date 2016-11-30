@@ -82,6 +82,8 @@ void main_run(){
     MP.add_prm_uint   ("nt", 3);
     
     MP.add_prm_double ("asymptom_infectiousness_ratio", 0.8);
+    MP.add_prm_double ("mult_proba_symptomatic", 3.0);
+    
     MP.add_prm_double ("treat_doi_reduc", 1.123);
     MP.add_prm_double ("treat_reduc_infect_mean",0.1);
     

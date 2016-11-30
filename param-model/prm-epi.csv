@@ -52,6 +52,7 @@ proba_move, 0.98
 proba_move_reduc_sympt, 0.40
 proba_change_sp_other, 0.0
 
+mult_proba_symptomatic, 6.0
 asymptom_infectiousness_ratio , 0.1
 
 treat_doi_reduc , 1.0

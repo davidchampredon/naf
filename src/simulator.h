@@ -300,6 +300,7 @@ public:
     double calc_proba_transmission(individual* infectious,
                                             individual* susceptible);
     
+    /** Probability to be symptomatic given an individual's immunity and frailty. */
     double calc_proba_symptomatic(float immunity, float frailty);
     
     /** Probability to be symptomatic given
