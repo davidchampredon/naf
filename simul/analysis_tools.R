@@ -423,6 +423,30 @@ plot.age.distrib.mc <- function(pop){
 }
 
 
+
+plot.symptomatic.fraction <- function(pop){
+	pop <- ddply(pop.all.mc, c('mc'),summarize, 
+			   nis = sum(was_symptomatic), 
+			   ni = sum(is_recovered),
+			   n = length(id_indiv))
+	
+	pop$r <- pop$nis / pop$ni
+	pop
+	
+	p.s <- median(pop$r)
+	p.a <- 1-p.s
+	
+	df <- data.frame(y=c(p.a,p.s), inf_type=c('asymptomatic','symptomatic'))
+	
+	g <- ggplot(df, aes(x=factor(1),y=y,fill=inf_type))  + geom_bar(width = 1,stat = 'identity')+ coord_polar(theta='y')
+	g <- g + xlab('')+ylab('')
+	g <- g + ggtitle(paste0('Asymptomatic fraction (median = ',round(p.a,2),')'))
+	g <- g + scale_fill_brewer(palette = 'Set2')
+	return(g)
+}
+
+
+
 plot.population <- function(pop, split.mc = TRUE) {
 	
 	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
@@ -699,6 +723,8 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	### ==== Symptomatics ====
 	
+	g.sympt.frac <- plot.symptomatic.fraction(pop)
+	
 	g.sympt.imm.hum.dist <- plot.density.categ(dat = pop, 
 											   xvar ='immunity_hum',
 											   categ = 'was_symptomatic',
@@ -757,7 +783,8 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 g.treat.hosp,
 				 g.vax.hosp)
 	
-	grid.arrange(g.sympt.vax,
+	grid.arrange(g.sympt.frac,
+				 g.sympt.vax,
 				 g.vax.eff,
 				 g.sympt.imm.hum.dist,
 				 g.sympt.imm.cell.dist,

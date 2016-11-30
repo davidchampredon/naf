@@ -85,7 +85,7 @@ if (save.plot.to.file) pdf(fname.pop, width = 30, height = 18)
 try( plot.population(pop, split.mc=F),  silent = T)
 try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
-try( plot.sp.sz.distrib.new(pop,world.prm) , silent = T)
+try( plot.sp.sz.distrib.new(pop, world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
 if(calc.fizzles) try( plot.prop.fizzles(pop.all.mc), silent = T)
 	
