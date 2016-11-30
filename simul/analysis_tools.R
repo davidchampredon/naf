@@ -618,21 +618,19 @@ plot.population <- function(pop, split.mc = TRUE) {
 	g.age.dead.raw <- g.age.dead.raw + xlab('age')+ylab('proportion')
 	
 	### ==== Secondary cases distribution ==== 
-	
-	R0    <- mean(pop.transm$n_secondary_cases)
-	nsmax <- max(pop.transm$n_secondary_cases)
-	g.R <- ggplot(pop.transm) + geom_histogram(aes(n_secondary_cases), 
-											   fill = 'red3',
-											   colour = 'red4',
-											   breaks = seq(0,nsmax+1,by=1))
+	R0    <- mean(pop$n_secondary_cases)
+	nsmax <- max(pop$n_secondary_cases)
+	g.R <- ggplot(pop) + geom_histogram(aes(n_secondary_cases), 
+										fill = 'red3',
+										colour = 'red4',
+										breaks = seq(0,nsmax+1,by=1))
 	g.R <- g.R + scale_x_continuous(breaks =  seq(0,nsmax+1,by=1))
 	g.R <- g.R + geom_vline(aes(xintercept=R0), linetype = 2, size = 2)
 	g.R <- g.R + ggtitle(paste0("Secondary cases distribution (R0=",
 								round(R0,2),")"))
 	
-	
 	# R0 symptomatic or not
-	pop.transm.sum <- ddply(pop.transm,"was_symptomatic",
+	pop.transm.sum <- ddply(pop,"was_symptomatic",
 							summarize,
 							m = mean(n_secondary_cases),
 							q.lo = quantile(n_secondary_cases,probs = 0.5-0.80/2),
@@ -640,7 +638,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	pop.transm.sum
 	
-	g.R.symptom <- ggplot(pop.transm) +geom_histogram(aes(x=n_secondary_cases, ..density..,
+	g.R.symptom <- ggplot(pop) +geom_histogram(aes(x=n_secondary_cases, ..density..,
 														  fill = factor(was_symptomatic),
 														  colour = factor(was_symptomatic)),
 													  position=position_dodge(width=0.8),
@@ -660,7 +658,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	# R0 treated or not
 	
-	pop.transm.sum2 <- ddply(pop.transm,"is_treated",
+	pop.transm.sum2 <- ddply(pop,"is_treated",
 							 summarize,
 							 m = mean(n_secondary_cases),
 							 q.lo = quantile(n_secondary_cases,probs = 0.5-0.80/2),
@@ -668,7 +666,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	pop.transm.sum2
 	
-	g.R.treat <- ggplot(pop.transm) +geom_histogram(aes(x=n_secondary_cases, ..density..,
+	g.R.treat <- ggplot(pop) +geom_histogram(aes(x=n_secondary_cases, ..density..,
 														fill = factor(is_treated),
 														colour = factor(is_treated)),
 													position=position_dodge(width=0.8),
