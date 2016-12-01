@@ -37,12 +37,9 @@ R.target <- 1.8
 
 # Range explored:
 cr.mean <- seq(1.0, 3.0, by=1)
-cr.sd   <- seq(1.0, 2.0, by=1)
+cr.sd   <- seq(1.0, 2.0, by=0.5)
 
-n.cpu.cr.mean <- 3
-
-res <- matrix(nrow = length(cr.mean), ncol=length(cr.sd))
-n <- prod(dim(res))
+n.cpu.cr.mean <- 2
 
 # ==== Simulation Loop ====
 # Run the simulations on all scenarios:
@@ -50,17 +47,17 @@ n <- prod(dim(res))
 wrap_sim <- function (i, cr.mean, cr.sd, 
 					  simul.prm, prm, n.MC, n.cpu)
 {
-	res <- vector(length = length(cr.sd))
+	x <- numeric(length = length(cr.sd))
 	
 	for(j in seq_along(cr.sd)){
 		# Overwrite parameter values
 		# associated with current scenario:
 		prm[['contact_rate_mean']]   <- cr.mean[i]
 		prm[['contact_rate_stddev']] <- cr.sd[j]
-		
+
 		# Run the simulation for that scenario:
 		stoch_build_world <- simul.prm[['build_world_stoch']]
-		res.list.0 <- run.simul.fit.R(n.MC,n.cpu)	
+		res.list.0 <- run.simul.fit.R(n.MC,n.cpu, prm, simul.prm, interv.prm.0,world.prm,sched.prm,stoch_build_world)	
 		
 		# merge all MC iterations:
 		pop   <- merge.pop.mc(res.list   = res.list.0,
@@ -72,18 +69,16 @@ wrap_sim <- function (i, cr.mean, cr.sd,
 		fizz.mc        <- identify.fizzle(pop)
 		fizz.mc.idx    <- which(fizz.mc==TRUE)
 		if(length(fizz.mc.idx)==0) idx.mc.no.fizz <- idx.mc
-		if(length(fizz.mc.idx)>0) idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+		if(length(fizz.mc.idx)>0)  idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
 		
 		if(length(idx.mc.no.fizz) > 0){
 			R <- calc.R(pop)
-			res[j] <- R[['R.mean']]
+			x[j] <- R[['R.mean']]
 		}
-		if(length(idx.mc.no.fizz) == 0) res[j] <- NA
+		if(length(idx.mc.no.fizz) == 0) x[j] <- NA
 	}
-	return(res)
+	return(x)
 }
-
-# a <- wrap_sim(i=2, cr.mean, cr.sd, simul.prm, prm, n.MC, n.cpu)
 
 # Parallel computation:
 sfInit(parallel = TRUE , cpu = n.cpu.cr.mean)

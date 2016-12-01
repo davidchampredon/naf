@@ -85,7 +85,7 @@ run.simul <- function(scen.id, dir.save.rdata = './') {
 
 
 # Run the simulation. Used to fit R
-run.simul.fit.R <- function(n.MC,n.cpu) {
+run.simul.fit.R <- function(n.MC,n.cpu, prm, simul.prm, interv.prm.0,world.prm,sched.prm,stoch_build_world) {
 	
 	t0 <- as.numeric(Sys.time())
 	baseonly  <- TRUE # <-- force baseline only
@@ -107,4 +107,6 @@ run.simul.fit.R <- function(n.MC,n.cpu) {
 	sfStop()
 	return(res.list.0)
 }
+
+
 
