@@ -19,8 +19,8 @@ data.dir        <- '../data/'
 simul.dir       <- '../simul/'
 
 # MC iterations and CPUs sed for this fit:
-n.MC  <- 2
-n.cpu <- 2
+n.MC  <- 10
+n.cpu <- 10
 
 # Unpack parameters:
 PRM <- load.all.parameters(R.library.dir ,
@@ -37,9 +37,9 @@ R.target <- 1.8
 
 # Range explored:
 cr.mean <- seq(1.0, 3.0, by=1)
-cr.sd   <- seq(0.5, 3.0, by=1)
+cr.sd   <- seq(1.0, 2.0, by=1)
 
-n.cpu.cr.mean <- 2
+n.cpu.cr.mean <- 3
 
 res <- matrix(nrow = length(cr.mean), ncol=length(cr.sd))
 n <- prod(dim(res))
@@ -50,6 +50,8 @@ n <- prod(dim(res))
 wrap_sim <- function (i, cr.mean, cr.sd, 
 					  simul.prm, prm, n.MC, n.cpu)
 {
+	res <- vector(length = length(cr.sd))
+	
 	for(j in seq_along(cr.sd)){
 		# Overwrite parameter values
 		# associated with current scenario:
@@ -61,8 +63,8 @@ wrap_sim <- function (i, cr.mean, cr.sd,
 		res.list.0 <- run.simul.fit.R(n.MC,n.cpu)	
 		
 		# merge all MC iterations:
-		pop   <- merge.pop.mc(res.list = res.list.0,
-							  n.cpu = n.cpu, 
+		pop   <- merge.pop.mc(res.list   = res.list.0,
+							  n.cpu      = n.cpu, 
 							  doparallel = TRUE)
 		
 		# Filter out fizzles:
@@ -74,14 +76,14 @@ wrap_sim <- function (i, cr.mean, cr.sd,
 		
 		if(length(idx.mc.no.fizz) > 0){
 			R <- calc.R(pop)
-			res[i,j] <- R[['R.mean']]
+			res[j] <- R[['R.mean']]
 		}
-		if(length(idx.mc.no.fizz) == 0) res[i,j] <- NA
-		return(res[i,])
+		if(length(idx.mc.no.fizz) == 0) res[j] <- NA
 	}
+	return(res)
 }
 
-# a <- wrap_sim(i=3, cr.mean, cr.sd, simul.prm, prm, n.MC, n.cpu)
+# a <- wrap_sim(i=2, cr.mean, cr.sd, simul.prm, prm, n.MC, n.cpu)
 
 # Parallel computation:
 sfInit(parallel = TRUE , cpu = n.cpu.cr.mean)
@@ -139,6 +141,7 @@ points(x=cr.mean.best, y=cr.sd.best, cex=3, lwd=3)
 abline(v=cr.mean.best)
 abline(h=cr.sd.best)
 grid()
+
 dev.off()
 
 t1 <- as.numeric(Sys.time())
