@@ -892,7 +892,7 @@ void Simulator::run(){
         }
         else{
             cout.precision(3);
-            if(k % 1 == 0){
+            if(k % 10 == 0){
                 cout << "simulation time: " << _current_time;
                 cout << "  (prevalence = "<<_prevalence<<")"<< endl;
             }
@@ -1710,6 +1710,10 @@ void Simulator::display_summary_info(){
     // Simulation parameters:
     
     tabcout("Simulation horizon (days)",_horizon);
+    
+    
+    tabcout("Contact rate, mean", _modelParam.get_prm_double("contact_rate_mean"));
+    tabcout("Contact rate, stddev", _modelParam.get_prm_double("contact_rate_stddev"));
     
     // Number of social places by type and
     // number of indiv linked to these SP:
