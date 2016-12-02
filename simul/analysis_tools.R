@@ -12,7 +12,7 @@ library(parallel)
 
 
 calc.R <- function(pop) {
-	pop.transm <- subset(pop, n_secondary_cases>0)
+	pop.transm <- subset(pop, n_secondary_cases>=0)
 	
 	nsec   <- pop.transm$n_secondary_cases
 	R.mean <- mean(nsec)
