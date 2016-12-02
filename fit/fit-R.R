@@ -72,7 +72,8 @@ wrap_sim <- function (i, cr.mean, cr.sd,
 		if(length(fizz.mc.idx)>0)  idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
 		
 		if(length(idx.mc.no.fizz) > 0){
-			R <- calc.R(pop)
+			pop.nofizz <- subset(pop, mc %in% idx.mc.no.fizz)
+			R <- calc.R(pop.nofizz)
 			x[j] <- R[['R.mean']]
 		}
 		if(length(idx.mc.no.fizz) == 0) x[j] <- NA
