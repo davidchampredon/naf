@@ -1,0 +1,225 @@
+---
+title: "Contact rates datasets"
+author: "David Champredon"
+date: '2016-12-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(plyr)
+library(rgexf)
+library(igraph)
+```
+
+## Objectives
+
+Estimate the the typical contact rates from various social settings relevant for influenza transmission in Ontario.
+
+## Data sources
+
+To my knowledge, there is no such data for Ontario. However, proximity studies have been conducted in similar settings, in particular in France. 
+
+The data were downloaded from the SocioPatterns website (http://www.sociopatterns.org/datasets/) that collected proximity data from sensors worn by individuals in various social settings (e.g. workplace, schools,...). 
+
+**Important note:** Here I look at the number of contacts without double counting when several contacts are made with the same individual over a day. So the contact numbers are smaller than most of the ones published (which generally counts *all* contacts).
+
+* data for the workplace were downloaded from   http://www.sociopatterns.org/datasets/contacts-in-a-workplace/ and published in *Génois M, Vestergaard CL, Fournet J, Panisson A, Bonmarin I, Barrat A. Data on face-to-face contacts in an office building suggest a low-cost vaccination strategy based on community linkers. Network Science 2015; 3: 326–47.*
+* data for the high school were downloaded from http://www.sociopatterns.org/datasets/high-school-dynamic-contact-networks/ and published in *Fournet J, Barrat A. Contact Patterns among High School Students. PLoS ONE 2014; 9: e107878.*
+* data for the primary school were downloaded from the supplementary material of *Stehlé J, Voirin N, Barrat A, et al. High-Resolution Measurements of Face-to-Face Contact Patterns in a Primary School. PLoS ONE 2011; 6: e23176.*
+
+
+## Published results
+
+* In primary school, children had on average 323 contacts per day with 47 distinct other children
+* In the high school, students had on average 110 (=19774/180) contacts per day
+* In the office building, no such stats published.
+* The distributions of normalized degree, contact durations, inter-contact durations and link weight were similar between studies of i) office building, ii) conference and iii) high school. See Genois 2015, Figure 2. The duration of contact distribution for primary school is also similar to these 3 other setting (Genois 2015 Fig 2 and Stehle 2011 Fig 3).
+
+
+## Short statistical analysis
+
+Data for the primary school is not the same format as the dat for workplace and high school, so identical statistical analysis could not be performed exactly the same way (in the short amount of time available!).
+
+### Workplace
+```{r utils}
+time.format <- function(x) {
+	x$time <- x$time-min(x$time)
+	x$hour <- round((x$time-min(x$time))/60/60)
+	x$day  <- round((x$time-min(x$time))/60/60/24)
+	return(x)
+}
+
+count.distinct <- function(x) {
+	# Identify distinct contacts per day:
+	x$key.d.day  <- paste(x$a,x$b, x$day,sep='_')
+	y  <- ddply(x, c('a','day', 'key.d.day'),summarise, n=length(key.d.day))
+	dc <- ddply(y, c('a','day'), summarize, n.d.c=length(a))
+	
+	# Count number of contacts per day:
+	cr <- ddply(x,c('a','day'), summarize, cd = length(a))
+	
+	return(list(dc=dc, cr=cr))
+}
+
+my.hist <- function(x, title, xlab){
+	hist(x, breaks=0:max(x+1),
+	 col = 'lightgrey',
+	 main = title,
+	 xlab = xlab)
+abline(v=mean(x), lwd=2, lty=2)
+summary(x)
+}
+```
+
+
+
+```{r workplace}
+# Downloaded from :  http://www.sociopatterns.org/datasets/contacts-in-a-workplace/
+x <- read.table('tij_InVS.dat')
+names(x) = c('time','a','b')
+
+x <- time.format(x)
+z <- count.distinct(x)
+cr <- z$cr
+dc <- z$dc
+
+my.hist(cr$cd, 
+		title='Distribution of number of \ncontacts per day at workplace',
+		xlab='contacts / person / day')
+my.hist(dc$n.d.c, 
+		title='Distribution of number of distinct contacts\n per person per day at workplace',
+		xlab='distinct contacts / person / day')
+```
+
+The mean contact rate is `r round(mean(cr$cd),2)` contacts per person per day, and a standard deviation of `r round(sd(cr$cd),2)`.
+The number of distinct contacts per person per day is `r round(mean(dc$n.d.c),2)`.
+
+
+### Primary school
+
+```{r primary school}
+summary.contact <- function(file, do.plot = TRUE) {
+	
+	a <- igraph::read_graph(file = file, format = 'gml')
+	dd.x <- igraph::degree(a)
+	deg.max <- max(dd.x)
+	deg.vec <- 0:deg.max
+	dd.y <- igraph::degree_distribution(graph = a)
+	mean.deg <- sum( dd.y * deg.vec)
+	stddev.deg <- sqrt( sum( dd.y * deg.vec^2) - mean.deg^2 )
+	if(do.plot) {
+		plot(x=deg.vec, y=dd.y, typ='h',lwd=6, 
+			 main = 'Distribution of number of contacts in French primary school',
+			 col='grey',
+			 ylab = '',
+			 xlab = 'contacts/child/day')
+		abline(v=mean.deg, lty=2, lwd=2, col='black')
+	}
+	return(list(mean.deg=mean.deg, stddev.deg=stddev.deg))
+}
+
+# fname <- 'journal.pone.0023176.s003.GML'
+par(mfrow=c(1,1))
+pschool <- summary.contact(file= 'journal.pone.0023176.s003.GML')
+# SAME???! summary.contact(file= 'journal.pone.0023176.s004.GML')
+```
+
+For the French primary school, the mean contact rate is `r round(pschool$mean.deg,2)` with a standard deviation of `r round(pschool$stddev.deg,2)`.
+
+### High school
+
+```{r high school}
+# Downloaded from: http://www.sociopatterns.org/datasets/high-school-dynamic-contact-networks/
+hs0 <- read.table('thiers_2011.csv')
+hs <- data.frame(time = hs0[,1], a=hs0[,2], b=hs0[,3])
+
+hs    <- time.format(hs)
+z.hs  <- count.distinct(hs)
+cr.hs <- z.hs$cr
+dc.hs <- z.hs$dc
+
+
+my.hist(cr.hs$cd, 
+		title='Distribution of number of \ncontacts per day at high school',
+		xlab='contacts / person / day')
+my.hist(dc.hs$n.d.c, 
+		title='Distribution of number of distinct contacts\n per person per day at high school',
+		xlab='distinct contacts / person / day')
+
+```
+The mean contact rate for high school student is `r round(mean(cr.hs$cd),2)` contacts per person per day, and a standard deviation of `r round(sd(cr.hs$cd),2)`.
+
+### Comparison between the 3 studies
+
+Comparison of the number of contacts per day per individual and the number of distinct contacts per day per individual.
+
+
+
+
+
+```{r comparison}
+
+# Mean number of contact per day:
+nc.work <- mean(cr$cd)
+nc.psch <- 323
+nc.hsch <- mean(cr.hs$cd)
+
+mean.nc <- c(nc.work, nc.psch, nc.hsch)
+
+ plot(x=1:3, y = mean.nc,
+ 	 las = 1,
+ 	 pch=16, cex=2,typ='o', #log='y',
+ 	 main = 'Daily mean num. of contacts',
+ 	 xaxt='n', xlab='',ylab='',
+ 	 ylim=c(0,max(mean.nc)))
+ axis(1, at=1:3, labels=c('workplace','Primary School','High School'))
+ grid()
+ 
+ r.mean.nc <- mean.nc/nc.work
+  plot(x=1:3, y = r.mean.nc,
+ 	 las = 1,
+ 	 pch=16, cex=2,typ='o', #log='y',
+ 	 main = 'Daily mean num. of contacts\n relative to workplace',
+ 	 xaxt='n', xlab='',ylab='',
+ 	 ylim=c(0,max(r.mean.nc)))
+ axis(1, at=1:3, labels=c('workplace','Primary School','High School'))
+ abline(h=1,lty=2)
+ grid()
+ text(x=1:4, y = r.mean.nc, labels = round(r.mean.nc,1), pos=1, cex=1.5)
+ 
+ # Mean number of distinct contacts per day:
+dc.work <- mean(dc$n.d.c)
+dc.psch <- 47
+dc.hsch <- mean(dc.hs$n.d.c)
+
+mean.dc <- c(dc.work, dc.psch, dc.hsch)
+
+ plot(x=1:3, y = mean.dc,
+ 	 las = 1,
+ 	 pch=16, cex=2,typ='o', #log='y',
+ 	 main = 'Daily mean num. of distinct contacts',
+ 	 xaxt='n', xlab='',ylab='',
+ 	 ylim=c(0,max(mean.dc)))
+ axis(1, at=1:3, labels=c('workplace','Primary School','High School'))
+ grid()
+ 
+ r.mean.dc <- mean.dc/dc.work
+  plot(x=1:3, y = r.mean.dc,
+ 	 las = 1,
+ 	 pch=16, cex=2,typ='o', #log='y',
+ 	 main = 'Daily mean num. of contacts\n relative to workplace',
+ 	 xaxt='n', xlab='',ylab='',
+ 	 ylim=c(0,max(r.mean.dc)))
+ axis(1, at=1:3, labels=c('workplace','Primary School','High School'))
+ abline(h=1,lty=2)
+ grid()
+ text(x=1:4, y = r.mean.dc, labels = round(r.mean.dc,1), pos=1, cex=1.5)
+ 
+
+
+```
+
+
+
+
