@@ -1,0 +1,2 @@
+Rscript fit-R.R > out-fitR.txt &
+

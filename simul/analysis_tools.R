@@ -11,16 +11,17 @@ library(parallel)
 ###   =====   H E L P E R   F U N C T I O N S =====
 
 
-calc.R <- function(pop) {
-	pop.transm <- subset(pop, n_secondary_cases>=0)
+calc.R0 <- function(x) {
+	# Retrieve the times of first intections
+	tinf <- sort(unique(x$t_infected))
+	tinf.init <- tinf[1:5]
+	# Crop simulations at these early times.
+	# Note that simulations are not filtered out
+	# from the fizzles. (we don't care what happens later!)
+	x.init <- subset(x, t_infected %in% tinf.init)
 	
-	nsec   <- pop.transm$n_secondary_cases
-	R.mean <- mean(nsec)
-	R.qt   <- quantile(nsec, probs = c(0.01,0.25, 0.5, 0.75, 0.99))
-	R.rng  <- max(pop.transm$n_secondary_cases)
-	return(list(R.mean = R.mean, 
-				R.quantile = R.qt, 
-				R.range = R.rng))
+	R0 <- mean(x.init$n_secondary_cases)
+	return(R0)
 }
 
 identify.fizzle <- function(pop.all.mc){

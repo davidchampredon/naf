@@ -19,8 +19,8 @@ data.dir        <- '../data/'
 simul.dir       <- '../simul/'
 
 # MC iterations and CPUs sed for this fit:
-n.MC  <- 10
-n.cpu <- 10
+n.MC  <- 2
+n.cpu <- 2	
 
 # Unpack parameters:
 PRM <- load.all.parameters(R.library.dir ,
@@ -36,8 +36,8 @@ stoch_build_world <- simul.prm[['build_world_stoch']]
 R.target <- 1.8
 
 # Range explored:
-cr.mean <- seq(1.0, 3.0, by=1)
-cr.sd   <- seq(1.0, 2.0, by=0.5)
+cr.mean <- seq(1.0, 3.0, length.out = 6)
+cr.sd   <- cr.mean/2
 
 n.cpu.cr.mean <- 2
 
@@ -63,20 +63,22 @@ wrap_sim <- function (i, cr.mean, cr.sd,
 		pop   <- merge.pop.mc(res.list   = res.list.0,
 							  n.cpu      = n.cpu, 
 							  doparallel = TRUE)
-		
+
+		x[j] <- calc.R0(pop)
+				
 		# Filter out fizzles:
-		idx.mc         <- unique(pop$mc)
-		fizz.mc        <- identify.fizzle(pop)
-		fizz.mc.idx    <- which(fizz.mc==TRUE)
-		if(length(fizz.mc.idx)==0) idx.mc.no.fizz <- idx.mc
-		if(length(fizz.mc.idx)>0)  idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
-		
-		if(length(idx.mc.no.fizz) > 0){
-			pop.nofizz <- subset(pop, mc %in% idx.mc.no.fizz)
-			R <- calc.R(pop.nofizz)
-			x[j] <- R[['R.mean']]
-		}
-		if(length(idx.mc.no.fizz) == 0) x[j] <- NA
+		# idx.mc         <- unique(pop$mc)
+		# fizz.mc        <- identify.fizzle(pop)
+		# fizz.mc.idx    <- which(fizz.mc==TRUE)
+		# if(length(fizz.mc.idx)==0) idx.mc.no.fizz <- idx.mc
+		# if(length(fizz.mc.idx)>0)  idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+		# 
+		# if(length(idx.mc.no.fizz) > 0){
+		# 	pop.nofizz <- subset(pop, mc %in% idx.mc.no.fizz)
+		# 	R <- calc.R(pop.nofizz)
+		# 	x[j] <- R[['R.mean']]
+		# }
+		# if(length(idx.mc.no.fizz) == 0) x[j] <- NA
 	}
 	return(x)
 }
