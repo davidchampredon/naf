@@ -19,8 +19,8 @@ data.dir        <- '../data/'
 simul.dir       <- '../simul/'
 
 # MC iterations and CPUs sed for this fit:
-n.MC  <- 4
-n.cpu <- 2	
+n.MC  <- 6
+n.cpu <- 3	
 
 # Unpack parameters:
 PRM <- load.all.parameters(R.library.dir ,
@@ -36,8 +36,8 @@ stoch_build_world <- simul.prm[['build_world_stoch']]
 R.target <- 1.8
 
 # Range explored:
-cr.mean <- seq(0.5, 6.0, by = 0.5)
-cr.sd   <- cr.mean/2
+cr.mean <- c(2,6) #seq(0.5, 6.0, by = 0.5)
+cr.sd   <- 1 #cr.mean/2
 
 n.cpu.cr.mean <- 2
 

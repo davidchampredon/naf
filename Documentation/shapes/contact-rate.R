@@ -6,8 +6,9 @@ set.seed(1234)
 
 # Contact rate
 
-cr_mean <- 3
-cr_sd   <- 2.0
+mult    <- 1
+cr_mean <- 6 * mult
+cr_sd   <- 3
 
 # Lognormal parameterization
 tmp  <- 1 + cr_sd*cr_sd/cr_mean/cr_mean

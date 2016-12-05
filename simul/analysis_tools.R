@@ -7,14 +7,17 @@ library(tidyr)
 library(parallel)
 
 
-###########################################################################
 ###   =====   H E L P E R   F U N C T I O N S =====
 
 
-calc.R0 <- function(x) {
+calc.R0 <- function(x, time.init = 3) {
+	
+	# 'time.init' is the maximum infection time where R0 is calculated
+	# from the initial infectious individuals.
+	
 	# Retrieve the times of first intections
 	tinf <- sort(unique(x$t_infected))
-	tinf.init <- tinf[1:5]
+	tinf.init <- tinf[tinf < time.init]
 	# Crop simulations at these early times.
 	# Note that simulations are not filtered out
 	# from the fizzles. (we don't care what happens later!)
@@ -23,6 +26,7 @@ calc.R0 <- function(x) {
 	R0 <- mean(x.init$n_secondary_cases)
 	return(R0)
 }
+
 
 identify.fizzle <- function(pop.all.mc){
 	# Return the MC iterations that were fizzles
@@ -36,9 +40,6 @@ identify.fizzle <- function(pop.all.mc){
 	names(fizz) <- x$mc
 	return(fizz)
 }
-
-
-
 
 
 # Calculate the proportion of fizzled simulations
