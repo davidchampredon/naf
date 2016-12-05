@@ -154,10 +154,6 @@ The mean contact rate for high school student is `r round(mean(cr.hs$cd),2)` con
 
 Comparison of the number of contacts per day per individual and the number of distinct contacts per day per individual.
 
-
-
-
-
 ```{r comparison}
 
 # Mean number of contact per day:
@@ -215,10 +211,16 @@ mean.dc <- c(dc.work, dc.psch, dc.hsch)
  abline(h=1,lty=2)
  grid()
  text(x=1:4, y = r.mean.dc, labels = round(r.mean.dc,1), pos=1, cex=1.5)
- 
-
-
 ```
+
+## Other publications
+
+The study by Toth et al (RS Interface, 2015) reports more distinct contacts forchildren in elementary and middle schools in Utah, USA. It found 52-76 distinct contacts per individual per day (over 2 days) for elementary school pupils, and about 130 for children in middle school. (*Toth DJA, Leecaster M, Pettey WBP, et al. The role of heterogeneity in contact timing and duration in network models of influenza spread in schools. Journal of The Royal Society Interface 2015; 12: 20150279.*)
+
+Unfortunately, there is not a "parallel" study in the same geographical location (e.g. Utah) for the workplace in order to make a similar comparison as done in France.
+
+
+
 
 
 

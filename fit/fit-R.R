@@ -19,7 +19,7 @@ data.dir        <- '../data/'
 simul.dir       <- '../simul/'
 
 # MC iterations and CPUs sed for this fit:
-n.MC  <- 2
+n.MC  <- 4
 n.cpu <- 2	
 
 # Unpack parameters:
@@ -36,7 +36,7 @@ stoch_build_world <- simul.prm[['build_world_stoch']]
 R.target <- 1.8
 
 # Range explored:
-cr.mean <- seq(1.0, 3.0, length.out = 6)
+cr.mean <- seq(0.5, 6.0, by = 0.5)
 cr.sd   <- cr.mean/2
 
 n.cpu.cr.mean <- 2
@@ -63,22 +63,7 @@ wrap_sim <- function (i, cr.mean, cr.sd,
 		pop   <- merge.pop.mc(res.list   = res.list.0,
 							  n.cpu      = n.cpu, 
 							  doparallel = TRUE)
-
 		x[j] <- calc.R0(pop)
-				
-		# Filter out fizzles:
-		# idx.mc         <- unique(pop$mc)
-		# fizz.mc        <- identify.fizzle(pop)
-		# fizz.mc.idx    <- which(fizz.mc==TRUE)
-		# if(length(fizz.mc.idx)==0) idx.mc.no.fizz <- idx.mc
-		# if(length(fizz.mc.idx)>0)  idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
-		# 
-		# if(length(idx.mc.no.fizz) > 0){
-		# 	pop.nofizz <- subset(pop, mc %in% idx.mc.no.fizz)
-		# 	R <- calc.R(pop.nofizz)
-		# 	x[j] <- R[['R.mean']]
-		# }
-		# if(length(idx.mc.no.fizz) == 0) x[j] <- NA
 	}
 	return(x)
 }
@@ -99,18 +84,19 @@ sfStop()
 
 res <- matrix(unlist(res.tmp),nrow = length(cr.mean))
 
-save.image(file = 'tmp.RData')
+save.image(file = 'fit-R.RData')
+
 
 # ==== Best Fit ====
 
 dist <- abs(res - R.target)
 idx <- which(dist == min(dist,na.rm = TRUE), arr.ind = TRUE)
-res[idx]
 cr.mean.best <- cr.mean[idx[1]]
 cr.sd.best   <- cr.sd[idx[2]]
 
 write.csv(x = data.frame(cr.mean.best=cr.mean.best, cr.sd.best=cr.sd.best),
 		  file = 'fitted_cr.csv', quote = F, row.names = F)
+
 
 # ==== PLOTS ====
 
@@ -131,13 +117,18 @@ for(j in seq_along(cr.sd)){
 }
 
 image(x=cr.mean, y=cr.sd, z=res, 
-	  col = heat.colors(12),
+	  col = gray.colors(16),
 	  main = 'R', 
 	  las=1, xlab='mean',ylab='sd')
 contour(x=cr.mean, y=cr.sd, z=res, add = TRUE,nlevels = 6)
-points(x=cr.mean.best, y=cr.sd.best, cex=3, lwd=3)
-abline(v=cr.mean.best)
-abline(h=cr.sd.best)
+
+best.col <- 'red'
+points(x=cr.mean.best, y=cr.sd.best, cex=2, lwd=6, col=best.col)
+abline(v=cr.mean.best, col=best.col, lty=4)
+abline(h=cr.sd.best, col=best.col, lty=4)
+text(x=cr.mean.best, y=cr.sd.best,
+	 labels = paste(res[idx],'@',round(cr.mean.best,2),',',round(cr.sd.best,2)),
+	 pos = 3, cex=2, col='red')
 grid()
 
 dev.off()
