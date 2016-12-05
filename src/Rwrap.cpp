@@ -174,6 +174,8 @@ List naf_run_det(List params,
 		set_parameter(MP, "contact_rate_distrib",          "string", params);
 		set_parameter(MP, "contact_rate_mean",             "double", params);
 		set_parameter(MP, "contact_rate_stddev",           "double", params);
+		set_parameter(MP, "contact_rate_CV",               "double", params);
+		
 		set_parameter(MP, "contact_ratio_age_1_10",        "double", params);
 		set_parameter(MP, "contact_ratio_age_10_16",       "double", params);
 		set_parameter(MP, "contact_ratio_age_over_65",     "double", params);

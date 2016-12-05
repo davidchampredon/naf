@@ -1712,8 +1712,9 @@ void Simulator::display_summary_info(){
     tabcout("Simulation horizon (days)",_horizon);
     
     
-    tabcout("Contact rate, mean", _modelParam.get_prm_double("contact_rate_mean"));
+    tabcout("Contact rate, mean",   _modelParam.get_prm_double("contact_rate_mean"));
     tabcout("Contact rate, stddev", _modelParam.get_prm_double("contact_rate_stddev"));
+    tabcout("Contact rate, CV    ", _modelParam.get_prm_double("contact_rate_CV"));
     
     // Number of social places by type and
     // number of indiv linked to these SP:
@@ -2110,8 +2111,12 @@ double  Simulator::draw_contact_rate(individual* indiv, uint k)
         
         // The contact rate is drawn from another distribution
         // in order to allow for super-spreading events
-        double cr_mean = ratio * _modelParam.get_prm_double("contact_rate_mean");
+        double cr_mean = _modelParam.get_prm_double("contact_rate_mean") * ratio;
         double cr_sd   = _modelParam.get_prm_double("contact_rate_stddev");
+        
+        // Overwrite std dev if paameterization uses coefficent of variation:
+        double CV       = _modelParam.get_prm_double("contact_rate_CV");
+        if (CV>0) cr_sd = CV * cr_mean;
         
         if(cr_distrib == "lognorm"){
             double tmp  = 1 + cr_sd*cr_sd/cr_mean/cr_mean;

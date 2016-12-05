@@ -68,8 +68,11 @@ void main_run(){
     
     MP.add_prm_bool   ("homogeneous_contact", false);
     MP.add_prm_string ("contact_rate_distrib", "gamma");
+    
     MP.add_prm_double ("contact_rate_mean", 4.98);
     MP.add_prm_double ("contact_rate_stddev", 1);
+    MP.add_prm_double ("contact_rate_CV", 0.75);
+    
     MP.add_prm_double ("contact_ratio_age_1_10", 2.0);
     MP.add_prm_double ("contact_ratio_age_10_16", 1.5);
     MP.add_prm_double ("contact_ratio_age_over_65", 0.8);

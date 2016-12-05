@@ -35,8 +35,9 @@ imm_cell_pivot, 20
 
 homogeneous_contact , 0
 contact_rate_distrib, lognorm
-contact_rate_mean   , 3.2
-contact_rate_stddev , 1.2
+contact_rate_mean   , 2
+contact_rate_stddev , 1
+contact_rate_CV     , 0.75
 
 contact_ratio_age_1_10     , 15.0
 contact_ratio_age_10_16    , 3.0

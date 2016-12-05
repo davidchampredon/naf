@@ -6,9 +6,13 @@ set.seed(1234)
 
 # Contact rate
 
-mult    <- 1
-cr_mean <- 6 * mult
-cr_sd   <- 3
+mult    <- 1.00
+
+cr_mean <- 2 * mult
+cr_sd   <- 1
+CV      <- 0.75  # Coeff. of Variation: input negative value to desactivate. 
+
+if(CV>0) cr_sd <- CV * cr_mean
 
 # Lognormal parameterization
 tmp  <- 1 + cr_sd*cr_sd/cr_mean/cr_mean

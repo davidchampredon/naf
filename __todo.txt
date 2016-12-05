@@ -8,6 +8,8 @@ _____________________
 
 - Fits to automatize : R0, asymptomatic fraction
 
+- visualize inputs
+
 - TEST Change shape calc_proba_hosp from 'step' to logistic
 
 - Reduce # of 'Arbitrary' in "_all_param_value_source.xlsx"
@@ -31,21 +33,13 @@ _____________________
 - put age determinant for schedule as model parameters (currently hard coded)
 
 
-________________________
+___________________________
 ===  REFERENCES TO USE  ===
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-> sociopatterns.org/datasets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 > Read Baguelin 2013
 
 > justification of lower humoral immunity for elderly may be found in: Fleming DM, Andrews NJ, Ellis JS, Bermingham A, Sebastianpillai P, et al. (2010) Estimating influenza vaccine effectiveness using routinely collected laboratory data. J Epidemiol Community Health 64: 1062– 1067.
-
->> Data on contacts in social places: 
-
-- Génois M, Vestergaard CL, Fournet J, Panisson A, Bonmarin I, Barrat A. Data on face-to-face contacts in an office building suggest a low-cost vaccination strategy based on community linkers. Netw Sci. 2015; 3(03):326–47. doi:10.1017/nws.2015.10. 
-
-- SocioPatterns Dataset: Contacts in a workplace. http://www.sociopatterns.org/datasets/contacts-in-a-workplace. 
 
 
 
