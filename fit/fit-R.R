@@ -19,7 +19,7 @@ data.dir        <- '../data/'
 simul.dir       <- '../simul/'
 
 # MC iterations and CPUs sed for this fit:
-n.MC  <- 12
+n.MC  <- 3
 n.cpu <- 3	
 
 # Unpack parameters:
@@ -39,7 +39,7 @@ R.target <- 1.8
 cr.mean <- c(1,2,5) #seq(0.5, 6.0, by = 0.25)
 cr.cv   <- c(0.5, 0.75)  #c(0.5, 0.75, 1)
 
-n.cpu.cr.mean <- 2
+n.cpu.cr.mean <- 1
 
 # ==== Simulation Loop ====
 # Run the simulations on all scenarios:
@@ -65,13 +65,16 @@ wrap_sim <- function (i, cr.mean, cr.cv,
 		pop   <- merge.pop.mc(res.list   = res.list.0,
 							  n.cpu      = n.cpu, 
 							  doparallel = TRUE)
-		x[j] <- calc.R0.SIR(pop.all.mc = pop, t.max.fit = 10)  # x[j] <- calc.R0(pop)
+		
+		x[j] <- calc.R0.SIR(pop.all.mc = pop, 
+							res.list.0 = res.list.0,
+							t.max.fit = 10)  # x[j] <- calc.R0(pop)
 	}
 	return(x)
 }
 
 # Parallel computation:
-sfInit(parallel = TRUE , cpu = n.cpu.cr.mean)
+sfInit(parallel = (n.cpu.cr.mean>1) , cpu = n.cpu.cr.mean)
 sfLibrary(naf, lib.loc = R.library.dir)
 sfLibrary(snowfall)
 sfLibrary(plyr)
@@ -105,7 +108,7 @@ write.csv(x = data.frame(cr.mean.best=cr.mean.best, cr.cv.best=cr.cv.best),
 pdf('fitted_cr.pdf')
 
 plot(1,xlim=range(cr.cv), ylim=range(res,na.rm = TRUE),
-	 xlab = 'sd', ylab='R')
+	 xlab = 'cv', ylab='R')
 for(i in seq_along(cr.mean)){
 	lines(x=cr.cv, y=res[i,], typ='o', col=i)
 	text(x=cr.cv[1], y=res[i,1],labels = cr.mean[i],pos=4,col=i)
@@ -121,7 +124,7 @@ for(j in seq_along(cr.cv)){
 image(x=cr.mean, y=cr.cv, z=res, 
 	  col = gray.colors(16),
 	  main = 'R', 
-	  las=1, xlab='mean',ylab='sd')
+	  las=1, xlab='mean',ylab='cv')
 contour(x=cr.mean, y=cr.cv, z=res, add = TRUE,nlevels = 6)
 
 best.col <- 'red'
@@ -129,8 +132,8 @@ points(x=cr.mean.best, y=cr.cv.best, cex=2, lwd=6, col=best.col)
 abline(v=cr.mean.best, col=best.col, lty=4)
 abline(h=cr.cv.best, col=best.col, lty=4)
 text(x=cr.mean.best, y=cr.cv.best,
-	 labels = paste(res[idx],'@',round(cr.mean.best,2),',',round(cr.cv.best,2)),
-	 pos = 3, cex=2, col='red')
+	 labels = paste0(round(res[idx],3),' (',round(cr.mean.best,2),';',round(cr.cv.best,2),')'),
+	 pos = 3, cex=1.3, col='red')
 grid()
 
 dev.off()

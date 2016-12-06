@@ -27,7 +27,9 @@ pop.all.mc   <- merge.pop.mc(res.select,
 R0 <- calc.R0(pop.all.mc, time.init = 2)
 
 # METHOD 2: Calculate R0 implied from SIR:
-R0.SIR <- calc.R0.SIR(pop.all.mc = pop.all.mc, t.max.fit = 10, do.plot = T)
+R0.SIR <- calc.R0.SIR(pop.all.mc = pop.all.mc, 
+					  res.list.0 = res.list.0,
+					  t.max.fit = 10, do.plot = T)
 
 yy <- numeric()
 yy.sir <- numeric()
@@ -35,7 +37,9 @@ xx <- c(seq(1.5,3,by=0.25), 4:30)
 
 for(i in seq_along(xx)) {
 	yy[i]     <- calc.R0(pop.all.mc, time.init = xx[i])
-	yy.sir[i] <- calc.R0.SIR(pop.all.mc = pop.all.mc, t.max.fit = xx[i])
+	yy.sir[i] <- calc.R0.SIR(pop.all.mc = pop.all.mc, 
+							 res.list.0 = res.list.0,
+							 t.max.fit = xx[i])
 }
 plot(xx,yy, typ='o', ylim=c(0,max(yy,na.rm = T)))
 lines(xx,yy.sir, typ='o', ylim=c(0,max(yy.sir,na.rm = T)), col='red')

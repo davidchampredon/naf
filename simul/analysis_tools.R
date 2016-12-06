@@ -28,6 +28,7 @@ calc.R0 <- function(x, time.init = 3) {
 }
 
 calc.R0.SIR <- function(pop.all.mc, 
+						res.list.0,
 						t.max.fit,
 						do.plot = FALSE) {
 	
@@ -38,6 +39,7 @@ calc.R0.SIR <- function(pop.all.mc,
 	fizz.mc.idx    <- which(fizz.mc==TRUE)
 	if(length(fizz.mc.idx)==0)  idx.mc.no.fizz <- idx.mc
 	if(length(fizz.mc.idx)>0)   idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+	if(length(fizz.mc.idx)==length(idx.mc)) return(NA)
 	
 	# Filter out the fizzles
 	pop.nofizz <- subset(pop.all.mc, mc %in% idx.mc.no.fizz)
