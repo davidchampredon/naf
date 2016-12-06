@@ -27,6 +27,61 @@ calc.R0 <- function(x, time.init = 3) {
 	return(R0)
 }
 
+calc.R0.SIR <- function(pop.all.mc, 
+						t.max.fit,
+						do.plot = FALSE) {
+	
+	### ESTIMATE A R0 IMPLIED IN A SIR MODEL
+	
+	idx.mc         <- unique(pop.all.mc$mc)
+	fizz.mc        <- identify.fizzle(pop.all.mc)
+	fizz.mc.idx    <- which(fizz.mc==TRUE)
+	if(length(fizz.mc.idx)==0)  idx.mc.no.fizz <- idx.mc
+	if(length(fizz.mc.idx)>0)   idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+	
+	# Filter out the fizzles
+	pop.nofizz <- subset(pop.all.mc, mc %in% idx.mc.no.fizz)
+	tmp <- subset(pop.nofizz, gi_bck>0)
+	gi_bck.mean <- mean(tmp$gi_bck)
+	
+	# Merging time series without fizzles:
+	res.no.fizz <- list()
+	for(i in seq_along(idx.mc.no.fizz)) res.no.fizz[[i]] <- res.list.0[[i]]
+	ts <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu)
+	
+	# Averaged time series:
+	ts.avg <- ddply(ts,c('time'),summarize, inc.m = mean(incidence))
+	
+	# Just the initial times, for fotting purposes:
+	ts.init <- subset(ts, time < t.max.fit)
+	ts.avg.init <- subset(ts.avg, time < t.max.fit)
+	
+	mylm <- function(xx,yy) {
+		z <- lm(formula = yy ~ xx)
+		return(z$coefficients[2])
+	}
+	
+	# r estimation on the averaged time-series:
+	r.avg <-  mylm(xx= ts.avg.init$time, yy = log(ts.avg.init$inc.m+1))
+	
+	# R0 based on SIR-like formula:
+	R0.avg <- 1 + r.avg * gi_bck.mean
+	
+	# Calculate average exponential growth in incidence:
+	ts.avg$ig.avg <- exp(r.avg * ts.avg$time) 
+	ts.avg$ig.avg[ts.avg$time>t.max.fit] <- NA
+	
+	# plot
+	if(do.plot){
+	g <- ggplot(ts.avg) + geom_line(aes(x=time,y=inc.m)) + geom_point(aes(x=time,y=inc.m)) + scale_y_log10()
+	g <- g + geom_line(aes(x=time,y=ig.avg), colour='blue', size=2, alpha=0.5)
+	g <- g + geom_vline(xintercept = t.max.fit, linetype=2)
+	plot(g)
+	}
+	return(R0.avg)
+}
+
+
 
 identify.fizzle <- function(pop.all.mc){
 	# Return the MC iterations that were fizzles

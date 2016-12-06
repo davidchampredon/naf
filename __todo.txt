@@ -45,6 +45,20 @@ ___________________________
 
  ---  Notes  ---
  
+ * FIT R0:
+ 
+ - For R0 = 1.8:
+	contact rate: mean = 4, CV = 0.5
+ 	scale factor = 900
+	init # infectious: 5
+	ratio_1_10 = 15, ratio_10_16 = 3, ratio_over65 = 1
+	ratio_sp_xxx = 1 for all
+	proba move = 0.98, proba chg sp_other = 0.0
+	
+	WARNING: same parameter as above, but with scale factor = 300 gives R0~4
+
+ 
+ 
  INPUTS:
  	- Vax target population (2)
 	- Vax rate (2)
