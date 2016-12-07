@@ -35,7 +35,7 @@ imm_cell_pivot, 20
 
 homogeneous_contact , 0
 contact_rate_distrib, lognorm
-contact_rate_mean   , 2
+contact_rate_mean   , 1.555555
 contact_rate_stddev , 1
 contact_rate_CV     , 0.75
 
@@ -51,7 +51,7 @@ contactAssort_lambda, 0.1
 
 proba_move, 0.98
 proba_move_reduc_sympt, 0.40
-proba_change_sp_other, 0.0
+proba_change_sp_other, 0.200000000
 
 mult_proba_symptomatic, 6.0
 asymptom_infectiousness_ratio , 0.1

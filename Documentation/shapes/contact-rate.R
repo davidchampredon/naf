@@ -8,9 +8,9 @@ set.seed(1234)
 
 mult    <- 1.00
 
-cr_mean <- 2 * mult
+cr_mean <- 1 * mult
 cr_sd   <- 1
-CV      <- 0.75  # Coeff. of Variation: input negative value to desactivate. 
+CV      <- 0.5  # Coeff. of Variation: input negative value to desactivate. 
 
 if(CV>0) cr_sd <- CV * cr_mean
 

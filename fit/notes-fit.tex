@@ -61,29 +61,24 @@ TO DO
 \section{Basic reproductive number}
 
 
-\textbf{Two methods: must get my head around those and choose! both methods can give quite different values...}
+\textbf{Two methods: must get my head around those and choose! both methods can give quite different values... I think the first one is better (and gives more stable estimates)}
+
+
+
+\subsection*{Calculating $R_0$ implied from an SIR}
+I believe $R_0$ is model dependent. Most of $R_0$ estimations have been done with some kind of SIR model, so the $R_0$ values to fit must be compared to a SIR.
+The methodology is as follows: calculate the mean incidence time series $I_{t}$ from each of the Monte Carlo iterations of the agent-based model. 
+We can approximate $R_0$ with a naive model
+$$R_0 \sim 1 + r G$$
+where $r$ is the incidence exponential growth rate and $G$ the mean generation interval (assumed known). For $t$ near 0, we have  $I_{t}\sim i_0 e^{rt}$ for a SIR model, so the estimate $\hat{r}$ is obtained with a linear regression on the log incidence:
+$$ \log(I_{t}) = \log(i_0) + \hat{r}t$$
+The estimate of $R_{0}$ (in a SIR world) is given by substituting:
+$$\hat{R_0} = 1 + \hat{r} G$$
 
 \subsection*{Counting initial secondary cases}
 The basic reproductive number $R_0$ is calculated by averaging the number of secondary cases of individuals infected in the first 2 days after the epidemic starts. 
 The choice of 2 days is driven by the fact the generation interval is smaller than 2 days with the natural history parameters taken for influenza in this study. Hence, it is likely (but not guaranteed) that the secondary cases recorded in this short period of time are made among a fully susceptible population. 
 Moreover, considering this time window gives less noisy results for $R_0$ than calculating it from the index case(s) only.
-
-\subsection*{Calculating $R_0$ implied from an SIR}
-I believe $R_0$ is model dependent. Most of $R_0$ estimations have been done with some kind of SIR model, so the $R_0$ values to fit must be compared to a SIR.
-The methodology is as follows: calculate the mean incidence time series $I_{k,t}$ from each of the $k=1,...,n$ Monte Carlo iterations of the agent-based model. 
-We can approximate $R_0$ with a naive model
-$$R_0 \sim 1 + r G$$
-where $r$ is the incidence exponential growth rate and $G$ the mean generation interval (assumed known). For $t$ near 0, we have  $I_{k,t}\sim i_0 e^{r_kt}$, so the estimate $\hat{r}_k$ is obtained with a linear regression on the log incidence:
-$$ \log(I_{k,t}) = \log(i_0) + \hat{r}_k t$$
-The estimate of $R_{0k}$ (in a SIR world) for the $k$th MC iteration is given by substituting:
-$$\hat{R_0}_k = 1 + \hat{r}_k G$$
-Finally, the overall estimate is simply the average:
-$$\hat{R}_0 = \frac{1}{n}\sum_{k=1}^n \hat{R_0}_k$$
-
-
-Alternative (which seems better): do the same, but on the average across all MC iteration (not calculating $r_k$ on each MC iteration)
-
-
 
 \end{document}
 
