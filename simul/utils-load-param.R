@@ -111,7 +111,6 @@ overwrite.selected.param <- function(filename, scen.id) {
 	interv.prm[[1]][['interv_cvg_rate']] <<- y$interv_cvg_rate
 	
 	prm[['contact_rate_mean']]   <<- y$contact_rate_mean
-	prm[['contact_rate_stddev']] <<- y$contact_rate_stddev
 	
 	prm[['vax_imm_hum_incr']]    <<- y$vax_imm_hum_incr
 	prm[['vax_imm_cell_incr']]   <<- y$vax_imm_cell_incr

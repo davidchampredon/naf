@@ -62,10 +62,13 @@ List to_list_vector(const vector<dcDataFrame> & df,
 
 
 
-void set_parameter(modelParam &MP, string prm_name, string prm_type, List params){
-    
-    bool found = false;
-    
+void set_parameter(modelParam &MP, string prm_name, string prm_type, List params)
+{
+	bool debug = false;
+	if (debug) cout << "setting parameter "<< prm_name << "... ";
+	
+	bool found = false;
+	
     if (prm_type=="double") {
         double val = params[prm_name];
         MP.add_prm_double(prm_name, val);
@@ -91,6 +94,8 @@ void set_parameter(modelParam &MP, string prm_name, string prm_type, List params
     }
     if(!found)
         cerr << "Parameter type " << prm_type << " not found for parameter "<<prm_name <<endl;
+	
+	if (debug) cout << "done."<<endl;
 }
 
 /** 
@@ -165,11 +170,20 @@ List naf_run_det(List params,
 		set_parameter(MP, "doi_var", "double", params);
 		set_parameter(MP, "doh_var", "double", params);
 		
+		cout << "--> Durations loaded." << endl;
+		
 		set_parameter(MP, "proba_hosp",             "double", params);
 		
 		set_parameter(MP, "proba_move",             "double", params);
 		set_parameter(MP, "proba_move_reduc_sympt", "double", params);
 		set_parameter(MP, "proba_change_sp_other",  "double", params);
+		
+		set_parameter(MP, "proba_death_min",      "double", params);
+		set_parameter(MP, "proba_death_max",      "double", params);
+		set_parameter(MP, "proba_death_frailCvx", "double", params);
+		set_parameter(MP, "proba_death_slope",    "double", params);
+
+		cout << "--> Probabilities loaded." << endl;
 		
 		set_parameter(MP, "contact_rate_distrib",          "string", params);
 		set_parameter(MP, "contact_rate_mean",             "double", params);
@@ -185,9 +199,12 @@ List naf_run_det(List params,
 		
 		set_parameter(MP, "contactAssort_lambda", "double", params);
 		
+		cout << "--> Contact params loaded." << endl;
 		
 		set_parameter(MP, "mult_proba_symptomatic",        "double", params);
 		set_parameter(MP, "asymptom_infectiousness_ratio", "double", params);
+		
+		cout << "--> Asymptomatic params loaded." << endl;
 		
 		set_parameter(MP, "treat_doi_reduc", "double", params);
 		set_parameter(MP, "treat_reduc_infect_mean", "double", params);
@@ -197,10 +214,7 @@ List naf_run_det(List params,
 		set_parameter(MP, "vax_frail_incr",        "double", params);
 		set_parameter(MP, "vax_lag_full_efficacy", "double", params);
 		
-		set_parameter(MP, "proba_death_min",      "double", params);
-		set_parameter(MP, "proba_death_max",      "double", params);
-		set_parameter(MP, "proba_death_frailCvx", "double", params);
-		set_parameter(MP, "proba_death_slope",    "double", params);
+		cout << "--> Treatment & vax params loaded." << endl;
 		
 		set_parameter(MP, "frailty_0",         "double", params);
 		set_parameter(MP, "frailty_min",       "double", params);
@@ -218,6 +232,8 @@ List naf_run_det(List params,
 		set_parameter(MP, "imm_cell_slope",	"double", params);
 		set_parameter(MP, "imm_cell_pivot", "double", params);
 		
+		cout << "--> Frailty & immunities loaded." << endl;
+		
 		
 		// ==== Simulator parameters ====
 		
@@ -227,6 +243,7 @@ List naf_run_det(List params,
 		unsigned int popexport  = simulParams["popexport"];
 		double start_time       = simulParams["start_time"];
 		
+		cout << "--> Simulation params loaded." << endl;
 		
 		// === Interventions ===
 		
