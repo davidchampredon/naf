@@ -26,8 +26,8 @@ bfirst <- TRUE
 for(i in seq_along(scen.id)){
 	# In-depth analysis of the results:
 	if(bfirst) analyze.simul.scen(scen.id = scen.id[i],
-								 dir.save.rdata = dir.save.rdata,
-								 dir.results = dir.results)
+								  dir.save.rdata = dir.save.rdata,
+								  dir.results = dir.results)
 	bfirst <- FALSE
 	# Compare intervention of this scenario
 	# with common baseline:
@@ -39,19 +39,6 @@ for(i in seq_along(scen.id)){
 # Merge results from all scenarios
 # in file 'result-scen-all.RData':
 res.all <- merge.result.scen(scen.id, dir.save.rdata)
-
-# Plot results for all scenarios:
-
-plot.multi.scen.res(res.all[['main']], 
-					dir=dir.results,
-					file.scen.prm.list = 'scenario-prm-list.csv')
-
-plot.secondary.res(res.all[['secondary']], 
-				   dir = dir.results)
-
-plot.rate.reduc(res.all[['main']], 
-	  dir = dir.results,
-	  file.scen.prm.list = 'scenario-prm-list.csv')
 
 msg.ac <- 'Analysis and/or comparison of multi-scenarios done.'
 print(msg.ac)

@@ -51,11 +51,11 @@ compare.simul.scen <- function(scen.id,
 		
 		mx <- max(nrow(z),nrow(z0))
 		mn <- min(nrow(z),nrow(z0))
-		if(mx>nrow(z)) {
+		if(mx > nrow(z)) {
 			tmx <- z0$time 
 			tmn <- z$time
 		}
-		else {
+		if(mx <= nrow(z)) {
 			tmx <- z$time
 			tmn <- z0$time
 		}
@@ -124,6 +124,12 @@ compare.simul.scen <- function(scen.id,
 		nam <- paste0('rel.',names(d)[ idx.diff[j] ])
 		names(d)[ncol(d)] <- nam
 	}
+	
+	# Filter out fizzles, if any:
+	threshold.fizzle <- 0.01
+	idx.not.fizzle <- which(d$tot.inf.baseline > d$popsize * threshold.fizzle)
+	if(nrow(d) > length(idx.not.fizzle))	d <- d[idx.not.fizzle,]
+	
 	# Save main results:
 	result.scen <- d
 	save(list = 'result.scen',
@@ -305,7 +311,7 @@ plot.rate.reduc <- function(result.scen.all,
 			   qlo = quantile(-rel.d.sympt, probs = 0.05),
 			   qhi = quantile(-rel.d.sympt, probs = 0.95)
 	)
-
+	
 	# Plots
 	
 	g <- ggplot(z,aes(x=interv_cvg_rate, y=md, colour = factor(interv_start)), alpha=0.6) 
