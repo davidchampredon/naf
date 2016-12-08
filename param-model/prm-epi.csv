@@ -10,26 +10,26 @@ dol_var , 0.1
 doi_var , 0.4
 doh_var , 21.00
 
-proba_death_min , 0.10
-proba_death_max , 0.90
+proba_death_min      , 0.10
+proba_death_max      , 0.90
 proba_death_frailCvx , 0.60
-proba_death_slope , 15.0
+proba_death_slope    , 15.0
 
-frailty_0        , 0.60
+frailty_0          , 0.60
 frailty_powerChild , 1
-frailty_min      , 0.12
-frailty_agemin   , 30.0
-frailty_agepivot , 60
-frailty_pivot    , 0.43
-frailty_sd       , 0.1
+frailty_min        , 0.12
+frailty_agemin     , 30.0
+frailty_agepivot   , 60
+frailty_pivot      , 0.43
+frailty_sd         , 0.1
 
 proba_hosp, 0.01
 
-imm_hum_baseline, 0.2
-imm_hum_agezero, 120
-imm_hum_p, 2
+imm_hum_baseline, 0.1
+imm_hum_agezero , 120
+imm_hum_p       , 2
 
-imm_cell_max, 0.4
+imm_cell_max  , 0.4
 imm_cell_slope, 2
 imm_cell_pivot, 20
 
@@ -49,14 +49,14 @@ contact_ratio_sp_school        , 1.00
 
 contactAssort_lambda, 0.1
 
-proba_move, 0.98
+proba_move            , 0.98
 proba_move_reduc_sympt, 0.40
-proba_change_sp_other, 0.200000000
+proba_change_sp_other , 0.20
 
-mult_proba_symptomatic, 6.0
+mult_proba_symptomatic        , 6.0
 asymptom_infectiousness_ratio , 0.1
 
-treat_doi_reduc , 1.0
+treat_doi_reduc         , 1.0
 treat_reduc_infect_mean , 0.1
 
 vax_imm_hum_incr      , 0.1

@@ -23,7 +23,7 @@ pop.all.mc   <- merge.pop.mc(res.select,
 							 n.cpu = n.cpu, 
 							 doparallel = TRUE)
 
-window.fit <- 2
+window.fit <- 10
 
 # METHOD 1: Calculate R0 from realized number of secondary infections:
 R0 <- calc.R0(pop.all.mc, time.init = window.fit)
