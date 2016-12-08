@@ -22,19 +22,23 @@ print('Saved RData loaded.')
 
 # ==== Plots ====
 
-# Plot results for all scenarios:
 print('Plotting main comparison...')
-plot.multi.scen.res(res.all[['main']], 
-					dir = dir.results,
+
+plot.multi.scen.res(result.scen.all    = res.all[['main']], 
+					dir                = dir.results,
 					file.scen.prm.list = 'scenario-prm-list.csv')
 
+plot.rate.reduc(result.scen.all    = res.all[['main']], 
+				dir                = dir.results,
+				file.scen.prm.list = 'scenario-prm-list.csv')
+
+
 print('Plotting secondary comparison...')
+
 plot.secondary.res(res.all[['secondary']], 
 				   dir = dir.results)
 
-plot.rate.reduc(res.all[['main']], 
-				dir = dir.results,
-				file.scen.prm.list = 'scenario-prm-list.csv')
+
 
 
 print('\n--> Scenario comparison plot completed.')
