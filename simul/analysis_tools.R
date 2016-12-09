@@ -504,6 +504,35 @@ plot.symptomatic.fraction <- function(pop){
 	return(g)
 }
 
+plot.proportion <- function(pop) {
+	
+	pop$dead <- 1 - pop$is_alive
+	df <- ddply(pop, c('mc'), summarize, 
+				death = sum(dead),
+				finalsize = sum(is_recovered),
+				sympt = sum(was_symptomatic),
+				hosp = sum(was_hosp),
+				popsize = length(id_indiv))
+	
+	df$finalsize.prop <- df$finalsize / df$popsize
+	df$sympt.prop <- df$sympt / df$popsize
+	df$hosp.prop <- df$hosp / df$popsize
+	df$death.prop <- df$death / df$popsize
+	
+	# get rid of fizzles:
+	df <- subset(df, finalsize.prop > 0.01)
+	df <- df [,grepl('.prop', names(df))]
+	
+	z <- gather(df, type, 'p',1:4)
+	g <- ggplot(z) + geom_boxplot(aes(x=type, y=p, fill=type)) 
+	g <- g + facet_wrap(~type, scales = 'free')
+	g <- g + theme(axis.title.x=element_blank(),
+				   axis.text.x=element_blank(),
+				   axis.ticks.x=element_blank())
+	return(g)
+}
+
+
 
 
 plot.population <- function(pop, split.mc = TRUE) {
@@ -519,7 +548,6 @@ plot.population <- function(pop, split.mc = TRUE) {
 	g.age <- g + geom_histogram(aes(x=age), binwidth=2, fill='darkgrey', colour = 'black')
 	g.age <- g.age + ggtitle('Age distribution')
 	
-	#USELESS: g.age.dist <- plot.age.distrib.mc(pop)
 	
 	g.age.death.dist <- plot.density.categ(dat = pop, 
 										   xvar='age',

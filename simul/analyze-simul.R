@@ -47,7 +47,8 @@ if(length(fizz.mc.idx)==0)
 if(length(fizz.mc.idx)>0) 
 	idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
 
-pop <- subset(pop.all.mc, mc==idx.mc.no.fizz[1])
+pop        <- subset(pop.all.mc, mc==idx.mc.no.fizz[1])
+pop.nofizz <- subset(pop.all.mc, mc==idx.mc.no.fizz)
 
 # Merging time series if faster and more informative,
 # so it is done across all MC iterations:
@@ -83,6 +84,7 @@ print(' -> Ploting population ...')
 if (save.plot.to.file) pdf(fname.pop, width = 30, height = 18)
 
 try( plot.population(pop, split.mc=F),  silent = T)
+try( plot.proportion(pop.nofizz), silent = T)
 try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
 try( plot.sp.sz.distrib.new(pop, world.prm) , silent = T)

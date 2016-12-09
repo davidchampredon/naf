@@ -1,0 +1,2 @@
+grep "Rwrap" out-sim.txt | wc -l
+
