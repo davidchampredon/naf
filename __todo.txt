@@ -2,13 +2,18 @@
 === T O   D O   L I S T ===
 ===========================
 
+>> LARGE RUN MULTISCEN ON abm-lab LAUNCHED ON DEC 12 ==> CHECK EVERY DAY IF FINISHED
+
+ 
 _____________________
 ===  MAJOR ITEMS  ===
 ~~~~~~~~~~~~~~~~~~~~~
 
+- Check if, with baseline parameters, outputs of # death & hospitalizations are sensible v.s. Ontario data for seasonal flu:  http://www.phac-aspc.gc.ca/influenza/flu-stat-eng.php
+
 - Fits to automatize : R0, asymptomatic fraction
 
-- visualize inputs
+- visualize inputs?
 
 - TEST Change shape calc_proba_hosp from 'step' to logistic
 
