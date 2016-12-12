@@ -2556,6 +2556,30 @@ void Simulator::activate_interventions(ID id_sp, double dt,
 }
 
 
+
+double Simulator::earliest_interv_start(){
+    
+    unsigned long n = _intervention.size();
+    if(n==0) return 999999;
+    double min_start = 999999;
+    for(uint i=0; i < n; i++){
+        double tmp = _intervention[i].get_time_start();
+        if(tmp< min_start) min_start = tmp;
+    }
+    return min_start;
+}
+
+
+
+void Simulator::optimize_start_time(){
+    if(_intervention.size()>0){
+        double e_start = earliest_interv_start();
+        _start_time = min( -2.0, e_start-2.0);
+        cout << endl << "Simulation start time optimized and set to " << _start_time << endl;
+    }
+}
+
+
 void Simulator::update_immunities() {
 
     for (uint k=0; k<_world.size(); k++) {

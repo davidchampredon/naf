@@ -18,7 +18,7 @@ void main_run(){
     //     MODEL PARAMETERS
     // ================================================================
     
-    double start_time = -5.0;
+    double start_time = -50.0;
     double horizon    = 300.0;
     
     modelParam MP;
@@ -102,7 +102,7 @@ void main_run(){
     // Define intervention
     vector<intervention> interv_vec;
     
-    float time_start   = -2;
+    float time_start   = -3;
     float time_end     = 999;
     float cvg_rate     = 0.02;
     float cvg_max_prop = 0.30;
@@ -531,6 +531,7 @@ Simulator run_detWorld(vector<areaUnit> auvec,
     
     // Run the simulation:
     sim.set_start_time(start_time);
+    sim.optimize_start_time();
     sim.set_initial_prevalence(i0);
     
     sim.display_summary_info();

@@ -360,7 +360,14 @@ public:
                                    float vax_frail_incr,
                                    float vax_lag);
     
-   
+    
+    /** Calculate the earliest intervention start time **/
+    double earliest_interv_start();
+    
+    
+   /** Change simulation start time based on interventions timing **/
+    void optimize_start_time();
+    
     
     /** Update immunity and frailty of vaccinated individuals
      * at each time step. Because vaccine takes some time
