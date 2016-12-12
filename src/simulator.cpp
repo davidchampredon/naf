@@ -2575,7 +2575,8 @@ void Simulator::optimize_start_time(){
     if(_intervention.size()>0){
         double e_start = earliest_interv_start();
         _start_time = min( -2.0, e_start-2.0);
-        cout << endl << "Simulation start time optimized and set to " << _start_time << endl;
+        cout << endl << "Simulation start time optimized and set to " << _start_time ;
+        cout << " (earliest intervention: " << e_start << ")" << endl;
     }
 }
 

@@ -20,6 +20,7 @@ library(snowfall)
 
 source('analysis_tools.R')
 source('build-world-det-sizegen.R')
+source('utils-run.R')
 source(paste0(param.model.dir,'read-prm.R'))
 source(paste0(param.model.dir,'read-world-prm.R'))
 source(paste0(param.model.dir,'read-interv.R'))
@@ -124,43 +125,8 @@ run.snow.wrap <- function(seedMC,
 ### ==== Run Simulation ====
 
 baseonly  <- simul.prm[['baseline_only']]
-n.MC      <- simul.prm[['mc']]
-n.cpu     <- simul.prm[['cpu']]
-seeds     <- 1:n.MC
 
-sfInit(parallel = (n.cpu>1), cpu = n.cpu)
-sfLibrary(naf,lib.loc = R.library.dir) 
-
-# Baseline scenario:
-res.list.0 <- sfSapply(seeds, run.snow.wrap,
-					   prm        = prm, 
-					   simul.prm  = simul.prm, 
-					   interv.prm = interv.prm.0, 
-					   world.prm  = world.prm, 
-					   sched.prm  = sched.prm,
-					   stoch_build_world = stoch_build_world,
-					   simplify   = FALSE)
-
-# Interventions:
-if(!baseonly){
-	print('Starting simulations with interventions...')
-	res.list <- sfSapply(seeds, run.snow.wrap,
-						 prm        = prm, 
-						 simul.prm  = simul.prm, 
-						 interv.prm = interv.prm, 
-						 world.prm  = world.prm, 
-						 sched.prm  = sched.prm,
-						 stoch_build_world = stoch_build_world,
-						 simplify   = FALSE)
-	print('... simulations with interventions done.')
-}
-sfStop()
-
-print('Saving RData file...')
-save.image(file='mc-simul.RData', compress = FALSE)
-print('... RData file saved.')
-
-t1 <- as.numeric(Sys.time())
-print(paste("Simulation computing time:",round((t1-t0)/60,1),"min"))
-
+run.simul(scen.id = -1, 
+		  dir.save.rdata = './',
+		  baseonly = baseonly) 
 

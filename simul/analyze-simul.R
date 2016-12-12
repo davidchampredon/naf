@@ -22,17 +22,12 @@ detailed.analysis <- FALSE
 
 n.cpu <- parallel::detectCores() - 1
 
-if(simul.prm[['baseline_only']]) res.select <- res.list.0
+if(simul.prm[['baseline_only']])  res.select <- res.list.0
 if(!simul.prm[['baseline_only']]) res.select <- res.list
 
-
-calc.fizzles <- TRUE
-
-if(calc.fizzles){
-	pop.all.mc   <- merge.pop.mc(res.select,
-								 n.cpu = n.cpu, 
-								 doparallel = TRUE)
-}
+pop.all.mc   <- merge.pop.mc(res.select,
+							 n.cpu = n.cpu, 
+							 doparallel = TRUE)
 
 # Merging populations of all MC iterations
 # can be very slow, and they very similar
@@ -89,7 +84,7 @@ try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
 try( plot.sp.sz.distrib.new(pop, world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
-if(calc.fizzles) try( plot.prop.fizzles(pop.all.mc), silent = T)
+try( plot.prop.fizzles(pop.all.mc), silent = T)
 	
 if (save.plot.to.file) dev.off()
 
