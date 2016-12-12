@@ -55,9 +55,11 @@ tsc   <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu, is.contact = TRUE)
 
 if(detailed.analysis) tssp  <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu, is.sp = TRUE)
 
-if(exists('res.list')){
-	ts.intrv    <- merge.ts.mc(res.list, n.cpu = n.cpu)
-	if(detailed.analysis) tssp.intrv  <- merge.ts.mc(res.list, n.cpu = n.cpu, is.sp = TRUE)
+if(exists('res.list') ){
+	if(!is.na(res.list)){
+		ts.intrv    <- merge.ts.mc(res.list, n.cpu = n.cpu)
+		if(detailed.analysis) tssp.intrv  <- merge.ts.mc(res.list, n.cpu = n.cpu, is.sp = TRUE)
+	}
 }
 
 ### ==== Plots ====

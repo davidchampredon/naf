@@ -78,6 +78,7 @@ run.simul <- function(scen.id, dir.save.rdata = './', baseonly=FALSE) {
 						   simplify   = FALSE)
 	
 	# Interventions:
+	res.list <- NA
 	if(!baseonly){
 		print('Starting simulations with interventions...')
 		res.list <- sfSapply(seeds, run.snow.wrap,
