@@ -303,24 +303,57 @@ plot.rate.reduc <- function(result.scen.all,
 	x <- join(result.scen.all, spl, by='scenario_id')
 	
 	# Use only what's necessary for plot:
-	z <- ddply(x,
-			   c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
-			     'interv_cvg_max_prop','interv_start'),
-			   summarise,
-			   md  = quantile(-rel.d.sympt, probs = 0.50),
-			   qlo = quantile(-rel.d.sympt, probs = 0.05),
-			   qhi = quantile(-rel.d.sympt, probs = 0.95)
-	)
+	output.stats <- function(x, resp.var) {
+		idx <- which(is.nan(x[[resp.var]]) | is.infinite(x[[resp.var]]))
+		if(length(idx)>0) x <- x[-idx, ]
+		
+		z <- ddply(x,
+				   c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
+				     'interv_cvg_max_prop','interv_start'),
+				   function(df){c(
+				   	mn  = mean(-df[[resp.var]]),
+				   	md  = quantile(-df[[resp.var]], probs = 0.50,names = F, na.rm = T),
+				   	qlo = quantile(-df[[resp.var]], probs = 0.05,names = F, na.rm = T),
+				   	qhi = quantile(-df[[resp.var]], probs = 0.95,names = F, na.rm = T),
+				   	n   = length(df[[resp.var]]))
+				   }
+		)
+		return(z)
+	}
 	
-	# Plots
+	z.inf   <- output.stats(x, resp.var = 'rel.d.inf')
+	z.sympt <- output.stats(x, resp.var = 'rel.d.sympt')
+	z.treat <- output.stats(x, resp.var = 'rel.d.treat')
+	z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp')
+	z.death <- output.stats(x, resp.var = 'rel.d.death')
 	
-	g <- ggplot(z,aes(x=interv_cvg_rate, y=md, colour = factor(interv_start)), alpha=0.6) 
-	g <- g + geom_point(size=2) + geom_line(size=0.5) + geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
-	g <- g + facet_wrap(~interv_target + contact_rate_mean + interv_cvg_max_prop)
-	g <- g + scale_color_brewer(palette = 'Dark2')
+	plot.reduc.curve <- function(z, title='')
+	{
+		z$key <- paste0(z$interv_target,
+						' ; CR=',z$contact_rate_mean,
+						' ; CvgMx=',z$interv_cvg_max_prop,
+						' ; Start= ',z$interv_start)
+		
+		g <- ggplot(z,aes(x=interv_cvg_rate, y=mn, colour = factor(interv_start)), alpha=0.6) 
+		g <- g + geom_point(size=1) + geom_line(size=0.5) + geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
+		g <- g + geom_point(data=z, aes(x=interv_cvg_rate, y=md, colour = factor(interv_start)), size=1, shape=3)
+		g <- g + facet_wrap(~key)
+		g <- g + scale_color_brewer(palette = 'Dark2') + ylab('Mean relative reduction') 
+		g <- g + ggtitle(title)
+		# plot(g)
+		return(g)
+	}
 	
-	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=15, height = 10)
-	plot(g)
+	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=18, height=17)
+	plot(plot.reduc.curve(z.inf, title = 'All Infections'))
+	plot(plot.reduc.curve(z.sympt, title = 'Symptomatic Infections'))
+	plot(plot.reduc.curve(z.treat, title = 'Treated'))
+	plot(plot.reduc.curve(z.hosp, title = 'Hospitalized'))
+	plot(plot.reduc.curve(z.death, title = 'Deaths'))
 	dev.off()
-	
 }
+
+
+
+
+
