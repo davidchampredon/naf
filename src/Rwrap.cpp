@@ -240,6 +240,8 @@ List naf_run_det(List params,
 		double horizon          = simulParams["horizon"];
 		unsigned int popexport  = simulParams["popexport"];
 		double start_time       = simulParams["start_time"];
+		bool light_output       = simulParams["light_output"];
+		
 		
 		cout << "--> Simulation params loaded." << endl;
 		
@@ -405,9 +407,6 @@ List naf_run_det(List params,
 									 interv_vec,
 									 build_world_only);
 		
-		
-		
-		vector<dcDataFrame> W = export_dcDataFrame(sim.get_world());
 		dcDataFrame world_sp  = sim.census_sp();
 	
 		Rcpp::List empty_list;
@@ -419,7 +418,7 @@ List naf_run_det(List params,
 			
 			// Retrieve all results from simulation:
 			// populations:
-			dcDataFrame world_final = export_world(sim.get_world());
+			dcDataFrame world_final = export_world(sim.get_world(), light_output);
 			
 			// epidemic time series
 			dcDataFrame ts = sim.timeseries();
@@ -428,7 +427,7 @@ List naf_run_det(List params,
 			//
 			// Note: this is activated only in debug mode
 			// because the exported objects are very large
-			// and slow everything down.
+			// and slow down everything .
 			
 			Rcpp::List census_sp;
 			vector<string> tmp_names = {"time","id_sp","type","nS","nE"};
@@ -457,7 +456,6 @@ List naf_run_det(List params,
 			
 			// Return R-formatted result:
 			return List::create(Named("world_final")      = to_list(world_final,false),
-								// DELETE WHEN SURE: Named("world")            = to_list_vector(W, false),
 								Named("ages")             = census_ages(sim.get_world()),
 								Named("census_sp")		  = to_list(world_sp,false),
 								Named("time_series")      = to_list(ts, false),

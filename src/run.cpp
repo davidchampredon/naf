@@ -383,8 +383,9 @@ void main_run(){
     
     // insert code here ...
     double dummy = 1; dummy++;
+    bool light_output = true;
     
-    dcDataFrame x = export_world(sim.get_world());
+    dcDataFrame x = export_world(sim.get_world(), light_output);
     
     //x.display();
     //displayVector(census_ages(sim.get_world()));

@@ -158,8 +158,10 @@ public:
                         const vector<individual>& indiv_vec);
     
     void add_indiv(individual& indiv);
-    void add_indiv(vector<individual>& indiv);
-    void remove_indiv(individual& indiv);
+    
+    
+    /** Remove an individual given its POSITION
+      * in vector '_indiv' in this social place. */
     void remove_indiv(uint pos);
     void remove_indiv(vector<uint> posvec);
     void add_linked_indiv(ID id);
@@ -211,6 +213,12 @@ public:
      * Export this social place to a dcDataFrame
      */
     dcDataFrame export_dcDataFrame() const;
+    
+    
+    /**
+     * Export this social place to a dcDataFrame. Light version.
+     */
+    dcDataFrame export_dcDataFrame_light() const;
 
     // Miscellenaous:
     void	displayInfo();
@@ -225,7 +233,7 @@ vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace> & df);
 /**
  * Export the vector of social places to a single dcDataFrame
  */
-dcDataFrame export_world(const vector<socialPlace>& x);
+dcDataFrame export_world(const vector<socialPlace>& x, bool light_output);
 
 
 vector<socialPlace> build_world_random(uint n_sp,

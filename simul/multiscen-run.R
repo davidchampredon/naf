@@ -25,5 +25,6 @@ for(i in seq_along(scen.id)){
 							 scen.id  = scen.id[i])
 	# Run the simulation for that scenario:
 	run.simul(scen.id = scen.id[i], 
-			  dir.save.rdata = dir.save.rdata)
+			  dir.save.rdata = dir.save.rdata,
+			  force.light.output = TRUE)
 }

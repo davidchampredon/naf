@@ -50,9 +50,9 @@ earliest.interv.start <- function(L){
 
 # Run the simulation for a given 
 # set of scenario parameters
-run.simul <- function(scen.id, dir.save.rdata = './', baseonly=FALSE) {
+run.simul <- function(scen.id, dir.save.rdata = './', baseonly=FALSE, force.light.output = FALSE) {
 	
-	t0 <- as.numeric(Sys.time())
+	t0        <- as.numeric(Sys.time())
 	n.MC      <- simul.prm[['mc']]
 	n.cpu     <- simul.prm[['cpu']]
 	seeds     <- 1:n.MC
@@ -63,6 +63,8 @@ run.simul <- function(scen.id, dir.save.rdata = './', baseonly=FALSE) {
 	old.start <- simul.prm[['start_time']]
 	simul.prm[['start_time']] <- earliest.interv.start(L) -2 
 	print(paste('Start time optimized from ',old.start, ' to ', simul.prm[['start_time']] ))
+	
+	if(force.light.output) simul.prm[['light_output']] <- TRUE
 	
 	sfInit(parallel = (n.cpu>1), cpu = n.cpu)
 	sfLibrary(naf,lib.loc = R.library.dir) 

@@ -8,7 +8,8 @@ library(ggplot2)
 
 compare.simul.scen <- function(scen.id, 
 							   dir.save.rdata,
-							   dir.results) {
+							   dir.results,
+							   do.secondary = FALSE) {
 	ct0 <- as.numeric(Sys.time())
 	library(tidyr)
 	library(dplyr)
@@ -26,7 +27,6 @@ compare.simul.scen <- function(scen.id,
 	source('analysis_tools.R')  
 	save.plot.to.file <- TRUE
 	max.cpu <- 2
-	
 	
 	# Merge all MC iterations
 	
@@ -138,26 +138,26 @@ compare.simul.scen <- function(scen.id,
 	
 	
 	# ==== Secondary results ====
-	
-	secondary.results <- function(df){
-		select(df,age,
-			   immunity_hum, immunity_cell, 
-			   frailty,
-			   doi, n_secondary_cases)
+	if(do.secondary){
+		secondary.results <- function(df){
+			select(df,age,
+				   immunity_hum, immunity_cell, 
+				   frailty,
+				   doi, n_secondary_cases)
+		}
+		b0 <- secondary.results(pop0)
+		b0$intervention <- 'baseline'
+		b0$scenario <- scen.id
+		b <- secondary.results(pop)
+		b$intervention <- 'interv' #paste('interv',scen.id,sep='-')
+		b$scenario <- scen.id
+		
+		# Save secondary results
+		result.secondary <- rbind(b0,b)
+		save(list = 'result.secondary',
+			 file = paste0(dir.save.rdata,'result-secondary-',scen.id,'.RData'),
+			 compress = FALSE)
 	}
-	b0 <- secondary.results(pop0)
-	b0$intervention <- 'baseline'
-	b0$scenario <- scen.id
-	b <- secondary.results(pop)
-	b$intervention <- 'interv' #paste('interv',scen.id,sep='-')
-	b$scenario <- scen.id
-	
-	# Save secondary results
-	result.secondary <- rbind(b0,b)
-	save(list = 'result.secondary',
-		 file = paste0(dir.save.rdata,'result-secondary-',scen.id,'.RData'),
-		 compress = FALSE)
-	
 	# ----- Plots time series -----
 	
 	pdf(paste0(dir.results,'plot-compare-',scen.id,'.pdf'),
@@ -172,8 +172,10 @@ compare.simul.scen <- function(scen.id,
 				round((t2-ct0)/60,2),'minutes for scenario',scen.id,'.'))
 }
 
-merge.result.scen <- function(scen.id, dir.save.rdata) {
+merge.result.scen <- function(scen.id, dir.save.rdata, do.secondary=FALSE) 
+{
 	# Main results:
+	
 	bfirst <- TRUE
 	for(i in seq_along(scen.id)){
 		load(paste0(dir.save.rdata,'result-scen-',scen.id[i],'.RData'))
@@ -186,18 +188,21 @@ merge.result.scen <- function(scen.id, dir.save.rdata) {
 		 compress = FALSE)
 	
 	# Secondary results:
-	bfirst <- TRUE
-	for(i in seq_along(scen.id)){
-		load(paste0(dir.save.rdata,'result-secondary-',scen.id[i],'.RData'))
-		if(bfirst)  secondary.all <- result.secondary
-		if(!bfirst) secondary.all <- rbind(secondary.all, result.secondary)
-		bfirst <- FALSE
-	}
-	save(list = 'secondary.all', 
-		 file = paste0(dir.save.rdata,'secondary-all.RData'),
-		 compress = FALSE)
 	
-	return(list(main = result.scen.all,
+	secondary.all <- NULL
+	if(do.secondary){
+		bfirst <- TRUE
+		for(i in seq_along(scen.id)){
+			load(paste0(dir.save.rdata,'result-secondary-',scen.id[i],'.RData'))
+			if(bfirst)  secondary.all <- result.secondary
+			if(!bfirst) secondary.all <- rbind(secondary.all, result.secondary)
+			bfirst <- FALSE
+		}
+		save(list = 'secondary.all', 
+			 file = paste0(dir.save.rdata,'secondary-all.RData'),
+			 compress = FALSE)
+	}
+	return(list(main      = result.scen.all,
 				secondary = secondary.all) )
 }
 

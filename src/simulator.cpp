@@ -486,12 +486,12 @@ void Simulator::move_individuals(const SPtype sptype, double proba){
                 
                 ID id_dest = __UNDEFINED_ID;
                 
-                if(sptype == SP_household)	id_dest = tmp.get_id_sp_household();
-                if(sptype == SP_workplace)	id_dest = tmp.get_id_sp_workplace();
-                if(sptype == SP_school)	    id_dest = tmp.get_id_sp_school();
-                if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
-                if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
-                if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
+                if(sptype == SP_household)	    id_dest = tmp.get_id_sp_household();
+                else if(sptype == SP_workplace)	id_dest = tmp.get_id_sp_workplace();
+                else if(sptype == SP_school)	id_dest = tmp.get_id_sp_school();
+                else if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
+                else if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
+                else if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
                 
                 if(id_dest != __UNDEFINED_ID &&
                    id_dest != k)

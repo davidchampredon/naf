@@ -212,41 +212,11 @@ void socialPlace::add_indiv(individual & newindiv){
     }
 }
 
-
-void socialPlace::add_indiv(vector<individual>& newindiv){
-    /// Add individuals to _existing_ ones
-    
-    for(int i=0; i<newindiv.size(); i++)
-        add_indiv(newindiv[i]);
-}
         
 
-void socialPlace::remove_indiv(individual& x){
-    /// Remove an individual from this social place
-    
-    // DELETE WHEN SURE 2016-08-01:
-    
-//    // find the position of individual 'x' in the vector:
-//    auto pos = distance(_indiv.begin(), find(_indiv.begin(),_indiv.end(),x));
-//    stopif(pos>=_indiv.size(), "Try to remove ABSENT individual from social place!");
-//    
-//    _indiv.erase(_indiv.begin()+pos);
-//    
-//    // update ID (function 'add_individual' will specify ID)
-//    x.set_id_sp_current(__UNDEFINED_ID);
-//    
-//    // update size:
-//    _size--;
-//    // update prevalence:
-//    // DELETE WHEN SURE: if(x.is_infected()) _prevalence--;
-//    update_epidemic_count(x, "remove");
-}
 
-
-void socialPlace::remove_indiv(uint pos){
-    /// Remove an individual given its POSITION
-    /// in vector '_indiv' in this social place.
-    
+void socialPlace::remove_indiv(uint pos)
+{
     stopif(pos>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
     
     update_epidemic_count(_indiv[pos], "remove"); // <-- MUST BE BEFORE erasing individual!
@@ -277,15 +247,11 @@ void socialPlace::remove_indiv(uint pos){
     if(_indiv[pos].is_vaccinated()) {
         pos2 = find_indiv_X_pos(id_indiv, "vax");
         _indiv_vax.erase(_indiv_vax.begin()+pos2);
-        
         // DEBUG
        // cout << "DEBUG: vax'ed indiv_" << id_indiv << " removed from SP_" << _id_sp <<endl;
-        
     }
-    
     // remove from '_indiv' (MUST BE REMOVED _AFTER_ 'indiv_x')
     _indiv.erase(_indiv.begin()+pos);
-    
     // Mandatory updates:
     _size--;
 }
@@ -602,22 +568,66 @@ dcDataFrame socialPlace::export_dcDataFrame() const {
 }
 
 
-vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace>& x){
-    vector<dcDataFrame> df(x.size());
-    for (uint i=0; i<x.size(); i++) {
-        /* DEBUG */  //if(i%100==0) {cout << "exporting "<<i<<"/"<<x.size()<<"\r";fflush(stdout);}
-        df[i] = x[i].export_dcDataFrame();
+
+
+dcDataFrame socialPlace::export_dcDataFrame_light() const {
+    
+    unsigned long n =_indiv.size();
+    
+    vector<double> id_sp(n,(double)(_id_sp));
+    
+    dcDataFrame df(id_sp,"id_sp");
+    
+    // Individuals info
+    
+    vector<double> id_indiv(n);
+    vector<double> is_alive(n);
+    vector<double> is_recovered(n);
+    vector<double> is_treated(n);
+    vector<double> is_vaccinated(n);
+    vector<double> is_hosp(n);
+    vector<double> is_discharged(n);
+    vector<double> was_symptomatic(n);
+    vector<double> was_hosp(n);
+    
+    for(ID i=0; i<n; i++){
+        id_indiv[i]       = _indiv[i].get_id();
+        is_alive[i]       = _indiv[i].is_alive();
+        is_recovered[i]   = _indiv[i].is_recovered();
+        is_treated[i]     = _indiv[i].is_treated();
+        is_vaccinated[i]  = _indiv[i].is_vaccinated();
+        was_symptomatic[i]= _indiv[i].was_symptomatic();
+        was_hosp[i]       = _indiv[i].was_hosp();
     }
+    df.addcol("id_indiv", id_indiv);
+    df.addcol("is_alive", is_alive);
+    df.addcol("is_recovered", is_recovered);
+    df.addcol("is_treated", is_treated);
+    df.addcol("is_vaccinated", is_vaccinated);
+    df.addcol("was_symptomatic", was_symptomatic);
+    df.addcol("was_hosp", was_hosp);
+    
     return df;
 }
 
 
-dcDataFrame export_world(const vector<socialPlace>& x) {
+
+vector<dcDataFrame> export_dcDataFrame(const vector<socialPlace>& x){
+    vector<dcDataFrame> df(x.size());
+    for (uint i=0; i<x.size(); i++) df[i] = x[i].export_dcDataFrame();
+    return df;
+}
+
+
+dcDataFrame export_world(const vector<socialPlace>& x, bool light_output) {
     dcDataFrame df;
     bool tst = false;
     for (uint i=0; i<x.size(); i++) {
         /* DEBUG */ if(i%1000==0) {cout << "exporting world "<<i<<"/"<<x.size()<<endl;}
-        dcDataFrame tmp = x[i].export_dcDataFrame();
+        dcDataFrame tmp;
+        
+        if(light_output) tmp = x[i].export_dcDataFrame_light();
+        else             tmp = x[i].export_dcDataFrame();
         
         if(!tst && tmp.get_nrows()>0){
             df = tmp;
