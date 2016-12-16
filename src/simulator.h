@@ -141,12 +141,6 @@ public:
                           float unemployed_prop,
                           vector<schedule> sched);
     
-    
-	void build_test_world(double reduction_size);
-    void build_test_2_sp(uint n_indiv);
-	void build_single_world(uint n_indiv);
-    void build_test_hospitalization(uint n_indiv);
-    void build_test(uint n_indiv);
 	
     void assign_dox_distribution(string dol_distrib,
                                  string doi_distrib,

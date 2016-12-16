@@ -22,7 +22,7 @@
 #include "dcTools.h"
 #include "discrete_prob_dist.h"
 
-#include "tests.h"
+#include "run.h"
 
 
 using namespace std;
