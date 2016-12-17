@@ -4,7 +4,7 @@
 
 library(plyr)
 library(ggplot2)
-
+theme_set(theme_bw())
 
 compare.simul.scen <- function(scen.id, 
 							   dir.save.rdata,
@@ -345,16 +345,42 @@ plot.rate.reduc <- function(result.scen.all,
 		g <- g + facet_wrap(~key)
 		g <- g + scale_color_brewer(palette = 'Dark2') + ylab('Mean relative reduction') 
 		g <- g + ggtitle(title)
-		# plot(g)
-		return(g)
+		plot(g)
 	}
 	
+	plot.start.compare <- function(z, title='') {
+		z$key <- paste0(z$interv_target,
+						' ; CR=',z$contact_rate_mean,
+						' ; CvgMx=',z$interv_cvg_max_prop)
+		
+		
+		g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), size=3, alpha=0.7)
+		g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), size=4, alpha=0.7)
+		g <- g + facet_wrap(~key)
+		g <- g + scale_color_brewer(palette = 'BrBG')
+		g <- g + ggtitle(title) + ylab('Mean relative reduction')
+		plot(g)
+	}
+	
+	plot.mc.cr <- function(x){
+		fiz <- ddply(x,c('scenario_id'),summarize, n=length(mc), cr = mean(contact_rate_mean))
+		g <- ggplot(fiz,aes(x=factor(cr), y=n)) + geom_boxplot()
+		g <- g + ggtitle('Number of MC iterations') + xlab('Mean contact rate')
+		plot(g)
+	}
+	
+	
+	
+	
 	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=18, height=17)
-	plot(plot.reduc.curve(z.inf, title = 'All Infections'))
-	plot(plot.reduc.curve(z.sympt, title = 'Symptomatic Infections'))
-	plot(plot.reduc.curve(z.treat, title = 'Treated'))
-	plot(plot.reduc.curve(z.hosp, title = 'Hospitalized'))
-	plot(plot.reduc.curve(z.death, title = 'Deaths'))
+	plot.mc.cr(x)
+	
+	zlist <- list(z.inf,z.sympt,z.treat,z.hosp,z.death)
+	titlelist <- list('All Infections','Symptomatic Infections','Treated','Hospitalized','Deaths')
+	
+	for(i in seq_along(zlist)) plot.reduc.curve(zlist[[i]], title = titlelist[[i]])
+	for(i in seq_along(zlist)) plot.start.compare(zlist[[i]], title = titlelist[[i]])
+	
 	dev.off()
 }
 
