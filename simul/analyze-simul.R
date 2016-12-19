@@ -1,5 +1,5 @@
 ### 
-###   ANALYZE SIMULATIONS ALREADY RUN
+###   ANALYZE SIMULATIONS (FOR SINGLE SCENARIO RUN)
 ###
 
 t00 <- as.numeric(Sys.time())
@@ -95,6 +95,10 @@ print(' -> Ploting time series ...')
 if (save.plot.to.file) pdf(fname.ts, width = 25,height = 15)
 try( plot.epi.timeseries(ts),  silent = T)
 try( plot.ts.sp(tssp),  silent = T)
+try(calc.R0.SIR(pop.all.mc, 
+				res.list.0,
+				t.max.fit = 10,
+				do.plot = TRUE), silent = T)
 if(exists('res.list')){
 	try( plot.epi.timeseries(ts.intrv),  silent = T)
 	try( plot.ts.sp(tssp.intrv),  silent = T)

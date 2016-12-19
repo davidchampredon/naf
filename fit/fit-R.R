@@ -68,7 +68,7 @@ wrap_sim <- function (i, cr.mean, cr.cv,
 		
 		x[j] <- calc.R0.SIR(pop.all.mc = pop, 
 							res.list.0 = res.list.0,
-							t.max.fit = 10)  # x[j] <- calc.R0(pop)
+							t.max.fit  = 10)  
 	}
 	return(x)
 }

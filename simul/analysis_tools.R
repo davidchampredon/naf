@@ -33,6 +33,9 @@ calc.R0.SIR <- function(pop.all.mc,
 						do.plot = FALSE) {
 	
 	### ESTIMATE A R0 IMPLIED IN A SIR MODEL
+	### - estimate for each MC iteration
+	### - R0 = mean(estimate for each MC iteration)
+	###
 	
 	idx.mc         <- unique(pop.all.mc$mc)
 	fizz.mc        <- identify.fizzle(pop.all.mc)
@@ -43,8 +46,12 @@ calc.R0.SIR <- function(pop.all.mc,
 	
 	# Filter out the fizzles
 	pop.nofizz <- subset(pop.all.mc, mc %in% idx.mc.no.fizz)
+	mc.vec <- unique(pop.nofizz$mc)
 	tmp <- subset(pop.nofizz, gi_bck>0)
 	gi_bck.mean <- mean(tmp$gi_bck)
+	
+	tmp2 <- ddply(.data = tmp, c('mc'), summarize, x=mean(gi_bck))
+	gi.bck.mean.mc <- tmp2$x
 	
 	# Merging time series without fizzles:
 	res.no.fizz <- list()
@@ -52,32 +59,78 @@ calc.R0.SIR <- function(pop.all.mc,
 	ts <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu)
 	
 	# Averaged time series:
-	ts.avg <- ddply(ts,c('time'),summarize, inc.m = mean(incidence))
+	ts.avg <- ddply(ts,c('time'),summarize, 
+					inc.m = mean(incidence),
+					inc.lo = quantile(incidence,probs = 0.10),
+					inc.hi = quantile(incidence,probs = 0.90))
 	
-	# Just the initial times, for fotting purposes:
+	# Just the initial times, for fitting purposes:
 	ts.init <- subset(ts, time < t.max.fit)
 	ts.avg.init <- subset(ts.avg, time < t.max.fit)
 	
-	mylm <- function(xx,yy) {
+	estim.R0.impl.one.mc <- function(i, t.max.fit, ts, gi.bck.mean.mc) {
+		
+		# Just the ith MC iteration:
+		ts.i <- subset(ts, mc==i)
+		
+		# Find the time of first case:	
+		xx <- ts.i$time
+		yy <- log(ts.i$inc+1)
+		ss <- cumsum(yy>0)
+		idx.startepi <- max(which(ss==0))
+		
+		# Remove time series before start:
+		xx <- xx[idx.startepi:length(xx)]
+		yy <- yy[idx.startepi:length(yy)]
+		
+		# Just initial times:
+		idx.init <- xx < t.max.fit
+		xx <- xx[idx.init]
+		yy <- yy[idx.init]
+		
 		z <- lm(formula = yy ~ xx)
-		return(z$coefficients[2])
+		# plot(x=xx, y=yy)
+		# abline(a=z$coefficients[1], b=z$coefficients[2])
+		
+		# r estimation on the averaged time-series:
+		r.i <-  z$coefficients[2]
+		
+		# R0 based on SIR-like formula:
+		R0.i<- 1 + r.i * gi.bck.mean.mc[i]
+		return(list(R0=R0.i, r=r.i, i0=z$coefficients[1]))
+	}
+	R0 <- numeric()
+	r  <- numeric()
+	i0 <- numeric()
+	
+	for(i in seq_along(unique(ts$mc))){
+		print(i)
+		tmp   <- estim.R0.impl.one.mc(i, t.max.fit, ts, gi.bck.mean.mc)
+		R0[i] <- tmp$R0
+		r[i]  <- tmp$r
+		i0[i] <- tmp$i0
 	}
 	
-	# r estimation on the averaged time-series:
-	r.avg <-  mylm(xx= ts.avg.init$time, yy = log(ts.avg.init$inc.m+1))
-	
-	# R0 based on SIR-like formula:
-	R0.avg <- 1 + r.avg * gi_bck.mean
+	R0.avg <- mean(R0)
+	r.avg  <- mean(r)
+	i0.avg <- mean(i0)
 	
 	# Calculate average exponential growth in incidence:
-	ts.avg$ig.avg <- exp(r.avg * ts.avg$time) 
+	ts.avg$ig.avg <- exp(r.avg * ts.avg$time + i0.avg) 
 	ts.avg$ig.avg[ts.avg$time>t.max.fit] <- NA
 	
 	# plot
 	if(do.plot){
-	g <- ggplot(ts.avg) + geom_line(aes(x=time,y=inc.m)) + geom_point(aes(x=time,y=inc.m)) + scale_y_log10()
+	g <- ggplot(ts.avg) + geom_line(aes(x=time,y=inc.m)) #+ geom_point(aes(x=time,y=inc.m)) 
+	g <- g + scale_y_log10()
 	g <- g + geom_line(aes(x=time,y=ig.avg), colour='blue', size=2, alpha=0.5)
+	g <- g + geom_ribbon(aes(x=time, ymin=inc.lo, ymax=inc.hi), alpha=0.3)
 	g <- g + geom_vline(xintercept = t.max.fit, linetype=2)
+	g <- g + ggtitle(paste('Mean incidence time series ; Implied R0 SIR =', round(R0.avg,3))) + ylab('Mean Incidence')
+	plot(g)
+	g <- ggplot(data = data.frame(R0=R0)) + geom_histogram(aes(x=R0),binwidth = 0.2)
+	g <- g + ggtitle(paste('Mean R0 = ',round(R0.avg,3))) + xlab('')
+	g <- g + geom_vline(aes(xintercept=R0.avg), size=3, colour='red')
 	plot(g)
 	}
 	return(R0.avg)
@@ -1160,6 +1213,8 @@ plot.ts.comp.all <- function(df){
 		plot.ts.comp(df,'dIa')
 	)
 }
+
+
 
 
 
