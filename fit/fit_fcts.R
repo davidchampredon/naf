@@ -429,7 +429,6 @@ load.all.parameters <- function(R.library.dir,
 								path.prm = param.model.dir)
 	world.prm[['id_region']]  <- 0
 	world.prm[['regionName']] <- "Canada"
-	world.prm[['unemployed_prop']] <- 0.10
 	
 	# rescale world size:
 	sf           <- as.numeric(simul.prm[['scale_factor']])

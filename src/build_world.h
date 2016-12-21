@@ -126,7 +126,8 @@ vector<socialPlace> build_world_det(vector<areaUnit> AU,
  */
 void assign_schedules(vector<socialPlace> & W,
                       const vector<schedule> & sched,
-                      float prop_unemployed);
+                      float prop_unemployed,
+                      float prop_pubT);
 
 void assign_dox_distribution(vector<socialPlace> & W,
                              string dol_distrib,

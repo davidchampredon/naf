@@ -299,6 +299,11 @@ List naf_run_det(List params,
 
 		
 		float unemployed_prop   = worldParams["unemployed_prop"];
+		float pubT_prop         = worldParams["pubT_prop"];
+		
+		set_parameter(MP, "unemployed_prop", "double", worldParams);
+		set_parameter(MP, "pubT_prop",       "double", worldParams);
+
 		
 		cout << "... world basic done ..." << endl;
 		
@@ -641,6 +646,11 @@ List naf_run(List params,
         vector<uint> n_other    = worldParams["n_other"];
 		
 		float unemployed_prop   = worldParams["unemployed_prop"];
+		float pubT_prop         = worldParams["pubT_prop"];
+		
+		set_parameter(MP, "unemployed_prop", "double", worldParams);
+		set_parameter(MP, "pubT_prop",       "double", worldParams);
+		
         
         // Social place sizes distributions:
         

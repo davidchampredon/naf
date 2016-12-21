@@ -1,9 +1,9 @@
-worker_sed, student,     unemployed
-pubTransp,  pubTransp,   household
-workplace,  school,      household
-workplace,  school,      other
-pubTransp,  pubTransp,   other
-other,      other,       other
-household,  household,   household
+worker,     worker_pubT, student,     unemployed
+household,  pubTransp,   pubTransp,   household
+workplace,  workplace,   school,      household
+workplace,  workplace,   school,      other
+other,      pubTransp,   pubTransp,   other
+other,      other,       other,       other
+household,  household,   household,   household
 
 

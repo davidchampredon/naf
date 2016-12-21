@@ -14,9 +14,10 @@ double schedule::name_to_double(){
     bool found = false;
     double res = 0;
     
-    if      (_name=="worker_sed")   res = 1;
-    else if (_name=="student")      res = 2;
-    else if (_name=="unemployed")   res = 3;
+    if      (_name=="worker_pubT") res = 1;
+    else if (_name=="worker")      res = 2;
+    else if (_name=="unemployed")  res = 3;
+    else if (_name=="student")     res = 4;
     
     found = (res>0);
     stopif(!found, "Double translation for schedule name <"+_name+"> unknonwn.");

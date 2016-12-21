@@ -14,3 +14,5 @@ id, name, value
 0, pubt_size_distrib_file,   prm-size-pubt-ontario.csv
 0, hosp_size_distrib_file,   prm-size-hosp-ontario.csv
 0, other_size_distrib_file,  prm-size-other-ontario.csv
+0, unemployed_prop, 0.10
+0, pubT_prop, 0.12

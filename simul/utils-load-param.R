@@ -1,13 +1,13 @@
-##################################################################
-######
-######    UTILITIES SCRIPT TO LOAD SIMULATION PARAMETERS
-######
-######    - Source this file to load all parameters for one scenario.
-######    - Several parameters lists will be created.
-######    - Then overwrite parameters values if several scenatios
-######    are requested.
-######
-##################################################################
+####
+####
+####    UTILITIES SCRIPT TO LOAD SIMULATION PARAMETERS
+####
+####    - Source this file to load all parameters for one scenario.
+####    - Several parameters lists will be created.
+####    - Then overwrite parameters values if several scenatios
+####      are requested.
+####
+####
 
 library(ggplot2)
 library(plyr)
@@ -62,7 +62,6 @@ try({
 	
 	world.prm[['id_region']]  <- 0
 	world.prm[['regionName']] <- "Canada"
-	world.prm[['unemployed_prop']] <- 0.10
 	
 	# rescale world size:
 	sf           <- as.numeric(simul.prm[['scale_factor']])

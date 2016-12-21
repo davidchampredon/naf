@@ -95,6 +95,8 @@ void main_run(){
     MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 99999);
     
+    MP.add_prm_double ("pubT_prop", 0.12);
+    
     uint i0 = 200;
     
     _RANDOM_GENERATOR.seed(123);
@@ -305,6 +307,7 @@ void main_run(){
     pr_age_hh.push_back(tmp);
     
     float unemployed_prop = 0.10;
+
     
     // === Schedules definition ===
     
@@ -315,11 +318,13 @@ void main_run(){
     vector<vector<string> > sched_des;
     vector<string>          sched_nam;
     
+    sched_des.push_back({"SP_household", "SP_workplace", "SP_workplace", "SP_household", "SP_other", "SP_household"});
     sched_des.push_back({"SP_pubTransp", "SP_workplace", "SP_workplace", "SP_pubTransp", "SP_other", "SP_household"});
     sched_des.push_back({"SP_pubTransp", "SP_school",    "SP_school",    "SP_pubTransp", "SP_other", "SP_household"});
     sched_des.push_back({"SP_household", "SP_other",     "SP_other",     "SP_other",     "SP_other", "SP_household"});
     
-    sched_nam.push_back("worker_sed");
+    sched_nam.push_back("worker");
+    sched_nam.push_back("worker_pubT");
     sched_nam.push_back("student");
     sched_nam.push_back("unemployed");
     

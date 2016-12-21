@@ -1084,7 +1084,7 @@ vector<socialPlace> build_world_simple_2(vector<individual>& indiv,
     
     
     uint pos_stayhome = pos_schedname("stayhome", sched);
-    uint pos_worker_sed = pos_schedname("worker_sed", sched);
+    uint pos_worker_pubT = pos_schedname("worker_pubT", sched);
     
     unsigned long n_indiv = indiv.size();
     
@@ -1094,7 +1094,7 @@ vector<socialPlace> build_world_simple_2(vector<individual>& indiv,
         
         if(i<n_indiv/2){
             indiv[i].set_id_sp_workplace(sp_w);
-            indiv[i].set_schedule(sched[pos_worker_sed]);
+            indiv[i].set_schedule(sched[pos_worker_pubT]);
         }
     }
     

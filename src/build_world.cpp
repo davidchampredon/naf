@@ -733,12 +733,14 @@ void check_sp_integrity(const vector<socialPlace>& x){
 
 void assign_schedules(vector<socialPlace> & W,
                       const vector<schedule>& sched,
-                      float prop_unemployed){
+                      float prop_unemployed,
+                      float prop_pubT){
     
-    uint s_student      = pos_schedname("student",    sched);
-    uint s_worker_sed   = pos_schedname("worker_sed", sched);
-    uint s_unemployed   = pos_schedname("unemployed", sched);
-    //uint s_worker_trav  = pos_schedname("worker_trav", sched);
+    uint s_student      = pos_schedname("student",     sched);
+    uint s_worker       = pos_schedname("worker",      sched);
+    uint s_worker_pubT  = pos_schedname("worker_pubT", sched);
+    uint s_unemployed   = pos_schedname("unemployed",  sched);
+
     
     for (uint k=0; k<W.size(); k++)
     {
@@ -752,7 +754,7 @@ void assign_schedules(vector<socialPlace> & W,
             if (0.0 <= age && age < 18.0) {
                 W[k].set_schedule_indiv(i, sched[s_student]);
             }
-            else if (age >= 18.0){
+            else if (age >= 18.0 && age <65.0){
                 
                 // Unemployed:
                 std::uniform_real_distribution<> unif01(0.0, 1.0);
@@ -761,10 +763,16 @@ void assign_schedules(vector<socialPlace> & W,
                 if (u < prop_unemployed){
                     W[k].set_schedule_indiv(i, sched[s_unemployed]);
                 }
-                // Workers:
+                // Workers, using public transport or not:
                 else{
-                    W[k].set_schedule_indiv(i, sched[s_worker_sed]);
+                    double uu = unif01(_RANDOM_GENERATOR);
+                    if (uu < prop_pubT) W[k].set_schedule_indiv(i, sched[s_worker_pubT]);
+                    else W[k].set_schedule_indiv(i, sched[s_worker]);
                 }
+            }
+            // Individuals older than 65 are retired (=unemployed here):
+            else if (age >= 65.0){
+                W[k].set_schedule_indiv(i, sched[s_unemployed]);
             }
             
             bool check = (W[k].get_indiv(i).get_schedule().get_sp_type().size()==0);

@@ -64,7 +64,6 @@ world.prm <- load.world.prm(filename = paste0(param.model.dir,fname.prm.au),
 
 world.prm[['id_region']]  <- 0
 world.prm[['regionName']] <- "Canada"
-world.prm[['unemployed_prop']] <- 0.10
 
 sf           <- as.numeric(simul.prm[['scale_factor']])
 world.prm    <- scale.world(1/sf, world.prm)

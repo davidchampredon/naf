@@ -102,7 +102,8 @@ void Simulator::create_world(vector<areaUnit> AU,
     assign_immunity_cell();
     assign_frailty();
 
-    assign_schedules(_world, sched, unemployed_prop);
+    float pubT_prop = _modelParam.get_prm_double("pubT_prop");
+    assign_schedules(_world, sched, unemployed_prop, pubT_prop);
     
     check_schedules_consistency();
     
@@ -153,7 +154,8 @@ void Simulator::create_world_det(vector<areaUnit> AU,
     assign_immunity_cell();
     assign_frailty();
     
-    assign_schedules(_world, sched, unemployed_prop);
+    float pubT_prop = _modelParam.get_prm_double("pubT_prop");
+    assign_schedules(_world, sched, unemployed_prop, pubT_prop);
     
     check_schedules_consistency();
     
@@ -1172,9 +1174,10 @@ void Simulator::display_summary_info(){
     
     // Schedules used:
     cout << endl;
-    tabcout("Individuals with schedule worker_sed", census_schedule(_world, "worker_sed"), 40);
-    tabcout("Individuals with schedule student",    census_schedule(_world, "student"), 40);
-    tabcout("Individuals with schedule unemployed", census_schedule(_world, "unemployed"), 40);
+    tabcout("Individuals with schedule worker",      census_schedule(_world, "worker"), 40);
+    tabcout("Individuals with schedule worker_pubT", census_schedule(_world, "worker_pubT"), 40);
+    tabcout("Individuals with schedule student",     census_schedule(_world, "student"), 40);
+    tabcout("Individuals with schedule unemployed",  census_schedule(_world, "unemployed"), 40);
     
     // Interventions:
     cout << endl << "Number of interventions : " << _intervention.size() <<endl;
