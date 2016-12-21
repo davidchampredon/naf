@@ -17,6 +17,6 @@ x$age_group2 <- factor(x$age_group, levels=c('<1 ','1_4 ','5 _ 14 ','15 _ 24 ','
 pdf('proba-hosp-death-ontario.pdf', width = 10)
 g <- ggplot(x) + geom_boxplot(aes(x=age_group2, y=rate_100000)) + facet_wrap(~type, scales = 'free')
 g <- g + xlab('Age Group') + ylab('per 100,000 individuals per year') 
-g <- g + ggtitle("Death and hospitalization rate\n for Ontario 2013-2016")
+g <- g + ggtitle("Death and hospitalization rate for Ontario 2013-2016\n (source: Public Health Ontario)")
 plot(g)
 dev.off()

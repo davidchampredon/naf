@@ -1174,7 +1174,7 @@ read_input_sp_size_distribution <- function(world.prm) {
 
 plot.sp.sz.distrib <- function(res.list.0, world.prm){
 	
-	par(mfrow=c(3,2))
+	par(mfrow=c(2,2))
 	
 	# Read target data:
 	df <- read_input_sp_size_distribution(world.prm)
@@ -1187,7 +1187,7 @@ plot.sp.sz.distrib <- function(res.list.0, world.prm){
 		sptype <- sp_type_string(k-1)
 		data.df <- subset(df, sp_type_string==sptype)
 		
-		if(sptype != 'Hospital'){
+		if(sptype != 'Hospital' & sptype != 'Other'){
 			
 			# Retrieve social place sizes of the kth type, 
 			# for the mth MC iteration:

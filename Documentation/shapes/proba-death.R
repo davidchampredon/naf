@@ -5,10 +5,10 @@
 frailty <- seq(0,1,by=0.01)
 
 # Shape parameters:
-pmin <- 0.1
-pmax <- 0.9
-f.cvx <- 0.6
-b <- 15
+pmin <- 0.15
+pmax <- 0.95
+f.cvx <- 0.4
+b <- 10
 
 # Death probability:
 p <- pmin + 1/(1+exp(-b*(frailty-f.cvx))) * (pmax-pmin)
