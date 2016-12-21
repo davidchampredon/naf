@@ -10,6 +10,23 @@ library(parallel)
 ###   =====   H E L P E R   F U N C T I O N S =====
 
 
+
+filter.out.fizzle <- function(pop.all.mc){
+	### FILTER OUT THE MC ITERATIONS THAT PRODUCED FIZZLES
+	
+	idx.mc         <- unique(pop.all.mc$mc)
+	fizz.mc        <- identify.fizzle(pop.all.mc)
+	fizz.mc.idx    <- which(fizz.mc==TRUE)
+	
+	if(length(fizz.mc.idx)==0) 
+		idx.mc.no.fizz <- idx.mc
+	if(length(fizz.mc.idx)>0) 
+		idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
+	
+	pop.nofizz <- subset(pop.all.mc, mc==idx.mc.no.fizz)
+	return(pop.nofizz)
+}
+
 calc.R0 <- function(x, time.init = 3) {
 	
 	# 'time.init' is the maximum infection time where R0 is calculated
@@ -121,17 +138,17 @@ calc.R0.SIR <- function(pop.all.mc,
 	
 	# plot
 	if(do.plot){
-	g <- ggplot(ts.avg) + geom_line(aes(x=time,y=inc.m)) #+ geom_point(aes(x=time,y=inc.m)) 
-	g <- g + scale_y_log10()
-	g <- g + geom_line(aes(x=time,y=ig.avg), colour='blue', size=2, alpha=0.5)
-	g <- g + geom_ribbon(aes(x=time, ymin=inc.lo, ymax=inc.hi), alpha=0.3)
-	g <- g + geom_vline(xintercept = t.max.fit, linetype=2)
-	g <- g + ggtitle(paste('Mean incidence time series ; Implied R0 SIR =', round(R0.avg,3))) + ylab('Mean Incidence')
-	plot(g)
-	g <- ggplot(data = data.frame(R0=R0)) + geom_histogram(aes(x=R0),binwidth = 0.2)
-	g <- g + ggtitle(paste('Mean R0 = ',round(R0.avg,3))) + xlab('')
-	g <- g + geom_vline(aes(xintercept=R0.avg), size=3, colour='red')
-	plot(g)
+		g <- ggplot(ts.avg) + geom_line(aes(x=time,y=inc.m)) #+ geom_point(aes(x=time,y=inc.m)) 
+		g <- g + scale_y_log10()
+		g <- g + geom_line(aes(x=time,y=ig.avg), colour='blue', size=2, alpha=0.5)
+		g <- g + geom_ribbon(aes(x=time, ymin=inc.lo, ymax=inc.hi), alpha=0.3)
+		g <- g + geom_vline(xintercept = t.max.fit, linetype=2)
+		g <- g + ggtitle(paste('Mean incidence time series ; Implied R0 SIR =', round(R0.avg,3))) + ylab('Mean Incidence')
+		plot(g)
+		g <- ggplot(data = data.frame(R0=R0)) + geom_histogram(aes(x=R0),binwidth = 0.2)
+		g <- g + ggtitle(paste('Mean R0 = ',round(R0.avg,3))) + xlab('')
+		g <- g + geom_vline(aes(xintercept=R0.avg), size=3, colour='red')
+		plot(g)
 	}
 	return(R0.avg)
 }
@@ -261,13 +278,13 @@ merge.ts.mc <- function(res.list, n.cpu=2,
 						is.contact=FALSE, is.sp=FALSE,
 						doparallel = FALSE){
 	# Merge all MC iterations into one single data frame for population.
-  tt1 <- as.numeric(Sys.time())
+	tt1 <- as.numeric(Sys.time())
 	print('Merging time series...')
 	if(is.contact) print('(contacts)')
 	if(is.sp) print('(social places)')
 	
 	snwrap <- function(i){
-	  print(paste(i,'/',length(res.list)))
+		print(paste(i,'/',length(res.list)))
 		res   <- res.list[[i]]
 		if(is.contact)  ts    <- as.data.frame(res[['track_n_contacts']])
 		if(!is.contact) ts    <- as.data.frame(res[['time_series']])
@@ -289,7 +306,7 @@ merge.ts.mc <- function(res.list, n.cpu=2,
 
 
 average.age.contact <- function(res.list){
-
+	
 	A.list <- list()
 	print('Averaging age-contact matrices...')
 	for(l in seq_along(res.list)){
@@ -372,16 +389,16 @@ plot.binomial.regression <- function(dat, xvar, binomial_response, title, split.
 	g <- ggplot(dat) 
 	if(n<1000) g <- g + geom_point(aes_string(x=xvar,y=binomial_response), alpha=0.3) 
 	if(!split.mc) g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response), 
-						 method = "glm", 
-						 method.args = list(family = "binomial"), 
-						 colour='red3',size=2,se = F)
+									   method = "glm", 
+									   method.args = list(family = "binomial"), 
+									   colour='red3',size=2,se = F)
 	if(split.mc) {
 		dat$mc <- as.factor(dat$mc)
 		g <- g + geom_smooth(aes_string(x=xvar, y=binomial_response, colour='mc'), 
-									  method = "glm", 
-									  method.args = list(family = "binomial"), 
-									  alpha = 0.6,
-									  size=2,se = F)
+							 method = "glm", 
+							 method.args = list(family = "binomial"), 
+							 alpha = 0.6,
+							 size=2,se = F)
 	}
 	g <- g + ggtitle(title)
 	return(g)
@@ -538,9 +555,9 @@ plot.age.distrib.mc <- function(pop){
 
 plot.symptomatic.fraction <- function(pop){
 	pop <- ddply(pop.all.mc, c('mc'),summarize, 
-			   nis = sum(was_symptomatic), 
-			   ni = sum(is_recovered),
-			   n = length(id_indiv))
+				 nis = sum(was_symptomatic), 
+				 ni = sum(is_recovered),
+				 n = length(id_indiv))
 	
 	pop$r <- pop$nis / pop$ni
 	pop
@@ -779,11 +796,11 @@ plot.population <- function(pop, split.mc = TRUE) {
 	pop.transm.sum
 	
 	g.R.symptom <- ggplot(pop) +geom_histogram(aes(x=n_secondary_cases, ..density..,
-														  fill = factor(was_symptomatic),
-														  colour = factor(was_symptomatic)),
-													  position=position_dodge(width=0.8),
-													  binwidth = 1,
-													  alpha = 0.7)
+												   fill = factor(was_symptomatic),
+												   colour = factor(was_symptomatic)),
+											   position=position_dodge(width=0.8),
+											   binwidth = 1,
+											   alpha = 0.7)
 	
 	g.R.symptom <- g.R.symptom + scale_x_continuous(breaks =  seq(0,nsmax+1,by=1))
 	
@@ -807,11 +824,11 @@ plot.population <- function(pop, split.mc = TRUE) {
 	pop.transm.sum2
 	
 	g.R.treat <- ggplot(pop) +geom_histogram(aes(x=n_secondary_cases, ..density..,
-														fill = factor(is_treated),
-														colour = factor(is_treated)),
-													position=position_dodge(width=0.8),
-													binwidth = 1,
-													alpha = 0.7)
+												 fill = factor(is_treated),
+												 colour = factor(is_treated)),
+											 position=position_dodge(width=0.8),
+											 binwidth = 1,
+											 alpha = 0.7)
 	
 	g.R.treat <- g.R.treat + scale_x_continuous(breaks =  seq(0,nsmax+1,by=1))
 	
@@ -875,7 +892,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	
 	sympt.vax <- ddply(pop.inf,c("is_vaccinated","was_symptomatic"), summarize, n=length(id_indiv))
-
+	
 	# Vaccine efficacy:
 	# u   <- subset(sympt.vax, is_vaccinated==0)
 	# u.s <- subset(sympt.vax, is_vaccinated==0 & was_symptomatic==1)
@@ -929,9 +946,9 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 g.sched.R)
 	
 	try(grid.arrange( g.dol.drawn, 
-				  g.doi.drawn,
-				  g.dobh.drawn,
-				  g.doh.drawn), silent = TRUE)
+					  g.doi.drawn,
+					  g.dobh.drawn,
+					  g.doh.drawn), silent = TRUE)
 	
 	grid.arrange( g.R,
 				  g.R.symptom,
@@ -1104,68 +1121,102 @@ plot.ts.sp <- function(tssp){
 }
 
 
-plot.sp.sz.distrib.new <- function(pop , world.prm) {
-	
-	# Process simulation results:
-	x <- ddply(pop,c('id_au','mc', 'sp_type','id_sp'),summarise, size=mean(n_linked))
-	y <- ddply(x,c('id_au','mc', 'sp_type','size'),summarise, n=length(size))
-	z <- ddply(y,c('id_au','mc', 'sp_type'),summarise, tot=sum(n))
-	
-	y$key <- paste(y$id_au, y$mc, y$sp_type, sep='_')
-	z$key <- paste(z$id_au, z$mc, z$sp_type, sep='_')
-	
-	a <- join(y,z,by='key')
-	a$freq <- a$n/a$tot
-	a$mc<- as.factor(a$mc)
-	
-	a$sp_type_string <- NA
-	a$sp_type_string[a$sp_type==0] <- 'Household'
-	a$sp_type_string[a$sp_type==1] <- 'Workplace'
-	a$sp_type_string[a$sp_type==2] <- 'School'
-	a$sp_type_string[a$sp_type==3] <- 'Other'
-	a$sp_type_string[a$sp_type==5] <- 'PubTransp'
-	
-	a$id_au_string <- paste('AU',a$id_au)
-	
-	# Read target distributions and reformat in data frame
-	
-	hh.x <- world.prm$hh_size
-	hh.y <- world.prm$hh_size_proba
-	wrk.x <- world.prm$wrk_size
-	wrk.y <- world.prm$wrk_size_proba
+sp_type_string <- function(sp_type_int) {
+	if(sp_type_int==0) return('Household')
+	if(sp_type_int==1) return('Workplace')
+	if(sp_type_int==2) return('School')
+	if(sp_type_int==3) return('Other')
+	if(sp_type_int==4) return('Hospital')
+	if(sp_type_int==5) return('PubTransp')
+	return(NA)
+}
+
+
+read_input_sp_size_distribution <- function(world.prm) {
+	# Read target distributions and reformat in data frame:
+	hh.x     <- world.prm$hh_size
+	hh.y     <- world.prm$hh_size_proba
+	wrk.x    <- world.prm$wrk_size
+	wrk.y    <- world.prm$wrk_size_proba
 	school.x <- world.prm$school_size
 	school.y <- world.prm$school_size_proba
-	pubt.x  <- world.prm$pubt_size
-	pubt.y  <- world.prm$pubt_size_proba
-	other.x <- world.prm$other_size
-	other.y <- world.prm$other_size_proba
+	pubt.x   <- world.prm$pubt_size
+	pubt.y   <- world.prm$pubt_size_proba
+	other.x  <- world.prm$other_size
+	other.y  <- world.prm$other_size_proba
 	
-	df <- data.frame(id_au_string=NULL, size=NULL, freq=NULL, mc=NULL,sp_type_string=NULL)	
+	df <- data.frame(size=NULL, freq=NULL, sp_type_string=NULL)	
 	
 	for(i in 1:length(hh.x)){
-		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=hh.x[[i]], freq=hh.y[[i]], mc=1,sp_type_string='Household')	
-		df <- rbind(df,df.tmp)
-		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=wrk.x[[i]], freq=wrk.y[[i]], mc=1,sp_type_string='Workplace')	
-		df <- rbind(df,df.tmp)
-		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=school.x[[i]], freq=school.y[[i]], mc=1,sp_type_string='School')	
-		df <- rbind(df,df.tmp)
-		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=pubt.x[[i]], freq=pubt.y[[i]], mc=1,sp_type_string='PubTransp')	
-		df <- rbind(df,df.tmp)
-		df.tmp <- data.frame(id_au_string=paste('AU',i-1), size=other.x[[i]], freq=other.y[[i]], mc=1,sp_type_string='Other')	
+		df.tmp <- data.frame(size=hh.x[[i]], freq=hh.y[[i]], sp_type_string='Household')	
 		df <- rbind(df,df.tmp)
 	}
-	df$mc <- as.factor(df$mc)
+	for(i in 1:length(wrk.x)){
+		df.tmp <- data.frame(size=wrk.x[[i]], freq=wrk.y[[i]], sp_type_string='Workplace')	
+		df <- rbind(df,df.tmp)
+	}
+	for(i in 1:length(school.x)){	
+		df.tmp <- data.frame(size=school.x[[i]], freq=school.y[[i]], sp_type_string='School')	
+		df <- rbind(df,df.tmp)
+	}
+	for(i in 1:length(pubt.x)){
+		df.tmp <- data.frame(size=pubt.x[[i]], freq=pubt.y[[i]], sp_type_string='PubTransp')	
+		df <- rbind(df,df.tmp)
+	}
+	for(i in 1:length(other.x)){
+		df.tmp <- data.frame(size=other.x[[i]], freq=other.y[[i]], sp_type_string='Other')	
+		df <- rbind(df,df.tmp)
+	}
 	df$sp_type_string <- as.character(df$sp_type_string)
-	df$id_au_string <- as.character(df$id_au_string)
+	return(df)
+}
+
+
+plot.sp.sz.distrib <- function(res.list.0, world.prm){
 	
-	# Plot
+	par(mfrow=c(3,2))
 	
-	g <- ggplot(a,aes(x=size,y=freq,colour=mc)) + geom_point() +geom_line()
-	g <- g + facet_wrap(~sp_type_string+id_au_string, scales='free') + coord_cartesian(ylim=c(0,1))
-	g <- g + geom_line(data = df, aes(x=size,y=freq), colour='black',size=2, alpha=0.25)
-	g <- g + geom_point(data = df, aes(x=size,y=freq), colour='black',size=3, alpha=0.5, shape=15)
-	g <- g + ggtitle('Distributions of Social Places sizes')
-	plot(g)
+	# Read target data:
+	df <- read_input_sp_size_distribution(world.prm)
+	# Retrieve all SocialPlaces types:
+	sptype.vec <- seq_along(res.list.0[[1]][['sp_size_distrib']])
+	
+	
+	for(k in seq_along(sptype.vec)) {
+		
+		sptype <- sp_type_string(k-1)
+		data.df <- subset(df, sp_type_string==sptype)
+		
+		if(sptype != 'Hospital'){
+			
+			# Retrieve social place sizes of the kth type, 
+			# for the mth MC iteration:
+			p <- list()
+			cnt <- 1
+			for( m in idx.mc.no.fizz){
+				sp.sz.d <- res.list.0[[m]][['sp_size_distrib']]
+				h <- hist(x = sp.sz.d[[k]], plot = F, breaks = c(0,data.df$size))
+				p[[cnt]] <- h$counts / sum(h$counts)
+				cnt <- cnt + 1
+			}
+			# Summary stats across all MC iterations:
+			pm <- matrix(unlist(p), ncol=cnt-1)
+			p.avg <- apply(X = pm,MARGIN = 1,FUN = mean)
+			p.max <- apply(X = pm,MARGIN = 1,FUN = max)
+			p.min <- apply(X = pm,MARGIN = 1,FUN = min)
+			
+			# Plots:
+			plot(x = data.df$size, y = data.df$freq, 
+				 ylim = range(data.df$freq, p.avg),
+				 col='red',lwd=1, cex=2, typ='o', lty=2, las=1, 
+				 main = sptype, xlab = 'size', ylab='proportion')
+			grid()
+			lines(x = data.df$size, y = p.avg, typ='o', pch=16, cex=1.7)
+			lines(x = data.df$size, y = p.max, typ='l', lty=3)
+			lines(x = data.df$size, y = p.min, typ='l', lty=3)
+			legend(x='topright', legend = c('target','simulation'), col=c('red','black'), pch=c(1,16), lty=c(2,1))
+		}
+	}
 }
 
 

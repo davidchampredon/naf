@@ -55,7 +55,7 @@ analyze.simul.scen <- function(scen.id,
 	try( plot.population(pop, split.mc=T),  silent = T)
 	try( plot.n.contacts(tsc),  silent = T)
 	try( plot.age.contact.matrix.avg(res.list),  silent = T)
-	try( plot.sp.sz.distrib.new(pop,world.prm) , silent = T)
+	try( plot.sp.sz.distrib(res.list.0, world.prm) , silent = T)
 	try( plot.share.same.hh(pop), silent = T)
 	if (save.plot.to.file) dev.off()
 	

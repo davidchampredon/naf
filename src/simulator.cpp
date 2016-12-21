@@ -269,6 +269,7 @@ void Simulator::run(){
     define_contactAssort();
     count_targeted_by_intervention();
     
+    
     // ----- MAIN LOOP FOR TIME ------
     
     _current_time = _start_time;
@@ -1108,8 +1109,23 @@ dcDataFrame Simulator::census_sp(){
     return x;
 }
 
-void Simulator::display_summary_info(){
+
+
+vector< vector<unsigned long> > Simulator::sp_size_distribution(){
+ 
+    vector< vector<unsigned long> > sp_size(SP_MAX);
     
+    for(uint k=0; k<_world.size(); k++){
+        uint spt = _world[k].get_type();
+        sp_size[spt].push_back(_world[k].get_linked_indiv_id().size());
+    }
+    return sp_size;
+}
+
+
+
+
+void Simulator::display_summary_info(){
     
     cout << endl << endl;
     cout << " =======  SIMULATOR INFO ======= " << endl << endl;
@@ -1134,8 +1150,7 @@ void Simulator::display_summary_info(){
         uint spt = _world[k].get_type();
         cnt[spt]++;
         cnt_indiv[spt] += (uint)_world[k].get_linked_indiv_id().size();
-        cnt_children   += _world[k].census_alive_age(0, 17.99999999
-                                                     );
+        cnt_children   += _world[k].census_alive_age(0, 17.99999999);
     }
     
     cout << endl << "Number of social places by type:" <<endl;

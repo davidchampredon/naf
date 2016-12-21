@@ -453,7 +453,6 @@ List naf_run_det(List params,
 			track_n_contacts.attr("names") = tmp_names;
 			
 			
-			
 			// Return R-formatted result:
 			return List::create(Named("world_final")      = to_list(world_final,false),
 								Named("ages")             = census_ages(sim.get_world()),
@@ -462,7 +461,8 @@ List naf_run_det(List params,
 								Named("time_series_sp")   = census_sp,
 								Named("track_n_contacts") = track_n_contacts,
 								Named("wiw_ages")         = sim.get_wiw_ages(),
-								Named("contactAssort")    = sim.get_contactAssort()
+								Named("contactAssort")    = sim.get_contactAssort(),
+								Named("sp_size_distrib")  = sim.sp_size_distribution()
 								);
 		}
 		

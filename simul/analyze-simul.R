@@ -22,28 +22,24 @@ detailed.analysis <- FALSE
 
 n.cpu <- parallel::detectCores() - 1
 
+# Whether it's baseline only simulations or not:
 if(simul.prm[['baseline_only']])  res.select <- res.list.0
 if(!simul.prm[['baseline_only']]) res.select <- res.list
 
+# Merge populations of all MC iterations:
 pop.all.mc   <- merge.pop.mc(res.select,
 							 n.cpu = n.cpu, 
 							 doparallel = TRUE)
 
+# Filter out the MC iterations that produced fizzles:
+pop.nofizz <- filter.out.fizzle(pop.all.mc)
+
 # Merging populations of all MC iterations
 # can be very slow, and they very similar
-# across MC, so just display the first non-fizzled('select.mc=idx.mc.no.fizz[1]')	
+# across MC, so just display the first non-fizzled:
+idx.mc.no.fizz <- unique(pop.nofizz$mc)
+pop <- subset(pop.nofizz, mc==idx.mc.no.fizz[1])
 
-idx.mc         <- unique(pop.all.mc$mc)
-fizz.mc        <- identify.fizzle(pop.all.mc)
-fizz.mc.idx    <- which(fizz.mc==TRUE)
-
-if(length(fizz.mc.idx)==0) 
-	idx.mc.no.fizz <- idx.mc
-if(length(fizz.mc.idx)>0) 
-	idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
-
-pop        <- subset(pop.all.mc, mc==idx.mc.no.fizz[1])
-pop.nofizz <- subset(pop.all.mc, mc==idx.mc.no.fizz)
 
 # Merging time series if faster and more informative,
 # so it is done across all MC iterations:
@@ -84,7 +80,7 @@ try( plot.population(pop, split.mc=F),  silent = T)
 try( plot.proportion(pop.nofizz), silent = T)
 try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
-try( plot.sp.sz.distrib.new(pop, world.prm) , silent = T)
+try( plot.sp.sz.distrib(res.list.0, world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
 try( plot.prop.fizzles(pop.all.mc), silent = T)
 	

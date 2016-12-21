@@ -1,2 +1,2 @@
-grep "Rwrap" out-multiscen.txt | wc -l
+grep "Rwrap" out-sim.txt | wc -l
 

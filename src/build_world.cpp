@@ -283,30 +283,6 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
 
 
 
-vector<socialPlace> create_other_socialPlaces(uint num_sp,
-                                              uint first_id_sp,
-                                              discrete_prob_dist<uint> size_distrib,
-                                              areaUnit AU){
-    /// Create social places of type 'other'.
-    /// This type of social place does _not_ have linked individual.
-    /// (they will come here randomly)
-    
-    vector<socialPlace> x;
-    uint seed = 1234;
-    
-    // Draw the size for each social place:
-    vector<uint> size_sp = size_distrib.sample(num_sp, seed);
-    
-    for (ID k=0; k < num_sp; k++) {
-        
-        // Create social place (empty shell):
-        socialPlace tmp(AU, first_id_sp + k, SP_other);
-        x.push_back(tmp);
-    }
-    return x;
-}
-
-
 
 
 void assign_age_in_households(vector<socialPlace>& hh,

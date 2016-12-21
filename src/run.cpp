@@ -387,6 +387,9 @@ void main_run(){
     
     dcDataFrame x = export_world(sim.get_world(), light_output);
     
+    displayVector(sim.sp_size_distribution());
+    
+    
     //x.display();
     //displayVector(census_ages(sim.get_world()));
 }

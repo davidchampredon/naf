@@ -106,7 +106,8 @@ run.simul <- function(scen.id, dir.save.rdata = './', baseonly=FALSE, force.ligh
 		# save.image(file= filename, compress = FALSE,envir = environment())
 	}
 	
-	save(list=c('res.list.0','res.list', 'simul.prm'), 
+	save(list=c('res.list.0', 'res.list', 
+				'simul.prm',  'world.prm'), 
 		 file= filename, compress = FALSE)
 	
 	print('... RData file saved.')

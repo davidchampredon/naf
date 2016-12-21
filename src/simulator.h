@@ -400,6 +400,12 @@ public:
     // Miscelleanous
 
 	uint	population_size();
+    
+    /** Size distributions of all SP for each type.
+     *  result[i]: vector of all size values for SP type 'i'.
+     */
+    vector< vector<unsigned long> > sp_size_distribution();
+
     void    display_summary_info();
 	void	display_split_pop_present();
 	void	display_split_pop_linked();

@@ -81,11 +81,6 @@ vector<socialPlace> create_socialPlaces_size(SPtype sp_type,
                                              float age_min = -999.999,
                                              float age_max = 999.99);
 
-vector<socialPlace> create_other_socialPlaces(uint num_sp,
-                                              uint first_id_sp,
-                                              discrete_prob_dist<uint> size_distrib,
-                                              areaUnit AU);
-
 
 void assign_age_in_households(vector<socialPlace>& hh,
                               vector<individual>& indiv,
