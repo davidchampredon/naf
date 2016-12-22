@@ -12,7 +12,7 @@ load('mc-simul.RData')
 t1 <- as.numeric(Sys.time())
 print(paste('... simulation results loaded in',round((t1-ct0)/60,1),'minutes.'))
 
-if(!exists("res.list")){
+if(is.na(res.list)){
 	print('NOTHING TO COMPARE... EXITING.')
 	quit()
 }

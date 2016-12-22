@@ -23,7 +23,7 @@ frailty_agepivot   , 60
 frailty_pivot      , 0.43
 frailty_sd         , 0.1
 
-proba_hosp, 0.01
+proba_hosp, 0.001
 
 imm_hum_baseline, 0.1
 imm_hum_agezero , 120
