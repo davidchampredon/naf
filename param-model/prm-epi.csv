@@ -10,10 +10,10 @@ dol_var , 0.1
 doi_var , 0.4
 doh_var , 21.00
 
-proba_death_min      , 0.10
-proba_death_max      , 0.90
-proba_death_frailCvx , 0.60
-proba_death_slope    , 15.0
+proba_death_min      , 0.20
+proba_death_max      , 0.99
+proba_death_frailCvx , 0.40
+proba_death_slope    , 12.0
 
 frailty_0          , 0.60
 frailty_powerChild , 1
@@ -35,7 +35,7 @@ imm_cell_pivot, 20
 
 homogeneous_contact , 0
 contact_rate_distrib, lognorm
-contact_rate_mean   , 1.555555
+contact_rate_mean   , 2.555555
 contact_rate_stddev , 0.001
 contact_rate_CV     , 0.75
 
@@ -59,7 +59,7 @@ asymptom_infectiousness_ratio , 0.1
 treat_doi_reduc         , 1.0
 treat_reduc_infect_mean , 0.1
 
-vax_imm_hum_incr      , 0.1
+vax_imm_hum_incr      , 0.6
 vax_imm_cell_incr     , 0.1
 vax_lag_full_efficacy , 12
 vax_frail_incr        , 0.0001
