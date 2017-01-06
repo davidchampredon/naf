@@ -720,37 +720,37 @@ plot.population <- function(pop, split.mc = TRUE) {
 	### ==== Hospitalizations ==== 
 	
 	g.frail.hosp <- plot.binomial.regression(dat = pop, xvar = 'frailty',
-											 binomial_response = 'hosp',
+											 binomial_response = 'was_hosp',
 											 title = 'Hospitalization and frailty',
 											 split.mc=split.mc)
 	
 	g.imm.hum.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_hum',
-											   binomial_response = 'hosp',
+											   binomial_response = 'was_hosp',
 											   title = 'Hospitalization and humoral immunity',
 											   split.mc=split.mc)
 	
 	g.imm.cell.hosp <- plot.binomial.regression(dat = pop, xvar = 'immunity_cell',
-												binomial_response = 'hosp',
+												binomial_response = 'was_hosp',
 												title = 'Hospitalization and cellular immunity',
 												split.mc=split.mc)
 	
 	g.age.hosp <- plot.binomial.regression(dat = pop, xvar = 'age',
-										   binomial_response = 'hosp',
+										   binomial_response = 'was_hosp',
 										   title = 'Hospitalization and age',
 										   split.mc=split.mc)
 	
 	
 	
-	pop.treat.hosp <- ddply(pop,c('hosp','is_treated'),summarize, n=length(id_indiv))
-	g.treat.hosp <- ggplot(pop.treat.hosp) + geom_bar(aes(x = factor(hosp), 
+	pop.treat.hosp <- ddply(pop,c('was_hosp','is_treated'),summarize, n=length(id_indiv))
+	g.treat.hosp <- ggplot(pop.treat.hosp) + geom_bar(aes(x = factor(was_hosp), 
 														  y = n, 
 														  fill = factor(is_treated)),
 													  position = 'dodge', stat = 'identity')
 	g.treat.hosp <- g.treat.hosp + ggtitle('Hospitalization and treatment')
 	
 	
-	pop.vax.hosp <- ddply(pop,c('hosp','is_vaccinated'),summarize, n=length(id_indiv))
-	g.vax.hosp <- ggplot(pop.vax.hosp) + geom_bar(aes(x = factor(hosp), 
+	pop.vax.hosp <- ddply(pop,c('was_hosp','is_vaccinated'),summarize, n=length(id_indiv))
+	g.vax.hosp <- ggplot(pop.vax.hosp) + geom_bar(aes(x = factor(was_hosp), 
 													  y = n, 
 													  fill = factor(is_vaccinated)),
 												  position = 'dodge', stat = 'identity')
