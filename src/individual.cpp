@@ -390,6 +390,8 @@ void individual::die(){
     
     _is_alive       = false;
     
+    _was_hosp       = true;
+    
     _is_hosp        = false;
     _is_susceptible = false;
     _is_infected    = false;

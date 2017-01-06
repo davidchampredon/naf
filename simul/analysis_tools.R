@@ -607,8 +607,7 @@ plot.proportion <- function(pop) {
 
 plot.population <- function(pop, split.mc = TRUE) {
 	
-	pop$hosp <- as.numeric( as.logical(pop$is_discharged+pop$is_hosp) )
-	pop.hosp <- subset(pop, hosp>0)
+	pop.hosp <- subset(pop, was_hosp>0)
 	pop.transm <- subset(pop, n_secondary_cases>0)
 	pop.inf <- subset(pop, doi_drawn>0)
 	
@@ -695,11 +694,11 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	g <- ggplot(pop.inf)
 	
-	g.dol.drawn <- g + geom_histogram(aes(x=dol_drawn), fill='orange',colour='orange', size=linew, alpha=alpha, binwidth = 0.5)
+	g.dol.drawn <- g + geom_histogram(aes(x=dol_drawn), fill='orange',colour='orange', size=linew, alpha=alpha, bins=30)
 	g.dol.drawn <- g.dol.drawn + geom_vline(xintercept = m_dol_drawn, colour='orange',linetype = 2)
 	g.dol.drawn <- g.dol.drawn + ggtitle(paste0("DOL drawn distribution, among infected (mean = ", round(m_dol_drawn,2),")"))
 	
-	g.doi.drawn <- g + geom_histogram(aes(x=doi_drawn), fill='red',colour='red', size=linew, alpha=alpha, binwidth = 0.5)
+	g.doi.drawn <- g + geom_histogram(aes(x=doi_drawn), fill='red',colour='red', size=linew, alpha=alpha, bins=30)
 	g.doi.drawn <- g.doi.drawn + geom_vline(xintercept = m_doi_drawn, colour='red',linetype = 2)
 	g.doi.drawn <- g.doi.drawn + ggtitle(paste0("DOI drawn distribution, among infected (mean = ", round(m_doi_drawn,2),")"))
 	
@@ -708,11 +707,11 @@ plot.population <- function(pop, split.mc = TRUE) {
 	m_doh_drawn  = mean(pop.hosp$doh_drawn)
 	
 	g.hosp <- ggplot(pop.hosp)
-	g.dobh.drawn <- g.hosp + geom_histogram(aes(x=dobh_drawn), fill='purple',colour='purple', size=linew, alpha=alpha, binwidth = 0.5)
+	g.dobh.drawn <- g.hosp + geom_histogram(aes(x=dobh_drawn), fill='purple',colour='purple', size=linew, alpha=alpha,bins=30)
 	g.dobh.drawn <- g.dobh.drawn + geom_vline(xintercept = m_dobh_drawn, colour='purple',linetype = 2)
 	g.dobh.drawn <- g.dobh.drawn + ggtitle(paste0("DOBH drawn distribution, among hospitalized (mean = ", round(m_dobh_drawn,3),")"))
 	
-	g.doh.drawn <- g.hosp + geom_histogram(aes(x=doh_drawn), fill='green4',colour='green4', size=linew, alpha=alpha, binwidth = 0.5)
+	g.doh.drawn <- g.hosp + geom_histogram(aes(x=doh_drawn), fill='green4',colour='green4', size=linew, alpha=alpha, bins=30)
 	g.doh.drawn <- g.doh.drawn + geom_vline(xintercept = m_doh_drawn, colour='green4',linetype = 2)
 	g.doh.drawn <- g.doh.drawn + ggtitle(paste0("DOH drawn distribution, among hospitalized (mean = ", round(m_doh_drawn,3),")"))
 	
@@ -763,16 +762,21 @@ plot.population <- function(pop, split.mc = TRUE) {
 				 nh = sum(was_hosp),
 				 nd = sum(is_dead),
 				 n = length(id_indiv))
-	tmp$prop.hosp <- tmp$nh/tmp$n
-	tmp$prop.dead <- tmp$nd/tmp$n
+	tmp$prop.hosp      <- tmp$nh/tmp$n
+	tmp$prop.dead      <- tmp$nd/tmp$n
+	tmp$prop.dead.hosp <- tmp$nd/tmp$nh
 	
 	g.age.hosp.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.hosp),stat = 'identity')
 	g.age.hosp.raw <- g.age.hosp.raw + ggtitle('Hospitalizations by age')
 	g.age.hosp.raw <- g.age.hosp.raw + xlab('age')+ylab('proportion')
 	
 	g.age.dead.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.dead),stat = 'identity')
-	g.age.dead.raw <- g.age.dead.raw + ggtitle('Deaths by age')
+	g.age.dead.raw <- g.age.dead.raw + ggtitle('Whole Population Death ratio by age')
 	g.age.dead.raw <- g.age.dead.raw + xlab('age')+ylab('proportion')
+	
+	g.age.dead.hosp.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.dead),stat = 'identity')
+	g.age.dead.hosp.raw <- g.age.dead.hosp.raw + ggtitle('Hospitalized Deaths ratio by age')
+	g.age.dead.hosp.raw <- g.age.dead.hosp.raw + xlab('age')+ylab('proportion')
 	
 	### ==== Secondary cases distribution ==== 
 	R0    <- mean(pop$n_secondary_cases)
@@ -850,7 +854,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	g.gibck <- ggplot(pop2) + geom_histogram(aes(gi_bck),
 											 fill = 'skyblue1',
 											 colour = 'skyblue3',
-											 binwidth = 1)
+											 bins=30)
 	g.gibck <- g.gibck + geom_vline(xintercept=mean.gibck, 
 									linetype = 2, size = 2)
 	g.gibck <- g.gibck + ggtitle(paste0("Backward GI (mean=",
@@ -931,6 +935,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 	grid.arrange(g.age.hosp.raw,
 				 g.age.dead.raw,
+				 g.age.dead.hosp.raw,
 				 g.imm.hum.hosp,
 				 g.imm.cell.hosp,
 				 g.frail.hosp,

@@ -7,5 +7,5 @@ horizon          , 300
 initial_latent   , 5
 popexport        , 1
 scale_factor     , 500
-mc  , 2
-cpu , 2
+mc  , 3
+cpu , 3

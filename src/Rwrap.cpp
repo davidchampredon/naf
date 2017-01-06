@@ -180,6 +180,7 @@ List naf_run_det(List params,
 		set_parameter(MP, "proba_death_max",      "double", params);
 		set_parameter(MP, "proba_death_frailCvx", "double", params);
 		set_parameter(MP, "proba_death_slope",    "double", params);
+		set_parameter(MP, "proba_death_mult",    "double", params);
 
 		cout << "--> Probabilities loaded." << endl;
 		

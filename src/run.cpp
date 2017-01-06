@@ -48,6 +48,7 @@ void main_run(){
     MP.add_prm_double ("proba_death_max", 0.85);
     MP.add_prm_double ("proba_death_frailCvx", 0.60);
     MP.add_prm_double ("proba_death_slope", 15.0);
+    MP.add_prm_double ("proba_death_mult", 0.9);
     
     MP.add_prm_double("frailty_0", 0.60);
     MP.add_prm_double("frailty_min", 0.15);

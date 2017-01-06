@@ -624,13 +624,17 @@ double Simulator::calc_proba_hospitalized(float frailty)
 
 
 double Simulator::calc_proba_death(float frailty){
-    double pmin     = _modelParam.get_prm_double("proba_death_min");
-    double pmax     = _modelParam.get_prm_double("proba_death_max");
-    double fcvx     = _modelParam.get_prm_double("proba_death_frailCvx");
-    double slop     = _modelParam.get_prm_double("proba_death_slope");
-    // Logistic shape:
-    double m = pmin + (pmax-pmin) / (1.0 + exp(-slop*(frailty-fcvx))) ;
+
+    // DELETE WHEN SURE LOGISTIC SHAPE iS DROPPED:
+    //    double pmin     = _modelParam.get_prm_double("proba_death_min");
+//    double pmax     = _modelParam.get_prm_double("proba_death_max");
+//    double fcvx     = _modelParam.get_prm_double("proba_death_frailCvx");
+//    double slop     = _modelParam.get_prm_double("proba_death_slope");
+//    // Logistic shape:
+//    double m = pmin + (pmax-pmin) / (1.0 + exp(-slop*(frailty-fcvx))) ;
+    // ----
     
+    double m = _modelParam.get_prm_double("proba_death_mult");
     return m * frailty;
 }
 
@@ -1664,7 +1668,6 @@ void Simulator::discharge_hospital(uint idx_timeslice){
                     !_world[k]._indiv_H[i]-> will_die()
                     )
                 {
-                    
                     ID id_sp_hospital = _world[k]._indiv_H[i]->get_id_sp_hospital();
                     ID id_indiv       = _world[k]._indiv_H[i]->get_id();
                     uint pos_indiv    = _world[k].find_indiv_pos(id_indiv);
