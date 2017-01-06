@@ -578,22 +578,23 @@ plot.proportion <- function(pop) {
 	
 	pop$dead <- 1 - pop$is_alive
 	df <- ddply(pop, c('mc'), summarize, 
-				death = sum(dead),
+				death     = sum(dead),
 				finalsize = sum(is_recovered),
-				sympt = sum(was_symptomatic),
-				hosp = sum(was_hosp),
-				popsize = length(id_indiv))
+				sympt     = sum(was_symptomatic),
+				hosp      = sum(was_hosp),
+				popsize   = length(id_indiv))
 	
 	df$finalsize.prop <- df$finalsize / df$popsize
-	df$sympt.prop <- df$sympt / df$popsize
-	df$hosp.prop <- df$hosp / df$popsize
-	df$death.prop <- df$death / df$popsize
+	df$sympt.prop     <- df$sympt / df$popsize
+	df$hosp.prop      <- df$hosp / df$popsize
+	df$death.prop     <- df$death / df$popsize
+	df$death.hosp.prop<- df$death / df$death
 	
 	# get rid of fizzles:
 	df <- subset(df, finalsize.prop > 0.01)
 	df <- df [,grepl('.prop', names(df))]
 	
-	z <- gather(df, type, 'p',1:4)
+	z <- gather(df, type, 'p',1:5)
 	g <- ggplot(z) + geom_boxplot(aes(x=type, y=p, fill=type)) 
 	g <- g + facet_wrap(~type, scales = 'free')
 	g <- g + theme(axis.title.x=element_blank(),
