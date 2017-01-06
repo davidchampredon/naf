@@ -775,7 +775,7 @@ plot.population <- function(pop, split.mc = TRUE) {
 	g.age.dead.raw <- g.age.dead.raw + ggtitle('Whole Population Death ratio by age')
 	g.age.dead.raw <- g.age.dead.raw + xlab('age')+ylab('proportion')
 	
-	g.age.dead.hosp.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.dead),stat = 'identity')
+	g.age.dead.hosp.raw <- ggplot(tmp)+geom_bar(aes(x=age, y=prop.dead.hosp),stat = 'identity')
 	g.age.dead.hosp.raw <- g.age.dead.hosp.raw + ggtitle('Hospitalized Deaths ratio by age')
 	g.age.dead.hosp.raw <- g.age.dead.hosp.raw + xlab('age')+ylab('proportion')
 	
