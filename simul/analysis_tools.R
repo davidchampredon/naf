@@ -128,9 +128,9 @@ calc.R0.SIR <- function(pop.all.mc,
 		i0[i] <- tmp$i0
 	}
 	
-	R0.avg <- mean(R0)
-	r.avg  <- mean(r)
-	i0.avg <- mean(i0)
+	R0.avg <- mean(R0, na.rm = TRUE)
+	r.avg  <- mean(r, na.rm = TRUE)
+	i0.avg <- mean(i0, na.rm = TRUE)
 	
 	# Calculate average exponential growth in incidence:
 	ts.avg$ig.avg <- exp(r.avg * ts.avg$time + i0.avg) 
