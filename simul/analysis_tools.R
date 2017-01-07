@@ -228,6 +228,29 @@ plot.vax.efficacy <- function(pop) {
 	return(g)
 }
 
+plot.vax.efficacy.mc <- function(pop.nofizz) {
+	outcome <- c('is_recovered', 'was_symptomatic', 'was_hosp', 'is_alive')
+	mcvec <- unique(pop.nofizz$mc)
+	
+	for(i in seq_along(mcvec)){
+		pop <- subset(pop.nofizz, mc==mcvec[i])
+		eff <- sapply(outcome, vax.efficacy, pop=pop)	
+		tmp <- data.frame(outcome, efficacy=eff)
+		tmp$num <- i
+		if(i==1) df <- tmp
+		if(i>1)  df <- rbind(df,tmp)
+	}
+	df.mean <- ddply(df,'outcome',summarize, 
+					 m = mean(efficacy),
+					 q.lo = quantile(efficacy,probs = 0.1),
+					 q.hi = quantile(efficacy,probs = 0.9) )
+	
+	g <- ggplot(df.mean)
+	g <- g + geom_pointrange(aes(x=outcome, y=m, ymin=q.lo, ymax=q.hi), 
+							 size=1, alpha=0.7)
+	g <- g + ggtitle('Vaccine efficacy: mean and 80%CI (all non-fizzled MC)')
+	return(g)
+}
 
 
 # Create a synthetic age distribution for adults.

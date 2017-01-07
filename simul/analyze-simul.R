@@ -64,6 +64,7 @@ if(exists('res.list') ){
 fname.world <- paste0(dir.results,'plot_world.pdf')
 fname.pop   <- paste0(dir.results,'plot_pop.pdf')
 fname.ts    <- paste0(dir.results,'plot_ts.pdf')
+fname.vaxeff<- paste0(dir.results,'plot_vaxeff.pdf')
 
 # World (all social places):
 print(' -> Ploting world ...')
@@ -84,6 +85,13 @@ try( plot.sp.sz.distrib(res.list.0, world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
 try( plot.prop.fizzles(pop.all.mc), silent = T)
 	
+if (save.plot.to.file) dev.off()
+
+
+# Vaccine efficacy:
+print(' -> Ploting vaccine efficacy ...')
+if (save.plot.to.file) pdf(fname.vaxeff, width = 9, height = 9)
+try( plot.vax.efficacy.mc(pop.nofizz), silent = TRUE)
 if (save.plot.to.file) dev.off()
 
 # Time series:

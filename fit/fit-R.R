@@ -18,7 +18,7 @@ param.model.dir <- '../param-model/'
 data.dir        <- '../data/'
 simul.dir       <- '../simul/'
 
-# MC iterations and CPUs sed for this fit:
+# MC iterations and CPUs used for this fit:
 n.MC  <- 3
 n.cpu <- 3	
 
@@ -37,7 +37,7 @@ R.target <- 1.8
 
 # Range explored:
 cr.mean <- c(1,2,5) #seq(0.5, 6.0, by = 0.25)
-cr.cv   <- c(0.5, 0.75)  #c(0.5, 0.75, 1)
+cr.cv   <- c(0.75)  #c(0.5, 0.75, 1)
 
 n.cpu.cr.mean <- 1
 
