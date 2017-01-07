@@ -455,9 +455,12 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
                         // Draw the chance move will actually happen:
                         double u = unif(_RANDOM_GENERATOR);
                         
-                        // Probability reduction if symptomatic:
+                        // Probability reduction to move outside household
+                        // if symptomatic:
                         double m = 1.0;
-                        if(_world[k].get_indiv(i).is_symptomatic()) m = red_sympt;
+                        if(_world[k].get_indiv(i).is_symptomatic() &&
+                           _world[k].get_type() == SP_household)
+                            m = red_sympt;
                         
                         // Draw if move happens:
                         if ( u < proba * m ) move_one_individual(i, k, id_dest);
