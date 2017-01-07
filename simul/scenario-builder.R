@@ -10,7 +10,7 @@
 
 M <- list()
 
-M[['interv_start']]        <- c(-56,-28,-14,0,14,28)
+M[['interv_start']]        <- c(-56,-28,0,28)
 M[['interv_cvg_rate']]     <- c(0.0010, 0.0030, 0.0060,0.0120)  #c(0.0010, 0.0030, 0.0100)
 M[['interv_target']]       <- c('susceptible','young_old')
 M[['interv_cvg_max_prop']] <- 0.40 #c(0.3, 0.8)
