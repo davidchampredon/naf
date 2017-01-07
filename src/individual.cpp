@@ -512,13 +512,13 @@ void individual::receive_vaccine(float time,
     
     // translate mean and stddev into gamma parameters
     double m_g = imm_hum_incr;
-    double v_g = imm_hum_incr/20.0;
+    double v_g = imm_hum_incr/100.0;
     double a_gamma = m_g*m_g/v_g;
     double b_gamma = m_g/v_g;
     std::gamma_distribution<float> gamm_imm_hum(a_gamma, 1.0 / b_gamma);
     
     m_g = imm_cell_incr;
-    v_g = imm_cell_incr/20.0;
+    v_g = imm_cell_incr/100.0;
     a_gamma = m_g*m_g/v_g;
     b_gamma = m_g/v_g;
     std::gamma_distribution<float> gamm_imm_cell(a_gamma, 1.0 / b_gamma);
