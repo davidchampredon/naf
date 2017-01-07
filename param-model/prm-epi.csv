@@ -51,7 +51,7 @@ contact_ratio_sp_school        , 1.00
 contactAssort_lambda, 0.1
 
 proba_move            , 0.98
-proba_move_reduc_sympt, 0.40
+proba_move_reduc_sympt, 0.10
 proba_change_sp_other , 0.20
 
 mult_proba_symptomatic        , 6.0
