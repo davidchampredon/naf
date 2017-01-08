@@ -18,7 +18,7 @@ void main_run(){
     //     MODEL PARAMETERS
     // ================================================================
     
-    double start_time = -50.0;
+    double start_time = -15.0;
     double horizon    = 300.0;
     
     modelParam MP;
@@ -94,36 +94,39 @@ void main_run(){
     MP.add_prm_double ("vax_imm_hum_incr", 0.2);
     MP.add_prm_double ("vax_imm_cell_incr", 0.4);
     MP.add_prm_double ("vax_frail_incr",0.1);
-    MP.add_prm_double ("vax_lag_full_efficacy", 99999);
+    MP.add_prm_double ("vax_lag_full_efficacy", 12);
     
     MP.add_prm_double ("pubT_prop", 0.12);
     
-    uint i0 = 200;
+    uint i0 = 10;
     
     _RANDOM_GENERATOR.seed(123);
+    _RANDOM_GENERATOR_INTERV.seed(4321);
     
     // Define intervention
     vector<intervention> interv_vec;
     
-    float time_start   = -28;
+    float time_start   = 10;
     float time_end     = 999;
-    float cvg_rate     = 0.02;
-    float cvg_max_prop = 0.30;
+    float cvg_rate     = 9901;
+    float cvg_max_prop = 0.99;
+    float efficacy     = 0.99000;
     intervention interv1("vaccination",  // treatment  cure vaccination
-                         "young_old",  // symptomatic   susceptible   young_old
+                         "susceptible",  // symptomatic   susceptible   young_old
                          "vax",
                          time_start, time_end,
-                         cvg_rate, cvg_max_prop);
+                         cvg_rate, cvg_max_prop, efficacy);
     
-    float time_start2    = 0;
+    float time_start2    = 998;
     float time_end2      = 999;
-    float cvg_rate2      = 0.60;
+    float cvg_rate2      = 0.80;
     float cvg_max_prop2  = 0.99;
+    float efficacy2      = 0.999;
     intervention interv2("treatment",  // treatment  cure vaccination
                          "symptomatic",  // symptomatic   susceptible young_old
                          "antiviral",
                          time_start2, time_end2,
-                         cvg_rate2, cvg_max_prop2);
+                         cvg_rate2, cvg_max_prop2, efficacy2);
     
     interv_vec.push_back(interv1);
     interv_vec.push_back(interv2);
@@ -393,7 +396,9 @@ void main_run(){
     
     dcDataFrame x = export_world(sim.get_world(), light_output);
     
-    displayVector(sim.sp_size_distribution());
+    //displayVector(sim.sp_size_distribution());
+    
+    cout << "Final size = " << sim.final_size() << endl;
     
     
     //x.display();

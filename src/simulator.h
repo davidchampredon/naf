@@ -271,6 +271,8 @@ public:
 	void	transmission_world(double timeslice);
 	uint	prevalence();
 
+    uint    final_size();
+    
     /**
      * Draw the contact rate for an infectious individual
      * in a given social place.

@@ -24,8 +24,11 @@ intervention::intervention(){
 intervention::intervention(string type_treatment,
                            string type_indiv_targeted,
                            string name,
-                           float time_start, float time_end,
-                           float cvg_rate, float cvg_max_prop){
+                           float time_start,
+                           float time_end,
+                           float cvg_rate,
+                           float cvg_max_prop,
+                           float efficacy){
     _type_intervention = type_treatment;
     _type_indiv_targeted = type_indiv_targeted;
     _name = name;
@@ -33,15 +36,15 @@ intervention::intervention(string type_treatment,
     _time_end = time_end;
     _cvg_rate = cvg_rate;
     _cvg_max_proportion = cvg_max_prop;
+    _efficacy = efficacy;
 }
 
 
 void intervention::treat(vector<individual*> x,
-                                 float doi_reduction){
-    /// Treat selected symptomatic individuals.
-    
+                                 float doi_reduction)
+{    
     for (uint i = 0; i<x.size(); i++) {
-        x[i]->receive_treatment(doi_reduction);
+        x[i]->receive_treatment(doi_reduction, _efficacy);
     }
 }
 
@@ -50,19 +53,16 @@ void intervention::vaccinate(vector<individual*> x,
                              float imm_hum_incr,
                              float imm_cell_incr,
                              float frail_incr,
-                             float vaxlag){
-    /// Vaccinate selected symptomatic individuals.
-    
-    for (uint i = 0; i<x.size(); i++) {
-        x[i]->receive_vaccine(current_time, imm_hum_incr,imm_cell_incr, frail_incr, vaxlag);
+                             float vaxlag)
+{
+       for (uint i = 0; i<x.size(); i++) {
+        x[i]->receive_vaccine(current_time, imm_hum_incr,imm_cell_incr, frail_incr, vaxlag, _efficacy);
     }
 }
 
 
 
 void intervention::cure(vector<individual *> x){
-    /// Instantaneously cure individual (--> doi_drawn=0)
-    /// Used for debuging.
     for (uint i = 0; i<x.size(); i++) {
         x[i]->receive_cure();
     }
@@ -108,6 +108,7 @@ void intervention::display_info(){
     tabcout(" End intervention", _time_end);
     tabcout(" Coverage rate", _cvg_rate);
     tabcout(" Coverage max proportion", _cvg_max_proportion);
+    tabcout(" Efficacy", _efficacy);
     cout << endl;
 }
 

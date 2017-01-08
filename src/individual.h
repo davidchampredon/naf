@@ -272,7 +272,7 @@ public:
     /** This individual receives a treamtment
      * that is supposed to reduced its DOI.
      */
-    void    receive_treatment(double doi_reduction);
+    void    receive_treatment(double doi_reduction, float efficacy);
     
     
     /** Vaccinate this individual
@@ -281,7 +281,8 @@ public:
                             float vaxlag,
                             float imm_hum_incr,
                             float imm_cell_incr,
-                            float frail_incr);
+                            float frail_incr,
+                            float efficacy);
     void    receive_cure();
 	
 	// Miscellenaous

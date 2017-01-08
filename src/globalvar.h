@@ -20,9 +20,12 @@
 // initialization right for Rcpp.
 // (I don't know why this has to work like that...)
 
-extern uint		_RANDOM_SEED;		// seed for random number generators
 extern std::mt19937_64	_RANDOM_GENERATOR;
 
+// Need a secon, independent, random number generator
+// in order not to interfer with simulation (e.g. mouvements, etc.)
+// when individuals receive intervention before epidemic starts.
+extern std::mt19937_64	_RANDOM_GENERATOR_INTERV;
 
 
 

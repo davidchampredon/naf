@@ -237,7 +237,6 @@ void Simulator::initial_infections(uint i0)
 
 
 void Simulator::run(){
-    /// Run the simulated epidemic
     
     bool debug_mode = _modelParam.get_prm_bool("debug_mode");
     if(debug_mode) cout << endl << endl << " ======= START SIMULATION ======" <<endl<<endl;
@@ -277,10 +276,16 @@ void Simulator::run(){
     _current_time = _start_time;
     double tiny_time = 1E-6;
     
+    cout << " DEBUG _current_time: " << _current_time <<endl;
+    cout << " DEBUG _horizon: " << _horizon <<endl;
+    
     while (_current_time < _horizon )
     {
         // If zero prevalence after the epidemic has starte, then stop.
-        if(!at_least_one_infected() && _current_time>tiny_time) {break;}
+        if(!at_least_one_infected() && _current_time>tiny_time) {
+            cout << " BREAKING LOOP" <<endl;
+            break;
+        }
         
         // Epidemic starts at time t = 0.0:
         if (fabs(_current_time-0.0)<=tiny_time){
@@ -1083,6 +1088,10 @@ uint Simulator::census_total_alive(){
 }
 
 
+uint Simulator::final_size(){
+    return sumElements(_ts_incidence);
+}
+
 uint Simulator::prevalence(){
     /// Prevalence in the whole world
     
@@ -1778,7 +1787,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         if (nI > 0){
             // Draw the total number of individuals that are targeted
             std::poisson_distribution<> poiss(cvg_rate * nI * dt);
-            uint n_target = poiss(_RANDOM_GENERATOR);
+            uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
             if (n_target > nI) n_target = nI;
             // Select targeted individuals:
             uint cnt = 0;
@@ -1804,7 +1813,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
             
             float intensity = cvg_rate * nS * dt;
             std::poisson_distribution<> poiss(intensity);
-            uint n_target = poiss(_RANDOM_GENERATOR);
+            uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
             if (n_target > nS) n_target = nS;
             // Select targeted individuals:
             uint cnt = 0;
@@ -1854,7 +1863,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
 //            cout << " DEBUG YO: intensity = "<< intensity << endl;
             
             std::poisson_distribution<> poiss(intensity);
-            uint n_target = poiss(_RANDOM_GENERATOR);
+            uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
             if (n_target > n_yo) n_target = n_yo;
             
             // Select targeted individuals:
@@ -1951,13 +1960,7 @@ void Simulator::activate_interventions(ID id_sp, double dt,
             if ( ! (cond1 || cond2) ){  // <-- check if max number targeted reached.
                 
                 vector<individual*> x = draw_targeted_individuals(i, id_sp, dt);
-                
-                // DEBUG:
-//                if(x.size()>0){
-//                    cout << " DEBUG: drawn size = "<< x.size()<< " from SP_id:"<< id_sp <<endl;
-//                    
-//                }
-                
+
                 _intervention[i].act_on_individual(x,
                                                    _current_time,
                                                    treat_doi_reduc,

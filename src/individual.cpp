@@ -484,12 +484,19 @@ void individual::reduce_doi_drawn(double x)
 }
 
 
-void individual::receive_treatment(double doi_reduction){
+void individual::receive_treatment(double doi_reduction, float efficacy)
+{
     set_is_treated(true);
-    std::exponential_distribution<double> expdist(1.0/doi_reduction);
-    double tmp = _doi_drawn - expdist(_RANDOM_GENERATOR);
-    double new_doi_drawn = (tmp>0)?tmp:SUPERTINY;
-    set_doi_drawn(new_doi_drawn);
+    
+    std::uniform_real_distribution<double> unif01(0.0,1.0);
+    double u = unif01(_RANDOM_GENERATOR_INTERV);
+    
+    if(u < efficacy){
+        std::exponential_distribution<double> expdist(1.0/doi_reduction);
+        double tmp = _doi_drawn - expdist(_RANDOM_GENERATOR_INTERV);
+        double new_doi_drawn = (tmp>0)?tmp:SUPERTINY;
+        set_doi_drawn(new_doi_drawn);
+    }
 }
 
 
@@ -497,7 +504,8 @@ void individual::receive_vaccine(float time,
                                  float imm_hum_incr,
                                  float imm_cell_incr,
                                  float frail_incr, // <-- frailty is not affected in this implementation.
-                                 float vaxlag){    
+                                 float vaxlag,
+                                 float efficacy){
     _is_vaccinated = true;
     
     _imm_hum_when_recv_vax  = _immunity_hum;
@@ -507,29 +515,39 @@ void individual::receive_vaccine(float time,
     
     // Set the immunities level once vaccine fully effective
     // (after some lag time)
-    // TO DO: more sophisticated (age dependence?), investigate literature
     std::uniform_real_distribution<> unif_lag(0.80*vaxlag, 1.20*vaxlag);
+    _vax_lag_full_efficacy    = unif_lag(_RANDOM_GENERATOR_INTERV);
     
-    // translate mean and stddev into gamma parameters
-    double m_g = imm_hum_incr;
-    double v_g = imm_hum_incr/100.0;
-    double a_gamma = m_g*m_g/v_g;
-    double b_gamma = m_g/v_g;
-    std::gamma_distribution<float> gamm_imm_hum(a_gamma, 1.0 / b_gamma);
-    
-    m_g = imm_cell_incr;
-    v_g = imm_cell_incr/100.0;
-    a_gamma = m_g*m_g/v_g;
-    b_gamma = m_g/v_g;
-    std::gamma_distribution<float> gamm_imm_cell(a_gamma, 1.0 / b_gamma);
+
+    // DELETE WHEN SURE (2017-01-08)
+    //    // translate mean and stddev into gamma parameters
+//    double m_g = imm_hum_incr;
+//    double v_g = imm_hum_incr/100.0;
+//    double a_gamma = m_g*m_g/v_g;
+//    double b_gamma = m_g/v_g;
+//    std::gamma_distribution<float> gamm_imm_hum(a_gamma, 1.0 / b_gamma);
+//    
+//    m_g = imm_cell_incr;
+//    v_g = imm_cell_incr/100.0;
+//    a_gamma = m_g*m_g/v_g;
+//    b_gamma = m_g/v_g;
+//    std::gamma_distribution<float> gamm_imm_cell(a_gamma, 1.0 / b_gamma);
     
     _vax_time_received        = time;
-    _vax_target_immunity_hum  = _immunity_hum  + gamm_imm_hum(_RANDOM_GENERATOR);
-    _vax_target_immunity_cell = _immunity_cell + gamm_imm_cell(_RANDOM_GENERATOR);
-    _vax_lag_full_efficacy    = unif_lag(_RANDOM_GENERATOR);
     
-    if(_vax_target_immunity_hum > 1.0)  _vax_target_immunity_hum  = 1.0;
-    if(_vax_target_immunity_cell > 1.0) _vax_target_immunity_cell = 1.0;
+    std::uniform_real_distribution<double> unif01(0.0,1.0);
+    double u = unif01(_RANDOM_GENERATOR_INTERV);
+    
+    if(u < efficacy){
+        _vax_target_immunity_hum  = 1.00;
+        _vax_target_immunity_cell = _immunity_cell ;
+    }
+    //_vax_target_immunity_hum  = _immunity_hum  + gamm_imm_hum(_RANDOM_GENERATOR);
+    //_vax_target_immunity_cell = _immunity_cell + gamm_imm_cell(_RANDOM_GENERATOR);
+    
+    // DELETE WHEN SURE (2017-01-08)
+//    if(_vax_target_immunity_hum > 1.0)  _vax_target_immunity_hum  = 1.0;
+//    if(_vax_target_immunity_cell > 1.0) _vax_target_immunity_cell = 1.0;
 }
 
 

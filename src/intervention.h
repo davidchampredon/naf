@@ -31,6 +31,8 @@ private:
     float  _cvg_rate;
     float  _cvg_max_proportion;
     
+    float  _efficacy;
+    
     
 public:
     
@@ -39,7 +41,8 @@ public:
                  string type_indiv_targeted,
                  string name,
                  float time_start, float time_end,
-                 float cvg_rate, float cvg_max_prop);
+                 float cvg_rate, float cvg_max_prop,
+                 float efficacy);
 
     // Set functions
     
@@ -67,6 +70,7 @@ public:
                               float frail_incr,
                               float vax_lag);
     
+    /** Vaccinate selected symptomatic individuals. */
     void    vaccinate(vector<individual*> x,
                       float current_time,
                       float imm_hum_incr,
@@ -74,7 +78,10 @@ public:
                       float frail_incr,
                       float lag);
     
+    /** Treat selected symptomatic individuals. */
     void    treat(vector<individual*> x, float doi_reduction);
+    
+    /** Instantaneously cure individual (--> doi_drawn=0). Used for debuging. */
     void    cure(vector<individual*> x);
     
     void    display_info();
