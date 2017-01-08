@@ -43,7 +43,7 @@ earliest.interv.start <- function(L){
 			if(tmp <min.start) min.start <- tmp
 		}
 	}
-	return(min.start)
+	return(min(-1, min.start))
 }
 
 
