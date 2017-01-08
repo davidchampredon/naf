@@ -96,6 +96,8 @@ try({
 },
 silent = TRUE)
 
+
+
 overwrite.selected.param <- function(filename, scen.id) {
 	
 	x <- read.csv(filename)
@@ -108,13 +110,13 @@ overwrite.selected.param <- function(filename, scen.id) {
 	interv.prm[[1]][['interv_target']]   <<- as.character(y$interv_target)
 	interv.prm[[1]][['interv_start']]    <<- y$interv_start
 	interv.prm[[1]][['interv_cvg_rate']] <<- y$interv_cvg_rate
+	interv.prm[[1]][['interv_efficacy']] <<- y$interv_efficacy
 	
-	prm[['contact_rate_mean']]   <<- y$contact_rate_mean
+	prm[['contact_rate_mean']] <<- y$contact_rate_mean
 	
-	prm[['vax_imm_hum_incr']]    <<- y$vax_imm_hum_incr
-	prm[['vax_imm_cell_incr']]   <<- y$vax_imm_cell_incr
-	
-	prm[['imm_hum_baseline']]    <<- y$imm_hum_baseline
+	prm[['imm_hum_baseline']] <<- y$imm_hum_baseline
+	# prm[['vax_imm_hum_incr']]    <<- y$vax_imm_hum_incr
+	# prm[['vax_imm_cell_incr']]   <<- y$vax_imm_cell_incr
 }
 
 
