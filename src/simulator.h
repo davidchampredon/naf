@@ -224,7 +224,6 @@ public:
                                 double proba,
                                 double red_sympt);
 	
-    void move_individuals(const SPtype sptype, double proba);
     
     /** Move the individual in position "pos_indiv" in thevector "_indiv"
       * from one social place to another.

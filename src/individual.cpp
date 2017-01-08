@@ -97,12 +97,6 @@ string individual::_disease_status_update(double dt){
     
     string res = "NO_CHANGE";
     
-    // DEBUG
-//    	if(_id == 22){
-//    		cout << "debug"<<endl;
-//    	}
-    // ------
-    
     // Disease-related durations:
     if (_dol>0 && _dol <= _dol_drawn) _dol += dt;
     if (_doi>0 && _doi <= _doi_drawn) {
@@ -289,7 +283,6 @@ void individual::acquireDisease(){
         
         std::lognormal_distribution<float> d(mu,sigma);
         _dol_drawn = d(_RANDOM_GENERATOR);
-//        cout << "DEBUG: DOL drawn = "<< _dol_drawn <<endl;
         found = true;
     }
     stopif(!found, "Unknown distribution for DOL.");

@@ -276,14 +276,10 @@ void Simulator::run(){
     _current_time = _start_time;
     double tiny_time = 1E-6;
     
-    cout << " DEBUG _current_time: " << _current_time <<endl;
-    cout << " DEBUG _horizon: " << _horizon <<endl;
-    
     while (_current_time < _horizon )
     {
         // If zero prevalence after the epidemic has starte, then stop.
         if(!at_least_one_infected() && _current_time>tiny_time) {
-            cout << " BREAKING LOOP" <<endl;
             break;
         }
         
@@ -477,47 +473,6 @@ void Simulator::move_individuals_sched(uint idx_timeslice,
     } // end-for-k-socialPlace
 } // end-function
 
-
-void Simulator::move_individuals(const SPtype sptype, double proba){
-    
-    /// Move individuals across social places
-    
-    std::uniform_real_distribution<double> unif(0.0, 1.0);
-    
-    for (int k=0; k<_world.size(); k++)
-    {
-        vector<uint> pos2move; // idx position to move (must be done at the end of the loop, bc vector keeps on changing size!)
-        for (int i=0; i<_world[k].get_size(); i++)
-        {
-            // Draw the chance move will actually happen:
-            double u = unif(_RANDOM_GENERATOR);
-            if ( u < proba )
-            {
-                individual tmp = _world[k].get_indiv(i);
-                
-                ID id_dest = __UNDEFINED_ID;
-                
-                if(sptype == SP_household)	    id_dest = tmp.get_id_sp_household();
-                else if(sptype == SP_workplace)	id_dest = tmp.get_id_sp_workplace();
-                else if(sptype == SP_school)	id_dest = tmp.get_id_sp_school();
-                else if(sptype == SP_other)		id_dest = tmp.get_id_sp_other();
-                else if(sptype == SP_hospital)	id_dest = tmp.get_id_sp_hospital();
-                else if(sptype == SP_pubTransp)	id_dest = tmp.get_id_sp_pubTransp();
-                
-                if(id_dest != __UNDEFINED_ID &&
-                   id_dest != k)
-                {
-                    // add indiv to destination
-                    _world[id_dest].add_indiv(tmp);
-                    // record its position for future deletion
-                    pos2move.push_back(i);
-                }
-            }
-        }
-        // remove from this SP the individuals that moved:
-        if(pos2move.size()>0) _world[k].remove_indiv(pos2move);
-    }
-}
 
 
 vector<uint> Simulator::draw_n_contacts(uint k,
@@ -1857,11 +1812,6 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
             // that are targeted:
             float intensity = cvg_rate * n_yo * dt;
             
-            //DEBUG
-//            cout << " DEBUG YO: SP_id = "<< id_sp << endl;
-//            cout << " DEBUG YO: n_yo = "<< n_yo<< endl;
-//            cout << " DEBUG YO: intensity = "<< intensity << endl;
-            
             std::poisson_distribution<> poiss(intensity);
             uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
             if (n_target > n_yo) n_target = n_yo;
@@ -1876,8 +1826,6 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
                     indiv_drawn.push_back(tmp);
                     cnt ++;
                 }
-                //DEBUG
-                //cout << "DEBUG:: YO vax = "<< cnt <<endl;
             }
         }
     }// end-if-type_target == "young_old"

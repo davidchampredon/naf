@@ -163,7 +163,7 @@ public:
     /** Remove an individual given its POSITION
       * in vector '_indiv' in this social place. */
     void remove_indiv(uint pos);
-    void remove_indiv(vector<uint> posvec);
+    
     void add_linked_indiv(ID id);
     void remove_linked_indiv(ID id);
     ID   n_linked_indiv() const {return (ID)(_linked_indiv_id.size());}

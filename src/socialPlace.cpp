@@ -258,37 +258,6 @@ void socialPlace::remove_indiv(uint pos)
 
 
 
-void socialPlace::remove_indiv(vector<uint> posvec){
-    /// Remove SEVERAL individuals given their INITIAL POSITION in vector '_indiv' in this social place.
-    
-    //	stopif(posvec[max_element(posvec.begin(),posvec.end())]>=_indiv.size(), "Try to remove NON EXISTENT individual from social place!");
-    
-    // posvec must be sorted
-    sort(posvec.begin(), posvec.end());
-    
-    for(int i=0; i<posvec.size(); i++){
-        
-        uint idx = posvec[i]-i; // '-i' to take into account the shrinking vector
-        
-        cout << "DEBUG: removing indiv ID_"<<_indiv[idx].get_id();
-        cout << " pos_"<<i<<" infected:"<<_indiv[idx].is_infected();
-        
-        // update prevalence (must be before removing, else infection info is gone!):
-        // DELETE WHEN SURE: if(_indiv[idx].is_infected()) _prevalence--;
-        
-        update_epidemic_count(_indiv[idx], "remove");
-        
-        // TO DO: removeValue(_indiv_S, &_indiv[posvec[i]]);  ????
-        
-        // remove
-        _indiv.erase(_indiv.begin()+ idx );
-        // update size:
-        _size--;
-        
-        cout << " updated size: "<<_size<<" prev: "<<_prevalence << endl;
-    }
-}
-
 void socialPlace::add_linked_indiv(ID id){
     /// Add the ID of an individual who is supposed to be linked to this social place
     _linked_indiv_id.push_back(id);
