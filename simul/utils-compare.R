@@ -375,8 +375,8 @@ plot.rate.reduc <- function(result.scen.all,
 	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=18, height=17)
 	plot.mc.cr(x)
 	
-	zlist <- list(z.inf,z.sympt,z.treat,z.hosp,z.death)
-	titlelist <- list('All Infections','Symptomatic Infections','Treated','Hospitalized','Deaths')
+	zlist <- list(z.inf,z.sympt,z.hosp,z.death)
+	titlelist <- list('All Infections','Symptomatic Infections','Hospitalized','Deaths')
 	
 	for(i in seq_along(zlist)) plot.reduc.curve(zlist[[i]], title = titlelist[[i]])
 	for(i in seq_along(zlist)) plot.start.compare(zlist[[i]], title = titlelist[[i]])
