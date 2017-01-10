@@ -25,8 +25,11 @@ for(i in 1:ns){
 #PBS -r n
 
 module load intel64/15.3.187 xz/5.2.2 gcc/5.2.0
-module load gcc bioinformatics/R/3.2.5 bioinformatics/Bioconductor/3.2'
-	x[4] <- paste0('Rscript multiscen-MAIN-hpc.R ',i,' > out-multiscen-hpc-',i,'.txt &')
+module load gcc bioinformatics/R/3.2.5 bioinformatics/Bioconductor/3.2
+	
+cd /home/champrd/github/naf/simul
+'
+	x[4] <- paste0('Rscript multiscen-MAIN-hpc.R ',i)
 	
 	write(x,file = scriptname)
 	system(paste0('chmod +x naf-',i,'.sh'))
