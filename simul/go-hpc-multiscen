@@ -1,0 +1,2 @@
+# The script argument must be the walltime string (e.g., '00:12:00')
+Rscript hpc-gen-script.R $1
