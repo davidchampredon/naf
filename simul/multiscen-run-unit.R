@@ -3,13 +3,14 @@
 ###
 
 
-# Load all default parameters:
-source('utils-load-param.R')
-source('utils-run.R')
-source('utils-misc.R')
 
 
 run.one.scenario <- function(scenidx) {
+	
+	# Load all default parameters:
+	source('utils-load-param.R')
+	source('utils-run.R')
+	source('utils-misc.R')
 	
 	dir.results    <- dir.def('dir-def.csv')[['results']]
 	dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]

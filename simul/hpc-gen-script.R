@@ -14,6 +14,8 @@ source('scenario-builder.R')
 fs <- read.csv('scenario-prm-list.csv')
 ns <- nrow(fs)
 
+debug.local <- FALSE
+
 # Generate simulation launch scripts:
 for(i in 1:ns){
 	scriptname <- paste0('naf-',i,'.sh')
@@ -33,6 +35,11 @@ cd /home/champrd/github/naf/simul
 '
 	x[4] <- paste0('Rscript multiscen-MAIN-hpc.R ',i)
 	
+	if(debug.local) {
+		x[2] <- ''
+		x[3] <- ''
+	}
+	
 	write(x,file = scriptname)
 	system(paste0('chmod +x naf-',i,'.sh'))
 }
@@ -41,5 +48,6 @@ cd /home/champrd/github/naf/simul
 print(paste('Launching',ns,'job with wall.time.max =',wall.time,'...'))
 for (i in 1:ns){
 	cmd <- paste0('qsub naf-',i,'.sh')
+	if(debug.local) cmd <- paste0('./naf-',i,'.sh')
 	system(cmd,intern = FALSE)
 }
