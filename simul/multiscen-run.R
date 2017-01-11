@@ -22,7 +22,9 @@ for(i in seq_along(scen.id)){
 	# Overwrite parameter values
 	# associated with current scenario:
 	overwrite.selected.param(filename = scen.list.file,
-							 scen.id  = scen.id[i])
+							 scen.id  = scen.id[i],
+							 prm = prm, 
+							 interv.prm = interv.prm)
 	# Run the simulation for that scenario:
 	run.simul(scen.id = scen.id[i], 
 			  dir.save.rdata = dir.save.rdata,
