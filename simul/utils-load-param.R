@@ -116,6 +116,7 @@ overwrite.selected.param <- function(filename, scen.id,
 	
 	prm[['contact_rate_mean']] <- y$contact_rate_mean
 	prm[['imm_hum_baseline']]  <- y$imm_hum_baseline
+	
 	return(list(prm = prm, interv.prm = interv.prm))
 }
 

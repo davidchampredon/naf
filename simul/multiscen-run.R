@@ -21,10 +21,13 @@ scen.id <- x$scenario_id
 for(i in seq_along(scen.id)){
 	# Overwrite parameter values
 	# associated with current scenario:
-	overwrite.selected.param(filename = scen.list.file,
-							 scen.id  = scen.id[i],
-							 prm = prm, 
-							 interv.prm = interv.prm)
+	ov <- overwrite.selected.param(filename = scen.list.file,
+								   scen.id  = scenidx,
+								   prm = prm, interv.prm = interv.prm)
+	prm <- ov[['prm']]
+	interv.prm <- ov[['interv.prm']]
+	
+	
 	# Run the simulation for that scenario:
 	run.simul(scen.id = scen.id[i], 
 			  dir.save.rdata = dir.save.rdata,
