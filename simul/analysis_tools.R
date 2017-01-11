@@ -518,8 +518,8 @@ plot.age.contact.matrix.avg <- function(res.list) {
 	
 	image(A.plot, x = 1:nrow(A.plot), y=1:nrow(A.plot), 
 		  zlim = c(0,max(A.plot)), 
-		  ylab = 'infector\'s age',
-		  xlab = 'infectee\'s age',
+		  ylab = 'infectee\'s age',
+		  xlab = 'infector\'s age',
 		  las = 1,
 		  main = 'Simulated effective contact age matrix\n(averaged across all MC iterations)',
 		  col  = topo.colors(12))
