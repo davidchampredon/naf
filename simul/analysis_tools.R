@@ -154,6 +154,15 @@ calc.R0.SIR <- function(pop.all.mc,
 }
 
 
+calc.final.size <- function(pop){
+	
+	# Final size (percentage) averaged across all MC iterations.
+	
+	# Total population (across _all_ MC, as we calculate the average size)
+	n <- nrow(pop)
+	return( (sum(pop$is_recovered) + sum(pop$is_infected))/n )
+}
+
 
 identify.fizzle <- function(pop.all.mc){
 	# Return the MC iterations that were fizzles
