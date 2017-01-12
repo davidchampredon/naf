@@ -10,7 +10,7 @@ dol_var , 0.1
 doi_var , 0.4
 doh_var , 21.00
 
-proba_hosp           , 0.003
+proba_hosp           , 0.01
 
 proba_death_min      , 0.20
 proba_death_max      , 0.99
@@ -36,7 +36,7 @@ imm_cell_pivot, 20
 
 homogeneous_contact , 0
 contact_rate_distrib, lognorm
-contact_rate_mean   , 2.555555
+contact_rate_mean   , 3.000001
 contact_rate_stddev , 0.001
 contact_rate_CV     , 0.75
 
