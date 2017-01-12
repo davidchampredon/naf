@@ -22,7 +22,6 @@ x <- as.data.frame(expand.grid(M))
 
 # Parameters that are linked to other 
 # (but do not enter in the combination):
-x$vax_imm_cell_incr <- x$vax_imm_hum_incr
 # << add more here if necessary... >>
 
 # Export to CSV file:
