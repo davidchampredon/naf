@@ -10,6 +10,8 @@ dol_var , 0.1
 doi_var , 0.4
 doh_var , 21.00
 
+proba_hosp           , 0.003
+
 proba_death_min      , 0.20
 proba_death_max      , 0.99
 proba_death_frailCvx , 0.40
@@ -23,8 +25,6 @@ frailty_agemin     , 30.0
 frailty_agepivot   , 60
 frailty_pivot      , 0.43
 frailty_sd         , 0.1
-
-proba_hosp, 0.01
 
 imm_hum_baseline, 0.1
 imm_hum_agezero , 120
