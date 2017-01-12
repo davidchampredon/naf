@@ -1,0 +1,2 @@
+Rscript fit-finalsize.R > out-fit-finalsize.txt &
+
