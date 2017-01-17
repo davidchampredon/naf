@@ -296,6 +296,173 @@ plot.secondary.res <- function(df, dir){
 	dev.off()
 }
 
+explicit_variable <- function(var, df){
+    df[[var]] <- paste(var,'=',df[[var]])
+    return(df)
+}
+
+explicit_variable_2 <- function(var, df, newvar){
+    df[[newvar]] <- paste(newvar,'=',df[[var]])
+    return(df)
+}
+
+
+
+explicit_all <- function(z){
+    
+    var.vec <- c('interv_target', 'contact_rate_mean','interv_cvg_max_prop',
+                 'interv_efficacy','imm_hum_baseline')
+    for(i in seq_along(var.vec)){
+        z <- explicit_variable(var = var.vec[i], z)
+    }
+    return(z)
+}
+
+explicit_all_2 <- function(z){
+    
+    idx <- which(names(z) %in% c('mn', 'md', 'qlo', 'qhi', 'n'))
+    var.vec <- c(1:length(names(z)))[-idx]
+    
+    for(i in seq_along(var.vec)){
+        z <- explicit_variable(var = names(z)[var.vec[i]], z)
+    }
+    return(z)
+}
+
+
+# Use only what's necessary for plot:
+output.stats <- function(x, resp.var) {
+    idx <- which(is.nan(x[[resp.var]]) | is.infinite(x[[resp.var]]))
+    if(length(idx)>0) x <- x[-idx, ]
+    
+    z <- ddply(x,
+               c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
+                 'interv_cvg_max_prop','interv_start', 'interv_efficacy',
+                 'imm_hum_baseline'),
+               function(df){c(
+                   mn  = mean(-df[[resp.var]]),
+                   md  = quantile(-df[[resp.var]], probs = 0.50,names = F, na.rm = T),
+                   qlo = quantile(-df[[resp.var]], probs = 0.05,names = F, na.rm = T),
+                   qhi = quantile(-df[[resp.var]], probs = 0.95,names = F, na.rm = T),
+                   n   = length(df[[resp.var]]))
+               }
+    )
+    return(z)
+}
+
+plot.reduc.curve <- function(z, title='')
+{
+    g <- ggplot(z,aes(x=interv_cvg_rate, y=mn, colour = factor(interv_start)), alpha=0.3) 
+    g <- g + geom_point(size=1) + 
+        geom_line(size=0.5) + 
+        geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
+    
+    g <- g + facet_grid(contact_rate_mean ~ interv_target+interv_efficacy+interv_cvg_max_prop+imm_hum_baseline)
+    g <- g + scale_color_brewer(palette = 'Dark2') + ylab('Mean relative reduction') 
+    g <- g + ggtitle(title) + 
+        guides(colour=guide_legend(title="Vaccination lag"))
+    plot(g)
+}
+
+plot.start.compare <- function(z, title='') {
+    g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), 
+                               size=3, alpha=0.7)
+    g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), 
+                        size=4, alpha=0.7)
+    g <- g + facet_grid(interv_target~contact_rate_mean+interv_efficacy+imm_hum_baseline)
+    
+    g <- g + scale_color_brewer(palette = 'BrBG')+ 
+        ggtitle(title) + ylab('Mean relative reduction')+ 
+        guides(colour=guide_legend(title="Vaccination Lag"))
+    plot(g)
+}
+
+
+plot.immhum.compare <- function(z, title='') {
+    g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, 
+                                   colour=factor(imm_hum_baseline)), 
+                               size=3, alpha=0.7)+ 
+        geom_point(aes(x=interv_cvg_rate, y=mn, 
+                       colour=factor(imm_hum_baseline)), 
+                   size=4, alpha=0.7)
+    
+    g <- g + facet_grid(contact_rate_mean+interv_target ~ interv_efficacy+interv_start)
+    
+    g <- g + #scale_color_brewer(palette = 'BrBG')+ 
+        ggtitle(title) + ylab('Mean relative reduction')+ 
+        guides(colour=guide_legend(title="Baseline Hum. Imm."))
+    plot(g)
+}
+
+
+plot.target.compare <- function(z, title='') {
+    
+    g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, 
+                                   colour=factor(interv_target) ), 
+                               size=3, alpha=0.7)
+    g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, 
+                            colour=factor(interv_target)), 
+                        size=4, alpha=0.7)
+    g <- g + facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_efficacy+interv_start)
+    g <- g + guides(colour=guide_legend(title="Vaccination strategy"))
+    g <- g + ggtitle(title) + ylab('Mean relative reduction')
+    plot(g)
+}
+
+plot.efficacy.compare <- function(z, title='') {
+    
+    g <- ggplot(z) + 
+        geom_line(aes(x=interv_cvg_rate, y=mn, 
+                      colour=factor(interv_efficacy) ), 
+                  size=3, alpha=0.7)+ 
+        geom_point(aes(x=interv_cvg_rate, y=mn, 
+                       colour=factor(interv_efficacy)), 
+                   size=4, alpha=0.7) + 
+        facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_target + interv_start) + 
+        guides(colour=guide_legend(title="Efficacy")) + 
+        ggtitle(title) + ylab('Mean relative reduction')
+    
+    plot(g)
+    
+    effvec <- unique(z$interv_efficacy)
+    a1 <- subset(z, interv_efficacy==effvec[1])
+    a2 <- subset(z, interv_efficacy==effvec[2])
+    a <- a1
+    a$reldiff_eff <- a1$mn/a2$mn -1
+    a$diff_eff <- a1$mn-a2$mn
+    gd <- ggplot(a) +
+        geom_point(aes(x=interv_cvg_rate, y=diff_eff), shape='A',size=4) + geom_line(aes(x=interv_cvg_rate, y=diff_eff),alpha=0.3) + 
+        geom_point(aes(x=interv_cvg_rate, y=reldiff_eff),shape='R',size=4) + geom_line(aes(x=interv_cvg_rate, y=reldiff_eff),alpha=0.3) + 
+        facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_target + interv_start) + 
+        ggtitle(paste(title,'- Impact of vax efficacy')) + ylab('Relative difference of mean reduction')
+    plot(gd)
+}
+
+plot.cvgmax.compare <- function(z, title='') {
+    z$key <- paste0(z$interv_start,
+                    ' ; CR=',z$contact_rate_mean,
+                    ' ; CvgMx=',z$interv_cvg_max_prop)
+    
+    g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_cvg_max_prop)), 
+                               size=3, alpha=0.2)
+    g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_cvg_max_prop)), 
+                        size=4, alpha=0.2)
+    g <- g + facet_grid(contact_rate_mean~interv_start+interv_target)
+    g <- g + guides(colour=guide_legend(title="Max coverage"))
+    g <- g + ggtitle(title) + ylab('Mean relative reduction')
+    plot(g)
+}
+
+plot.mc.cr <- function(x){
+    mc.max <- max(unique(x$mc))
+    fiz <- ddply(x,c('scenario_id'),summarize, n=length(mc), cr = mean(contact_rate_mean))
+    g <- ggplot(fiz,aes(x=factor(cr), y=n)) + geom_boxplot(fill='grey')
+    g <- g + ggtitle('Number of MC iterations') + xlab('Mean contact rate') + ylab('Non-fizzled MC')
+    g <- g + geom_hline(yintercept=mc.max, linetype=2, colour='tomato', size=1)
+    g <- g + coord_cartesian(ylim=c(0,mc.max*1.1))
+    plot(g)
+}
+
 plot.rate.reduc <- function(result.scen.all, 
 							dir, 
 							file.scen.prm.list){
@@ -307,120 +474,122 @@ plot.rate.reduc <- function(result.scen.all,
 	# Merge results and scenarios definition:
 	x <- join(result.scen.all, spl, by='scenario_id')
 	
-	# Use only what's necessary for plot:
-	output.stats <- function(x, resp.var) {
-		idx <- which(is.nan(x[[resp.var]]) | is.infinite(x[[resp.var]]))
-		if(length(idx)>0) x <- x[-idx, ]
-		
-		z <- ddply(x,
-				   c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
-				     'interv_cvg_max_prop','interv_start', 'interv_efficacy'),
-				   function(df){c(
-				   	mn  = mean(-df[[resp.var]]),
-				   	md  = quantile(-df[[resp.var]], probs = 0.50,names = F, na.rm = T),
-				   	qlo = quantile(-df[[resp.var]], probs = 0.05,names = F, na.rm = T),
-				   	qhi = quantile(-df[[resp.var]], probs = 0.95,names = F, na.rm = T),
-				   	n   = length(df[[resp.var]]))
-				   }
-		)
-		return(z)
-	}
-	
 	z.inf   <- output.stats(x, resp.var = 'rel.d.inf')
 	z.sympt <- output.stats(x, resp.var = 'rel.d.sympt')
 	z.treat <- output.stats(x, resp.var = 'rel.d.treat')
 	z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp')
 	z.death <- output.stats(x, resp.var = 'rel.d.death')
 	
-	plot.reduc.curve <- function(z, title='')
-	{
-		z$key <- paste0(z$interv_target,
-						' ; CR=',z$contact_rate_mean,
-						' ; CvgMx=',z$interv_cvg_max_prop,
-						' ; Start= ',z$interv_start)
-		
-		g <- ggplot(z,aes(x=interv_cvg_rate, y=mn, colour = factor(interv_start)), alpha=0.6) 
-		g <- g + geom_point(size=1) + geom_line(size=0.5) + geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
-		g <- g + geom_point(data=z, aes(x=interv_cvg_rate, y=md, colour = factor(interv_start)), size=1, shape=3)
-		g <- g + facet_wrap(~key)
-		g <- g + scale_color_brewer(palette = 'Dark2') + ylab('Mean relative reduction') 
-		g <- g + ggtitle(title)
-		plot(g)
-	}
-	
-	plot.start.compare <- function(z, title='') {
-		z$key <- paste0(z$interv_target,
-						' ; CR=',z$contact_rate_mean,
-						' ; eff=',z$interv_efficacy,
-						' ; CvgMx=',z$interv_cvg_max_prop)
-		
-		g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), size=3, alpha=0.7)
-		g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), size=4, alpha=0.7)
-		# g <- g + facet_wrap(~key)
-		g <- g + facet_grid(interv_target~contact_rate_mean+interv_efficacy)
-		
-		g <- g + scale_color_brewer(palette = 'BrBG')
-		g <- g + ggtitle(title) + ylab('Mean relative reduction')
-		g <- g + guides(colour=guide_legend(title="Vaccination Lag"))
-		plot(g)
-	}
-	
-	plot.target.compare <- function(z, title='') {
-	
-		g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, 
-									   colour=factor(interv_target) ), 
-								   size=3, alpha=0.7)
-		g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, 
-								colour=factor(interv_target)), 
-							size=4, alpha=0.7)
-		g <- g + facet_grid(contact_rate_mean~interv_efficacy+interv_start)
-		g <- g + guides(colour=guide_legend(title="Vaccination strategy"))
-		g <- g + ggtitle(title) + ylab('Mean relative reduction')
-		plot(g)
-	}
-	
-	plot.cvgmax.compare <- function(z, title='') {
-		z$key <- paste0(z$interv_start,
-						' ; CR=',z$contact_rate_mean,
-						' ; CvgMx=',z$interv_cvg_max_prop)
-		
-		g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_cvg_max_prop)), 
-								   size=3, alpha=0.2)
-		g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_cvg_max_prop)), 
-							size=4, alpha=0.2)
-		g <- g + facet_grid(contact_rate_mean~interv_start+interv_target)
-		g <- g + guides(colour=guide_legend(title="Max coverage"))
-		g <- g + ggtitle(title) + ylab('Mean relative reduction')
-		plot(g)
-	}
-	
-	plot.mc.cr <- function(x){
-		mc.max <- max(unique(x$mc))
-		fiz <- ddply(x,c('scenario_id'),summarize, n=length(mc), cr = mean(contact_rate_mean))
-		g <- ggplot(fiz,aes(x=factor(cr), y=n)) + geom_boxplot(fill='grey')
-		g <- g + ggtitle('Number of MC iterations') + xlab('Mean contact rate') + ylab('Non-fizzled MC')
-		g <- g + geom_hline(yintercept=mc.max, linetype=2, colour='tomato', size=1)
-		g <- g + coord_cartesian(ylim=c(0,mc.max*1.1))
-		plot(g)
-	}
+	z.inf   <- explicit_all(z.inf)
+	z.sympt <- explicit_all(z.sympt)
+	z.hosp  <- explicit_all(z.hosp)
+	z.death <- explicit_all(z.death)
 	
 	# Plot and save :
-	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=18, height=17)
+	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=30, height=17)
 	plot.mc.cr(x)
 	
 	zlist <- list(z.inf,z.sympt,z.hosp,z.death)
 	titlelist <- list('All Infections','Symptomatic Infections','Hospitalized','Deaths')
 	
 	for(i in seq_along(zlist)) plot.reduc.curve(zlist[[i]], title = titlelist[[i]])
-	for(i in seq_along(zlist)) plot.start.compare(z = zlist[[i]], title = titlelist[[i]])
+	for(i in seq_along(zlist)) plot.start.compare(zlist[[i]], title = titlelist[[i]])
 	for(i in seq_along(zlist)) plot.target.compare(zlist[[i]], title = titlelist[[i]])
+	for(i in seq_along(zlist)) plot.efficacy.compare(zlist[[i]], title = titlelist[[i]])
+	for(i in seq_along(zlist)) plot.immhum.compare(zlist[[i]], title = titlelist[[i]])
 	for(i in seq_along(zlist)) plot.cvgmax.compare(zlist[[i]], title = titlelist[[i]])
-	
 	
 	dev.off()
 }
 
+format.df.for.figure <- function(z){
+    
+    z$interv_cvg_rate <- z$interv_cvg_rate * 1e5
+    
+    z$`Vaccination scenario` <- 'Random'
+    z$`Vaccination scenario`[z$interv_target=='young_old'] <- 'Young & Senior'
+    
+    z$`Vaccination lag` <- round(z$interv_start/7)
+    
+    z$`Vaccine efficacy` <- z$interv_efficacy
+    
+    if(length(unique(z$interv_cvg_max_prop))==1) 
+        z <- subset(z, select= -interv_cvg_max_prop)
+    
+    # TO DO: CHANGE THAT, AUTOMATE USING MODEL OUTPUTS!
+    z$`Final Cum. Incidence` <- 0.5
+    z$`Final Cum. Incidence`[z$contact_rate_mean == max(z$contact_rate_mean)] <- 0.7
+    
+    return(z)
+}
 
+figure.1 <- function(z, title='') {
+    
+    z <- subset(z, interv_efficacy==0.8)
+    z <- subset(z, imm_hum_baseline==0.1)
+    z <- subset(z, `Final Cum. Incidence`==0.5)
+    
+    z <- explicit_variable(var ='Vaccination scenario', df = z )
+    z <- explicit_variable(var ='Final Cum. Incidence', df = z )
+    
+    g <- ggplot(z) 
+    
+    g <- g + geom_line(aes(x=interv_cvg_rate, 
+                           y=mn, 
+                           colour=factor(`Vaccination lag`)), 
+                       size=3, alpha=0.6)+ 
+        geom_errorbar(aes(x = interv_cvg_rate , 
+                            ymin=qlo, 
+                            ymax=qhi, 
+                            colour=factor(`Vaccination lag`)),
+                        alpha = 0.3, size=1,
+                        #position='dodge',
+                        width = 25) +
+        geom_point(aes(x=interv_cvg_rate , 
+                       y=mn, 
+                       colour=factor(`Vaccination lag`)), 
+                   size=4, alpha=1)
+    
+    g <- g + facet_grid(~`Vaccination scenario`)
+    
+    g <- g + scale_x_continuous(breaks=unique(z$interv_cvg_rate),)
+    
+    g <- g + scale_color_brewer(palette = 'BrBG')+ 
+        ggtitle(title) + ylab('Mean relative reduction')+ 
+        xlab('Vaccine administration rate (per 100,000 per day)') + 
+        guides(colour=guide_legend(title="Vaccination Lag"))
+    
+    plot(g)
+}
+
+figures.maintext <-function(result.scen.all, 
+                                dir, 
+                                file.scen.prm.list){
+    
+    # Retrieve scenarios definitions:
+    spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
+    names(result.scen.all)[names(result.scen.all)=='scenario'] <- 'scenario_id' 
+    
+    # Merge results and scenarios definition:
+    x <- join(result.scen.all, spl, by='scenario_id')
+    
+    z.sympt <- output.stats(x, resp.var = 'rel.d.sympt')
+    z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp')
+    z.death <- output.stats(x, resp.var = 'rel.d.death')
+    
+    titlelist <- list('Symptomatic Infections','Hospitalized','Deaths')
+    
+    zlist <- list(z.sympt, z.hosp, z.death)
+    zlist <- lapply(zlist, FUN = format.df.for.figure)
+    
+    z <- zlist[[1]]
+
+    # Plot and save :
+    pdf(paste0(dir,'figure-1.pdf'), width=15, height=8)
+    i <- 1
+    figure.1(zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
+    dev.off()
+}
 
 
 

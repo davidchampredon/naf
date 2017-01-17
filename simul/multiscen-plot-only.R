@@ -30,13 +30,21 @@ print('Saved RData loaded.')
 
 print('Plotting main comparison...')
 
-plot.multi.scen.res(result.scen.all    = res.all[['main']], 
-					dir                = dir.results,
-					file.scen.prm.list = 'scenario-prm-list.csv')
 
 plot.rate.reduc(result.scen.all    = res.all[['main']], 
-				dir                = dir.results,
-				file.scen.prm.list = 'scenario-prm-list.csv')
+                dir                = dir.results,
+                file.scen.prm.list = 'scenario-prm-list.csv')
+
+
+figures.maintext(result.scen.all    = res.all[['main']], 
+                 dir                = dir.results,
+                 file.scen.prm.list = 'scenario-prm-list.csv')
+
+if(FALSE){
+    plot.multi.scen.res(result.scen.all    = res.all[['main']], 
+					dir                = dir.results,
+					file.scen.prm.list = 'scenario-prm-list.csv')
+}
 
 if(do.secondary){
 	print('Plotting secondary comparison...')
