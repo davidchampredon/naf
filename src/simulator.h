@@ -300,7 +300,8 @@ public:
                                             individual* susceptible);
     
     /** Probability to be symptomatic given an individual's immunity and frailty. */
-    double calc_proba_symptomatic(float immunity, float frailty);
+    double calc_proba_symptomatic(float immunity, float frailty,
+                                  bool is_vaccinated, double vax_efficacy);
     
     /** Probability to be symptomatic given
       * an individual's frailty.
@@ -385,6 +386,8 @@ public:
                                                   ID id_sp,
                                                   double dt);
     
+    /** retrieve the _first_ vaccine efficacy encounter in all interventions. */
+    double retrieve_vaccine_efficacy();
     
     // Census
     

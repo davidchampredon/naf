@@ -57,6 +57,7 @@ public:
     float get_time_end()            const {return _time_end;}
     float get_cvg_rate()            const {return _cvg_rate;}
     float get_cvg_max_proportion()  const {return _cvg_max_proportion;}
+    float get_efficacy()            const {return _efficacy;}
     
     // Actions
     

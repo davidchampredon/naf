@@ -580,29 +580,22 @@ double Simulator::calc_proba_transmission(individual *infectious,
 
 
 
-double Simulator::calc_proba_symptomatic(float immunity, float frailty){
+double Simulator::calc_proba_symptomatic(float immunity, float frailty,
+                                         bool is_vaccinated, double vax_efficacy){
     double res = frailty * (1-immunity) * _modelParam.get_prm_double("mult_proba_symptomatic");
+    // If vaccine failed to prevent infection,
+    // then can still reduce the risk of symptoms:
+    if(is_vaccinated) res = res * (1 - vax_efficacy);
     return res;
 }
 
 
-double Simulator::calc_proba_hospitalized(float frailty)
-{
+double Simulator::calc_proba_hospitalized(float frailty){
     return frailty * _modelParam.get_prm_double("proba_hosp") ;
 }
 
 
 double Simulator::calc_proba_death(float frailty){
-
-    // DELETE WHEN SURE LOGISTIC SHAPE iS DROPPED:
-    //    double pmin     = _modelParam.get_prm_double("proba_death_min");
-//    double pmax     = _modelParam.get_prm_double("proba_death_max");
-//    double fcvx     = _modelParam.get_prm_double("proba_death_frailCvx");
-//    double slop     = _modelParam.get_prm_double("proba_death_slope");
-//    // Logistic shape:
-//    double m = pmin + (pmax-pmin) / (1.0 + exp(-slop*(frailty-fcvx))) ;
-    // ----
-    
     double m = _modelParam.get_prm_double("proba_death_mult");
     return m * frailty;
 }
@@ -919,7 +912,12 @@ uint Simulator::transmission_activation(int k,
         // determine if symptomatic:
         float imm_cell = _world[k]._indiv_S[SS_melt_success[m]]->get_immunity_cell();
         float frailty  = _world[k]._indiv_S[SS_melt_success[m]]->get_frailty();
-        double p_sympt = calc_proba_symptomatic(imm_cell, frailty);
+        
+        // in case the individual is vaccinated, the proba will be reduced.
+        bool is_vaccinated  = _world[k]._indiv_S[SS_melt_success[m]]->is_vaccinated();
+        double vax_efficacy = retrieve_vaccine_efficacy();
+        
+        double p_sympt = calc_proba_symptomatic(imm_cell, frailty, is_vaccinated, vax_efficacy);
         
         bool is_symptomatic = ( unif_01(_RANDOM_GENERATOR) < p_sympt );
         if (is_symptomatic) {
@@ -2237,6 +2235,20 @@ void Simulator::change_rnd_sp_other(){
             }
         }
     }
+}
+
+double Simulator::retrieve_vaccine_efficacy(){
+    
+    unsigned long n = _intervention.size();
+    double efficacy = 0.0;
+    for(int i=0; i<n; i++){
+        string type = _intervention[i].get_type_intervention();
+        if(type == "vaccination") {
+            efficacy = _intervention[i].get_efficacy();
+            break;
+        }
+    }
+    return efficacy;
 }
 
 

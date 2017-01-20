@@ -107,7 +107,7 @@ void main_run(){
     float time_end     = 999;
     float cvg_rate     = 0.200000;
     float cvg_max_prop = 0.50;
-    float efficacy     = 0.99000;
+    float efficacy     = 0.80 ;
     intervention interv1("vaccination",  // treatment  cure vaccination
                          "never_sympt",  // symptomatic   susceptible   young_old   never_sympt
                          "vax",
