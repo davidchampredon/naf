@@ -325,8 +325,13 @@ void individual::futureHospitalization()
     
     // hospitalization will happen after (drawn) latent,
     // but before end of (drawn) infectiousness
-    std::uniform_real_distribution<> unif(0, _doi_drawn);
-    _dobh_drawn = _dol_drawn + unif(_RANDOM_GENERATOR);
+    
+    // Discrete distribution from Morrison KT, Buckeridge DL, Xiao Y, Moghadas SM. Health & Place. Health & Place 2014; 26: 53–9.
+    vector<float> dobh_val = {1.0, 3.0, 5.0};
+    std::discrete_distribution<> d_dobh({0.20, 0.30, 0.50});
+    
+    _dobh_drawn = _dol_drawn + dobh_val[d_dobh(_RANDOM_GENERATOR)];
+    if (_dobh_drawn > _doi_drawn) _dobh_drawn = _doi_drawn - 0.5;
     
     float doh_mean = _disease.get_doh_mean();
     if (_doh_distrib == "dirac") {
@@ -350,7 +355,7 @@ void individual::futureHospitalization()
         _doh_drawn = d(_RANDOM_GENERATOR);
         found = true;
     }
-    stopif(!found, "Unknown distribution for DOI.");
+    stopif(!found, "Unknown distribution for hospitalization durations.");
 }
 
 
