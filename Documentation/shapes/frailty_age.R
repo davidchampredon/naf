@@ -1,40 +1,44 @@
 
-F0   <- 0.25
-ap   <- 60
-amin <- 30
-Fmin <- 0.12
-b    <- 1.3
-alpha <- -log(1/Fmin/b-1/b)/(amin-ap)
-
-xx <- seq(0,100,by=0.1)
-yy <- 1/(1+b*exp(-alpha*(xx-ap)))
-yy[xx<=amin] <- NA
-
-q <- 2
-yy0 <- (F0-Fmin)/amin^q * (amin-xx)^q + Fmin
-yy0[xx>amin] <- NA
-
 # Retrieve Data 
 dat <- read.csv('../../data/frailty/frailty-canada.csv')
 
+# Segmented regression
+library(segmented)
+
+lin.mod <- lm(data = dat, formula = frailty ~age)
+seglm <- segmented(lin.mod, seg.Z = ~age, psi=25)
+
+
+
+#plot(seglm, add=T, lwd =8, col=rgb(0,0,0,0.3))
+
+print(seglm)
+cf <- seglm$coefficients
+brk <- seglm$psi
+print(paste('slope2=',cf[2]+cf[3]))
+
+
+x1 <- seq(0,brk[2], by=0.1)
+x2 <- seq(brk[2], 100, by=0.1)
+
+y1 <- cf[1] + cf[2]*x1
+y2 <- (cf[1] + cf[2]*brk[2]) + (cf[2]+cf[3])*(x2-brk[2])
+
+col <- rgb(0,0,0,1)
+lwd <- 8
 
 # PLOT
 
-pdf('../figures/frailty.pdf')
-plot(xx,yy,typ='l', 
-	 xlab = 'age', ylab = 'frailty',
-	 ylim=c(0,1), las=1,lwd=6)
-lines(xx,yy0, lwd=6)
-# data:
-points(dat$age, dat$frailty, pch=1, lwd=3, col='red')
-
-if(0){
-	abline(v=amin,lty=2,col='grey',lwd=1)
-	abline(h=Fmin,lty=2,col='grey',lwd=1)
-	abline(v=ap,lty=4,col='orange',lwd=1)
-	yap <- yy[xx==ap]
-	abline(h=yap,lty=4,col='orange',lwd=1)
-}
+pdf('../figures/frailty.pdf', width=10, height = 5)
+par(cex.lab=1.5, cex.axis=1.5)
+plot(dat$age, dat$frailty, 
+     las=1,
+     xlab = 'Age (years)',
+     ylab = 'Frailty index',
+     cex = 2, lwd = 6, col='red',
+     xlim = range(c(0,dat$age)), ylim=c(0,1))
 grid()
+lines(x1,y1, lwd=lwd, col=col)
+lines(x2,y2, lwd=lwd, col=col)
 dev.off()
 

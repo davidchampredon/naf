@@ -2080,16 +2080,12 @@ void Simulator::assign_immunity_cell(){
 }
 
 
-void Simulator::assign_frailty(){
-    /// Calculate frailty index for all individuals
-    
+void Simulator::assign_frailty(){    
     // Retrieve model parameters for frailty:
     float f0         = _modelParam.get_prm_double("frailty_0");
-    float fmin       = _modelParam.get_prm_double("frailty_min");
-    float agemin     = _modelParam.get_prm_double("frailty_agemin");
-    float agepivot   = _modelParam.get_prm_double("frailty_agepivot");
-    float fpivot     = _modelParam.get_prm_double("frailty_pivot");
-    float powerChild = _modelParam.get_prm_double("frailty_powerChild");
+    float fagepivot  = _modelParam.get_prm_double("frailty_agepivot");
+    float fslope1    = _modelParam.get_prm_double("frailty_slope1");
+    float fslope2    = _modelParam.get_prm_double("frailty_slope2");
     float frail_sd   = _modelParam.get_prm_double("frailty_sd");
     
     // loop through all indviduals:
@@ -2098,7 +2094,7 @@ void Simulator::assign_frailty(){
         unsigned long nk = _world[k].get_size();
         for (uint i=0; i< nk; i++) {
             float age = _world[k].get_indiv(i).get_age();
-            float frail_mean = frailty_mean(age, f0, fmin, agemin, agepivot, fpivot, powerChild);
+            float frail_mean = frailty_mean(age, f0, fagepivot, fslope1, fslope2);
             std::normal_distribution<> norm(frail_mean,frail_sd);
             
             float frail = norm(_RANDOM_GENERATOR);

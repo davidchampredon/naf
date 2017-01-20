@@ -156,6 +156,9 @@ public:
      */
     void assign_immunity_cell();
     
+    /**
+     * Calculate frailty index for all individuals.
+     */
     void assign_frailty();
     
 	// Simulate

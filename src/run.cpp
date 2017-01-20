@@ -50,12 +50,10 @@ void main_run(){
     MP.add_prm_double ("proba_death_slope", 15.0);
     MP.add_prm_double ("proba_death_mult", 0.9);
     
-    MP.add_prm_double("frailty_0", 0.60);
-    MP.add_prm_double("frailty_min", 0.15);
-    MP.add_prm_double("frailty_agemin", 30.0);
-    MP.add_prm_double("frailty_agepivot", 60);
-    MP.add_prm_double("frailty_pivot", 0.50);
-    MP.add_prm_double("frailty_powerChild", 3);
+    MP.add_prm_double("frailty_0", 0.22);
+    MP.add_prm_double("frailty_agepivot", 37);
+    MP.add_prm_double("frailty_slope1", -0.002);
+    MP.add_prm_double("frailty_slope2", 0.0143);
     MP.add_prm_double("frailty_sd", 0.1);
     
     MP.add_prm_double("imm_hum_baseline", 0.1);

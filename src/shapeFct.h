@@ -21,11 +21,9 @@ double linear_interpol(double x, double x1, double y1, double x2, double y2);
  */
 float frailty_mean(float age,
                    float f0,
-                   float fmin,
-                   float agemin,
                    float agepivot,
-                   float fpivot,
-                   float powerChild);
+                   float slope1,
+                   float slope2);
 
 /**
  * Defines humoral immunity index for an individual of age 'age'

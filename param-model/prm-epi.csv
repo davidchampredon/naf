@@ -18,12 +18,10 @@ proba_death_frailCvx , 0.40
 proba_death_slope    , 12.0
 proba_death_mult     , 0.9
 
-frailty_0          , 0.60
-frailty_powerChild , 1
-frailty_min        , 0.12
-frailty_agemin     , 30.0
-frailty_agepivot   , 60
-frailty_pivot      , 0.43
+frailty_0          , 0.22
+frailty_agepivot   , 37.25
+frailty_slope1     , -0.0023
+frailty_slope2     , 0.0143
 frailty_sd         , 0.1
 
 imm_hum_baseline, 0.1
