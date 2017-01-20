@@ -67,7 +67,7 @@ public:
                               float doi_reduc_treat,
                               float imm_hum_incr,
                               float imm_cell_incr,
-                              float frail_incr,
+                              float frail_min,
                               float vax_lag);
     
     /** Vaccinate selected symptomatic individuals. */
@@ -75,7 +75,7 @@ public:
                       float current_time,
                       float imm_hum_incr,
                       float imm_cell_incr,
-                      float frail_incr,
+                      float frail_min,
                       float lag);
     
     /** Treat selected symptomatic individuals. */

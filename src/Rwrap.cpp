@@ -210,7 +210,6 @@ List naf_run_det(List params,
 		
 		set_parameter(MP, "vax_imm_hum_incr",	   "double", params);
 		set_parameter(MP, "vax_imm_cell_incr",     "double", params);
-		set_parameter(MP, "vax_frail_incr",        "double", params);
 		set_parameter(MP, "vax_lag_full_efficacy", "double", params);
 		
 		cout << "--> Treatment & vax params loaded." << endl;
@@ -555,7 +554,6 @@ List naf_run(List params,
         
         set_parameter(MP, "vax_imm_hum_incr",          "double", params);
 		set_parameter(MP, "vax_imm_cell_incr",          "double", params);
-        set_parameter(MP, "vax_frail_incr",        "double", params);
         set_parameter(MP, "vax_lag_full_efficacy", "double", params);
         
         set_parameter(MP, "proba_death_prm_1", "double", params);

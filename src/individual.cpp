@@ -501,7 +501,7 @@ void individual::receive_treatment(double doi_reduction, float efficacy)
 void individual::receive_vaccine(float time,
                                  float imm_hum_incr,
                                  float imm_cell_incr,
-                                 float frail_incr, // <-- frailty is not affected in this implementation.
+                                 float frail_min,
                                  float vaxlag,
                                  float efficacy){
     _is_vaccinated = true;
@@ -519,7 +519,7 @@ void individual::receive_vaccine(float time,
     std::uniform_real_distribution<double> unif01(0.0,1.0);
     double u = unif01(_RANDOM_GENERATOR_INTERV);
     
-    if(u < efficacy){
+    if(u < efficacy * (1.0 -_frailty)/(1.0 - frail_min) ){
         _vax_target_immunity_hum  = 1.00;
         _vax_target_immunity_cell = _immunity_cell ;
     }

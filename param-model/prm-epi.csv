@@ -61,4 +61,4 @@ treat_reduc_infect_mean , 0.1
 vax_imm_hum_incr      , 0.6
 vax_imm_cell_incr     , 0.1
 vax_lag_full_efficacy , 17.5
-vax_frail_incr        , 0.0001
+

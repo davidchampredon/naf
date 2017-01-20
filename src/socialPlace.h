@@ -224,6 +224,8 @@ public:
     void	displayInfo();
 };
 
+
+
 /**
  * Export the vector of social places to a vector of dcDataFrame
  */

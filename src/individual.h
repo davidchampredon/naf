@@ -275,13 +275,12 @@ public:
     void    receive_treatment(double doi_reduction, float efficacy);
     
     
-    /** Vaccinate this individual
-     */
+    /** Vaccinate this individual. */
     void    receive_vaccine(float time,
                             float vaxlag,
                             float imm_hum_incr,
                             float imm_cell_incr,
-                            float frail_incr,
+                            float frail_min,
                             float efficacy);
     void    receive_cure();
 	

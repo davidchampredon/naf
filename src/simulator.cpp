@@ -257,8 +257,13 @@ void Simulator::run(){
     float treat_doi_reduc   = _modelParam.get_prm_double("treat_doi_reduc");
     float vax_imm_hum_incr  = _modelParam.get_prm_double("vax_imm_hum_incr");
     float vax_imm_cell_incr = _modelParam.get_prm_double("vax_imm_cell_incr");
-    float vax_frail_incr    = _modelParam.get_prm_double("vax_frail_incr");
     float vax_lag           = _modelParam.get_prm_double("vax_lag_full_efficacy");
+    
+    float f0         = _modelParam.get_prm_double("frailty_0");
+    float fagepivot  = _modelParam.get_prm_double("frailty_agepivot");
+    float fslope1    = _modelParam.get_prm_double("frailty_slope1");
+    float fslope2    = _modelParam.get_prm_double("frailty_slope2");
+    float frail_min  = minimum_frailty(_world, f0, fagepivot, fslope1, fslope2);
     
     // Display simulator's information
     // before running simulation:
@@ -350,7 +355,7 @@ void Simulator::run(){
                                    treat_doi_reduc,
                                    vax_imm_hum_incr,
                                    vax_imm_cell_incr,
-                                   vax_frail_incr,
+                                   frail_min,
                                    vax_lag);
         }
         
@@ -1798,7 +1803,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         vector<uint> pos_trgt;
         
         // Identify the targeted individuals:
-        uint n_sp =_world[id_sp]._indiv_S.size();
+        uint n_sp = (uint)_world[id_sp]._indiv_S.size();
         
         for (uint j=0; j<n_sp ; j++) {
             
@@ -1967,7 +1972,7 @@ void Simulator::activate_interventions(ID id_sp, double dt,
                                        float treat_doi_reduc,
                                        float vax_imm_hum_incr,
                                        float vax_imm_cell_incr,
-                                       float vax_frail_incr,
+                                       float frail_min,
                                        float vax_lag)
 {
     _n_treated.resize(_intervention.size());
@@ -1992,7 +1997,7 @@ void Simulator::activate_interventions(ID id_sp, double dt,
                                                    treat_doi_reduc,
                                                    vax_imm_hum_incr,
                                                    vax_imm_cell_incr,
-                                                   vax_frail_incr,
+                                                   frail_min,
                                                    vax_lag);
                 
                 if      (_intervention[i].get_type_intervention()=="treatment")
@@ -2235,7 +2240,15 @@ void Simulator::change_rnd_sp_other(){
 }
 
 
-
+double minimum_frailty(world w, float f0, float agepivot, float slope1, float slope2){
+    
+    double themin = 999.99;
+    for(double a=0; a <100; a+=0.5){
+        double f = frailty_mean(a, f0, agepivot, slope1, slope2);
+        if (f<themin) themin = f;
+    }
+    return themin;
+}
 
 
 

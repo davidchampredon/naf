@@ -356,7 +356,7 @@ public:
                                    float treat_doi_reduc,
                                    float vax_imm_hum_incr,
                                    float vax_imm_cell_incr,
-                                   float vax_frail_incr,
+                                   float frail_min,
                                    float vax_lag);
     
     
@@ -422,6 +422,8 @@ public:
 	
 };
 
+/** retrieve the minimum _MEAN_ frailty. */
+double minimum_frailty(world w, float f0, float agepivot, float slope1, float slope2);
 double age_contact_elem(double x,double y,double a,double b,double w,double q,double r);
 
 

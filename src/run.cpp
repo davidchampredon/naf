@@ -91,7 +91,6 @@ void main_run(){
     
     MP.add_prm_double ("vax_imm_hum_incr", 0.2);
     MP.add_prm_double ("vax_imm_cell_incr", 0.4);
-    MP.add_prm_double ("vax_frail_incr",0.1);
     MP.add_prm_double ("vax_lag_full_efficacy", 12);
     
     MP.add_prm_double ("pubT_prop", 0.12);

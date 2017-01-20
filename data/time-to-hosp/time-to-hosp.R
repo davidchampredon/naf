@@ -14,9 +14,11 @@ df <- ddply(dat,c('zone'), summarize,
             m = sum(time_to_hosp * prop),
             v = sum((time_to_hosp^2 * prop)) - (sum(time_to_hosp * prop))^2)
 
+
+
 df
 mm <- 4#mean(df$m)
-vv <- 0.7 #mean(df$v)
+vv <- 9 #mean(df$v)
 
 mu = log(mm^2/sqrt(vv+mm^2));
 sigma = log(1.0 + vv/mm^2);

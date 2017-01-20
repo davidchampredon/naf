@@ -52,11 +52,11 @@ void intervention::vaccinate(vector<individual*> x,
                              float current_time,
                              float imm_hum_incr,
                              float imm_cell_incr,
-                             float frail_incr,
+                             float frail_min,
                              float vaxlag)
 {
        for (uint i = 0; i<x.size(); i++) {
-        x[i]->receive_vaccine(current_time, imm_hum_incr,imm_cell_incr, frail_incr, vaxlag, _efficacy);
+        x[i]->receive_vaccine(current_time, imm_hum_incr,imm_cell_incr, frail_min, vaxlag, _efficacy);
     }
 }
 
@@ -74,7 +74,7 @@ void intervention::act_on_individual(vector<individual*> x,
                                      float doi_reduc_treat,
                                      float imm_hum_incr,
                                      float imm_cell_incr,
-                                     float frail_incr,
+                                     float frail_min,
                                      float vax_lag){
     bool found = false;
     
@@ -84,7 +84,7 @@ void intervention::act_on_individual(vector<individual*> x,
     }
     
     else if (_type_intervention == "vaccination") {
-        vaccinate(x,current_time,imm_hum_incr,imm_cell_incr,frail_incr,vax_lag);
+        vaccinate(x,current_time,imm_hum_incr,imm_cell_incr,frail_min,vax_lag);
         found = true;
     }
     
