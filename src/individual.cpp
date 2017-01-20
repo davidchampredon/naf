@@ -512,24 +512,7 @@ void individual::receive_vaccine(float time,
     
     
     // Set the immunities level once vaccine fully effective
-    // (after some lag time)
-    std::uniform_real_distribution<> unif_lag(0.80*vaxlag, 1.20*vaxlag);
-    _vax_lag_full_efficacy    = unif_lag(_RANDOM_GENERATOR_INTERV);
-    
-
-    // DELETE WHEN SURE (2017-01-08)
-    //    // translate mean and stddev into gamma parameters
-//    double m_g = imm_hum_incr;
-//    double v_g = imm_hum_incr/100.0;
-//    double a_gamma = m_g*m_g/v_g;
-//    double b_gamma = m_g/v_g;
-//    std::gamma_distribution<float> gamm_imm_hum(a_gamma, 1.0 / b_gamma);
-//    
-//    m_g = imm_cell_incr;
-//    v_g = imm_cell_incr/100.0;
-//    a_gamma = m_g*m_g/v_g;
-//    b_gamma = m_g/v_g;
-//    std::gamma_distribution<float> gamm_imm_cell(a_gamma, 1.0 / b_gamma);
+    _vax_lag_full_efficacy = vaxlag;
     
     _vax_time_received = time;
     
@@ -540,12 +523,7 @@ void individual::receive_vaccine(float time,
         _vax_target_immunity_hum  = 1.00;
         _vax_target_immunity_cell = _immunity_cell ;
     }
-    //_vax_target_immunity_hum  = _immunity_hum  + gamm_imm_hum(_RANDOM_GENERATOR);
-    //_vax_target_immunity_cell = _immunity_cell + gamm_imm_cell(_RANDOM_GENERATOR);
-    
-    // DELETE WHEN SURE (2017-01-08)
-//    if(_vax_target_immunity_hum > 1.0)  _vax_target_immunity_hum  = 1.0;
-//    if(_vax_target_immunity_cell > 1.0) _vax_target_immunity_cell = 1.0;
+
 }
 
 
