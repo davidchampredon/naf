@@ -490,10 +490,10 @@ void individual::receive_treatment(double doi_reduction, float efficacy)
     double u = unif01(_RANDOM_GENERATOR_INTERV);
     
     if(u < efficacy){
-        std::exponential_distribution<double> expdist(1.0/doi_reduction);
-        double tmp = _doi_drawn - expdist(_RANDOM_GENERATOR_INTERV);
-        double new_doi_drawn = (tmp>0)?tmp:SUPERTINY;
-        set_doi_drawn(new_doi_drawn);
+        double tmp = (2.5 - _doi_drawn) / 2.0;
+        if(_doi_drawn<0.5) tmp = 0.0;
+        if(_doi_drawn>2.5) tmp = 0.0;
+        set_doi_drawn(tmp);
     }
 }
 
