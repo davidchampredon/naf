@@ -345,6 +345,7 @@ void Simulator::run(){
         // interventions:
         
         for (uint k=0; k<_world.size(); k++) {
+            
             activate_interventions(k, dt,
                                    treat_doi_reduc,
                                    vax_imm_hum_incr,
@@ -1783,6 +1784,56 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         }
     } // end-if-type_target == "susceptible"
     
+    else if(type_target == "never_sympt"){
+        
+        // Target all individuals that never had a symptomatic infection.
+        // (so, include recovered asymptomatic)
+        // * * WARNING * * excludes susceptible already treated & vaccinated!
+        
+        found = true;
+        
+        // First, count how many targeted individuals
+        // are present in this social place:
+        uint total_targeted = 0;
+        vector<uint> pos_trgt;
+        
+        // Identify the targeted individuals:
+        uint n_sp =_world[id_sp]._indiv_S.size();
+        
+        for (uint j=0; j<n_sp ; j++) {
+            
+            bool was_symptom = _world[id_sp].get_indiv(j).was_symptomatic();
+            bool is_symptom  = _world[id_sp].get_indiv(j).is_symptomatic();
+            bool is_treated  = _world[id_sp].get_indiv(j).is_treated();
+            bool is_vax      = _world[id_sp].get_indiv(j).is_vaccinated();
+            
+            if( (!was_symptom) && (!is_symptom) && (!is_treated) && (!is_vax)) {
+                total_targeted++;
+                pos_trgt.push_back(j);
+            }
+        }
+        // Draw the total number of individuals
+        // that are targeted:
+        if(total_targeted>0){
+ 
+            float intensity = cvg_rate * total_targeted * dt;
+            
+            std::poisson_distribution<> poiss(intensity);
+            uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
+            if (n_target > total_targeted) n_target = total_targeted;
+            
+            // Select targeted individuals:
+            uint cnt = 0;
+            for(uint j=0; j<pos_trgt.size() && cnt<n_target ; j++)
+            {
+                individual* tmp = _world[id_sp].get_mem_indiv(pos_trgt[j]);
+                indiv_drawn.push_back(tmp);
+                cnt ++;
+            }
+        }
+    } // end-if-type_target == "susceptible"
+    
+    
     else if(type_target == "young_old"){
         
         // * * WARNING * * targets _ALL_ (including infected) young/old individuals
@@ -1841,12 +1892,14 @@ void Simulator::count_targeted_by_intervention(){
     
     for (uint i=0; i<_intervention.size(); i++){
         
+        bool found = false;
+        
         string type_target     = _intervention[i].get_type_indiv_targeted();
         
         uint cnt = 0;
         
         if(type_target == "symptomatic"){
-            
+            found = true;
             // WARNING : in this case, is is not possible
             // to know in advance the targeted population,
             // so max coverage is relative to total size (=susceptible at start)
@@ -1855,11 +1908,36 @@ void Simulator::count_targeted_by_intervention(){
         }
         
         if(type_target == "susceptible"){
+            found = true;
             for(uint id_sp=0; id_sp< _world.size(); id_sp++)
                 cnt += (uint)_world[id_sp]._indiv_S.size();
         }
         
+        if(type_target == "never_sympt"){
+            found = true;
+            for(uint id_sp=0; id_sp< _world.size(); id_sp++){
+                uint ns = 0;
+                // counts individuals of the targeted age:
+                for (uint i=0; i< _world[id_sp].get_size(); i++) {
+                    
+                    bool was_symptom = _world[id_sp].get_indiv(i).was_symptomatic();
+                    bool is_symptom  = _world[id_sp].get_indiv(i).is_symptomatic();
+                    bool is_treated  = _world[id_sp].get_indiv(i).is_treated();
+                    bool is_vax      = _world[id_sp].get_indiv(i).is_vaccinated();
+                    
+                    if((!was_symptom) &&
+                       (!is_symptom) &&
+                       (!is_treated) &&
+                       (!is_vax)) {
+                        ns++;
+                    }
+                }
+                cnt += ns;
+            }
+
+        }
         if(type_target == "young_old"){
+            found = true;
             float age_old   = AGE_OLD;
             float age_young = AGE_YOUNG;
             
@@ -1874,8 +1952,8 @@ void Simulator::count_targeted_by_intervention(){
                 }
                 cnt += n_yo;
             }
-            
         }
+        stopif(!found, "Cannot count number targeted: intervention unknown!");
         // Maximum number of individuals
         // targeted by ith intervention:
         _max_cvg_interv[i] = (uint)(cnt * _intervention[i].get_cvg_max_proportion());

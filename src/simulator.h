@@ -193,6 +193,7 @@ public:
 	double			get_current_time()   const {return _current_time;}
 	vector<double>	get_ts_times()       const {return _ts_times;}
 	vector<uint>	get_ts_incidence()   const {return _ts_incidence;}
+    vector<uint>	get_ts_n_vaccinated() const {return _ts_n_vaccinated;}
     
     vector<double>  get_ts_census_sp_time()  const{return _ts_census_sp_time;}
     vector<uint>    get_ts_census_sp_id()    const{return _ts_census_sp_id;}

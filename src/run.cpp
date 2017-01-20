@@ -104,13 +104,13 @@ void main_run(){
     // Define intervention
     vector<intervention> interv_vec;
     
-    float time_start   = 10;
+    float time_start   = -11;
     float time_end     = 999;
-    float cvg_rate     = 9901;
-    float cvg_max_prop = 0.99;
+    float cvg_rate     = 0.200000;
+    float cvg_max_prop = 0.50;
     float efficacy     = 0.99000;
     intervention interv1("vaccination",  // treatment  cure vaccination
-                         "susceptible",  // symptomatic   susceptible   young_old
+                         "never_sympt",  // symptomatic   susceptible   young_old   never_sympt
                          "vax",
                          time_start, time_end,
                          cvg_rate, cvg_max_prop, efficacy);
@@ -398,6 +398,7 @@ void main_run(){
     
     cout << "Final size = " << sim.final_size() << endl;
     
+    displayVector(sim.get_ts_n_vaccinated());
     
     //x.display();
     //displayVector(census_ages(sim.get_world()));

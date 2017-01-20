@@ -526,7 +526,7 @@ void individual::receive_vaccine(float time,
 //    b_gamma = m_g/v_g;
 //    std::gamma_distribution<float> gamm_imm_cell(a_gamma, 1.0 / b_gamma);
     
-    _vax_time_received        = time;
+    _vax_time_received = time;
     
     std::uniform_real_distribution<double> unif01(0.0,1.0);
     double u = unif01(_RANDOM_GENERATOR_INTERV);
