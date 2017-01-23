@@ -582,10 +582,10 @@ double Simulator::calc_proba_transmission(individual *infectious,
 
 double Simulator::calc_proba_symptomatic(float immunity, float frailty,
                                          bool is_vaccinated, double vax_efficacy){
-    double res = frailty * (1-immunity) * _modelParam.get_prm_double("mult_proba_symptomatic");
+    double res = frailty * (1.0 - immunity) * _modelParam.get_prm_double("mult_proba_symptomatic");
     // If vaccine failed to prevent infection,
     // then can still reduce the risk of symptoms:
-    if(is_vaccinated) res = res * (1 - vax_efficacy);
+    if(is_vaccinated) res = res * (1.0 - vax_efficacy);
     return res;
 }
 
