@@ -24,7 +24,7 @@ frailty_slope1     , -0.0023
 frailty_slope2     , 0.0143
 frailty_sd         , 0.1
 
-imm_hum_baseline, 0.1
+imm_hum_baseline, 0.000001
 imm_hum_agezero , 120
 imm_hum_p       , 2
 
