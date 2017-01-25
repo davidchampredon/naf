@@ -25,9 +25,9 @@ plot.cel <- function(imm.max, slope, pivot,add) {
 	
 	if(!add){
 		plot(x,y,typ='l', xlim=c(0,agemax), 
-			 main='Cellular immunity index',
+			 main='',
 			 las=1, 
-			 xlab='Age (years)',ylab='',
+			 xlab='Age (years)',ylab='Cellular immunity level',
 			 ylim=c(0,1),lwd=6)
 		grid(lty=2)
 	}
@@ -38,7 +38,7 @@ plot.cel <- function(imm.max, slope, pivot,add) {
 
 save.plot <- TRUE
 if(save.plot) pdf('../figures/immunity.pdf',width = 12, height = 6)
-par(mfrow=c(1,1), cex.lab=1.5, cex.axis=1.5, cex.main=1.5)
+par(mfrow=c(1,1), cex.lab=1.1, cex.axis=1.5, cex.main=1.5)
 # h0 <- 0.5
 # plot.hum(x,q=100,p=1.7,h0, add=F)
 # plot.hum(x,q=100,p=3.0,  h0, add=T)
