@@ -25,7 +25,7 @@ for(i in 1:ns){
 	x[2] <- paste0('#PBS -l walltime=',wall.time)
 	x[3] <- '#PBS -l nodes=1:ppn=1
 #PBS -r n
-#PBS -m e
+#PBS -m a
 #PBS -M david.champredon@gmail.com
 
 module load intel64/15.3.187 xz/5.2.2 gcc/5.2.0
