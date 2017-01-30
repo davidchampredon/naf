@@ -1,0 +1,15 @@
+===
+=== Check list before running large scenario jobs on HPC ===
+===
+
+- Folder for results (dir-def.csv)
+
+- prm-siml.csv: 
+	* Scale down
+	* MC & CPUS
+
+- scenario-builder.R:
+	* Verify all values
+	* Verify vaccination strategynames (e.g., 'never_sympt')
+
+- job email alerts: 'a' abort only, not 'e' end, unless you really want to.
