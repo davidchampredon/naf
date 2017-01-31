@@ -490,14 +490,24 @@ plot.rate.reduc <- function(result.scen.all,
 	plot.mc.cr(x)
 	
 	zlist <- list(z.inf,z.sympt,z.hosp,z.death)
-	titlelist <- list('All Infections','Symptomatic Infections','Hospitalized','Deaths')
+	titlelist <- list('All Infections',
+	                  'Symptomatic Infections',
+	                  'Hospitalized',
+	                  'Deaths')
+	# Flag that tests if there were more than one value
+	# for a given parameter. 
+	# If two or more values, plot comparison.
+	u_immh   <- length(unique(spl$imm_hum_baseline))
+	u_cvgmax <- length(unique(spl$interv_cvg_max_prop))
 	
 	for(i in seq_along(zlist)) plot.reduc.curve(zlist[[i]], title = titlelist[[i]])
 	for(i in seq_along(zlist)) plot.start.compare(zlist[[i]], title = titlelist[[i]])
 	for(i in seq_along(zlist)) plot.target.compare(zlist[[i]], title = titlelist[[i]])
 	for(i in seq_along(zlist)) plot.efficacy.compare(zlist[[i]], title = titlelist[[i]])
-	for(i in seq_along(zlist)) plot.immhum.compare(zlist[[i]], title = titlelist[[i]])
-	for(i in seq_along(zlist)) plot.cvgmax.compare(zlist[[i]], title = titlelist[[i]])
+	if(u_immh>1) 
+	    for(i in seq_along(zlist)) plot.immhum.compare(zlist[[i]], title = titlelist[[i]])
+	if(u_cvgmax>1)
+	    for(i in seq_along(zlist)) plot.cvgmax.compare(zlist[[i]], title = titlelist[[i]])
 	
 	dev.off()
 }
@@ -526,7 +536,7 @@ format.df.for.figure <- function(z){
 figure.1 <- function(z, title='') {
     
     z <- subset(z, interv_efficacy==0.8)
-    z <- subset(z, imm_hum_baseline==0.1)
+    #z <- subset(z, imm_hum_baseline==0.1)
     z <- subset(z, `Final Cum. Incidence`==0.5)
     
     z <- explicit_variable(var ='Vaccination scenario', df = z )
@@ -587,7 +597,7 @@ figures.maintext <-function(result.scen.all,
     # Plot and save :
     pdf(paste0(dir,'figure-1.pdf'), width=15, height=8)
     i <- 1
-    figure.1(zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
+    figure.1(z= zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
     dev.off()
 }
 
