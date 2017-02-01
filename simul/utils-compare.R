@@ -3,17 +3,92 @@
 ###
 
 library(plyr)
-library(ggplot2)
-theme_set(theme_bw())
+library(ggplot2) ; theme_set(theme_bw())
+library(tidyr)
+library(dplyr)
+
+#' Define age groups
+ageGroup <- function(x) {
+    age.1 <- 5
+    age.2 <- 18
+    age.3 <- 65
+    x$ageGroup <- NA
+    x$ageGroup[ x$age < age.1] <- paste0('0_',age.1)
+    x$ageGroup[ age.1 <= x$age & x$age < age.2] <- paste(age.1,age.2, sep='_')
+    x$ageGroup[ age.2 <= x$age & x$age < age.3] <- paste(age.2,age.3, sep='_')
+    x$ageGroup[ age.3 <= x$age ] <- paste0(age.3,'_over')
+    return(x)
+}
+
+#' Summarize main outcomes
+main.results <- function(df, intervention.type, do.ageGroup = FALSE){
+    
+    sel <- 'mc'
+    if(do.ageGroup) sel <- c('mc','ageGroup')
+    
+    res <- ddply(df,sel,summarise, 
+                 tot.pop   = length(unique(id_indiv)),
+                 tot.inf   = sum(is_recovered),
+                 tot.sympt = sum(was_symptomatic),
+                 tot.hosp  = sum(was_hosp),
+                 tot.death = sum(1-is_alive),
+                 tot.treat = sum(is_treated))
+    res$intervention <- intervention.type
+    return(res)
+}
+
+#' Calculate raw difference of main outcomes with baseline
+diff_df <- function(a0, a, scen.id, do.ageGroup = FALSE) {
+    d <- data.frame(scenario = scen.id,
+                    mc = a$mc,
+                    popsize   = a0$tot.pop,
+                    tot.inf.baseline   = a0$tot.inf,
+                    tot.sympt.baseline = a0$tot.sympt,
+                    tot.hosp.baseline  = a0$tot.hosp,
+                    tot.death.baseline = a0$tot.death,
+                    tot.treat.baseline = a0$tot.treat,
+                    # Raw diffences with baseline:
+                    d.inf   = a$tot.inf   - a0$tot.inf,
+                    d.sympt = a$tot.sympt - a0$tot.sympt,
+                    d.hosp  = a$tot.hosp  - a0$tot.hosp,
+                    d.death = a$tot.death - a0$tot.death,
+                    d.treat = a$tot.treat - a0$tot.treat)
+    if(do.ageGroup) d$ageGroup <- a$ageGroup
+    return(d)
+}
+
+#' Calculate relative difference of main outcomes with baseline
+reldiff_df <- function(d) {
+    n <- ncol(d)
+    idx.diff     <- which( substr(names(d),1,2)=='d.'  )
+    idx.tot.base <- which( substr(names(d),1,4)=='tot.' )
+    stopifnot(length(idx.diff)==length(idx.tot.base))
+    
+    for(j in 1:length(idx.diff)) {
+        v <- d[,idx.diff[j] ] / d[,idx.tot.base[j]]
+        d <- cbind(d, v)
+        nam <- paste0('rel.',names(d)[ idx.diff[j] ])
+        names(d)[ncol(d)] <- nam
+    }
+    return(d)
+}
+
+
+#' Filter out fizzles, if any:
+filter.fizzle <- function(d) {
+    threshold.fizzle <- 0.01
+    idx.not.fizzle <- which(d$tot.inf.baseline > d$popsize * threshold.fizzle)
+    if(nrow(d) > length(idx.not.fizzle))
+        d <- d[idx.not.fizzle,]
+    return(d)
+}
 
 compare.simul.scen <- function(scen.id, 
 							   dir.save.rdata,
 							   dir.results,
 							   do.secondary = FALSE) {
 	ct0 <- as.numeric(Sys.time())
-	library(tidyr)
-	library(dplyr)
-	
+
 	### ==== Load simulation results ====
 	
 	print(paste('Loading simulation results for scenario',scen.id,'...'))
@@ -71,7 +146,6 @@ compare.simul.scen <- function(scen.id,
 	
 	# ----- Comparison tables -----
 	
-	# ==== Main results ====
 	pop0 <- merge.pop.mc(res.list = res.list.0, 
 						 n.cpu = 2,
 						 doparallel = TRUE,
@@ -80,59 +154,34 @@ compare.simul.scen <- function(scen.id,
 						n.cpu = 2,
 						doparallel = TRUE,
 						select.mc = 1:n.mc)
+
+	# Assign age groups:
+	pop0 <- ageGroup(pop0)
+	pop  <- ageGroup(pop)
 	
-	main.results <- function(df){
-		return(ddply(df,c('mc'),summarise, 
-					 tot.pop   = length(unique(id_indiv)),
-					 tot.inf   = sum(is_recovered),
-					 tot.sympt = sum(was_symptomatic),
-					 tot.hosp  = sum(was_hosp),
-					 tot.death = sum(1-is_alive),
-					 tot.treat = sum(is_treated)))
-	}
-	
-	a0 <- main.results(pop0)
-	a0$intervention <- 'baseline'
-	a <- main.results(pop)
-	a$intervention <- 'interv' #paste('interv',scen.id,sep='-')
-	
-	# Data frame of raw differences:
-	d <- data.frame(scenario = scen.id,
-					mc = a$mc,
-					popsize   = a0$tot.pop,
-					tot.inf.baseline   = a0$tot.inf,
-					tot.sympt.baseline = a0$tot.sympt,
-					tot.hosp.baseline  = a0$tot.hosp,
-					tot.death.baseline = a0$tot.death,
-					tot.treat.baseline = a0$tot.treat,
-					# Raw diffences with baseline:
-					d.inf   = a$tot.inf   - a0$tot.inf,
-					d.sympt = a$tot.sympt - a0$tot.sympt,
-					d.hosp  = a$tot.hosp  - a0$tot.hosp,
-					d.death = a$tot.death - a0$tot.death,
-					d.treat = a$tot.treat - a0$tot.treat)
+	# Summarize the main outcomes:
+	a0 <- main.results(df= pop0,'baseline')
+	a  <- main.results(df= pop,'interv')
+	a0.ageGroup <- main.results(df= pop0, 'baseline', do.ageGroup = TRUE)
+	a.ageGroup  <- main.results(df= pop, 'interv', do.ageGroup = TRUE)
+
+	# Raw difference with baseline:
+	d          <- diff_df(a0, a, scen.id, do.ageGroup = FALSE)
+	d.ageGroup <- diff_df(a0.ageGroup, a.ageGroup, scen.id, do.ageGroup = TRUE)
 	
 	# Add _relative_ differences calculations
-	n <- ncol(d)
-	idx.diff     <- which( substr(names(d),1,2)=='d.'  )
-	idx.tot.base <- which( substr(names(d),1,4)=='tot.' )
-	stopifnot(length(idx.diff)==length(idx.tot.base))
+	d <- reldiff_df(d)
+	d.ageGroup <- reldiff_df(d.ageGroup)
 	
-	for(j in 1:length(idx.diff)) {
-		v <- d[,idx.diff[j] ] / d[,idx.tot.base[j]]
-		d <- cbind(d, v)
-		nam <- paste0('rel.',names(d)[ idx.diff[j] ])
-		names(d)[ncol(d)] <- nam
-	}
-	
-	# Filter out fizzles, if any:
-	threshold.fizzle <- 0.01
-	idx.not.fizzle <- which(d$tot.inf.baseline > d$popsize * threshold.fizzle)
-	if(nrow(d) > length(idx.not.fizzle))	d <- d[idx.not.fizzle,]
+	# Filter fizzles:
+	d <- filter.fizzle(d)
+	d.ageGroup <- filter.fizzle(d.ageGroup)
 	
 	# Save main results:
 	result.scen <- d
-	save(list = 'result.scen',
+	result.scen.ageGroup <- d.ageGroup
+	
+	save(list = c('result.scen', 'result.scen.ageGroup'),
 		 file = paste0(dir.save.rdata,'result-scen-',scen.id,'.RData'), 
 		 compress = FALSE)
 	
@@ -179,11 +228,17 @@ merge.result.scen <- function(scen.id, dir.save.rdata, do.secondary=FALSE)
 	bfirst <- TRUE
 	for(i in seq_along(scen.id)){
 		load(paste0(dir.save.rdata,'result-scen-',scen.id[i],'.RData'))
-		if(bfirst)  result.scen.all <- result.scen
-		if(!bfirst) result.scen.all <- rbind(result.scen.all, result.scen)
+		if(bfirst)  {
+		    result.scen.all <- result.scen
+		    result.scen.all.ageGroup <- result.scen.ageGroup
+		}
+		if(!bfirst) {
+		    result.scen.all <- rbind(result.scen.all, result.scen)
+		    result.scen.all.ageGroup <- rbind(result.scen.all.ageGroup, result.scen.ageGroup)
+		}
 		bfirst <- FALSE
 	}
-	save(list = 'result.scen.all', 
+	save(list = c('result.scen.all', 'result.scen.all.ageGroup'), 
 		 file = paste0(dir.save.rdata,'result-scen-all.RData'),
 		 compress = FALSE)
 	
@@ -331,14 +386,17 @@ explicit_all_2 <- function(z){
 
 
 # Use only what's necessary for plot:
-output.stats <- function(x, resp.var) {
+output.stats <- function(x, resp.var, do.ageGroup = FALSE) {
     idx <- which(is.nan(x[[resp.var]]) | is.infinite(x[[resp.var]]))
     if(length(idx)>0) x <- x[-idx, ]
     
-    z <- ddply(x,
-               c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
-                 'interv_cvg_max_prop','interv_start', 'interv_efficacy',
-                 'imm_hum_baseline'),
+    sel <- c('interv_cvg_rate', 'interv_target', 'contact_rate_mean',
+             'interv_cvg_max_prop','interv_start', 'interv_efficacy',
+             'imm_hum_baseline')
+    
+    if(do.ageGroup) sel <- c(sel,'ageGroup')
+    
+    z <- ddply(x, sel,
                function(df){c(
                    mn  = mean(-df[[resp.var]]),
                    md  = quantile(-df[[resp.var]], probs = 0.50,names = F, na.rm = T),
@@ -350,26 +408,30 @@ output.stats <- function(x, resp.var) {
     return(z)
 }
 
-plot.reduc.curve <- function(z, title='')
+plot.reduc.curve <- function(z, title='', do.ageGroup = FALSE)
 {
     g <- ggplot(z,aes(x=interv_cvg_rate, y=mn, colour = factor(interv_start)), alpha=0.3) 
     g <- g + geom_point(size=1) + 
         geom_line(size=0.5) + 
         geom_linerange(aes(ymin=qlo, ymax=qhi), size=5, alpha=0.2)
     
-    g <- g + facet_grid(contact_rate_mean ~ interv_target+interv_efficacy+interv_cvg_max_prop+imm_hum_baseline)
-    g <- g + scale_color_brewer(palette = 'Dark2') + ylab('Mean relative reduction') 
+    if(!do.ageGroup) g <- g + facet_grid(contact_rate_mean ~ interv_target+interv_efficacy+interv_cvg_max_prop+imm_hum_baseline)
+    if(do.ageGroup)  g <- g + facet_grid(contact_rate_mean + ageGroup ~ interv_target+interv_efficacy+interv_cvg_max_prop+imm_hum_baseline)
     g <- g + ggtitle(title) + 
+        scale_color_brewer(palette = 'Dark2') + 
+        ylab('Mean relative reduction') +
         guides(colour=guide_legend(title="Vaccination lag"))
     plot(g)
 }
 
-plot.start.compare <- function(z, title='') {
+plot.start.compare <- function(z, title='', do.ageGroup = FALSE) {
     g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), 
                                size=3, alpha=0.7)
     g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_start)), 
                         size=4, alpha=0.7)
-    g <- g + facet_grid(interv_target~contact_rate_mean+interv_efficacy+imm_hum_baseline)
+    
+    if(!do.ageGroup) g <- g + facet_grid(interv_target~contact_rate_mean+interv_efficacy+imm_hum_baseline)
+    if(do.ageGroup)  g <- g + facet_grid(interv_target + ageGroup ~ contact_rate_mean+interv_efficacy+imm_hum_baseline)
     
     g <- g + scale_color_brewer(palette = 'BrBG')+ 
         ggtitle(title) + ylab('Mean relative reduction')+ 
@@ -378,7 +440,7 @@ plot.start.compare <- function(z, title='') {
 }
 
 
-plot.immhum.compare <- function(z, title='') {
+plot.immhum.compare <- function(z, title='', do.ageGroup = FALSE) {
     g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, 
                                    colour=factor(imm_hum_baseline)), 
                                size=3, alpha=0.7)+ 
@@ -386,7 +448,8 @@ plot.immhum.compare <- function(z, title='') {
                        colour=factor(imm_hum_baseline)), 
                    size=4, alpha=0.7)
     
-    g <- g + facet_grid(contact_rate_mean+interv_target ~ interv_efficacy+interv_start)
+    if(!do.ageGroup) g <- g + facet_grid(contact_rate_mean+interv_target ~ interv_efficacy+interv_start)
+    if(do.ageGroup)  g <- g + facet_grid(contact_rate_mean+interv_target+ageGroup ~ interv_efficacy+interv_start)
     
     g <- g + #scale_color_brewer(palette = 'BrBG')+ 
         ggtitle(title) + ylab('Mean relative reduction')+ 
@@ -395,7 +458,7 @@ plot.immhum.compare <- function(z, title='') {
 }
 
 
-plot.target.compare <- function(z, title='') {
+plot.target.compare <- function(z, title='', do.ageGroup = FALSE) {
     
     g <- ggplot(z) + geom_line(aes(x=interv_cvg_rate, y=mn, 
                                    colour=factor(interv_target) ), 
@@ -403,13 +466,15 @@ plot.target.compare <- function(z, title='') {
     g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, 
                             colour=factor(interv_target)), 
                         size=4, alpha=0.7)
-    g <- g + facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_efficacy+interv_start)
+    if(!do.ageGroup) g <- g + facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_efficacy+interv_start)
+    if(do.ageGroup) g <- g + facet_grid(contact_rate_mean+imm_hum_baseline+ageGroup ~ interv_efficacy+interv_start)
+    
     g <- g + guides(colour=guide_legend(title="Vaccination strategy"))
     g <- g + ggtitle(title) + ylab('Mean relative reduction')
     plot(g)
 }
 
-plot.efficacy.compare <- function(z, title='') {
+plot.efficacy.compare <- function(z, title='', do.ageGroup = FALSE) {
     
     g <- ggplot(z) + 
         geom_line(aes(x=interv_cvg_rate, y=mn, 
@@ -418,27 +483,32 @@ plot.efficacy.compare <- function(z, title='') {
         geom_point(aes(x=interv_cvg_rate, y=mn, 
                        colour=factor(interv_efficacy)), 
                    size=4, alpha=0.7) + 
-        facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_target + interv_start) + 
         guides(colour=guide_legend(title="Efficacy")) + 
         ggtitle(title) + ylab('Mean relative reduction')
     
+    if(!do.ageGroup) g <- g + facet_grid(contact_rate_mean+ imm_hum_baseline ~ interv_target + interv_start)
+    if(do.ageGroup)  g <- g + facet_grid(contact_rate_mean+ imm_hum_baseline+ ageGroup ~ interv_target + interv_start)
     plot(g)
     
     effvec <- unique(z$interv_efficacy)
-    a1 <- subset(z, interv_efficacy==effvec[1])
-    a2 <- subset(z, interv_efficacy==effvec[2])
-    a <- a1
-    a$reldiff_eff <- a1$mn/a2$mn -1
-    a$diff_eff <- a1$mn-a2$mn
-    gd <- ggplot(a) +
-        geom_point(aes(x=interv_cvg_rate, y=diff_eff), shape='A',size=4) + geom_line(aes(x=interv_cvg_rate, y=diff_eff),alpha=0.3) + 
-        geom_point(aes(x=interv_cvg_rate, y=reldiff_eff),shape='R',size=4) + geom_line(aes(x=interv_cvg_rate, y=reldiff_eff),alpha=0.3) + 
-        facet_grid(contact_rate_mean+imm_hum_baseline ~ interv_target + interv_start) + 
-        ggtitle(paste(title,'- Impact of vax efficacy')) + ylab('Relative difference of mean reduction')
-    plot(gd)
+    if(length(effvec)>1){
+        a1 <- subset(z, interv_efficacy==effvec[1])
+        a2 <- subset(z, interv_efficacy==effvec[2])
+        a <- a1
+        a$reldiff_eff <- a1$mn/a2$mn -1
+        a$diff_eff <- a1$mn-a2$mn
+        gd <- ggplot(a) +
+            geom_point(aes(x=interv_cvg_rate, y=diff_eff), shape='A',size=4) + geom_line(aes(x=interv_cvg_rate, y=diff_eff),alpha=0.3) + 
+            geom_point(aes(x=interv_cvg_rate, y=reldiff_eff),shape='R',size=4) + geom_line(aes(x=interv_cvg_rate, y=reldiff_eff),alpha=0.3) + 
+            ggtitle(paste(title,'- Impact of vax efficacy')) + ylab('Relative difference of mean reduction')
+        
+        if(!do.ageGroup) gd <- gd + facet_grid(contact_rate_mean+ imm_hum_baseline ~ interv_target + interv_start)
+        if(do.ageGroup)  gd <- gd + facet_grid(contact_rate_mean+ imm_hum_baseline+ ageGroup ~ interv_target + interv_start)
+        plot(gd)
+    }
 }
 
-plot.cvgmax.compare <- function(z, title='') {
+plot.cvgmax.compare <- function(z, title='', do.ageGroup = FALSE) {
     z$key <- paste0(z$interv_start,
                     ' ; CR=',z$contact_rate_mean,
                     ' ; CvgMx=',z$interv_cvg_max_prop)
@@ -447,7 +517,9 @@ plot.cvgmax.compare <- function(z, title='') {
                                size=3, alpha=0.2)
     g <- g + geom_point(aes(x=interv_cvg_rate, y=mn, colour=factor(interv_cvg_max_prop)), 
                         size=4, alpha=0.2)
-    g <- g + facet_grid(contact_rate_mean~interv_start+interv_target)
+    if(!do.ageGroup) g <- g + facet_grid(contact_rate_mean~interv_start+interv_target)
+    if(do.ageGroup)  g <- g + facet_grid(contact_rate_mean+ageGroup~interv_start+interv_target)
+    
     g <- g + guides(colour=guide_legend(title="Max coverage"))
     g <- g + ggtitle(title) + ylab('Mean relative reduction')
     plot(g)
@@ -463,53 +535,60 @@ plot.mc.cr <- function(x){
     plot(g)
 }
 
-plot.rate.reduc <- function(result.scen.all, 
-							dir, 
-							file.scen.prm.list){
-	
-	# Retrieve scenarios definitions:
-	spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
-	names(result.scen.all)[names(result.scen.all)=='scenario'] <- 'scenario_id' 
-	
-	# Merge results and scenarios definition:
-	x <- join(result.scen.all, spl, by='scenario_id')
-	
-	z.inf   <- output.stats(x, resp.var = 'rel.d.inf')
-	z.sympt <- output.stats(x, resp.var = 'rel.d.sympt')
-	z.treat <- output.stats(x, resp.var = 'rel.d.treat')
-	z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp')
-	z.death <- output.stats(x, resp.var = 'rel.d.death')
-	
-	z.inf   <- explicit_all(z.inf)
-	z.sympt <- explicit_all(z.sympt)
-	z.hosp  <- explicit_all(z.hosp)
-	z.death <- explicit_all(z.death)
-	
-	# Plot and save :
-	pdf(paste0(dir,'plot-rate-reduc.pdf'), width=30, height=17)
-	plot.mc.cr(x)
-	
-	zlist <- list(z.inf,z.sympt,z.hosp,z.death)
-	titlelist <- list('All Infections',
-	                  'Symptomatic Infections',
-	                  'Hospitalized',
-	                  'Deaths')
-	# Flag that tests if there were more than one value
-	# for a given parameter. 
-	# If two or more values, plot comparison.
-	u_immh   <- length(unique(spl$imm_hum_baseline))
-	u_cvgmax <- length(unique(spl$interv_cvg_max_prop))
-	
-	for(i in seq_along(zlist)) plot.reduc.curve(zlist[[i]], title = titlelist[[i]])
-	for(i in seq_along(zlist)) plot.start.compare(zlist[[i]], title = titlelist[[i]])
-	for(i in seq_along(zlist)) plot.target.compare(zlist[[i]], title = titlelist[[i]])
-	for(i in seq_along(zlist)) plot.efficacy.compare(zlist[[i]], title = titlelist[[i]])
-	if(u_immh>1) 
-	    for(i in seq_along(zlist)) plot.immhum.compare(zlist[[i]], title = titlelist[[i]])
-	if(u_cvgmax>1)
-	    for(i in seq_along(zlist)) plot.cvgmax.compare(zlist[[i]], title = titlelist[[i]])
-	
-	dev.off()
+plot.rate.reduc <- function(df, 
+                            dir, 
+                            file.scen.prm.list,
+                            do.ageGroup){
+    
+    # Retrieve scenarios definitions:
+    spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
+    names(df)[names(df)=='scenario'] <- 'scenario_id' 
+    
+    # Merge results and scenarios definition:
+    x <- join(df, spl, by='scenario_id')
+    
+    z.inf   <- output.stats(x, resp.var = 'rel.d.inf', do.ageGroup = do.ageGroup)
+    z.sympt <- output.stats(x, resp.var = 'rel.d.sympt', do.ageGroup = do.ageGroup)
+    z.treat <- output.stats(x, resp.var = 'rel.d.treat', do.ageGroup = do.ageGroup)
+    z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp', do.ageGroup = do.ageGroup)
+    z.death <- output.stats(x, resp.var = 'rel.d.death', do.ageGroup = do.ageGroup)
+    
+    z.inf   <- explicit_all(z.inf)
+    z.sympt <- explicit_all(z.sympt)
+    z.hosp  <- explicit_all(z.hosp)
+    z.death <- explicit_all(z.death)
+    
+    # Plot and save :
+    figname <- paste0('plot-rate-reduc',
+                      ifelse(do.ageGroup,'-ageGroup',''),
+                      '.pdf')
+    pdf(paste0(dir,figname), width=30, height=17)
+    plot.mc.cr(x)
+    
+    zlist <- list(z.inf, 
+                  z.sympt, 
+                  z.hosp, 
+                  z.death)
+    titlelist <- list('All Infections',
+                      'Symptomatic Infections',
+                      'Hospitalized',
+                      'Deaths')
+    # Flag that tests if there were more than one value
+    # for a given parameter. 
+    # If two or more values, plot comparison.
+    u_immh   <- length(unique(spl$imm_hum_baseline))
+    u_cvgmax <- length(unique(spl$interv_cvg_max_prop))
+    
+    for(i in seq_along(zlist)) plot.reduc.curve(zlist[[i]], title = titlelist[[i]], do.ageGroup = do.ageGroup)
+    for(i in seq_along(zlist)) plot.start.compare(zlist[[i]], title = titlelist[[i]], do.ageGroup = do.ageGroup)
+    for(i in seq_along(zlist)) plot.target.compare(zlist[[i]], title = titlelist[[i]], do.ageGroup = do.ageGroup)
+    for(i in seq_along(zlist)) plot.efficacy.compare(zlist[[i]], title = titlelist[[i]], do.ageGroup = do.ageGroup)
+    if(u_immh>1) 
+        for(i in seq_along(zlist)) plot.immhum.compare(zlist[[i]], title = titlelist[[i]],do.ageGroup = do.ageGroup)
+    if(u_cvgmax>1)
+        for(i in seq_along(zlist)) plot.cvgmax.compare(zlist[[i]], title = titlelist[[i]],do.ageGroup = do.ageGroup)
+    
+    dev.off()
 }
 
 format.df.for.figure <- function(z){

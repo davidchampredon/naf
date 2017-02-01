@@ -558,9 +558,11 @@ dcDataFrame socialPlace::export_dcDataFrame_light() const {
     vector<double> is_discharged(n);
     vector<double> was_symptomatic(n);
     vector<double> was_hosp(n);
+    vector<double> age(n);
     
     for(ID i=0; i<n; i++){
         id_indiv[i]       = _indiv[i].get_id();
+        age[i]            = _indiv[i].get_age();
         is_alive[i]       = _indiv[i].is_alive();
         is_recovered[i]   = _indiv[i].is_recovered();
         is_treated[i]     = _indiv[i].is_treated();
@@ -569,6 +571,7 @@ dcDataFrame socialPlace::export_dcDataFrame_light() const {
         was_hosp[i]       = _indiv[i].was_hosp();
     }
     df.addcol("id_indiv", id_indiv);
+    df.addcol("age", age);
     df.addcol("is_alive", is_alive);
     df.addcol("is_recovered", is_recovered);
     df.addcol("is_treated", is_treated);
