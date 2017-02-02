@@ -651,32 +651,73 @@ figure.1 <- function(z, title='') {
     plot(g)
 }
 
-figures.maintext <-function(result.scen.all, 
-                                dir, 
-                                file.scen.prm.list){
+
+figure.seyed <- function(zlist) {
+    
+    df <- do.call('rbind.data.frame', zlist)
+    
+    df$outcome  <- factor(df$outcome, levels = c("Symptomatic Infections", "Hospitalized", "Deaths"))
+    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
+    
+    cr.vec <- unique(df$contact_rate_mean)
+    ve.vec <- unique(df$`Vaccine efficacy`)
+    
+    q <- expand.grid(cr.vec, ve.vec)
+    
+    subplot <- function(cr, ve) {
+        df <- subset(df, contact_rate_mean==cr & `Vaccine efficacy`==ve)
+        
+        g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
+            geom_line(alpha=0.5, size=2) +
+            geom_point(alpha=0.5, size=4) +
+            geom_point(size=4, shape=1) +
+            facet_grid(ageGroup ~  outcome) +
+            guides(color=guide_legend(title="Vacc. Lag (days)")) +
+            coord_cartesian(ylim=c(0,1)) + 
+            ggtitle(paste('CR =',cr,'\n VaxEff =',ve))+
+            scale_colour_brewer(palette = 'RdYlGn')+
+            xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") +
+            theme_gray()
+        plot(g)
+    }
+    
+    pdf(file = paste0('../results/Fig_OutcomeAge_CRVE.pdf'), 
+        width = 11,height = 10)
+    for(i in 1:nrow(q)) subplot(q[i,1],q[i,2])
+    dev.off()
+}
+
+
+
+figures.maintext <-function(df,dir,file.scen.prm.list){
+    
+    do.ageGroup <- TRUE
     
     # Retrieve scenarios definitions:
     spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
-    names(result.scen.all)[names(result.scen.all)=='scenario'] <- 'scenario_id' 
+    names(df)[names(df)=='scenario'] <- 'scenario_id' 
     
     # Merge results and scenarios definition:
-    x <- join(result.scen.all, spl, by='scenario_id')
+    x <- join(df, spl, by='scenario_id')
     
-    z.sympt <- output.stats(x, resp.var = 'rel.d.sympt')
-    z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp')
-    z.death <- output.stats(x, resp.var = 'rel.d.death')
+    z.sympt <- output.stats(x, resp.var = 'rel.d.sympt',do.ageGroup = do.ageGroup)
+    z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp', do.ageGroup = do.ageGroup)
+    z.death <- output.stats(x, resp.var = 'rel.d.death',do.ageGroup = do.ageGroup)
     
     titlelist <- list('Symptomatic Infections','Hospitalized','Deaths')
     
     zlist <- list(z.sympt, z.hosp, z.death)
     zlist <- lapply(zlist, FUN = format.df.for.figure)
     
-    z <- zlist[[1]]
+    for(i in seq_along(zlist)) zlist[[i]]$outcome <- titlelist[[i]]
+    
+    z1 <- zlist[[1]]
 
     # Plot and save :
     pdf(paste0(dir,'figure-1.pdf'), width=15, height=8)
     i <- 1
-    figure.1(z= zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
+    # figure.1(z= zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
+    figure.seyed(zlist) 
     dev.off()
 }
 

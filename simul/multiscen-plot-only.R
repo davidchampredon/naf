@@ -11,6 +11,7 @@ source('utils-misc.R')
 dir.results    <- dir.def('dir-def.csv')[['results']]
 dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
 
+
 # ==== Load saved data ====
 
 print('Loading saved RData...')
@@ -19,25 +20,23 @@ res.all <- list(main = result.scen.all,
                 main.ageGroup = result.scen.all.ageGroup)
 print('Saved RData loaded.')
 
+
 # ==== Plots ====
 
 print('Plotting main comparison...')
 
+file.scen.prm.list <- 'scenario-prm-list.csv'
+dir <- dir.results
 
-plot.rate.reduc(df  = res.all[['main']], 
-                dir = dir.results,
-                file.scen.prm.list = 'scenario-prm-list.csv',
-                do.ageGroup = FALSE)
+df  <- res.all[['main']]
+plot.rate.reduc(df, dir, file.scen.prm.list, do.ageGroup = FALSE)
 
-plot.rate.reduc(df  = res.all[['main.ageGroup']], 
-                dir = dir.results,
-                file.scen.prm.list = 'scenario-prm-list.csv',
-                do.ageGroup = TRUE)
+df  <- res.all[['main.ageGroup']]
+plot.rate.reduc(df, dir, file.scen.prm.list, do.ageGroup = TRUE)
 
 try(expr = {
-figures.maintext(result.scen.all    = res.all[['main']], 
-                 dir                = dir.results,
-                 file.scen.prm.list = 'scenario-prm-list.csv')
+    df  <- res.all[['main.ageGroup']]
+    figures.maintext(df,dir,file.scen.prm.list)
 })
 
 
