@@ -84,7 +84,8 @@ try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
 try( plot.sp.sz.distrib(res.list.0, world.prm) , silent = T)
 try( plot.share.same.hh(pop), silent = T)
 try( plot.prop.fizzles(pop.all.mc), silent = T)
-	
+try( plot.vax.age(pop.nofizz), silent = T)
+
 if (save.plot.to.file) dev.off()
 
 

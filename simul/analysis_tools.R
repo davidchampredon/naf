@@ -1303,7 +1303,17 @@ plot.ts.comp.all <- function(df){
 	)
 }
 
-
+plot.vax.age <-function(df){
+    df$ageround <- round(df$age,0)
+    a <- ddply(df, 'ageround',summarise, p=mean(is_vaccinated))
+    
+    g <- ggplot(a, aes(x=ageround, y=p)) + 
+        geom_bar(stat = 'identity') +
+        xlab("Age") + ylab("Proportion") +
+        ggtitle("Age distribution of vaccinated individuals") +
+        coord_cartesian(ylim=c(0,1))
+    return(g)
+}
 
 
 

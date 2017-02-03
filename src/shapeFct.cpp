@@ -51,6 +51,33 @@ double immunity_cellular(float age,
 }
 
 
+float max_cumvax_prop(float age){
+    
+    // TO DO: remove hard code
+    
+    // For value, see: Foisy J, Rosella LC, Sanderson R, Hamid JS, Dhar B, Crowcroft NS. Self-reported pH1N1 influenza vaccination coverage for Ontario. Health Rep 2011; 22: 29–33.
+    
+    float res = -999.99;
+    
+    if(age < 12) res = 0.45;
+    else if(age >= 12 && age < 30) res = 0.25;
+    else if(age >= 30 && age < 55) res = 0.35;
+    else if(age >= 55) res = 0.50;
+    
+    return res;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

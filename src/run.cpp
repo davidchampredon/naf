@@ -54,7 +54,7 @@ void main_run(){
     MP.add_prm_double("frailty_agepivot", 37);
     MP.add_prm_double("frailty_slope1", -0.002);
     MP.add_prm_double("frailty_slope2", 0.0143);
-    MP.add_prm_double("frailty_sd", 0.1);
+    MP.add_prm_double("frailty_sd", 0.22222);
     
     MP.add_prm_double("imm_hum_baseline", 0.1);
     MP.add_prm_double("imm_hum_agezero", 100);
@@ -105,11 +105,11 @@ void main_run(){
     
     float time_start   = -11;
     float time_end     = 999;
-    float cvg_rate     = 0.200000;
+    float cvg_rate     = 900.0 / 100000;
     float cvg_max_prop = 0.50;
     float efficacy     = 0.80 ;
     intervention interv1("vaccination",  // treatment  cure vaccination
-                         "never_sympt",  // symptomatic   susceptible   young_old   never_sympt
+                         "priority_age_frailty",  // symptomatic   susceptible   young_old   never_sympt priority_age_frailty
                          "vax",
                          time_start, time_end,
                          cvg_rate, cvg_max_prop, efficacy);
@@ -142,7 +142,7 @@ void main_run(){
     string regionName = "RegionOne";
     vector<areaUnit> auvec = create_area_unit(id_au, name_au, id_region, regionName);
     
-    uint mult = 1;
+    uint mult = 2 ;
     
     
     // ====== PARAMETERS FOR STOCHASTIC WORLD =======
@@ -278,12 +278,12 @@ void main_run(){
     
     vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
     
-    vector<uint> age_adult = {22, 33, 44, 55};
+    vector<uint> age_adult = {22, 33, 44, 66};
     vector<uint> age_child = {5, 11};
     vector<uint> age_all = age_child;
     age_all.insert(age_all.end(), age_adult.begin(),age_adult.end());
     
-    vector<double> p_age_adult = {0.2, 0.5, 0.2, 0.1};
+    vector<double> p_age_adult = {0.2, 0.4, 0.2, 0.2};
     vector<double> p_age_all_1 = {0.1, 0.1, 0.2, 0.3, 0.2, 0.1};
     vector<double> p_age_all_2 = {0.4, 0.3, 0.1, 0.1, 0.05, 0.05};
     

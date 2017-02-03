@@ -24,6 +24,11 @@ void Simulator::base_constructor(){
     _n_vaccinated.clear();
     _horizon = -999;
     
+    _n_age.clear();
+    
+    _n_vaccinated_age.clear();
+    _n_vaccinated_age.resize(110);
+    
     _ts_times.clear();
     _ts_E.clear();
     _ts_Ia.clear();
@@ -272,8 +277,13 @@ void Simulator::run(){
     // set-up before time loop:
     double p_move    = _modelParam.get_prm_double("proba_move");
     double red_sympt = _modelParam.get_prm_double("proba_move_reduc_sympt");
+    
     define_contactAssort();
     count_targeted_by_intervention();
+    
+    calc_frailty_average();
+    calc_n_age();
+    
     
     
     // ----- MAIN LOOP FOR TIME ------
@@ -1885,6 +1895,110 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
     }// end-if-type_target == "young_old"
     
     
+    else if(type_target == "priority_age_frailty"){
+        
+        // * * WARNING * *
+        // This strategy is implemented in a different way
+        // than most other ones, because the cap on the
+        // number of vaccination is _age_ dependent.
+        
+        found = true;
+        float age_old   = 60;
+        float age_young = 12;
+        
+        uint N = (uint)_world[id_sp].get_size();
+        
+        string interv_type = _intervention[i].get_type_intervention();
+        
+        //cout << "DEBUG: " << N << endl;
+        
+        // Draw the number of targeted individuals
+        // (everyone is potentially targeted at this
+        // stage [so use 'N'] the filter happens later):
+        float intensity = cvg_rate * N * dt;
+        
+        std::poisson_distribution<> poiss(intensity);
+        uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
+        if (n_target > N) n_target = N;
+        
+        uint cnt = 0;
+        
+        for (uint j=0; (j < N) && (cnt < n_target) ; j++)
+        {
+            double age = _world[id_sp].get_indiv(j).get_age();
+            double fr  = _world[id_sp].get_indiv(j).get_frailty();
+            
+            bool is_treated = _world[id_sp].get_indiv(j).is_treated();
+            bool is_vax     = _world[id_sp].get_indiv(j).is_vaccinated();
+            
+            if(!is_treated && !is_vax){
+            
+                float frMean = _frailty_average;
+                
+                bool cond_ageFr = (age < age_young) || (age_old < age) || (frMean < fr);
+                
+                if ( cond_ageFr )  // fulfill age & frailty conditions
+                {
+                    bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                    
+                    if(cond_capvax) // cap not reached
+                    {
+                        individual* tmp = _world[id_sp].get_mem_indiv(j);
+                        indiv_drawn.push_back(tmp);
+                        cnt ++;
+                        
+                        // update the vaccinated age distribution:
+                        if(interv_type == "vaccination"){
+                            uint idx = round(age);
+                            _n_vaccinated_age[idx]++;
+                        }
+                        // DEBUG:
+//                        cout << "indiv vax:"<<endl;
+//                        cout << "age = "<< age << endl;
+//                        cout << "frailty = "<< fr <<endl;
+                    }
+                }
+                else{
+                    float mult = 0.9;
+                    
+                    float tmp1 = calc_cumvax_prop("below",age_young);
+                    float tmp2 = mult * 0.45; // TO DO: remove hard coded value
+                    bool cond_young = tmp1 > mult * tmp2;
+                    
+                    float tmp3 = calc_cumvax_prop("above",age_old);
+                    float tmp4 = mult * 0.55; // TO DO: remove hard coded value
+                    bool cond_old = tmp3 > mult * tmp4;
+                    
+                    // (( no condition on frailty??? ))
+                    
+                    if(cond_young && cond_old)
+                    {
+                        bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                        
+                        if(cond_capvax) // cap not reached
+                        {
+                            individual* tmp = _world[id_sp].get_mem_indiv(j);
+                            indiv_drawn.push_back(tmp);
+                            cnt ++;
+                            
+                            // update the vaccinated age distribution:
+                            if(interv_type == "vaccination"){
+                                uint idx = round(age);
+                                _n_vaccinated_age[idx]++;
+                            }
+                            
+                            // DEBUG:
+//                            cout << "indiv vax:"<<endl;
+//                            cout << "age = "<< age << endl;
+//                            cout << "frailty = "<< fr <<endl;
+                        }
+                    }
+                }
+            } // end-if-not-treated-or-not-vaccinated
+        } // end-for
+    }// end-if-type_target == "priority_age_frail"
+    
+    
     else if(type_target == "test"){
         
         // This intervention strategy is used for test & debugging...
@@ -2003,6 +2117,20 @@ void Simulator::count_targeted_by_intervention(){
                 cnt += n_yo;
             }
         }
+        
+        
+        if(type_target == "priority_age_frailty"){
+            found = true;
+            // This intervention strategy caps the
+            // number of vaccinations _by age_ and
+            // this is dealt with in the
+            // 'draw_targeted_individuals' function.
+            // Here, we return a very large number
+            // in order not to interfere with the
+            // counting done somewhere else:
+            cnt = 9E7;
+        }
+
         
         if(type_target == "test"){
             found = true;
@@ -2254,7 +2382,25 @@ void Simulator::assign_frailty(){
     }
 }
 
-
+void Simulator::calc_frailty_average(){
+    
+    float s = 0.0;
+    uint  n = 0;
+    
+    for (uint k=0; k< _world.size(); k++)
+    {
+        unsigned long nk = _world[k].get_size();
+        for (uint i=0; i< nk; i++) {
+            float fr = _world[k].get_indiv(i).get_frailty();
+            s += fr;
+            n++;
+        }
+    }
+    _frailty_average = s / n ;
+    
+    // DEBUG:
+    cout << "_frailty_average: " << _frailty_average << endl;
+}
 
 void Simulator::timeseries_update(){
     _ts_times.push_back(_current_time);
@@ -2319,6 +2465,63 @@ double Simulator::retrieve_vaccine_efficacy(){
 }
 
 
+
+float Simulator::calc_cumvax_prop(string rngAge, int age){
+    
+    float res = -999;
+    bool found = false;
+    
+    if(rngAge=="that"){
+        found = true;
+        res   = (float)_n_vaccinated_age[age] / (float)_n_age[age];
+    }
+    
+    if(rngAge=="below"){
+        found = true;
+        uint s = 0;
+        uint n = 0;
+        for(uint a=0; a<= age; a++){
+            s += _n_vaccinated_age[age];
+            n += _n_age[age];
+        }
+        res   = (float)s / (float)n;
+    }
+    
+    if(rngAge=="above"){
+        found = true;
+        uint s = 0;
+        uint n = 0;
+        for(uint a=age; a<_n_vaccinated_age.size() ; a++){
+            s += _n_vaccinated_age[age];
+            n += _n_age[age];
+        }
+        res   = (float)s / (float)n;
+    }
+    
+    stopif(!found, "Type of age range unknown:" + rngAge);
+    return res;
+}
+
+
+void Simulator::calc_n_age(){
+    
+    _n_age.clear();
+    _n_age.resize(110);
+    
+    for(uint k=0; k< _world.size(); k++)
+    {
+        unsigned long nk = _world[k].get_size();
+        for (uint i=0; i< nk; i++)
+        {
+            float age_i = _world[k].get_indiv(i).get_age();
+            uint idx = round(age_i);
+            _n_age[idx]++;
+        }
+    }
+}
+
+
+
 double minimum_frailty(world w, float f0, float agepivot, float slope1, float slope2){
     
     double themin = 999.99;
@@ -2328,6 +2531,19 @@ double minimum_frailty(world w, float f0, float agepivot, float slope1, float sl
     }
     return themin;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

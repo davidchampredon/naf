@@ -48,7 +48,22 @@ protected:
     // for each intervention:
     vector<uint>    _n_treated;
     vector<uint>    _n_vaccinated;
+    
+    
+    // Number of individuals by age (i.e. age distribution).
+    // example: _n_age[12] = number of indiv whose round(age)=12
+    vector<uint> _n_age;
+    
+    // Calculate the age distribution
+    void calc_n_age();
 	
+    // Age distribution of vaccinated individuals:
+    vector<uint>   _n_vaccinated_age;    // number of individuals
+    vector<double> _prop_vaccinated_age; // proportion within age
+    
+    
+    
+    
     vector<socialPlace*>  _sp_other;  // keep track of 'other' social places
     
 	// time series
@@ -87,6 +102,9 @@ protected:
     vector< vector<float> > _wiw_ages;  // Nx2 matrix where col[1]=age infector, col[2]=age infectee
     
     dcMatrix        _contactAssort;
+    
+    /** Average frailty at the whole population level. */
+    float   _frailty_average;
     
     /**
      * Set the 'i0' initial infectious individuals
@@ -160,6 +178,9 @@ public:
      * Calculate frailty index for all individuals.
      */
     void assign_frailty();
+    
+    /** Calculate average frailty for the whole population. */
+    void calc_frailty_average();
     
 	// Simulate
 	void run();
@@ -389,6 +410,12 @@ public:
     /** retrieve the _first_ vaccine efficacy encounter in all interventions. */
     double retrieve_vaccine_efficacy();
     
+    /** Calculate the proportion of vaccinated indiv
+     *  of a specified age.
+     */
+    float calc_cumvax_prop(string rngAge, int age);
+    
+    
     // Census
     
     bool    at_least_one_infected();
@@ -428,6 +455,7 @@ public:
 /** retrieve the minimum _MEAN_ frailty. */
 double minimum_frailty(world w, float f0, float agepivot, float slope1, float slope2);
 double age_contact_elem(double x,double y,double a,double b,double w,double q,double r);
+
 
 
 #endif /* defined(__naf__simulation__) */

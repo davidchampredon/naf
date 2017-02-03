@@ -10,9 +10,13 @@
 #define __naf__shapeFct__
 
 #include <stdio.h>
+#include <fstream>
+#include <math.h>
+#include <string.h>
 
 #endif /* defined(__naf__shapeFct__) */
 
+using namespace std;
 
 double linear_interpol(double x, double x1, double y1, double x2, double y2);
 
@@ -36,7 +40,7 @@ double immunity_humoral(float age, float agezero, float baseline, float p);
  */
 double immunity_cellular(float age, float imm_max, float slope, float pivot);
 
-
-
+/** Used only in "priority_age_frailty" strategy. TO DO: remove hard code. */
+float max_cumvax_prop(float age);
 
 
