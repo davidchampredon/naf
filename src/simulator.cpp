@@ -1903,8 +1903,8 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         // number of vaccination is _age_ dependent.
         
         found = true;
-        float age_old   = 60;
-        float age_young = 12;
+        float age_old   = 65.0;
+        float age_young = 5.0;
         
         uint N = (uint)_world[id_sp].get_size();
         
@@ -1935,10 +1935,51 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
             
                 float frMean = _frailty_average;
                 
-                bool cond_ageFr = (age < age_young) || (age_old < age) || (frMean < fr);
+                // First condition for prioritization:
+                // - Average vaccination coverage (for prioritized individuals)
+                //   still below 35% (=Ontario mean for seasonal flu vax)
                 
-                if ( cond_ageFr )  // fulfill age & frailty conditions
+                float avg1 = calc_cumvax_prop("below",age_young);
+                float avg2 = calc_cumvax_prop("above",age_old);
+                float avg_yo = (avg1 + avg2) / 2.0;
+                
+                bool cond_avgCvg = avg_yo < 0.35;
+                
+                if( cond_avgCvg )
                 {
+                    // Second conditions for prioritization:
+                    // - being young (<5) or old (>60)
+                    // - being weak (frailty > mean frailty)
+                    bool cond_ageFr = (age < age_young) || (age_old < age) || (frMean < fr);
+                    
+                    if ( cond_ageFr )  // <-- fulfill age, frailty & average coverage conditions
+                    {
+                        // Has the coverage limit been reached for that indiv's age?
+                        bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                        
+                        if(cond_capvax) // limit not reached
+                        {
+                            individual* tmp = _world[id_sp].get_mem_indiv(j);
+                            indiv_drawn.push_back(tmp);
+                            cnt ++;
+                            
+                            // update the vaccinated age distribution:
+                            if(interv_type == "vaccination"){
+                                uint idx = round(age);
+                                _n_vaccinated_age[idx]++;
+                            }
+                            // DEBUG:
+//                            cout<<endl;
+//                            cout << "* avg_yo = "<< avg_yo << endl;
+//                            cout << "indiv vax:"<<endl;
+//                            cout << "age = "<< age << endl;
+//                            cout << "frailty = "<< fr <<endl;
+                        }
+                    }
+                }
+                else{  // <-- No prioritization
+                    
+                    // Has the coverage limit been reached for that indiv's age?
                     bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
                     
                     if(cond_capvax) // cap not reached
@@ -1953,47 +1994,15 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
                             _n_vaccinated_age[idx]++;
                         }
                         // DEBUG:
+//                        cout<<endl;
+//                        cout << "(no priority) avg_yo = "<< avg_yo << endl;
 //                        cout << "indiv vax:"<<endl;
 //                        cout << "age = "<< age << endl;
 //                        cout << "frailty = "<< fr <<endl;
                     }
+                    
                 }
-                else{
-                    float mult = 0.9;
-                    
-                    float tmp1 = calc_cumvax_prop("below",age_young);
-                    float tmp2 = mult * 0.45; // TO DO: remove hard coded value
-                    bool cond_young = tmp1 > mult * tmp2;
-                    
-                    float tmp3 = calc_cumvax_prop("above",age_old);
-                    float tmp4 = mult * 0.55; // TO DO: remove hard coded value
-                    bool cond_old = tmp3 > mult * tmp4;
-                    
-                    // (( no condition on frailty??? ))
-                    
-                    if(cond_young && cond_old)
-                    {
-                        bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
-                        
-                        if(cond_capvax) // cap not reached
-                        {
-                            individual* tmp = _world[id_sp].get_mem_indiv(j);
-                            indiv_drawn.push_back(tmp);
-                            cnt ++;
-                            
-                            // update the vaccinated age distribution:
-                            if(interv_type == "vaccination"){
-                                uint idx = round(age);
-                                _n_vaccinated_age[idx]++;
-                            }
-                            
-                            // DEBUG:
-//                            cout << "indiv vax:"<<endl;
-//                            cout << "age = "<< age << endl;
-//                            cout << "frailty = "<< fr <<endl;
-                        }
-                    }
-                }
+                
             } // end-if-not-treated-or-not-vaccinated
         } // end-for
     }// end-if-type_target == "priority_age_frail"
@@ -2473,7 +2482,9 @@ float Simulator::calc_cumvax_prop(string rngAge, int age){
     
     if(rngAge=="that"){
         found = true;
-        res   = (float)_n_vaccinated_age[age] / (float)_n_age[age];
+        float n = (float)_n_age[age];
+        if(n>0) res   = (float)_n_vaccinated_age[age] / n;
+        else res = 0;
     }
     
     if(rngAge=="below"){
@@ -2481,10 +2492,11 @@ float Simulator::calc_cumvax_prop(string rngAge, int age){
         uint s = 0;
         uint n = 0;
         for(uint a=0; a<= age; a++){
-            s += _n_vaccinated_age[age];
-            n += _n_age[age];
+            s += _n_vaccinated_age[a];
+            n += _n_age[a];
         }
-        res   = (float)s / (float)n;
+        if(n>0) res = (float)s / (float)n;
+        else res = 0;
     }
     
     if(rngAge=="above"){
@@ -2492,10 +2504,11 @@ float Simulator::calc_cumvax_prop(string rngAge, int age){
         uint s = 0;
         uint n = 0;
         for(uint a=age; a<_n_vaccinated_age.size() ; a++){
-            s += _n_vaccinated_age[age];
-            n += _n_age[age];
+            s += _n_vaccinated_age[a];
+            n += _n_age[a];
         }
-        res   = (float)s / (float)n;
+        if(n>0) res = (float)s / (float)n;
+        else res = 0;
     }
     
     stopif(!found, "Type of age range unknown:" + rngAge);

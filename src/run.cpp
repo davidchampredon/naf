@@ -279,7 +279,7 @@ void main_run(){
     vector< vector<discrete_prob_dist<uint> > > pr_age_hh;
     
     vector<uint> age_adult = {22, 33, 44, 66};
-    vector<uint> age_child = {5, 11};
+    vector<uint> age_child = {3, 11};
     vector<uint> age_all = age_child;
     age_all.insert(age_all.end(), age_adult.begin(),age_adult.end());
     
