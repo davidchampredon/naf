@@ -3,7 +3,7 @@ doi_distrib , lognorm
 doh_distrib , lognorm
 
 dol_mean , 1.50
-doi_mean , 1.25
+doi_mean , 3.0
 doh_mean , 12.0
 
 dol_var , 0.1
