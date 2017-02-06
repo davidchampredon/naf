@@ -681,9 +681,27 @@ figure.seyed <- function(zlist) {
         plot(g)
     }
     
+    subplot.2 <- function(cr, ve) {
+        df <- subset(df, contact_rate_mean==cr & `Vaccine efficacy`==ve)
+        
+        g <- ggplot(df, aes(x=ageGroup, y=mn, fill=factor(interv_start))) +
+            geom_point(alpha=0.75, size=3, shape=22) +
+            geom_point(size=3, shape=0, alpha=0.5,color='black') +
+            facet_wrap(interv_cvg_rate ~  outcome, scales = 'free',ncol = 3) +
+            guides(fill=guide_legend(title="Vacc. Lag (days)")) +
+            #coord_cartesian(ylim=c(0,1)) + 
+            ggtitle(paste('CR =',cr,'\n VaxEff =',ve))+
+            scale_fill_brewer(palette = 'RdYlGn')+
+            xlab("Age group") + ylab("Mean relative reduction") +
+            theme_gray()
+        plot(g)
+    }
+    
+    
     pdf(file = paste0('../results/Fig_OutcomeAge_CRVE.pdf'), 
         width = 11,height = 10)
     for(i in 1:nrow(q)) subplot(q[i,1],q[i,2])
+    for(i in 1:nrow(q)) subplot.2(q[i,1],q[i,2])
     dev.off()
 }
 
@@ -714,11 +732,8 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     z1 <- zlist[[1]]
 
     # Plot and save :
-    pdf(paste0(dir,'figure-1.pdf'), width=15, height=8)
-    i <- 1
-    # figure.1(z= zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
     figure.seyed(zlist) 
-    dev.off()
+    # figure.1(z= zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
 }
 
 
