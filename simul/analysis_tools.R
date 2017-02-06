@@ -1316,4 +1316,18 @@ plot.vax.age <-function(df){
 }
 
 
+plot.vax.frailty <-function(df){
+    bckt <- 10
+    df$frailtyCateg <- round(df$frailty*bckt,0)/bckt
+    
+    a <- ddply(df, 'frailtyCateg',summarise, p=mean(is_vaccinated))
+    
+    g <- ggplot(a, aes(x=frailtyCateg, y=p)) + 
+        geom_bar(stat = 'identity') +
+        xlab("Frailty") + ylab("Proportion") +
+        ggtitle("Frailty distribution of vaccinated individuals") +
+        coord_cartesian(ylim=c(0,1))
+    return(g)
+}
+
 
