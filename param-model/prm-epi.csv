@@ -28,9 +28,9 @@ imm_hum_baseline, 0.000001
 imm_hum_agezero , 120
 imm_hum_p       , 2
 
-imm_cell_max  , 0.4
-imm_cell_slope, 2
-imm_cell_pivot, 20
+imm_cell_max  , 0.91
+imm_cell_slope, 2.61
+imm_cell_pivot, 26.58
 
 homogeneous_contact , 0
 contact_rate_distrib, lognorm
@@ -52,7 +52,7 @@ proba_move            , 0.98
 proba_move_reduc_sympt, 0.10
 proba_change_sp_other , 0.20
 
-mult_proba_symptomatic        , 6.0
+mult_proba_symptomatic        , 3.0
 asymptom_infectiousness_ratio , 0.1
 
 treat_doi_reduc         , 1.0
