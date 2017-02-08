@@ -729,7 +729,7 @@ figure.1.a <- function(zlist) {
         scale_x_continuous(breaks=ar) +
         facet_grid( VE + CR ~ AG) +
         guides(color=guide_legend(title="Vacc. Lag (days)")) +
-        ggtitle('Figure 1')+
+        ggtitle('Figure 1 a')+
         scale_color_manual(values=mypalette) +
         theme(panel.grid.minor.x = element_blank()) +
         xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
@@ -739,6 +739,9 @@ figure.1.a <- function(zlist) {
     dev.off()
 }
 
+mypalette <- c('-28'='red', '-14'='orange', 
+               '0'='grey',
+               '14'='royalblue1','28'='royalblue3')
 
 figure.1.b <- function(zlist) {
     
@@ -749,10 +752,6 @@ figure.1.b <- function(zlist) {
     df$VE <- paste('VE =',df$interv_efficacy)
     df$CR <- paste('[Ro] =',df$contact_rate_mean)
     
-    mypalette <- c('-28'='red', '-14'='orange', 
-                   '0'='grey',
-                   '14'='royalblue1','28'='royalblue3')
-    
     g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
         geom_line(alpha=0.5, size=2) +
         geom_point(alpha=0.7, size=3) +
@@ -760,7 +759,7 @@ figure.1.b <- function(zlist) {
         scale_x_continuous(breaks=ar) +
         facet_grid( VE ~ CR ) +
         guides(color=guide_legend(title="Vacc. Lag (days)")) +
-        ggtitle('Figure 1 a')+
+        ggtitle('Figure 1 b')+
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette) +
         xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
@@ -811,7 +810,34 @@ figure.1.c <- function(zlist.ag) {
     dev.off()
 }
 
-
+figure.2.a <- function(zlist.ag){
+    
+    df <- do.call('rbind.data.frame', zlist.ag)
+    df$outcome  <- factor(df$outcome, levels = c("Symptomatic Infections", "Hospitalized", "Deaths"))
+    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
+    
+    df$VE <- paste('VE =',df$interv_efficacy)
+    df$CR <- paste('[Ro] =',df$contact_rate_mean)
+    
+    g <- ggplot(df, aes(x=ageGroup, y=mn, 
+                        fill=factor(interv_start),
+                        color=factor(interv_start))) +
+        geom_line(aes(group=factor(interv_start))) +
+        geom_point(alpha=0.9, size=3, shape=22) +
+        geom_point(size=3, shape=0, alpha=1) +
+        facet_grid( VE + CR ~  interv_cvg_rate) +
+        guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
+        theme(panel.grid.minor.x = element_blank()) +
+        theme(panel.grid.major = element_blank()) +
+        scale_fill_manual(values=mypalette) + 
+        ggtitle('Figure 2a')+
+        # scale_fill_brewer(palette = 'RdYlGn')+
+        xlab("Age group") + ylab("Mean relative reduction") +
+        theme_gray()
+    pdf(file = paste0('../results/Fig_2a.pdf'), width = 12,height = 8)
+    plot(g)
+    dev.off()
+}
 
 
 figures.maintext <-function(df,dir,file.scen.prm.list){
