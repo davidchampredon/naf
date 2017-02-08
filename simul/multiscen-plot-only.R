@@ -28,16 +28,19 @@ print('Plotting main comparison...')
 file.scen.prm.list <- 'scenario-prm-list.csv'
 dir <- dir.results
 
-df  <- res.all[['main']]
-plot.rate.reduc(df, dir, file.scen.prm.list, do.ageGroup = FALSE)
-
-df  <- res.all[['main.ageGroup']]
-plot.rate.reduc(df, dir, file.scen.prm.list, do.ageGroup = TRUE)
-
 try(expr = {
     df  <- res.all[['main.ageGroup']]
-    figures.maintext(df,dir,file.scen.prm.list)
+    figures.maintext(df, dir, file.scen.prm.list)
 })
+
+
+if(FALSE){
+    df  <- res.all[['main']]
+    plot.rate.reduc(df, dir, file.scen.prm.list, do.ageGroup = FALSE)
+    
+    df  <- res.all[['main.ageGroup']]
+    plot.rate.reduc(df, dir, file.scen.prm.list, do.ageGroup = TRUE)
+}
 
 
 print('\n--> Scenario comparison plot completed.')

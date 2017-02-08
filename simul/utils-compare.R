@@ -612,7 +612,7 @@ format.df.for.figure <- function(z){
     return(z)
 }
 
-figure.1 <- function(z, title='') {
+figure.TODELETE <- function(z, title='') {
     
     z <- subset(z, interv_efficacy==0.8)
     #z <- subset(z, imm_hum_baseline==0.1)
@@ -705,11 +705,116 @@ figure.seyed <- function(zlist) {
     dev.off()
 }
 
+figure.1.a <- function(zlist) {
+    
+    df <- do.call('rbind.data.frame', zlist)
+    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
+    ar <- unique(df$interv_cvg_rate)
+    
+    # Explicit name for plot:
+    df$VE <- paste('VE =',df$interv_efficacy)
+    df$AG <- paste('Age group =',df$ageGroup)
+    df$AG <- gsub('_',' to ',df$AG)
+    df$AG <- gsub('to over','and over',df$AG)
+    df$CR <- paste('[Ro] =',df$contact_rate_mean)
+    
+    mypalette <- c('-28'='red', '-14'='orange', 
+                   '0'='grey',
+                   '14'='royalblue1','28'='royalblue3')
+    
+    g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
+        geom_line(alpha=0.5, size=2) +
+        geom_point(alpha=0.7, size=3) +
+        geom_point(size=3, shape=1) +
+        scale_x_continuous(breaks=ar) +
+        facet_grid( VE + CR ~ AG) +
+        guides(color=guide_legend(title="Vacc. Lag (days)")) +
+        ggtitle('Figure 1')+
+        scale_color_manual(values=mypalette) +
+        theme(panel.grid.minor.x = element_blank()) +
+        xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/Fig_1a.pdf'), width = 11, height = 10)    
+    plot(g)
+    dev.off()
+}
+
+
+figure.1.b <- function(zlist) {
+    
+    df <- do.call('rbind.data.frame', zlist)
+    ar <- unique(df$interv_cvg_rate)
+    
+    # Explicit name for plot:
+    df$VE <- paste('VE =',df$interv_efficacy)
+    df$CR <- paste('[Ro] =',df$contact_rate_mean)
+    
+    mypalette <- c('-28'='red', '-14'='orange', 
+                   '0'='grey',
+                   '14'='royalblue1','28'='royalblue3')
+    
+    g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
+        geom_line(alpha=0.5, size=2) +
+        geom_point(alpha=0.7, size=3) +
+        geom_point(size=3, shape=1) +
+        scale_x_continuous(breaks=ar) +
+        facet_grid( VE ~ CR ) +
+        guides(color=guide_legend(title="Vacc. Lag (days)")) +
+        ggtitle('Figure 1 a')+
+        theme(panel.grid.minor.x = element_blank()) +
+        scale_color_manual(values=mypalette) +
+        xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/Fig_1b.pdf'), width = 11, height = 10)    
+    plot(g)
+    dev.off()
+}
+
+figure.1.c <- function(zlist.ag) {
+    
+    df <- do.call('rbind.data.frame', zlist.ag)
+    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
+    ar <- unique(df$interv_cvg_rate)
+    
+    # Explicit name for plot:
+    df$VE <- paste('VE =',df$interv_efficacy)
+    df$AG <- paste('Age group =',df$ageGroup)
+    df$AG <- gsub('_',' to ',df$AG)
+    df$AG <- gsub('to over','and over',df$AG)
+    df$CR <- paste('[Ro] =',df$contact_rate_mean)
+    
+    mypalette <- c('-28'='red', '-14'='orange', 
+                   '0'='grey',
+                   '14'='royalblue1','28'='royalblue3')
+    dodge <- position_dodge(width=185)
+    
+    g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, 
+                        fill=factor(interv_start))) +
+        geom_bar(position = 'dodge', stat = 'identity', alpha=0.7) +
+        geom_errorbar(aes(ymin=qlo, ymax=qhi,
+                          color = factor(interv_start)),
+                      width=100,
+                      size = 0.2,
+                      position = dodge)+
+        scale_x_continuous(breaks=ar) +
+        facet_grid( VE + CR ~ AG) +
+        guides(fill=guide_legend(title="Vacc. Lag (days)")) +
+        ggtitle('Figure 1 c')+
+        scale_fill_manual(values=mypalette) +
+        scale_color_manual(values=mypalette) +
+        theme(panel.grid.major.x = element_blank(),
+              panel.grid.minor.x = element_blank()) +
+        xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/Fig_1c.pdf'), width = 11, height = 10)    
+    plot(g)
+    dev.off()
+}
+
+
 
 
 figures.maintext <-function(df,dir,file.scen.prm.list){
-    
-    do.ageGroup <- TRUE
     
     # Retrieve scenarios definitions:
     spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
@@ -718,22 +823,27 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     # Merge results and scenarios definition:
     x <- join(df, spl, by='scenario_id')
     
-    z.sympt <- output.stats(x, resp.var = 'rel.d.sympt',do.ageGroup = do.ageGroup)
-    z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp', do.ageGroup = do.ageGroup)
-    z.death <- output.stats(x, resp.var = 'rel.d.death',do.ageGroup = do.ageGroup)
+    z.sympt.ag <- output.stats(x, resp.var = 'rel.d.sympt',do.ageGroup = TRUE)
+    z.sympt    <- output.stats(x, resp.var = 'rel.d.sympt',do.ageGroup = FALSE)
+    # z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp', do.ageGroup = do.ageGroup)
+    # z.death <- output.stats(x, resp.var = 'rel.d.death',do.ageGroup = do.ageGroup)
     
-    titlelist <- list('Symptomatic Infections','Hospitalized','Deaths')
+    titlelist <- list('Symptomatic Infections')#,'Hospitalized','Deaths')
     
-    zlist <- list(z.sympt, z.hosp, z.death)
+    zlist <- list(z.sympt)  #, z.hosp, z.death)
     zlist <- lapply(zlist, FUN = format.df.for.figure)
     
-    for(i in seq_along(zlist)) zlist[[i]]$outcome <- titlelist[[i]]
+    zlist.ag <- list(z.sympt.ag)  #, z.hosp, z.death)
+    zlist.ag <- lapply(zlist.ag, FUN = format.df.for.figure)
     
-    z1 <- zlist[[1]]
-
+    
+    for(i in seq_along(zlist)) zlist[[i]]$outcome <- titlelist[[i]]
+    for(i in seq_along(zlist.ag)) zlist.ag[[i]]$outcome <- titlelist[[i]]
+    
     # Plot and save :
-    figure.seyed(zlist) 
-    # figure.1(z= zlist[[i]], title=paste('Reduction in',titlelist[[i]]))
+    figure.1.a(zlist.ag) 
+    figure.1.b(zlist) 
+    figure.1.c(zlist.ag) 
 }
 
 
