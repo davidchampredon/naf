@@ -58,7 +58,7 @@ plot.cel <- function(imm.max, slope, pivot,add) {
 			 main='',
 			 las=1, 
 			 xlab='Age (years)',ylab='Cellular immunity level',
-			 ylim=c(0,1),lwd=6)
+			 ylim=c(0,1),lwd=2, lty=2)
 	    
 	   for(i in 1:nrow(M)){
 	       xvec <- c(M$x0[i], M$x1[i])
@@ -67,11 +67,11 @@ plot.cel <- function(imm.max, slope, pivot,add) {
 	               col = rgb(0,0,0,0.05), border = NA)
 	   }
 	    
-	   points(x=M.med.x, y=M.med.y, pch=1, cex=2, lwd=3)
+	   points(x=M.med.x, y=M.med.y, pch=1, cex=2, lwd=1)
 		#grid(lty=2)
 	}
 	if(add){
-		lines(x,y,lwd=2)
+		lines(x,y, lwd=4)
 	}
 }
 
@@ -85,6 +85,11 @@ plot.cel(imm.max = xstar[['imm.max']],
          slope   = xstar[['slope']], 
          pivot   = xstar[['pivot']], 
          add=F)
+
+plot.cel(imm.max = xstar[['imm.max']]/2, 
+         slope   = xstar[['slope']], 
+         pivot   = xstar[['pivot']], 
+         add=T)
 xstar
 # plot.cel(imm.max = 0.7, slope=2, pivot=29, add=T)
 if(save.plot) dev.off()

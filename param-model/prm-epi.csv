@@ -28,7 +28,7 @@ imm_hum_baseline, 0.000001
 imm_hum_agezero , 120
 imm_hum_p       , 2
 
-imm_cell_max  , 0.91
+imm_cell_max  , 0.45
 imm_cell_slope, 2.61
 imm_cell_pivot, 26.58
 
