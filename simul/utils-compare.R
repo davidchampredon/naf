@@ -742,6 +742,8 @@ figure.1.a <- function(zlist) {
 mypalette <- c('-28'='red', '-14'='orange', 
                '0'='grey',
                '14'='royalblue1','28'='royalblue3')
+mypalette2 <- c('1200'='red', '600'='orange', 
+               '300'='royalblue1','100'='royalblue4')
 
 figure.1.b <- function(zlist) {
     
@@ -813,7 +815,7 @@ figure.1.c <- function(zlist.ag) {
 figure.2.a <- function(zlist.ag){
     
     df <- do.call('rbind.data.frame', zlist.ag)
-    df$outcome  <- factor(df$outcome, levels = c("Symptomatic Infections", "Hospitalized", "Deaths"))
+    # df$outcome  <- factor(df$outcome, levels = c("Symptomatic Infections", "Hospitalized", "Deaths"))
     df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
     
     df$VE <- paste('VE =',df$interv_efficacy)
@@ -823,18 +825,78 @@ figure.2.a <- function(zlist.ag){
                         fill=factor(interv_start),
                         color=factor(interv_start))) +
         geom_line(aes(group=factor(interv_start))) +
-        geom_point(alpha=0.9, size=3, shape=22) +
-        geom_point(size=3, shape=0, alpha=1) +
+        geom_point(alpha=0.75, size=3, shape=22) +
         facet_grid( VE + CR ~  interv_cvg_rate) +
         guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
-        theme(panel.grid.minor.x = element_blank()) +
-        theme(panel.grid.major = element_blank()) +
         scale_fill_manual(values=mypalette) + 
+        scale_color_manual(values=mypalette) + 
         ggtitle('Figure 2a')+
-        # scale_fill_brewer(palette = 'RdYlGn')+
         xlab("Age group") + ylab("Mean relative reduction") +
-        theme_gray()
+        theme_bw()
     pdf(file = paste0('../results/Fig_2a.pdf'), width = 12,height = 8)
+    plot(g)
+    dev.off()
+}
+
+figure.3.a <- function(zlist) {
+    
+    df <- do.call('rbind.data.frame', zlist)
+    ar <- unique(df$interv_start)
+    
+    df <- subset(df, interv_efficacy==0.9)
+    
+    # Explicit name for plot:
+    df$CR <- paste('[Ro] =',df$contact_rate_mean)
+    
+    g <- ggplot(df, aes(x=interv_start, y=mn, 
+                        fill=factor(interv_cvg_rate),
+                        color=factor(interv_cvg_rate) )) +
+        geom_bar(stat = 'identity', position='dodge', alpha=0.6) +
+        geom_errorbar(aes(ymin=qlo,ymax=qhi),
+                      position = 'dodge')+
+        scale_x_continuous(breaks=ar) +
+        facet_grid( ~ CR ) +
+        guides(fill = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
+               color = FALSE) +
+        ggtitle('Figure 3a')+
+        theme(panel.grid.minor.x = element_blank()) +
+        theme(panel.grid.major.x = element_blank()) +
+        scale_fill_manual(values=mypalette2) +
+        scale_color_manual(values=mypalette2) +
+        # scale_fill_brewer(palette = 'BrBG') +
+        # scale_color_brewer(palette = 'BrBG') +
+        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/Fig_3a.pdf'), width = 11, height = 10)    
+    plot(g)
+    dev.off()
+}
+
+
+
+figure.3.b <- function(zlist) {
+    
+    df <- do.call('rbind.data.frame', zlist)
+    ar <- unique(df$interv_start)
+    df <- subset(df, interv_efficacy==0.9)
+    
+    # Explicit name for plot:
+    df$CR <- paste('[Ro] =',df$contact_rate_mean)
+    
+    g <- ggplot(df, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
+        geom_line(alpha=0.5, size=2) +
+        geom_point(alpha=0.8, size=3) +
+        # geom_point(size=3, shape=1) +
+        scale_x_continuous(breaks=ar) +
+        facet_grid( ~ CR ) +
+        guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
+        ggtitle('Figure 3b')+
+        theme(panel.grid.minor.x = element_blank()) +
+        scale_color_manual(values=mypalette2) +
+        # scale_color_brewer(palette = 'BrBG') +
+        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/Fig_3b.pdf'), width = 11, height = 10)    
     plot(g)
     dev.off()
 }
