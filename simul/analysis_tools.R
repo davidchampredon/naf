@@ -276,6 +276,27 @@ plot.vax.efficacy.mc <- function(pop.nofizz) {
 }
 
 
+vax.success <- function(pop.nofizz){
+    
+    pop.vax <- subset(pop.nofizz, is_vaccinated==1)
+    bkt <- 10
+    pop.vax$ageround <- round(pop.vax$age/bkt,0)*bkt
+    
+    res  <- ddply(pop.vax, c('ageround'),summarize, 
+                  m = 1-mean(is_recovered),
+                  mhi = mean(immunity_hum),
+                  mh = 1 - mean(was_hosp))
+    
+    ggplot(res)+geom_bar(aes(x=ageround,y=m),stat='identity')+
+        coord_cartesian(ylim=c(0,1)) +
+        xlab('Age') + ylab('Proba Escape infection')
+    
+    ggplot(res)+geom_bar(aes(x=ageround,y=mhi),stat='identity')+
+        #coord_cartesian(ylim=c(0,1)) +
+        xlab('Age') + ylab('Humoral immunity')
+}
+
+
 # Create a synthetic age distribution for adults.
 synthetic_age_adult <- function(age.adult){
 	age.thres <- 60

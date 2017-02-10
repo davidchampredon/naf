@@ -62,7 +62,7 @@ float max_cumvax_prop(float age){
     if(age < 12) res = 0.45;
     else if(age >= 12 && age < 30) res = 0.25;
     else if(age >= 30 && age < 55) res = 0.35;
-    else if(age >= 55) res = 0.50;
+    else if(age >= 55) res = 0.55;
     
     return res;
 }
