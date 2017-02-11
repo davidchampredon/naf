@@ -917,6 +917,36 @@ figure.1.b <- function(zlist) {
 
 
 
+figure.1.c.alloutcome <- function(zlist.full) {
+    
+    DAT <- do.call('rbind.data.frame', zlist.full)
+    ar <- unique(DAT$interv_start)
+    #DAT <- subset(DAT, interv_efficacy==0.9)
+    
+    # Explicit name for plot:
+    DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
+    DAT$it <- NA
+    DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
+    DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
+    
+    g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
+        geom_line(alpha=0.5, size=2, aes(linetype=factor(it))) +
+        geom_point(alpha=0.8, size=3) +
+        scale_x_continuous(breaks=ar) +
+        facet_grid( outcome ~ CR + interv_efficacy ) +
+        guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
+        theme(panel.grid.minor.x = element_blank()) +
+        scale_color_manual(values=mypalette2) +
+        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/Fig_1c_alloutcomes.pdf'), width = 16, height = 10)    
+    plot(g)
+    dev.off()
+}
+
+
+
+
 figure.1.c <- function(zlist) {
     
     DAT <- do.call('rbind.data.frame', zlist)
@@ -959,10 +989,10 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     
     z.sympt.ag <- output.stats(x, resp.var = 'rel.d.sympt',do.ageGroup = TRUE)
     z.sympt    <- output.stats(x, resp.var = 'rel.d.sympt',do.ageGroup = FALSE)
-    # z.hosp  <- output.stats(x, resp.var = 'rel.d.hosp', do.ageGroup = do.ageGroup)
-    # z.death <- output.stats(x, resp.var = 'rel.d.death',do.ageGroup = do.ageGroup)
+    z.hosp     <- output.stats(x, resp.var = 'rel.d.hosp', do.ageGroup = FALSE)
+    z.death    <- output.stats(x, resp.var = 'rel.d.death',do.ageGroup = FALSE)
     
-    titlelist <- list('Symptomatic Infections')#,'Hospitalized','Deaths')
+    titlelist <- list('Symptomatic Infections','Hospitalized','Deaths')
     
     zlist <- list(z.sympt)  #, z.hosp, z.death)
     zlist <- lapply(zlist, FUN = format.df.for.figure)
@@ -970,14 +1000,20 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     zlist.ag <- list(z.sympt.ag)  #, z.hosp, z.death)
     zlist.ag <- lapply(zlist.ag, FUN = format.df.for.figure)
     
+    zlist.full <- list(z.sympt, z.hosp, z.death)
+    zlist.full <- lapply(zlist.full, FUN = format.df.for.figure)
     
     for(i in seq_along(zlist)) zlist[[i]]$outcome <- titlelist[[i]]
     for(i in seq_along(zlist.ag)) zlist.ag[[i]]$outcome <- titlelist[[i]]
+    
+    for(i in seq_along(zlist.full)) zlist.full[[i]]$outcome <- titlelist[[i]]
     
     # Plot and save :
     figure.1(zlist)
     figure.1.b(zlist)
     figure.1.c(zlist)
+    
+    figure.1.c.alloutcome(zlist.full)
     
     figure.S1a(zlist.ag) 
     figure.S1(zlist) 
