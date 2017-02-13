@@ -465,14 +465,21 @@ hosp.death.prop <- function(pop.nofizz, dir.results) {
     x$hosp.per.100000 <- x$hosp.prop * 1e5
     x$death.per.100000 <- x$death.prop * 1e5
     
+    h <- subset(pop.nofizz, was_hosp==1)
+    fatality.per.hosp <- mean(1-h$is_alive)
+    
     df <- data.frame(outcome = c('Hospitalizations (per 100000)',
-                                 'Death (per 100000)'),
+                                 'Death (per 100000)',
+                                 'Fatality per hospitalization'),
                      mean = c(mean(x$hosp.per.100000),
-                              mean(x$death.per.100000)),
+                              mean(x$death.per.100000),
+                              fatality.per.hosp),
                      q2.5 = c(quantile(x$hosp.per.100000,probs = 0.025),
-                              quantile(x$death.per.100000,probs = 0.025)),
+                              quantile(x$death.per.100000,probs = 0.025),
+                              NA),
                      q97.5= c(quantile(x$hosp.per.100000,probs = 0.975),
-                              quantile(x$death.per.100000,probs = 0.975))
+                              quantile(x$death.per.100000,probs = 0.975),
+                              NA)
     )
     
     write.csv(df,file = paste0(dir.results,'hosp-death-ratio.csv'),
