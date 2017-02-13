@@ -977,9 +977,7 @@ figure.1.c <- function(zlist) {
     dev.off()
 }
 
-
-figures.maintext <-function(df,dir,file.scen.prm.list){
-    
+process.outputs <- function(df,dir,file.scen.prm.list) {
     # Retrieve scenarios definitions:
     spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
     names(df)[names(df)=='scenario'] <- 'scenario_id' 
@@ -1007,6 +1005,19 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     for(i in seq_along(zlist.ag)) zlist.ag[[i]]$outcome <- titlelist[[i]]
     
     for(i in seq_along(zlist.full)) zlist.full[[i]]$outcome <- titlelist[[i]]
+    
+    return(list(zlist = zlist,
+                zlist.ag = zlist.ag,
+                zlist.full = zlist.full))
+}
+
+figures.maintext <-function(df,dir,file.scen.prm.list){
+    
+    X <- process.outputs(df,dir,file.scen.prm.list)
+    
+    zlist      <- X[['zlist']]
+    zlist.ag   <- X[['zlist.ag']]
+    zlist.full <- X[['zlist.full']]
     
     # Plot and save :
     figure.1(zlist)
