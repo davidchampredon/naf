@@ -1074,10 +1074,15 @@ plot.hosp.death.age <- function(pop.nofizz){
                h = mean(was_hosp),
                d = mean(1-is_alive))
     
+    hosp.m <- mean(pop.nofizz$was_hosp)
+    death.m <- 1 - mean(pop.nofizz$is_alive)
+    
     g <- ggplot(z, aes(x=agegroup, y=h*1e5)) + geom_line() + geom_point()+
+        geom_hline(yintercept = hosp.m*1e5, linetype=2) + 
         ggtitle('Hospitalizations per 100,000 (all MC)') + xlab('Age')+ylab('')
     
     gd <- ggplot(z, aes(x=agegroup, y=d*1e5)) + geom_line() + geom_point()+
+        geom_hline(yintercept = death.m*1e5, linetype=2) + 
         ggtitle('Deaths per 100,000 (all MC)') + xlab('Age')+ylab('')
     
     grid.arrange(g,gd)
