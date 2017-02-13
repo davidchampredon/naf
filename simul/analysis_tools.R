@@ -1065,6 +1065,25 @@ plot.population <- function(pop, split.mc = TRUE) {
 	
 }
 
+plot.hosp.death.age <- function(pop.nofizz){
+    
+    bckt <- 5
+    pop.nofizz$agegroup <- round(pop.nofizz$age/bckt,0) * bckt
+    
+    z <- ddply(pop.nofizz, 'agegroup', summarize, 
+               h = mean(was_hosp),
+               d = mean(1-is_alive))
+    
+    g <- ggplot(z, aes(x=agegroup, y=h*1e5)) + geom_line() + geom_point()+
+        ggtitle('Hospitalizations per 100,000 (all MC)') + xlab('Age')+ylab('')
+    
+    gd <- ggplot(z, aes(x=agegroup, y=d*1e5)) + geom_line() + geom_point()+
+        ggtitle('Deaths per 100,000 (all MC)') + xlab('Age')+ylab('')
+    
+    grid.arrange(g,gd)
+}
+
+
 
 
 ###   =====   S O C I A L   P L A C E S   P L O T S =====

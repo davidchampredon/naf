@@ -84,6 +84,7 @@ if (save.plot.to.file) pdf(fname.pop, width = 30, height = 18)
 
 try( plot.population(pop, split.mc=F),  silent = T)
 try( plot.proportion(pop.nofizz), silent = T)
+try( plot.hosp.death.age(pop.nofizz), silent = T)
 try( plot.n.contacts(tsc),  silent = T)
 try( plot.age.contact.matrix.avg(res.no.fizz),  silent = T)
 try( plot.sp.sz.distrib(res.list.0, world.prm) , silent = T)
