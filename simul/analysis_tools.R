@@ -23,7 +23,7 @@ filter.out.fizzle <- function(pop.all.mc){
 	if(length(fizz.mc.idx)>0) 
 		idx.mc.no.fizz <- idx.mc[-fizz.mc.idx]
 	
-	pop.nofizz <- subset(pop.all.mc, mc==idx.mc.no.fizz)
+	pop.nofizz <- subset(pop.all.mc, mc %in% idx.mc.no.fizz)
 	return(pop.nofizz)
 }
 
@@ -447,6 +447,38 @@ sp.to.string <- function(i) {
 	# // if(i==6) res = SP_xxx;
 	return(res)
 }
+
+
+hosp.death.prop <- function(pop.nofizz, dir.results) {
+    
+    ddply(pop.nofizz,'mc',summarise,N=length(id_indiv))
+    
+    
+    x <- ddply(pop.nofizz, c('mc'), summarize, 
+               N = length(id_indiv),
+               H = sum(was_hosp),
+               D = sum(1-is_alive))
+    
+    x$hosp.prop  <- x$H / x$N
+    x$death.prop <- x$D / x$N
+    
+    x$hosp.per.100000 <- x$hosp.prop * 1e5
+    x$death.per.100000 <- x$death.prop * 1e5
+    
+    df <- data.frame(outcome = c('Hospitalizations (per 100000)',
+                                 'Death (per 100000)'),
+                     mean = c(mean(x$hosp.per.100000),
+                              mean(x$death.per.100000)),
+                     q2.5 = c(quantile(x$hosp.per.100000,probs = 0.025),
+                              quantile(x$death.per.100000,probs = 0.025)),
+                     q97.5= c(quantile(x$hosp.per.100000,probs = 0.975),
+                              quantile(x$death.per.100000,probs = 0.975))
+    )
+    
+    write.csv(df,file = paste0(dir.results,'hosp-death-ratio.csv'),
+              row.names = F, quote = F)  
+}
+
 
 
 

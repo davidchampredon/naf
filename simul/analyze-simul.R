@@ -58,6 +58,11 @@ if(exists('res.list') ){
 	}
 }
 
+### ==== Results output text ====
+
+hosp.death.prop(pop.nofizz, dir.results)
+
+
 ### ==== Plots ====
 
 # filenames
