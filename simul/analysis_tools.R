@@ -317,6 +317,8 @@ merge.pop.mc <- function(res.list, n.cpu,
 						 select.mc = NA) {
 	# Merge all MC iterations into one single data frame for population.
 	
+    # WARNING: 'doparallel' is actually _slower_ !!! (Remove or fix!)
+    
 	snwrap <- function(i){
 		res    <- res.list[[i]]
 		pop    <- as.data.frame(res[['world_final']])

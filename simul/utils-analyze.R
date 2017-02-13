@@ -25,7 +25,7 @@ analyze.simul.scen <- function(scen.id,
 	# across MC, so just display the first ('select.mc=1')
 	pop   <- merge.pop.mc(res.list.0,
 						  n.cpu = n.cpu, 
-						  doparallel = TRUE, 
+						  doparallel = FALSE, 
 						  select.mc = 1)
 	
 	# Merging time series if faster and more informative,

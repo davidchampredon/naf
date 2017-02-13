@@ -25,7 +25,7 @@ for(i in SIM){
     # Merge populations of all MC iterations:
     pop.all.mc   <- merge.pop.mc(res.select,
                                  n.cpu = n.cpu, 
-                                 doparallel = TRUE)
+                                 doparallel = FALSE)
     
     # Filter out the MC iterations that produced fizzles:
     pop.nofizz <- filter.out.fizzle(pop.all.mc)

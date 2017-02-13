@@ -148,11 +148,11 @@ compare.simul.scen <- function(scen.id,
 	
 	pop0 <- merge.pop.mc(res.list = res.list.0, 
 						 n.cpu = 2,
-						 doparallel = TRUE,
+						 doparallel = FALSE,
 						 select.mc = 1:n.mc)
 	pop <- merge.pop.mc(res.list = res.list, 
 						n.cpu = 2,
-						doparallel = TRUE,
+						doparallel = FALSE,
 						select.mc = 1:n.mc)
 
 	# Assign age groups:
