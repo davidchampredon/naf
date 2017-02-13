@@ -16,7 +16,7 @@ proba_death_min      , 0.20
 proba_death_max      , 0.99
 proba_death_frailCvx , 0.40
 proba_death_slope    , 12.0
-proba_death_mult     , 0.80
+proba_death_mult     , 0.30
 
 frailty_0          , 0.22
 frailty_agepivot   , 37.25
