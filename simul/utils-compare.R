@@ -846,12 +846,79 @@ figure.S3 <- function(zlist.ag){
     dev.off()
 }
 
+
+reformat <- function(DAT){
+    DAT$VE <- paste('VE =' , DAT$interv_efficacy)
+    
+    # Add R0 information:
+    ucr <- unique(DAT$contact_rate_mean)
+    DAT$tmp <- 1.4
+    DAT$tmp[DAT$contact_rate_mean==ucr[2]] <- 1.9
+    DAT$R0 <- paste('Ro =',DAT$tmp)
+    
+    DAT$outcome <- factor(DAT$outcome, levels = c('Symptomatic Infections',
+                                                  'Hospitalized',
+                                                  'Deaths'))
+    
+    return(DAT)
+}
+
 figure.1 <- function(zlist) {
+    
+    DAT <- do.call('rbind.data.frame', zlist)
+    DAT <- reformat(DAT)
+    
+    ar <- unique(DAT$interv_start)
+    
+    # Define and reorder VE:
+    DAT$VE <- paste('VE =',DAT$interv_efficacy)
+    uie <- sort(unique(DAT$interv_efficacy),decreasing = T)
+    DAT$VE <- factor(x = DAT$VE, levels = paste('VE =',uie))
+    
+    # Select only one strategy for this plot:
+    DAT <- subset(DAT,interv_target=='priority_age_frailty' )
+    
+    g <- ggplot(DAT, aes(x=interv_start, y=mn, 
+                         fill=factor(interv_cvg_rate),
+                         color=factor(interv_cvg_rate) )) +
+        geom_bar(stat = 'identity', 
+                 position='dodge', alpha=0.6, width=10) +
+        geom_errorbar(aes(ymin=qlo,ymax=qhi),
+                      size = 0.4,
+                      position = 'dodge',
+                      width = 10)+
+        scale_x_continuous(breaks=ar) +
+        facet_grid(VE ~ R0 ) +
+        guides(fill = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
+               color = FALSE) +
+        theme(panel.grid.minor.x = element_blank()) +
+        theme(panel.grid.major.x = element_blank()) +
+        theme(axis.text=element_text(size=18),
+              axis.title=element_text(size=18,face="bold")) +
+        theme(axis.title.y=element_text(margin=margin(0,20,0,0))) +
+        theme(axis.title.x=element_text(margin=margin(20,0,0,0))) +
+        theme(strip.text = element_text(size=18)) +
+        theme(legend.text=element_text(size=16)) +
+        theme(legend.title=element_text(size=16)) +
+        scale_fill_manual(values=mypalette2) +
+        scale_color_manual(values=mypalette2) +
+        # scale_fill_brewer(palette = 'BrBG') +
+        # scale_color_brewer(palette = 'BrBG') +
+        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+    
+    pdf(file = paste0('../results/figures/Figure_1.pdf'), 
+        width = 12, height = 10)    
+    plot(g)
+    dev.off()
+}
+
+
+figure.1a <- function(zlist) {
     
     DAT <- do.call('rbind.data.frame', zlist)
     ar <- unique(DAT$interv_start)
     
-    DAT <- subset(DAT, interv_efficacy==0.9)
+    DAT <- subset(DAT, interv_efficacy==0.8)
     
     # Explicit name for plot:
     DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
@@ -889,7 +956,7 @@ figure.1.b <- function(zlist) {
     
     DAT <- do.call('rbind.data.frame', zlist)
     ar <- unique(DAT$interv_start)
-    DAT <- subset(DAT, interv_efficacy==0.9)
+    DAT <- subset(DAT, interv_efficacy==0.8)
     
     # Explicit name for plot:
     DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
@@ -951,7 +1018,7 @@ figure.1.c <- function(zlist) {
     
     DAT <- do.call('rbind.data.frame', zlist)
     ar <- unique(DAT$interv_start)
-    DAT <- subset(DAT, interv_efficacy==0.9)
+    DAT <- subset(DAT, interv_efficacy==0.8)
     
     # Explicit name for plot:
     DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
@@ -1021,15 +1088,17 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     
     # Plot and save :
     figure.1(zlist)
-    figure.1.b(zlist)
-    figure.1.c(zlist)
     
-    figure.1.c.alloutcome(zlist.full)
     
-    figure.S1a(zlist.ag) 
-    figure.S1(zlist) 
-    figure.S2(zlist.ag) 
-    figure.S3(zlist.ag)
+    # figure.1.b(zlist)
+    # figure.1.c(zlist)
+    # 
+    # figure.1.c.alloutcome(zlist.full)
+    # 
+    # figure.S1a(zlist.ag) 
+    # figure.S1(zlist) 
+    # figure.S2(zlist.ag) 
+    # figure.S3(zlist.ag)
 }
 
 
