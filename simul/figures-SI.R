@@ -8,8 +8,10 @@ library(ggplot2)
 
 source('analysis_tools.R')  
 source('utils-compare.R')
+source('utils-misc.R')
 
 dir.SI.fig <- '../results/figures/SI/'
+file.scen.prm.list <- 'scenario-prm-list.csv'
 
 # ---- Load simulation results  -----
 
@@ -32,12 +34,19 @@ load.simul.results <- function(rdataFile) {
                 world.prm = world.prm))
 }
 
-
+# Single scenario for output on population:
 rdataFile <- 'mc-simul.RData'
 RES <- load.simul.results(rdataFile)
 POP        <- RES[['pop.nofizz']]
 world.prm  <- RES[['world.prm']]
 res.list.0 <- RES[['res.list.0']]
+
+# Multi scenario
+dir.results    <- dir.def('dir-def.csv')[['results']]
+dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
+load(paste0(dir.save.rdata,'result-scen-all.RData'))
+res.all <- list(main = result.scen.all,
+                main.ageGroup = result.scen.all.ageGroup)
 
 # ---- Internal functions ----
 
@@ -220,7 +229,7 @@ figure.S2 <- function(zlist.full) {
         guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
-        coord_cartesian(ylim=c(0,1)) +
+        coord_cartesian(ylim=c(-0.2,1)) +
         xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
     
     pdf(file = paste0(dir.SI.fig,'fig-S2.pdf'),
@@ -249,7 +258,7 @@ figure.S3 <- function(zlist.full) {
         guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
-        coord_cartesian(ylim=c(0,1)) +
+        coord_cartesian(ylim=c(-0.2,1)) +
         xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
     
     pdf(file = paste0(dir.SI.fig,'fig-S3.pdf'), width = 16, height = 10)    
@@ -264,21 +273,30 @@ figure.S4 <- function(zlist.ag){
     DAT <- reformat(DAT)
     DAT$ageGroup <- factor(DAT$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
     
-    DAT <- subset(DAT, interv_target=='priority_age_frailty')
+    DAT.p <- subset(DAT, interv_target=='priority_age_frailty')
+    DAT.r <- subset(DAT, interv_target=='never_sympt')
     
-    g <- ggplot(DAT, aes(x=ageGroup, y=mn, 
-                        fill=factor(interv_start),
-                        color=factor(interv_start))) +
-        geom_line(aes(group=factor(interv_start))) +
-        geom_point(alpha=0.75, size=3, shape=22) +
-        facet_grid( VE + R0 ~  interv_cvg_rate) +
-        guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
-        scale_fill_manual(values=mypalette) + 
-        scale_color_manual(values=mypalette) + 
-        xlab("Age group") + ylab("Mean relative reduction")
+    internal.plot <- function(DAT, title) {
+        g <- ggplot(DAT, aes(x=ageGroup, y=mn, 
+                             fill=factor(interv_start),
+                             color=factor(interv_start))) +
+            geom_line(aes(group=factor(interv_start))) +
+            geom_point(alpha=0.75, size=3, shape=22) +
+            facet_grid( VE + R0 ~  interv_cvg_rate) +
+            guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
+            scale_fill_manual(values=mypalette) + 
+            scale_color_manual(values=mypalette) + 
+            ggtitle(title) + 
+            xlab("Age group") + ylab("Mean relative reduction")
+        return(g)
+    }
     
-    pdf(file =  paste0(dir.SI.fig,'fig-S4.pdf'), width = 12,height = 8)
-    plot(g)
+    pdf(file =  paste0(dir.SI.fig,'fig-S4a.pdf'), width = 12,height = 8)
+    plot(internal.plot(DAT.p, 'Priority vaccination strategy'))
+    dev.off()
+    
+    pdf(file =  paste0(dir.SI.fig,'fig-S4b.pdf'), width = 12,height = 8)
+    plot(internal.plot(DAT.r,'Random vaccination strategy'))
     dev.off()
 }
 
@@ -286,7 +304,10 @@ figure.S4 <- function(zlist.ag){
 
 
 # ---- Save all SI figures ----
-X <- process.outputs(df,dir,file.scen.prm.list)
+
+
+df  <- res.all[['main.ageGroup']]
+X <- process.outputs(df, dir.results, file.scen.prm.list)
 
 zlist      <- X[['zlist']]
 zlist.ag   <- X[['zlist.ag']]
@@ -295,3 +316,6 @@ zlist.full <- X[['zlist.full']]
 figure.S1.calibration(res.list.0, world.prm, POP)
 figure.S2(zlist.full) 
 figure.S3(zlist.full) 
+figure.S4(zlist.ag)
+
+

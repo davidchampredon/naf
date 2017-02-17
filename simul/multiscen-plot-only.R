@@ -31,6 +31,7 @@ dir <- dir.results
 try(expr = {
     df  <- res.all[['main.ageGroup']]
     figures.maintext(df, dir, file.scen.prm.list)
+    figure.tmp(result.scen.all, file.scen.prm.list)
 })
 
 

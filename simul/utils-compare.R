@@ -1101,5 +1101,110 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     # figure.S3(zlist.ag)
 }
 
-
+figure.tmp <- function(result.scen.all, file.scen.prm.list) {
+    
+    # Retrieve scenarios definitions:
+    spl <- read.csv(file.scen.prm.list) # DEBUG::  file.scen.prm.list <- 'scenario-prm-list.csv'
+    names(result.scen.all)[names(result.scen.all)=='scenario'] <- 'scenario_id' 
+    
+    # Merge results and scenarios definition:
+    x <- join(result.scen.all, spl, by='scenario_id')
+    
+    y <- select(x,
+                c(scenario_id,mc,
+                  tot.inf.baseline, 
+                  tot.hosp.baseline,
+                  tot.death.baseline,
+                  d.inf,
+                  d.hosp,
+                  d.death),
+                contact_rate_mean,
+                starts_with("interv_"))
+    
+    y$tot.inf.scen <- y$tot.inf.baseline + y$d.inf
+    y$tot.hosp.scen <- y$tot.hosp.baseline + y$d.hosp
+    y$tot.death.scen <- y$tot.death.baseline + y$d.death
+    
+    z <- ddply(y, 
+               c('contact_rate_mean','interv_cvg_rate', 
+                 'interv_target','interv_cvg_max_prop',
+                 'interv_efficacy', 'interv_start'),
+               summarize,
+               m = mean(tot.inf.scen),
+               mh = mean(tot.hosp.scen),
+               md = mean(tot.death.scen))
+    
+    # Calculate the relative difference 
+    # between two consecutive interv start date
+    # with a scenario:
+    z$rel.diff       <- NA
+    z$rel.diff.h     <- NA
+    z$rel.diff.death <- NA
+    n<- nrow(z)
+    for(i in 1:(n-1)){
+        z$rel.diff[i] <- - (z$m[i]/z$m[i+1] - 1)
+        z$rel.diff.h[i] <- - (z$mh[i]/z$mh[i+1] - 1)
+        z$rel.diff.d[i] <- - (z$md[i]/z$md[i+1] - 1)
+    }
+    z$rel.diff[z$interv_start == max(unique(z$interv_start))] <- NA
+    z$rel.diff.h[z$interv_start == max(unique(z$interv_start))] <- NA
+    z$rel.diff.d[z$interv_start == max(unique(z$interv_start))] <- NA
+    
+    ar <- unique((z$interv_start))
+    
+    z$VE <- paste('VE =',z$interv_efficacy)
+    z$tmpR0 <- 1.4
+    z$tmpR0[z$contact_rate_mean == max(unique(z$contact_rate_mean))] <- 1.9
+    z$R0 <- paste('R0 =',z$tmpR0)
+    z$strategy <- 'Priority'
+    z$strategy[z$interv_target=='never_sympt'] <- 'Random'
+    
+    g <- ggplot(z, aes(x=interv_start, y=rel.diff, 
+                       color = factor(interv_cvg_rate*1e5))) +
+        geom_line(aes(linetype=factor(strategy)),size=2,alpha=0.7) + geom_point(size=3) + 
+        xlab('Vaccination start lag (days)') + ylab('Relative difference with next ealier start date')+
+        guides(color = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
+               linetype = guide_legend('Vaccination strategy')) +
+        scale_x_continuous(breaks=ar) +
+        scale_color_manual(values=mypalette2) +
+        ggtitle('All infections')
+    
+    pdf('../results/figures/fig-tmp.pdf', width = 12, height = 12)    
+    g1 <- g + facet_grid(VE ~ R0)
+    plot(g1)
+    
+    g2 <- g + facet_grid(strategy + VE  ~ R0)
+    plot(g2)
+    
+    gh <- ggplot(z, aes(x=interv_start, y=rel.diff.h, 
+                        color = factor(interv_cvg_rate*1e5))) +
+        geom_line(aes(linetype=factor(strategy)),size=2,alpha=0.7) + geom_point(size=3) + 
+        xlab('Vaccination start lag (days)') + ylab('Relative difference with next ealier start date')+
+        guides(color = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
+               linetype = guide_legend('Vaccination strategy')) +
+        scale_x_continuous(breaks=ar) +
+        scale_color_manual(values=mypalette2) +
+        ggtitle('Hospitalizations')
+    g1h <- gh + facet_grid(VE ~ R0)
+    plot(g1h)
+    g2h <- gh + facet_grid(strategy + VE  ~ R0)
+    plot(g2h)
+    
+    
+    gd <- ggplot(z, aes(x=interv_start, y=rel.diff.d, 
+                        color = factor(interv_cvg_rate*1e5))) +
+        geom_line(aes(linetype=factor(strategy)),size=2,alpha=0.7) + geom_point(size=3) + 
+        xlab('Vaccination start lag (days)') + ylab('Relative difference with next ealier start date')+
+        guides(color = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
+               linetype = guide_legend('Vaccination strategy')) +
+        scale_x_continuous(breaks=ar) +
+        scale_color_manual(values=mypalette2) +
+        ggtitle('Deaths')
+    g1d <- gd + facet_grid(VE ~ R0)
+    plot(g1d)
+    g2d <- gd + facet_grid(strategy + VE  ~ R0)
+    plot(g2d)
+    
+    dev.off()
+}
 
