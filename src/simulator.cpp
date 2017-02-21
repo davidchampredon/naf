@@ -1736,6 +1736,119 @@ void Simulator::death_hospital(){
 }
 
 
+vector<individual*> Simulator::helper_priority_vax(uint i,
+                                                   ID id_sp,
+                                                   double dt,
+                                                   float age_young,
+                                                   float age_old){
+    
+    vector<individual*> indiv_drawn;
+    
+    float cvg_rate         = _intervention[i].get_cvg_rate();
+    string type_target     = _intervention[i].get_type_indiv_targeted();
+    uint N = (uint)_world[id_sp].get_size();
+    
+    string interv_type = _intervention[i].get_type_intervention();
+    
+    //cout << "DEBUG: " << N << endl;
+    
+    // Draw the number of targeted individuals
+    // (everyone is potentially targeted at this
+    // stage [so use 'N'] the filter happens later):
+    float intensity = cvg_rate * N * dt;
+    
+    std::poisson_distribution<> poiss(intensity);
+    uint n_target = poiss(_RANDOM_GENERATOR_INTERV);
+    if (n_target > N) n_target = N;
+    
+    uint cnt = 0;
+    
+    for (uint j=0; (j < N) && (cnt < n_target) ; j++)
+    {
+        double age = _world[id_sp].get_indiv(j).get_age();
+        double fr  = _world[id_sp].get_indiv(j).get_frailty();
+        
+        bool is_treated = _world[id_sp].get_indiv(j).is_treated();
+        bool is_vax     = _world[id_sp].get_indiv(j).is_vaccinated();
+        
+        if(!is_treated && !is_vax){
+            
+            float frMean = _frailty_average;
+            
+            // First condition for prioritization:
+            // - Average vaccination coverage (for prioritized individuals)
+            //   still below 35% (=Ontario mean for seasonal flu vax)
+            
+            float avg1 = calc_cumvax_prop("below",age_young);
+            float avg2 = calc_cumvax_prop("above",age_old);
+            float avg_yo = (avg1 + avg2) / 2.0;
+            
+            bool cond_avgCvg = avg_yo < 0.35;
+            
+            if( cond_avgCvg )
+            {
+                // Second conditions for prioritization:
+                // - being young (<5) or old (>60)
+                // - being weak (frailty > mean frailty)
+                bool cond_ageFr = (age < age_young) || (age_old < age) || (frMean < fr);
+                
+                if ( cond_ageFr )  // <-- fulfill age, frailty & average coverage conditions
+                {
+                    // Has the coverage limit been reached for that indiv's age?
+                    bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                    
+                    if(cond_capvax) // limit not reached
+                    {
+                        individual* tmp = _world[id_sp].get_mem_indiv(j);
+                        indiv_drawn.push_back(tmp);
+                        cnt ++;
+                        
+                        // update the vaccinated age distribution:
+                        if(interv_type == "vaccination"){
+                            uint idx = round(age);
+                            _n_vaccinated_age[idx]++;
+                        }
+                        // DEBUG:
+                        //                            cout<<endl;
+                        //                            cout << "* avg_yo = "<< avg_yo << endl;
+                        //                            cout << "indiv vax:"<<endl;
+                        //                            cout << "age = "<< age << endl;
+                        //                            cout << "frailty = "<< fr <<endl;
+                    }
+                }
+            }
+            else{  // <-- No prioritization
+                
+                // Has the coverage limit been reached for that indiv's age?
+                bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                
+                if(cond_capvax) // cap not reached
+                {
+                    individual* tmp = _world[id_sp].get_mem_indiv(j);
+                    indiv_drawn.push_back(tmp);
+                    cnt ++;
+                    
+                    // update the vaccinated age distribution:
+                    if(interv_type == "vaccination"){
+                        uint idx = round(age);
+                        _n_vaccinated_age[idx]++;
+                    }
+                    // DEBUG:
+                    //                        cout<<endl;
+                    //                        cout << "(no priority) avg_yo = "<< avg_yo << endl;
+                    //                        cout << "indiv vax:"<<endl;
+                    //                        cout << "age = "<< age << endl;
+                    //                        cout << "frailty = "<< fr <<endl;
+                }
+                
+            }
+            
+        } // end-if-not-treated-or-not-vaccinated
+    } // end-for
+
+    return indiv_drawn;
+}
+
 
 vector<individual*> Simulator::draw_targeted_individuals(uint i,
                                                          ID id_sp,
@@ -2008,6 +2121,21 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
     }// end-if-type_target == "priority_age_frail"
     
     
+    else if(type_target == "priority_age5_frailty"){
+        found = true;
+        float age_young = 5.0;
+        float age_old   = 65.0;
+        indiv_drawn = helper_priority_vax(i, id_sp, dt, age_young, age_old);
+    }
+    
+    else if(type_target == "priority_age19_frailty"){
+        found = true;
+        float age_young = 19.0;
+        float age_old   = 65.0;
+        indiv_drawn = helper_priority_vax(i, id_sp, dt, age_young, age_old);
+    }
+    
+    
     else if(type_target == "test"){
         
         // This intervention strategy is used for test & debugging...
@@ -2128,7 +2256,9 @@ void Simulator::count_targeted_by_intervention(){
         }
         
         
-        if(type_target == "priority_age_frailty"){
+        if(type_target == "priority_age_frailty" ||
+           type_target == "priority_age5_frailty" ||
+           type_target == "priority_age19_frailty"){
             found = true;
             // This intervention strategy caps the
             // number of vaccinations _by age_ and

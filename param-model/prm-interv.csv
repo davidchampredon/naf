@@ -1,7 +1,7 @@
 interv_name, variable, value
 
 plantvax, interv_type, vaccination
-plantvax, interv_target, priority_age_frailty
+plantvax, interv_target, priority_age5_frailty
 plantvax, interv_start, -21
 plantvax, interv_end, 999
 plantvax, interv_cvg_rate, 0.01

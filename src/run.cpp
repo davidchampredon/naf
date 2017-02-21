@@ -109,7 +109,7 @@ void main_run(){
     float cvg_max_prop = 0.50;
     float efficacy     = 0.80 ;
     intervention interv1("vaccination",  // treatment  cure vaccination
-                         "priority_age_frailty",  // symptomatic   susceptible   young_old   never_sympt priority_age_frailty
+                         "priority_age19_frailty",  // symptomatic   susceptible   young_old   never_sympt priority_age_frailty
                          "vax",
                          time_start, time_end,
                          cvg_rate, cvg_max_prop, efficacy);

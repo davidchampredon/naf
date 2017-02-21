@@ -400,6 +400,15 @@ public:
     
     bool    at_least_one_vaccination_intervention();
     
+    
+    /** Helper function for the "priority_age_fraity" intervention.
+     */
+    vector<individual*> helper_priority_vax(uint i_intervention,
+                                            ID id_sp,
+                                            double dt,
+                                            float age_young,
+                                            float age_old);
+    
     /** Draw the targeted individuals of the ith intervention,
      *  in social place with ID 'id_sp'.
      */
