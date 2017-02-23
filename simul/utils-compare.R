@@ -652,6 +652,17 @@ figure.TODELETE <- function(z, title='') {
 }
 
 
+#' Floor the results at 0 because
+#' for low MC iterations results
+#' are very noisy.
+floor.results.0 <- function(DAT){
+    DAT$mn[DAT$mn<0]   <- 0
+    DAT$md[DAT$md<0]   <- 0
+    DAT$qlo[DAT$qlo<0] <- 0
+    DAT$qhi[DAT$qhi<0] <- 0
+    return(DAT)
+}
+
 figure.seyed <- function(zlist) {
     
     df <- do.call('rbind.data.frame', zlist)
@@ -867,7 +878,7 @@ figure.1 <- function(zlist) {
     
     DAT <- do.call('rbind.data.frame', zlist)
     DAT <- reformat(DAT)
-    
+    DAT <- floor.results.0(DAT)
     ar <- unique(DAT$interv_start)
     
     # Define and reorder VE:
@@ -876,7 +887,7 @@ figure.1 <- function(zlist) {
     DAT$VE <- factor(x = DAT$VE, levels = paste('VE =',uie))
     
     # Select only one strategy for this plot:
-    DAT <- subset(DAT,interv_target=='priority_age_frailty' )
+    DAT <- subset(DAT,interv_target=='priority_age5_frailty' )
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, 
                          fill=factor(interv_cvg_rate),

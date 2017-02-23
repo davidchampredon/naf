@@ -198,6 +198,8 @@ plot.age.distribution <- function(POP){
     
 }
 
+
+
 # ---- SI Figures -----
 figure.S1.calibration <- function(res.list.0, world.prm, POP){
     w <- 1000
@@ -215,10 +217,9 @@ figure.S2 <- function(zlist.full) {
     
     DAT <- do.call('rbind.data.frame', zlist.full)
     DAT <- reformat(DAT)
-    
+    DAT <- subset(DAT, interv_target=='priority_age5_frailty')
+    DAT <- floor.results.0(DAT)
     ar <- unique(DAT$interv_start)
-    
-    DAT <- subset(DAT, interv_target=='priority_age_frailty')
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, 
                          color=factor(interv_cvg_rate))) +
@@ -229,7 +230,7 @@ figure.S2 <- function(zlist.full) {
         guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
-        coord_cartesian(ylim=c(-0.2,1)) +
+        coord_cartesian(ylim=c(0,1)) +
         xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
     
     pdf(file = paste0(dir.SI.fig,'fig-S2.pdf'),
@@ -242,6 +243,7 @@ figure.S3 <- function(zlist.full) {
     
     DAT <- do.call('rbind.data.frame', zlist.full)
     DAT <- reformat(DAT)
+    DAT <- floor.results.0(DAT)
     
     ar <- unique(DAT$interv_start)
     
@@ -249,6 +251,8 @@ figure.S3 <- function(zlist.full) {
     DAT$it <- NA
     DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
     DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
+    DAT$it[DAT$interv_target=='priority_age5_frailty'] <- 'Priority5'
+    DAT$it[DAT$interv_target=='priority_age19_frailty'] <- 'Priority19'
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
         geom_line(alpha=0.5, size=2, aes(linetype=factor(it))) +
@@ -258,7 +262,7 @@ figure.S3 <- function(zlist.full) {
         guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
-        coord_cartesian(ylim=c(-0.2,1)) +
+        coord_cartesian(ylim=c(0,1)) +
         xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
     
     pdf(file = paste0(dir.SI.fig,'fig-S3.pdf'), width = 16, height = 10)    
@@ -271,10 +275,12 @@ figure.S4 <- function(zlist.ag){
     
     DAT <- do.call('rbind.data.frame', zlist.ag)
     DAT <- reformat(DAT)
+    DAT <- floor.results.0(DAT)
     DAT$ageGroup <- factor(DAT$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
     
-    DAT.p <- subset(DAT, interv_target=='priority_age_frailty')
-    DAT.r <- subset(DAT, interv_target=='never_sympt')
+    ut    <- unique(DAT$interv_target)
+    DAT.1 <- subset(DAT, interv_target==ut[1])
+    DAT.2 <- subset(DAT, interv_target==ut[2])
     
     internal.plot <- function(DAT, title) {
         g <- ggplot(DAT, aes(x=ageGroup, y=mn, 
@@ -286,25 +292,43 @@ figure.S4 <- function(zlist.ag){
             guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
             scale_fill_manual(values=mypalette) + 
             scale_color_manual(values=mypalette) + 
+            coord_cartesian(ylim=c(0,1)) +
             ggtitle(title) + 
             xlab("Age group") + ylab("Mean relative reduction")
         return(g)
     }
     
     pdf(file =  paste0(dir.SI.fig,'fig-S4a.pdf'), width = 12,height = 8)
-    plot(internal.plot(DAT.p, 'Priority vaccination strategy'))
+    plot(internal.plot(DAT.1, ut[1]))
     dev.off()
     
     pdf(file =  paste0(dir.SI.fig,'fig-S4b.pdf'), width = 12,height = 8)
-    plot(internal.plot(DAT.r,'Random vaccination strategy'))
+    plot(internal.plot(DAT.2,ut[2]))
+    dev.off()
+}
+
+#' Clinical (symptomatic infections) final size by age group
+figure.S5 <- function(df) {
+
+    df$CFS <- df$tot.sympt.baseline/df$popsize
+    a <- ddply(df, c('ageGroup'), summarize, 
+               m=mean(CFS),
+               hi = max(CFS),
+               lo = min(CFS))
+    a$ageGroup <- factor(a$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
+    g <- ggplot(a)+ 
+        geom_bar(aes(x=ageGroup, y=m), stat='identity')+
+        geom_errorbar(aes(x=ageGroup, ymin=lo, ymax=hi),width=0.3)+
+        ggtitle('Clinical attack rate (mean and range)') + ylab('')
+    
+    pdf(file =  paste0(dir.SI.fig,'fig-S5.pdf'), width = 12,height = 8)
+    plot(g)
     dev.off()
 }
 
 
 
-
 # ---- Save all SI figures ----
-
 
 df  <- res.all[['main.ageGroup']]
 X <- process.outputs(df, dir.results, file.scen.prm.list)
@@ -317,5 +341,5 @@ figure.S1.calibration(res.list.0, world.prm, POP)
 figure.S2(zlist.full) 
 figure.S3(zlist.full) 
 figure.S4(zlist.ag)
-
+figure.S5(df)
 
