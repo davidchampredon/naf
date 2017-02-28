@@ -612,46 +612,6 @@ format.df.for.figure <- function(z){
     return(z)
 }
 
-figure.TODELETE <- function(z, title='') {
-    
-    z <- subset(z, interv_efficacy==0.8)
-    #z <- subset(z, imm_hum_baseline==0.1)
-    z <- subset(z, `Final Cum. Incidence`==0.5)
-    
-    z <- explicit_variable(var ='Vaccination scenario', df = z )
-    z <- explicit_variable(var ='Final Cum. Incidence', df = z )
-    
-    g <- ggplot(z) 
-    
-    g <- g + geom_line(aes(x=interv_cvg_rate, 
-                           y=mn, 
-                           colour=factor(`Vaccination lag`)), 
-                       size=3, alpha=0.6)+ 
-        geom_errorbar(aes(x = interv_cvg_rate , 
-                            ymin=qlo, 
-                            ymax=qhi, 
-                            colour=factor(`Vaccination lag`)),
-                        alpha = 0.3, size=1,
-                        #position='dodge',
-                        width = 25) +
-        geom_point(aes(x=interv_cvg_rate , 
-                       y=mn, 
-                       colour=factor(`Vaccination lag`)), 
-                   size=4, alpha=1)
-    
-    g <- g + facet_grid(~`Vaccination scenario`)
-    
-    g <- g + scale_x_continuous(breaks=unique(z$interv_cvg_rate),)
-    
-    g <- g + scale_color_brewer(palette = 'BrBG')+ 
-        ggtitle(title) + ylab('Mean relative reduction')+ 
-        xlab('Vaccine administration rate (per 100,000 per day)') + 
-        guides(colour=guide_legend(title="Vaccination Lag"))
-    
-    plot(g)
-}
-
-
 #' Floor the results at 0 because
 #' for low MC iterations results
 #' are very noisy.
@@ -662,60 +622,6 @@ floor.results.0 <- function(DAT){
     DAT$qhi[DAT$qhi<0] <- 0
     return(DAT)
 }
-
-figure.seyed <- function(zlist) {
-    
-    df <- do.call('rbind.data.frame', zlist)
-    
-    df$outcome  <- factor(df$outcome, levels = c("Symptomatic Infections", "Hospitalized", "Deaths"))
-    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
-    
-    cr.vec <- unique(df$contact_rate_mean)
-    ve.vec <- unique(df$`Vaccine efficacy`)
-    
-    q <- expand.grid(cr.vec, ve.vec)
-    
-    subplot <- function(cr, ve) {
-        df <- subset(df, contact_rate_mean==cr & `Vaccine efficacy`==ve)
-        
-        g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
-            geom_line(alpha=0.5, size=2) +
-            geom_point(alpha=0.5, size=4) +
-            geom_point(size=4, shape=1) +
-            facet_grid(ageGroup ~  outcome) +
-            guides(color=guide_legend(title="Vacc. Lag (days)")) +
-            coord_cartesian(ylim=c(0,1)) + 
-            ggtitle(paste('CR =',cr,'\n VaxEff =',ve))+
-            scale_colour_brewer(palette = 'RdYlGn')+
-            xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") +
-            theme_gray()
-        plot(g)
-    }
-    
-    subplot.2 <- function(cr, ve) {
-        df <- subset(df, contact_rate_mean==cr & `Vaccine efficacy`==ve)
-        
-        g <- ggplot(df, aes(x=ageGroup, y=mn, fill=factor(interv_start))) +
-            geom_point(alpha=0.75, size=3, shape=22) +
-            geom_point(size=3, shape=0, alpha=0.5,color='black') +
-            facet_wrap(interv_cvg_rate ~  outcome, scales = 'free',ncol = 3) +
-            guides(fill=guide_legend(title="Vacc. Lag (days)")) +
-            #coord_cartesian(ylim=c(0,1)) + 
-            ggtitle(paste('CR =',cr,'\n VaxEff =',ve))+
-            scale_fill_brewer(palette = 'RdYlGn')+
-            xlab("Age group") + ylab("Mean relative reduction") +
-            theme_gray()
-        plot(g)
-    }
-    
-    
-    pdf(file = paste0('../results/Fig_OutcomeAge_CRVE.pdf'), 
-        width = 11,height = 10)
-    for(i in 1:nrow(q)) subplot(q[i,1],q[i,2])
-    for(i in 1:nrow(q)) subplot.2(q[i,1],q[i,2])
-    dev.off()
-}
-
 
 mypalette <- c('-28'='red', '-14'='orange', 
                '0'='grey',

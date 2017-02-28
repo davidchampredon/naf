@@ -239,7 +239,7 @@ List naf_run_det(List params,
 		unsigned int popexport  = simulParams["popexport"];
 		double start_time       = simulParams["start_time"];
 		bool light_output       = simulParams["light_output"];
-		
+		bool superlight_output  = simulParams["superlight_output"];
 		
 		cout << "--> Simulation params loaded." << endl;
 		
@@ -459,16 +459,33 @@ List naf_run_det(List params,
 			
 			
 			// Return R-formatted result:
-			return List::create(Named("world_final")      = to_list(world_final,false),
-								Named("ages")             = census_ages(sim.get_world()),
-								Named("census_sp")		  = to_list(world_sp,false),
-								Named("time_series")      = to_list(ts, false),
-								Named("time_series_sp")   = census_sp,
-								Named("track_n_contacts") = track_n_contacts,
-								Named("wiw_ages")         = sim.get_wiw_ages(),
-								Named("contactAssort")    = sim.get_contactAssort(),
-								Named("sp_size_distrib")  = sim.sp_size_distribution()
-								);
+			
+			if(superlight_output){
+				return List::create(Named("world_final")      = to_list(world_final,false),
+									Named("ages")             = -999,
+									Named("census_sp")		  = -999,
+									Named("time_series")      = to_list(ts, false),
+									Named("time_series_sp")   = census_sp,
+									Named("track_n_contacts") = -999,
+									Named("wiw_ages")         = -999,
+									Named("contactAssort")    = -999,
+									Named("sp_size_distrib")  = -999
+									);
+
+			}
+			
+			if(!superlight_output){
+				return List::create(Named("world_final")      = to_list(world_final,false),
+									Named("ages")             = census_ages(sim.get_world()),
+									Named("census_sp")		  = to_list(world_sp,false),
+									Named("time_series")      = to_list(ts, false),
+									Named("time_series_sp")   = census_sp,
+									Named("track_n_contacts") = track_n_contacts,
+									Named("wiw_ages")         = sim.get_wiw_ages(),
+									Named("contactAssort")    = sim.get_contactAssort(),
+									Named("sp_size_distrib")  = sim.sp_size_distribution()
+									);
+			}
 		}
 		
 		// If no simulation was requested,
