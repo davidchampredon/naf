@@ -337,7 +337,7 @@ zlist      <- X[['zlist']]
 zlist.ag   <- X[['zlist.ag']]
 zlist.full <- X[['zlist.full']]
 
-figure.S1.calibration(res.list.0, world.prm, POP)
+try(figure.S1.calibration(res.list.0, world.prm, POP))
 figure.S2(zlist.full) 
 figure.S3(zlist.full) 
 figure.S4(zlist.ag)
