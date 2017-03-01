@@ -2134,7 +2134,16 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
         float age_old   = 65.0;
         indiv_drawn = helper_priority_vax(i, id_sp, dt, age_young, age_old);
     }
-    
+    else if(type_target == "priority_age5_10_frailty"){
+        found = true;
+        // Warning: this case is for test only.
+        // want to prioritise children b/w 5 and 10
+        // so use the trick young>old in order not to ccode another function...
+        float age_young = 10.0;
+        float age_old   = 5.0;
+        indiv_drawn = helper_priority_vax(i, id_sp, dt, age_young, age_old);
+    }
+
     
     else if(type_target == "test"){
         
@@ -2258,7 +2267,8 @@ void Simulator::count_targeted_by_intervention(){
         
         if(type_target == "priority_age_frailty" ||
            type_target == "priority_age5_frailty" ||
-           type_target == "priority_age19_frailty"){
+           type_target == "priority_age19_frailty" ||
+           type_target == "priority_age5_10_frailty"){
             found = true;
             // This intervention strategy caps the
             // number of vaccinations _by age_ and
