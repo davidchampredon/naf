@@ -35,11 +35,13 @@ load.simul.results <- function(rdataFile) {
 }
 
 # Single scenario for output on population:
-rdataFile <- 'mc-simul.RData'
-RES <- load.simul.results(rdataFile)
-POP        <- RES[['pop.nofizz']]
-world.prm  <- RES[['world.prm']]
-res.list.0 <- RES[['res.list.0']]
+try(expr = {
+    rdataFile <- 'mc-simul.RData'
+    RES <- load.simul.results(rdataFile)
+    POP        <- RES[['pop.nofizz']]
+    world.prm  <- RES[['world.prm']]
+    res.list.0 <- RES[['res.list.0']]}
+)
 
 # Multi scenario
 dir.results    <- dir.def('dir-def.csv')[['results']]
