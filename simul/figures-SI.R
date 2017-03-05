@@ -254,6 +254,7 @@ figure.S3 <- function(zlist.full) {
     DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
     DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
     DAT$it[DAT$interv_target=='priority_age5_frailty'] <- 'Priority5'
+    DAT$it[DAT$interv_target=='priority_age5_10_frailty'] <- 'Priority5-10'
     DAT$it[DAT$interv_target=='priority_age19_frailty'] <- 'Priority19'
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
