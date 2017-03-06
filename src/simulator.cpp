@@ -1486,6 +1486,8 @@ double Simulator::select_contact_rate_ratio(double age,
     // age:
     if (1 <   age && age < 10) ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_1_10");
     if (10 <= age && age < 16) ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_10_16");
+    if (16 <= age && age < 25) ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_16_25");
+    if (25 <= age && age < 40) ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_25_40");
     if (65 <= age)             ratio_indiv = ratio_indiv * _modelParam.get_prm_double("contact_ratio_age_over_65");
     
     // social place:

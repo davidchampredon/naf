@@ -1,8 +1,8 @@
 build_world_only , 0
 build_world_stoch, 0
-light_output     , 1
-superlight_output, 1
-baseline_only    , 0
+light_output     , 0
+superlight_output, 0
+baseline_only    , 1
 start_time       , -2
 horizon          , 300
 initial_latent   , 9
