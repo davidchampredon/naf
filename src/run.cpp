@@ -74,6 +74,8 @@ void main_run(){
     
     MP.add_prm_double ("contact_ratio_age_1_10", 2.0);
     MP.add_prm_double ("contact_ratio_age_10_16", 1.5);
+    MP.add_prm_double ("contact_ratio_age_16_25", 2.4);
+    MP.add_prm_double ("contact_ratio_age_25_40", 2.1);
     MP.add_prm_double ("contact_ratio_age_over_65", 0.8);
     MP.add_prm_double ("contact_ratio_sp_household", 2.2);
     MP.add_prm_double ("contact_ratio_sp_pubTransport", 1.75);

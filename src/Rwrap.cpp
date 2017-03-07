@@ -191,6 +191,8 @@ List naf_run_det(List params,
 		
 		set_parameter(MP, "contact_ratio_age_1_10",        "double", params);
 		set_parameter(MP, "contact_ratio_age_10_16",       "double", params);
+		set_parameter(MP, "contact_ratio_age_16_25",       "double", params);
+		set_parameter(MP, "contact_ratio_age_25_40",       "double", params);
 		set_parameter(MP, "contact_ratio_age_over_65",     "double", params);
 		set_parameter(MP, "contact_ratio_sp_household",    "double", params);
 		set_parameter(MP, "contact_ratio_sp_pubTransport", "double", params);
@@ -558,6 +560,8 @@ List naf_run(List params,
         set_parameter(MP, "contact_rate_stddev",           "double", params);
         set_parameter(MP, "contact_ratio_age_1_10",        "double", params);
         set_parameter(MP, "contact_ratio_age_10_16",       "double", params);
+		set_parameter(MP, "contact_ratio_age_16_25",       "double", params);
+		set_parameter(MP, "contact_ratio_age_25_40",       "double", params);
         set_parameter(MP, "contact_ratio_age_over_65",     "double", params);
         set_parameter(MP, "contact_ratio_sp_household",    "double", params);
         set_parameter(MP, "contact_ratio_sp_pubTransport", "double", params);

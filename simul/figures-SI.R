@@ -35,11 +35,13 @@ load.simul.results <- function(rdataFile) {
 }
 
 # Single scenario for output on population:
-rdataFile <- 'mc-simul.RData'
-RES <- load.simul.results(rdataFile)
-POP        <- RES[['pop.nofizz']]
-world.prm  <- RES[['world.prm']]
-res.list.0 <- RES[['res.list.0']]
+try(expr = {
+    rdataFile <- 'mc-simul.RData'
+    RES <- load.simul.results(rdataFile)
+    POP        <- RES[['pop.nofizz']]
+    world.prm  <- RES[['world.prm']]
+    res.list.0 <- RES[['res.list.0']]}
+)
 
 # Multi scenario
 dir.results    <- dir.def('dir-def.csv')[['results']]
@@ -252,6 +254,7 @@ figure.S3 <- function(zlist.full) {
     DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
     DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
     DAT$it[DAT$interv_target=='priority_age5_frailty'] <- 'Priority5'
+    DAT$it[DAT$interv_target=='priority_age5_10_frailty'] <- 'Priority5-10'
     DAT$it[DAT$interv_target=='priority_age19_frailty'] <- 'Priority19'
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
