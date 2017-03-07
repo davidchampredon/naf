@@ -86,7 +86,8 @@ filter.fizzle <- function(d) {
 compare.simul.scen <- function(scen.id, 
 							   dir.save.rdata,
 							   dir.results,
-							   do.secondary = FALSE) {
+							   do.secondary = FALSE,
+							   do.plot = FALSE) {
 	ct0 <- as.numeric(Sys.time())
 
 	### ==== Load simulation results ====
@@ -208,14 +209,15 @@ compare.simul.scen <- function(scen.id,
 			 compress = FALSE)
 	}
 	# ----- Plots time series -----
-	
-	pdf(paste0(dir.results,'plot-compare-',scen.id,'.pdf'),
-		width = 15, height = 10)
-	
-	plot.epi.timeseries.comp(u)
-	plot.ts.comp.all(dfall)
-	
-	dev.off()
+	if(do.plot){
+	    pdf(paste0(dir.results,'plot-compare-',scen.id,'.pdf'),
+	        width = 15, height = 10)
+	    
+	    plot.epi.timeseries.comp(u)
+	    plot.ts.comp.all(dfall)
+	    
+	    dev.off()
+	}
 	t2 <- as.numeric(Sys.time())
 	print(paste('Full comparison completed in',
 				round((t2-ct0)/60,2),'minutes for scenario',scen.id,'.'))
