@@ -23,9 +23,9 @@ df$day_inf <- round(df$t_infected)
 
 # Mean of infection times:
 z <- ddply(df,'ageround',summarize, 
-      m = mean(t_infected),
-      qlo = quantile(t_infected, probs = 0.025),
-      qhi = quantile(t_infected, probs = 0.975))
+           m = mean(t_infected),
+           qlo = quantile(t_infected, probs = 0.025),
+           qhi = quantile(t_infected, probs = 0.975))
 
 mm <- mean(df$t_infected)
 
@@ -42,7 +42,9 @@ zz$prop.inf <- zz$csum / zz$csummax
 zz$is.mid.val <- FALSE
 zz$is.mid.val[abs(zz$prop.inf-0.5) < 0.05] <- TRUE
 
-midinf <- select(zz[zz$is.mid.val,], ageround, day_inf)
+midinf0 <- select(zz[zz$is.mid.val,], ageround, day_inf)
+midinf <- ddply(midinf0,'ageround',summarize, day_inf_m = mean(day_inf))
+
 m.midinf <- mean(midinf$day_inf)
 
 schanzer <- read.csv('../data/contact-rates/Schanzer-2011-Fig1-Canada.csv')
@@ -51,15 +53,15 @@ schanzer <- read.csv('../data/contact-rates/Schanzer-2011-Fig1-Canada.csv')
 pdf('fit-infectTime-age.pdf')
 plot(z$ageround, z$m - mm, t='o', 
      main = 'Mean infection times',
-     ylim=range(z$qlo-mm,z$qhi-mm),
+     # ylim=range(z$qlo-mm,z$qhi-mm),
      xlab='age', ylab='Difference mean infection time (centred)')
 abline(h=0, col='lightgrey', lty=3)
 points(x=schanzer$agecat, y=schanzer$value, pch=15,col='red',lwd=2)
-lines(x = z$ageround, y=z$qlo - mm, lty=2)
-lines(x = z$ageround, y=z$qhi - mm, lty=2)
+# lines(x = z$ageround, y=z$qlo - mm, lty=2)
+# lines(x = z$ageround, y=z$qhi - mm, lty=2)
 
 
-plot(midinf$ageround, midinf$day_inf-m.midinf, 
+plot(midinf$ageround, midinf$day_inf_m-m.midinf, 
      main = 'Midpoint cumulative incidence',
      xlab = 'age', ylab = 'Centred Midpoints',
      typ='o')

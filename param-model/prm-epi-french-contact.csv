@@ -34,19 +34,19 @@ imm_cell_pivot, 26.58
 
 homogeneous_contact , 0
 contact_rate_distrib, lognorm
-contact_rate_mean   , 3.00001
+contact_rate_mean   , 1.00001
 contact_rate_stddev , 0.001
 contact_rate_CV     , 0.75
 
 contact_ratio_age_1_10     , 1
-contact_ratio_age_10_16    , 2
-contact_ratio_age_16_25    , 2
+contact_ratio_age_10_16    , 5
+contact_ratio_age_16_25    , 10
 contact_ratio_age_25_40    , 1
 contact_ratio_age_over_65  , 1
 
 contact_ratio_sp_household     , 1.00
 contact_ratio_sp_pubTransport  , 1.00
-contact_ratio_sp_school        , 0.80
+contact_ratio_sp_school        , 1.00
 
 contactAssort_lambda, 0.1000000001
 
