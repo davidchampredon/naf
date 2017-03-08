@@ -678,9 +678,9 @@ void Simulator::define_contactAssort(){
             double tmp = 0.0;
             
             tmp += age_contact_elem(i,j, 0,  0,  9,  28, 45);    // parents/children
-            tmp += age_contact_elem(i,j, 10, 10, 9,  0,  28);    // children/children
-            tmp += age_contact_elem(i,j, 45, 45, 20, 0,  17);    // adults/adults
-            tmp += age_contact_elem(i,j, 75, 75, 15, 0,  15);    // seniors
+            tmp += age_contact_elem(i,j, 15, 15, 8,  0,  40);    // children/children
+            tmp += age_contact_elem(i,j, 45, 45, 30, 0,  20);    // adults/adults
+            tmp += age_contact_elem(i,j, 75, 75, 25, 0,  15);    // seniors
             tmp += age_contact_elem(i,j, 0,  0,  10, 60, 55);    // seniors/children
 
             // Symetrical matrix:
