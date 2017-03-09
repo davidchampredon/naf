@@ -7,6 +7,7 @@
 - prm-siml.csv: 
 	* Scale down
 	* MC & CPUS
+	* flag for light & super light outputs 
 
 - scenario-builder.R:
 	* Verify all values
