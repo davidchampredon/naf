@@ -764,7 +764,7 @@ figure.S3 <- function(zlist.ag){
 }
 
 
-reformat <- function(DAT){
+reformat.old <- function(DAT){
     DAT$VE <- paste('VE =' , DAT$interv_efficacy)
     
     # Add R0 information:
@@ -776,21 +776,51 @@ reformat <- function(DAT){
     DAT$outcome <- factor(DAT$outcome, levels = c('Symptomatic Infections',
                                                   'Hospitalized',
                                                   'Deaths'))
+    return(DAT)
+}
+
+# label <- 'efficacy'
+# var <- 'interv_efficacy'
+# newvarname <- 'VE'
+conv.lo.hi <- function(DAT, var, label, newvarname,
+                       lo.hi.label = c('Low','High')) {
+    u <- unique(DAT[,var])
+    u <- sort(u)
+    if(length(u) != 2) stop()
+    DAT[,newvarname] <- paste(lo.hi.label[1],label)
+    DAT[DAT[,var]==u[2],newvarname] <- paste(lo.hi.label[2],label)
+    return(DAT)
+}
+
+reformat <- function(DAT){
+    DAT <- conv.lo.hi(DAT,
+                      var        = 'interv_efficacy', 
+                      label      = 'efficacy',
+                      newvarname = 'VE')
+    
+    DAT <- conv.lo.hi(DAT,
+                      var        = 'contact_rate_mean', 
+                      label      = 'transmissibility',
+                      newvarname = 'R0',
+                      lo.hi.label = c('Moderate', 'High'))
     
     return(DAT)
 }
+
 
 figure.1 <- function(zlist) {
     
     DAT <- do.call('rbind.data.frame', zlist)
     DAT <- reformat(DAT)
     DAT <- floor.results.0(DAT)
-    ar <- unique(DAT$interv_start)
     
-    # Define and reorder VE:
-    DAT$VE <- paste('VE =',DAT$interv_efficacy)
-    uie <- sort(unique(DAT$interv_efficacy),decreasing = T)
-    DAT$VE <- factor(x = DAT$VE, levels = paste('VE =',uie))
+   
+    # ar <- unique(DAT$interv_start)
+    # 
+    # # Define and reorder VE:
+    # DAT$VE <- paste('VE =',DAT$interv_efficacy)
+    # uie <- sort(unique(DAT$interv_efficacy),decreasing = T)
+    # DAT$VE <- factor(x = DAT$VE, levels = paste('VE =',uie))
     
     # Select only one strategy for this plot:
     DAT <- subset(DAT,interv_target=='priority_age5_frailty' )
