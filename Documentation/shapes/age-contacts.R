@@ -13,11 +13,11 @@ for(j in seq_along(x)){
 		tmp[1] <- psi(x[j],y[i],a=0,b=0,w=9,q=28, r=45)   # parents/children
 		tmp[2] <- psi(x[j],y[i],a=0,b=0,w=9,q=-28,r=45)   # parents/children
 		
-		tmp[3] <- psi(x[j],y[i],a=10,b=10,w=9,q=0,r=28)    # children/children
+		tmp[3] <- psi(x[j],y[i],a=15,b=15,w=8,q=0,r=40)    # children/children
 		
-		tmp[4] <- psi(x[j],y[i],a=45,b=45,w=20,q=0,r=17)    # adults/adults
+		tmp[4] <- psi(x[j],y[i],a=45,b=45,w=30,q=0,r=20)    # adults/adults
 		
-		tmp[5] <- psi(x[j],y[i],a=75,b=75,w=15,q=0,r=15)    # seniors
+		tmp[5] <- psi(x[j],y[i],a=75,b=75,w=25,q=0,r=17)    # seniors
 		
 		tmp[6] <- psi(x[j],y[i],a=0,b=0,w=10,q=60,r=55)    # seniors/children
 		tmp[7] <- psi(x[j],y[i],a=0,b=0,w=10,q=-60,r=55)    # seniors/children
