@@ -1,0 +1,241 @@
+"","R0","VE","outcome","interv_start","interv_cvg_rate","percentMean"
+"1","Moderate transmissibility","High efficacy","Deaths",-28,150,14.1017316017316
+"2","Moderate transmissibility","High efficacy","Deaths",-28,300,40.3628389154705
+"3","Moderate transmissibility","High efficacy","Deaths",-28,600,66.5966789870299
+"4","Moderate transmissibility","High efficacy","Deaths",-28,1200,82.9713066335873
+"5","Moderate transmissibility","High efficacy","Deaths",-14,150,6.95043491813019
+"6","Moderate transmissibility","High efficacy","Deaths",-14,300,28.3946748098146
+"7","Moderate transmissibility","High efficacy","Deaths",-14,600,51.363170205986
+"8","Moderate transmissibility","High efficacy","Deaths",-14,1200,76.6093744999242
+"9","Moderate transmissibility","High efficacy","Deaths",0,150,1.17430508979805
+"10","Moderate transmissibility","High efficacy","Deaths",0,300,11.859825620389
+"11","Moderate transmissibility","High efficacy","Deaths",0,600,29.4100156494523
+"12","Moderate transmissibility","High efficacy","Deaths",0,1200,53.4516730009688
+"13","Moderate transmissibility","High efficacy","Deaths",14,150,0
+"14","Moderate transmissibility","High efficacy","Deaths",14,300,0
+"15","Moderate transmissibility","High efficacy","Deaths",14,600,9.81183396676354
+"16","Moderate transmissibility","High efficacy","Deaths",14,1200,23.1080184812579
+"17","Moderate transmissibility","High efficacy","Deaths",28,150,0
+"18","Moderate transmissibility","High efficacy","Deaths",28,300,0
+"19","Moderate transmissibility","High efficacy","Deaths",28,600,0
+"20","Moderate transmissibility","High efficacy","Deaths",28,1200,0
+"21","Moderate transmissibility","High efficacy","Hospitalized",-28,150,2.42231200049187
+"22","Moderate transmissibility","High efficacy","Hospitalized",-28,300,29.1497469376963
+"23","Moderate transmissibility","High efficacy","Hospitalized",-28,600,56.9790688993911
+"24","Moderate transmissibility","High efficacy","Hospitalized",-28,1200,74.7346670472841
+"25","Moderate transmissibility","High efficacy","Hospitalized",-14,150,0
+"26","Moderate transmissibility","High efficacy","Hospitalized",-14,300,22.2012533281991
+"27","Moderate transmissibility","High efficacy","Hospitalized",-14,600,42.0534169190584
+"28","Moderate transmissibility","High efficacy","Hospitalized",-14,1200,66.6105294532229
+"29","Moderate transmissibility","High efficacy","Hospitalized",0,150,0
+"30","Moderate transmissibility","High efficacy","Hospitalized",0,300,2.51001241322764
+"31","Moderate transmissibility","High efficacy","Hospitalized",0,600,18.0847815272846
+"32","Moderate transmissibility","High efficacy","Hospitalized",0,1200,41.122186549288
+"33","Moderate transmissibility","High efficacy","Hospitalized",14,150,0
+"34","Moderate transmissibility","High efficacy","Hospitalized",14,300,0
+"35","Moderate transmissibility","High efficacy","Hospitalized",14,600,1.00420094734979
+"36","Moderate transmissibility","High efficacy","Hospitalized",14,1200,13.1204185396792
+"37","Moderate transmissibility","High efficacy","Hospitalized",28,150,0
+"38","Moderate transmissibility","High efficacy","Hospitalized",28,300,0
+"39","Moderate transmissibility","High efficacy","Hospitalized",28,600,0
+"40","Moderate transmissibility","High efficacy","Hospitalized",28,1200,2.17238766848004
+"41","Moderate transmissibility","High efficacy","Symptomatic Infections",-28,150,16.947867169236
+"42","Moderate transmissibility","High efficacy","Symptomatic Infections",-28,300,38.6375788305224
+"43","Moderate transmissibility","High efficacy","Symptomatic Infections",-28,600,63.5314329375638
+"44","Moderate transmissibility","High efficacy","Symptomatic Infections",-28,1200,78.7981986851204
+"45","Moderate transmissibility","High efficacy","Symptomatic Infections",-14,150,10.2387927439967
+"46","Moderate transmissibility","High efficacy","Symptomatic Infections",-14,300,30.3159712407468
+"47","Moderate transmissibility","High efficacy","Symptomatic Infections",-14,600,47.8147583665366
+"48","Moderate transmissibility","High efficacy","Symptomatic Infections",-14,1200,71.5492062427184
+"49","Moderate transmissibility","High efficacy","Symptomatic Infections",0,150,4.81056437989546
+"50","Moderate transmissibility","High efficacy","Symptomatic Infections",0,300,15.2763927211547
+"51","Moderate transmissibility","High efficacy","Symptomatic Infections",0,600,28.6168156240558
+"52","Moderate transmissibility","High efficacy","Symptomatic Infections",0,1200,49.5465960308101
+"53","Moderate transmissibility","High efficacy","Symptomatic Infections",14,150,2.41450103724569
+"54","Moderate transmissibility","High efficacy","Symptomatic Infections",14,300,6.28646703305476
+"55","Moderate transmissibility","High efficacy","Symptomatic Infections",14,600,12.6194997045648
+"56","Moderate transmissibility","High efficacy","Symptomatic Infections",14,1200,23.0994305787669
+"57","Moderate transmissibility","High efficacy","Symptomatic Infections",28,150,0.461664838181935
+"58","Moderate transmissibility","High efficacy","Symptomatic Infections",28,300,1.2977920315265
+"59","Moderate transmissibility","High efficacy","Symptomatic Infections",28,600,2.57274282875729
+"60","Moderate transmissibility","High efficacy","Symptomatic Infections",28,1200,4.89438654446034
+"61","Moderate transmissibility","Low efficacy","Deaths",-28,150,1.27732701563111
+"62","Moderate transmissibility","Low efficacy","Deaths",-28,300,4.24563442838297
+"63","Moderate transmissibility","Low efficacy","Deaths",-28,600,16.9916443746853
+"64","Moderate transmissibility","Low efficacy","Deaths",-28,1200,40.2378104351789
+"65","Moderate transmissibility","Low efficacy","Deaths",-14,150,0
+"66","Moderate transmissibility","Low efficacy","Deaths",-14,300,3.77179287015353
+"67","Moderate transmissibility","Low efficacy","Deaths",-14,600,7.08667123083709
+"68","Moderate transmissibility","Low efficacy","Deaths",-14,1200,27.9586225945917
+"69","Moderate transmissibility","Low efficacy","Deaths",0,150,0
+"70","Moderate transmissibility","Low efficacy","Deaths",0,300,0
+"71","Moderate transmissibility","Low efficacy","Deaths",0,600,0.730531336165139
+"72","Moderate transmissibility","Low efficacy","Deaths",0,1200,12.2778522989791
+"73","Moderate transmissibility","Low efficacy","Deaths",14,150,0
+"74","Moderate transmissibility","Low efficacy","Deaths",14,300,0
+"75","Moderate transmissibility","Low efficacy","Deaths",14,600,0
+"76","Moderate transmissibility","Low efficacy","Deaths",14,1200,0
+"77","Moderate transmissibility","Low efficacy","Deaths",28,150,0
+"78","Moderate transmissibility","Low efficacy","Deaths",28,300,0
+"79","Moderate transmissibility","Low efficacy","Deaths",28,600,0
+"80","Moderate transmissibility","Low efficacy","Deaths",28,1200,0
+"81","Moderate transmissibility","Low efficacy","Hospitalized",-28,150,0
+"82","Moderate transmissibility","Low efficacy","Hospitalized",-28,300,0
+"83","Moderate transmissibility","Low efficacy","Hospitalized",-28,600,13.1120434340094
+"84","Moderate transmissibility","Low efficacy","Hospitalized",-28,1200,31.1268513792426
+"85","Moderate transmissibility","Low efficacy","Hospitalized",-14,150,0
+"86","Moderate transmissibility","Low efficacy","Hospitalized",-14,300,0
+"87","Moderate transmissibility","Low efficacy","Hospitalized",-14,600,7.96091027747322
+"88","Moderate transmissibility","Low efficacy","Hospitalized",-14,1200,23.634326298346
+"89","Moderate transmissibility","Low efficacy","Hospitalized",0,150,0
+"90","Moderate transmissibility","Low efficacy","Hospitalized",0,300,0
+"91","Moderate transmissibility","Low efficacy","Hospitalized",0,600,0
+"92","Moderate transmissibility","Low efficacy","Hospitalized",0,1200,4.52138454112203
+"93","Moderate transmissibility","Low efficacy","Hospitalized",14,150,0
+"94","Moderate transmissibility","Low efficacy","Hospitalized",14,300,0
+"95","Moderate transmissibility","Low efficacy","Hospitalized",14,600,0
+"96","Moderate transmissibility","Low efficacy","Hospitalized",14,1200,0
+"97","Moderate transmissibility","Low efficacy","Hospitalized",28,150,0
+"98","Moderate transmissibility","Low efficacy","Hospitalized",28,300,0
+"99","Moderate transmissibility","Low efficacy","Hospitalized",28,600,0
+"100","Moderate transmissibility","Low efficacy","Hospitalized",28,1200,0
+"101","Moderate transmissibility","Low efficacy","Symptomatic Infections",-28,150,4.43297899157347
+"102","Moderate transmissibility","Low efficacy","Symptomatic Infections",-28,300,12.9128360300466
+"103","Moderate transmissibility","Low efficacy","Symptomatic Infections",-28,600,23.2623727011379
+"104","Moderate transmissibility","Low efficacy","Symptomatic Infections",-28,1200,42.0854183315249
+"105","Moderate transmissibility","Low efficacy","Symptomatic Infections",-14,150,2.94059198150796
+"106","Moderate transmissibility","Low efficacy","Symptomatic Infections",-14,300,9.73727867481459
+"107","Moderate transmissibility","Low efficacy","Symptomatic Infections",-14,600,17.7019896982401
+"108","Moderate transmissibility","Low efficacy","Symptomatic Infections",-14,1200,31.6817823238654
+"109","Moderate transmissibility","Low efficacy","Symptomatic Infections",0,150,1.52777500105938
+"110","Moderate transmissibility","Low efficacy","Symptomatic Infections",0,300,4.32453700820372
+"111","Moderate transmissibility","Low efficacy","Symptomatic Infections",0,600,8.44774113410744
+"112","Moderate transmissibility","Low efficacy","Symptomatic Infections",0,1200,17.5936598743767
+"113","Moderate transmissibility","Low efficacy","Symptomatic Infections",14,150,0.484755404213493
+"114","Moderate transmissibility","Low efficacy","Symptomatic Infections",14,300,1.43312898925824
+"115","Moderate transmissibility","Low efficacy","Symptomatic Infections",14,600,2.91781543892069
+"116","Moderate transmissibility","Low efficacy","Symptomatic Infections",14,1200,5.98361362103239
+"117","Moderate transmissibility","Low efficacy","Symptomatic Infections",28,150,0.0885160673751686
+"118","Moderate transmissibility","Low efficacy","Symptomatic Infections",28,300,0.267131224328134
+"119","Moderate transmissibility","Low efficacy","Symptomatic Infections",28,600,0.523737875431836
+"120","Moderate transmissibility","Low efficacy","Symptomatic Infections",28,1200,0.993347066216273
+"121","High transmissibility","High efficacy","Deaths",-28,150,2.75338990815181
+"122","High transmissibility","High efficacy","Deaths",-28,300,22.9014979729265
+"123","High transmissibility","High efficacy","Deaths",-28,600,44.21632996633
+"124","High transmissibility","High efficacy","Deaths",-28,1200,66.5634319384319
+"125","High transmissibility","High efficacy","Deaths",-14,150,0
+"126","High transmissibility","High efficacy","Deaths",-14,300,11.4189017649018
+"127","High transmissibility","High efficacy","Deaths",-14,600,33.2107372627373
+"128","High transmissibility","High efficacy","Deaths",-14,1200,56.5255753135753
+"129","High transmissibility","High efficacy","Deaths",0,150,0
+"130","High transmissibility","High efficacy","Deaths",0,300,4.62810596630548
+"131","High transmissibility","High efficacy","Deaths",0,600,13.9480034248891
+"132","High transmissibility","High efficacy","Deaths",0,1200,34.1148609883403
+"133","High transmissibility","High efficacy","Deaths",14,150,0
+"134","High transmissibility","High efficacy","Deaths",14,300,0
+"135","High transmissibility","High efficacy","Deaths",14,600,0
+"136","High transmissibility","High efficacy","Deaths",14,1200,1.34298701208677
+"137","High transmissibility","High efficacy","Deaths",28,150,0
+"138","High transmissibility","High efficacy","Deaths",28,300,0
+"139","High transmissibility","High efficacy","Deaths",28,600,0
+"140","High transmissibility","High efficacy","Deaths",28,1200,0
+"141","High transmissibility","High efficacy","Hospitalized",-28,150,0
+"142","High transmissibility","High efficacy","Hospitalized",-28,300,12.1638083956788
+"143","High transmissibility","High efficacy","Hospitalized",-28,600,33.3804103205979
+"144","High transmissibility","High efficacy","Hospitalized",-28,1200,53.108061188429
+"145","High transmissibility","High efficacy","Hospitalized",-14,150,0
+"146","High transmissibility","High efficacy","Hospitalized",-14,300,2.04514494259724
+"147","High transmissibility","High efficacy","Hospitalized",-14,600,19.3668842179032
+"148","High transmissibility","High efficacy","Hospitalized",-14,1200,40.5339030946532
+"149","High transmissibility","High efficacy","Hospitalized",0,150,0
+"150","High transmissibility","High efficacy","Hospitalized",0,300,0
+"151","High transmissibility","High efficacy","Hospitalized",0,600,3.76161726495316
+"152","High transmissibility","High efficacy","Hospitalized",0,1200,21.3850960369089
+"153","High transmissibility","High efficacy","Hospitalized",14,150,0
+"154","High transmissibility","High efficacy","Hospitalized",14,300,0
+"155","High transmissibility","High efficacy","Hospitalized",14,600,0
+"156","High transmissibility","High efficacy","Hospitalized",14,1200,0
+"157","High transmissibility","High efficacy","Hospitalized",28,150,0.116076080436058
+"158","High transmissibility","High efficacy","Hospitalized",28,300,0.0759467238846864
+"159","High transmissibility","High efficacy","Hospitalized",28,600,0.129158190005103
+"160","High transmissibility","High efficacy","Hospitalized",28,1200,0.425827199029087
+"161","High transmissibility","High efficacy","Symptomatic Infections",-28,150,7.610953057953
+"162","High transmissibility","High efficacy","Symptomatic Infections",-28,300,20.6840236994681
+"163","High transmissibility","High efficacy","Symptomatic Infections",-28,600,39.3868955017123
+"164","High transmissibility","High efficacy","Symptomatic Infections",-28,1200,57.8759226188022
+"165","High transmissibility","High efficacy","Symptomatic Infections",-14,150,5.01109621516851
+"166","High transmissibility","High efficacy","Symptomatic Infections",-14,300,14.8080628594098
+"167","High transmissibility","High efficacy","Symptomatic Infections",-14,600,27.8986151932254
+"168","High transmissibility","High efficacy","Symptomatic Infections",-14,1200,49.0769401090509
+"169","High transmissibility","High efficacy","Symptomatic Infections",0,150,2.83252230815322
+"170","High transmissibility","High efficacy","Symptomatic Infections",0,300,7.91141405748925
+"171","High transmissibility","High efficacy","Symptomatic Infections",0,600,15.980194208709
+"172","High transmissibility","High efficacy","Symptomatic Infections",0,1200,29.4114996539432
+"173","High transmissibility","High efficacy","Symptomatic Infections",14,150,0.740641978430682
+"174","High transmissibility","High efficacy","Symptomatic Infections",14,300,2.19905102894349
+"175","High transmissibility","High efficacy","Symptomatic Infections",14,600,4.39273885922969
+"176","High transmissibility","High efficacy","Symptomatic Infections",14,1200,8.58372836581032
+"177","High transmissibility","High efficacy","Symptomatic Infections",28,150,0.0395838804077178
+"178","High transmissibility","High efficacy","Symptomatic Infections",28,300,0.118953652062964
+"179","High transmissibility","High efficacy","Symptomatic Infections",28,600,0.21842782955682
+"180","High transmissibility","High efficacy","Symptomatic Infections",28,1200,0.4104008275404
+"181","High transmissibility","Low efficacy","Deaths",-28,150,0
+"182","High transmissibility","Low efficacy","Deaths",-28,300,0
+"183","High transmissibility","Low efficacy","Deaths",-28,600,5.56994834971025
+"184","High transmissibility","Low efficacy","Deaths",-28,1200,21.6311041251517
+"185","High transmissibility","Low efficacy","Deaths",-14,150,0
+"186","High transmissibility","Low efficacy","Deaths",-14,300,0
+"187","High transmissibility","Low efficacy","Deaths",-14,600,2.99039627039627
+"188","High transmissibility","Low efficacy","Deaths",-14,1200,12.9325039405039
+"189","High transmissibility","Low efficacy","Deaths",0,150,0
+"190","High transmissibility","Low efficacy","Deaths",0,300,0
+"191","High transmissibility","Low efficacy","Deaths",0,600,0
+"192","High transmissibility","Low efficacy","Deaths",0,1200,0
+"193","High transmissibility","Low efficacy","Deaths",14,150,0
+"194","High transmissibility","Low efficacy","Deaths",14,300,0
+"195","High transmissibility","Low efficacy","Deaths",14,600,0
+"196","High transmissibility","Low efficacy","Deaths",14,1200,0
+"197","High transmissibility","Low efficacy","Deaths",28,150,0
+"198","High transmissibility","Low efficacy","Deaths",28,300,0
+"199","High transmissibility","Low efficacy","Deaths",28,600,0
+"200","High transmissibility","Low efficacy","Deaths",28,1200,0
+"201","High transmissibility","Low efficacy","Hospitalized",-28,150,0
+"202","High transmissibility","Low efficacy","Hospitalized",-28,300,0
+"203","High transmissibility","Low efficacy","Hospitalized",-28,600,2.51532765019402
+"204","High transmissibility","Low efficacy","Hospitalized",-28,1200,12.2687207629172
+"205","High transmissibility","Low efficacy","Hospitalized",-14,150,0
+"206","High transmissibility","Low efficacy","Hospitalized",-14,300,0
+"207","High transmissibility","Low efficacy","Hospitalized",-14,600,0
+"208","High transmissibility","Low efficacy","Hospitalized",-14,1200,4.70272764238681
+"209","High transmissibility","Low efficacy","Hospitalized",0,150,0
+"210","High transmissibility","Low efficacy","Hospitalized",0,300,0
+"211","High transmissibility","Low efficacy","Hospitalized",0,600,0
+"212","High transmissibility","Low efficacy","Hospitalized",0,1200,0
+"213","High transmissibility","Low efficacy","Hospitalized",14,150,0
+"214","High transmissibility","Low efficacy","Hospitalized",14,300,0
+"215","High transmissibility","Low efficacy","Hospitalized",14,600,0
+"216","High transmissibility","Low efficacy","Hospitalized",14,1200,0
+"217","High transmissibility","Low efficacy","Hospitalized",28,150,0
+"218","High transmissibility","Low efficacy","Hospitalized",28,300,0
+"219","High transmissibility","Low efficacy","Hospitalized",28,600,0.172156221050563
+"220","High transmissibility","Low efficacy","Hospitalized",28,1200,0
+"221","High transmissibility","Low efficacy","Symptomatic Infections",-28,150,2.03709870400565
+"222","High transmissibility","Low efficacy","Symptomatic Infections",-28,300,6.25712587213711
+"223","High transmissibility","Low efficacy","Symptomatic Infections",-28,600,13.2333975337917
+"224","High transmissibility","Low efficacy","Symptomatic Infections",-28,1200,23.1906073084189
+"225","High transmissibility","Low efficacy","Symptomatic Infections",-14,150,1.40977241732417
+"226","High transmissibility","Low efficacy","Symptomatic Infections",-14,300,4.57048717757083
+"227","High transmissibility","Low efficacy","Symptomatic Infections",-14,600,8.5415668375285
+"228","High transmissibility","Low efficacy","Symptomatic Infections",-14,1200,17.6038200285537
+"229","High transmissibility","Low efficacy","Symptomatic Infections",0,150,0.642258802644673
+"230","High transmissibility","Low efficacy","Symptomatic Infections",0,300,1.95654022185078
+"231","High transmissibility","Low efficacy","Symptomatic Infections",0,600,3.8642298661997
+"232","High transmissibility","Low efficacy","Symptomatic Infections",0,1200,7.99065896187319
+"233","High transmissibility","Low efficacy","Symptomatic Infections",14,150,0.122851003270085
+"234","High transmissibility","Low efficacy","Symptomatic Infections",14,300,0.354491283371203
+"235","High transmissibility","Low efficacy","Symptomatic Infections",14,600,0.731636176930117
+"236","High transmissibility","Low efficacy","Symptomatic Infections",14,1200,1.4248037785214
+"237","High transmissibility","Low efficacy","Symptomatic Infections",28,150,0.00862467752549068
+"238","High transmissibility","Low efficacy","Symptomatic Infections",28,300,0.0199925973723569
+"239","High transmissibility","Low efficacy","Symptomatic Infections",28,600,0.0435361813101882
+"240","High transmissibility","Low efficacy","Symptomatic Infections",28,1200,0.0800018275946764

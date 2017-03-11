@@ -629,7 +629,7 @@ mypalette <- c('-28'='red', '-14'='orange',
                '0'='grey',
                '14'='royalblue1','28'='royalblue3')
 mypalette2 <- c('1200'='red', '600'='orange', 
-               '300'='royalblue1','100'='royalblue4')
+               '300'='royalblue1','150'='royalblue4')
 
 
 figure.S1a <- function(zlist.ag) {
@@ -785,12 +785,19 @@ reformat.old <- function(DAT){
 # var <- 'interv_efficacy'
 # newvarname <- 'VE'
 conv.lo.hi <- function(DAT, var, label, newvarname,
-                       lo.hi.label = c('Low','High')) {
+                       lo.hi.label = c('Low','High'), 
+                       decreasing.sort = FALSE) {
     u <- unique(DAT[,var])
     u <- sort(u)
     if(length(u) != 2) stop()
     DAT[,newvarname] <- paste(lo.hi.label[1],label)
     DAT[DAT[,var]==u[2],newvarname] <- paste(lo.hi.label[2],label)
+    
+    # Descending order factors ordering:
+    if(decreasing.sort){
+        uie <- sort(unique(DAT[,newvarname]),decreasing = T)
+        DAT[,newvarname] <- factor(x = DAT[,newvarname], levels = uie)
+    }
     return(DAT)
 }
 
@@ -801,11 +808,11 @@ reformat <- function(DAT){
                       newvarname = 'VE')
     
     DAT <- conv.lo.hi(DAT,
-                      var        = 'contact_rate_mean', 
-                      label      = 'transmissibility',
-                      newvarname = 'R0',
-                      lo.hi.label = c('Moderate', 'High'))
-    
+                      var         = 'contact_rate_mean', 
+                      label       = 'transmissibility',
+                      newvarname  = 'R0',
+                      lo.hi.label = c('Moderate', 'High'),
+                      decreasing.sort = TRUE)
     return(DAT)
 }
 
@@ -817,7 +824,7 @@ figure.1 <- function(zlist) {
     DAT <- floor.results.0(DAT)
     
    
-    # ar <- unique(DAT$interv_start)
+    ar <- unique(DAT$interv_start)
     # 
     # # Define and reorder VE:
     # DAT$VE <- paste('VE =',DAT$interv_efficacy)
@@ -859,6 +866,12 @@ figure.1 <- function(zlist) {
         width = 12, height = 10)    
     plot(g)
     dev.off()
+    
+    # Save data of plot in csv file:
+    dat.save <- ddply(DAT,c('R0','VE','interv_cvg_rate','interv_start'),
+                      summarize, percentMean=mn*100)
+    write.csv(x = dat.save, file = '../results/figures/Figure_1.csv')
+    
 }
 
 

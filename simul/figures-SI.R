@@ -239,6 +239,11 @@ figure.S2 <- function(zlist.full) {
         width = 16, height = 10)    
     plot(g)
     dev.off()
+    
+    # Save data for this figure to a csv file:
+    dat.sav <- ddply(DAT,c('R0','VE','outcome','interv_start','interv_cvg_rate'),
+                     summarize, percentMean = 100 * mn)
+    write.csv(x = dat.sav, file=paste0(dir.SI.fig,'fig-S2.csv'))
 }
 
 figure.S3 <- function(zlist.full) {
@@ -251,11 +256,11 @@ figure.S3 <- function(zlist.full) {
     
     # Explicit name for plot:
     DAT$it <- NA
-    DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
+    DAT$it[DAT$interv_target=='never_sympt'] <- 'RVS'
     DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
-    DAT$it[DAT$interv_target=='priority_age5_frailty'] <- 'Priority5'
+    DAT$it[DAT$interv_target=='priority_age5_frailty'] <- 'PVS1'
     DAT$it[DAT$interv_target=='priority_age5_10_frailty'] <- 'Priority5-10'
-    DAT$it[DAT$interv_target=='priority_age19_frailty'] <- 'Priority19'
+    DAT$it[DAT$interv_target=='priority_age19_frailty'] <- 'PVS2'
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
         geom_line(alpha=0.5, size=2, aes(linetype=factor(it))) +
@@ -263,6 +268,7 @@ figure.S3 <- function(zlist.full) {
         scale_x_continuous(breaks=ar) +
         facet_grid( outcome ~ R0 + VE ) +
         guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
+        guides(linetype=guide_legend(title="Vaccination Strategy")) +
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
         coord_cartesian(ylim=c(0,1)) +
@@ -296,17 +302,25 @@ figure.S4 <- function(zlist.ag){
             scale_fill_manual(values=mypalette) + 
             scale_color_manual(values=mypalette) + 
             coord_cartesian(ylim=c(0,1)) +
-            ggtitle(title) + 
+            ggtitle(label = paste('Vaccination strategy',title)) + #
             xlab("Age group") + ylab("Mean relative reduction")
         return(g)
     }
     
-    pdf(file =  paste0(dir.SI.fig,'fig-S4a.pdf'), width = 12,height = 8)
-    plot(internal.plot(DAT.1, ut[1]))
-    dev.off()
-    
-    pdf(file =  paste0(dir.SI.fig,'fig-S4b.pdf'), width = 12,height = 8)
-    plot(internal.plot(DAT.2,ut[2]))
+    internal.translate <- function(interv_target) {
+        res <- NA
+        if(interv_target=='never_sympt') res <- 'RVS'
+        if(interv_target=='priority_age_frailty') res  <- 'Priority'
+        if(interv_target=='priority_age5_frailty') res  <- 'PVS1'
+        if(interv_target=='priority_age5_10_frailty') res  <- 'Priority5-10'
+        if(interv_target=='priority_age19_frailty') res  <- 'PVS2'
+        return(res)
+    }
+    W <- 15
+    pdf(file =  paste0(dir.SI.fig,'fig-S4.pdf'), width = W,height = 1.2*W)
+    p1 <- internal.plot(DAT.1, title = internal.translate(ut[1]))
+    p2 <- internal.plot(DAT.2, title = internal.translate(ut[2]))
+    grid.arrange(p1,p2, nrow=2)
     dev.off()
 }
 
