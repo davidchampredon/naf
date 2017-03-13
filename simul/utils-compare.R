@@ -628,142 +628,9 @@ floor.results.0 <- function(DAT){
 mypalette <- c('-28'='red', '-14'='orange', 
                '0'='grey',
                '14'='royalblue1','28'='royalblue3')
+
 mypalette2 <- c('1200'='red', '600'='orange', 
-               '300'='royalblue1','150'='royalblue4')
-
-
-figure.S1a <- function(zlist.ag) {
-    
-    df <- do.call('rbind.data.frame', zlist.ag)
-    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
-    ar <- unique(df$interv_cvg_rate)
-    
-    # Explicit name for plot:
-    df$VE <- paste('VE =',df$interv_efficacy)
-    df$AG <- paste('Age group =',df$ageGroup)
-    df$AG <- gsub('_',' to ',df$AG)
-    df$AG <- gsub('to over','and over',df$AG)
-    df$CR <- paste('[Ro] =',df$contact_rate_mean)
-    df <- subset(df, interv_target=='priority_age_frailty')
-    
-    mypalette <- c('-28'='red', '-14'='orange', 
-                   '0'='grey',
-                   '14'='royalblue1','28'='royalblue3')
-    
-    g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
-        geom_line(alpha=0.5, size=2) +
-        geom_point(alpha=0.7, size=3) +
-        geom_point(size=3, shape=1) +
-        scale_x_continuous(breaks=ar) +
-        facet_grid( VE + CR ~ AG) +
-        guides(color=guide_legend(title="Vacc. Lag (days)")) +
-        ggtitle('Figure S1 a')+
-        scale_color_manual(values=mypalette) +
-        theme(panel.grid.minor.x = element_blank()) +
-        xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
-    
-    pdf(file = paste0('../results/Fig_S1a.pdf'), width = 11, height = 10)    
-    plot(g)
-    dev.off()
-}
-
-figure.S1 <- function(zlist) {
-    
-    df <- do.call('rbind.data.frame', zlist)
-    ar <- unique(df$interv_cvg_rate)
-    
-    # Explicit name for plot:
-    df$VE <- paste('VE =',df$interv_efficacy)
-    df$CR <- paste('[Ro] =',df$contact_rate_mean)
-    df <- subset(df, interv_target=='priority_age_frailty')
-    
-    g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, color=factor(interv_start))) +
-        geom_line(alpha=0.5, size=2) +
-        geom_point(alpha=0.7, size=3) +
-        geom_point(size=3, shape=1) +
-        scale_x_continuous(breaks=ar) +
-        facet_grid( VE ~ CR ) +
-        guides(color=guide_legend(title="Vacc. Lag (days)")) +
-        ggtitle('Figure S1')+
-        theme(panel.grid.minor.x = element_blank()) +
-        scale_color_manual(values=mypalette) +
-        xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
-    
-    pdf(file = paste0('../results/Fig_S1.pdf'), width = 11, height = 10)    
-    plot(g)
-    dev.off()
-}
-
-figure.S2 <- function(zlist.ag) {
-    
-    df <- do.call('rbind.data.frame', zlist.ag)
-    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
-    ar <- unique(df$interv_cvg_rate)
-    
-    df <- subset(df, interv_target=='priority_age_frailty')
-    
-    # Explicit name for plot:
-    df$VE <- paste('VE =',df$interv_efficacy)
-    df$AG <- paste('Age group =',df$ageGroup)
-    df$AG <- gsub('_',' to ',df$AG)
-    df$AG <- gsub('to over','and over',df$AG)
-    df$CR <- paste('[Ro] =',df$contact_rate_mean)
-    
-    mypalette <- c('-28'='red', '-14'='orange', 
-                   '0'='grey',
-                   '14'='royalblue1','28'='royalblue3')
-    dodge <- position_dodge(width=185)
-    
-    g <- ggplot(df, aes(x=interv_cvg_rate, y=mn, 
-                        fill=factor(interv_start))) +
-        geom_bar(position = 'dodge', stat = 'identity', alpha=0.7) +
-        geom_errorbar(aes(ymin=qlo, ymax=qhi,
-                          color = factor(interv_start)),
-                      width=100,
-                      size = 0.2,
-                      position = dodge)+
-        scale_x_continuous(breaks=ar) +
-        facet_grid( VE + CR ~ AG) +
-        guides(fill=guide_legend(title="Vacc. Lag (days)")) +
-        ggtitle('Figure S2')+
-        scale_fill_manual(values=mypalette) +
-        scale_color_manual(values=mypalette) +
-        theme(panel.grid.major.x = element_blank(),
-              panel.grid.minor.x = element_blank()) +
-        xlab("Vaccine administration rate (per 100,000 per day)") + ylab("Mean relative reduction") 
-    
-    pdf(file = paste0('../results/Fig_S2.pdf'), width = 11, height = 10)    
-    plot(g)
-    dev.off()
-}
-
-figure.S3 <- function(zlist.ag){
-    
-    df <- do.call('rbind.data.frame', zlist.ag)
-    # df$outcome  <- factor(df$outcome, levels = c("Symptomatic Infections", "Hospitalized", "Deaths"))
-    df$ageGroup <- factor(df$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
-    
-    df <- subset(df, interv_target=='priority_age_frailty')
-    
-    df$VE <- paste('VE =',df$interv_efficacy)
-    df$CR <- paste('[Ro] =',df$contact_rate_mean)
-    
-    g <- ggplot(df, aes(x=ageGroup, y=mn, 
-                        fill=factor(interv_start),
-                        color=factor(interv_start))) +
-        geom_line(aes(group=factor(interv_start))) +
-        geom_point(alpha=0.75, size=3, shape=22) +
-        facet_grid( VE + CR ~  interv_cvg_rate) +
-        guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
-        scale_fill_manual(values=mypalette) + 
-        scale_color_manual(values=mypalette) + 
-        ggtitle('Figure S3')+
-        xlab("Age group") + ylab("Mean relative reduction") +
-        theme_bw()
-    pdf(file = paste0('../results/Fig_S3.pdf'), width = 12,height = 8)
-    plot(g)
-    dev.off()
-}
+               '300'='royalblue1','150'='chartreuse3')
 
 
 reformat.old <- function(DAT){
@@ -831,8 +698,18 @@ figure.1 <- function(zlist) {
     # uie <- sort(unique(DAT$interv_efficacy),decreasing = T)
     # DAT$VE <- factor(x = DAT$VE, levels = paste('VE =',uie))
     
-    # Select only one strategy for this plot:
-    DAT <- subset(DAT,interv_target=='priority_age5_frailty' )
+    # Select a unique vaccination strategy for this plot:
+    uvs <- as.character(unique(DAT$interv_target))
+    sel.strategy.name <- 'priority_age'
+    sel.vs <- uvs[grepl(sel.strategy.name, uvs)]
+    
+    if(length(sel.vs) != 1){
+        warning('None, or more than one, vax strategy matched the strategy name... ABORTING!')
+        warning(sel.strategy.name)
+        warning(sel.vs)
+        stop()
+    }
+    DAT <- subset(DAT, interv_target == sel.vs)
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, 
                          fill=factor(interv_cvg_rate),
@@ -845,7 +722,7 @@ figure.1 <- function(zlist) {
                       width = 10)+
         scale_x_continuous(breaks=ar) +
         facet_grid(VE ~ R0 ) +
-        guides(fill = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
+        guides(fill = guide_legend(title="Vaccine\nadministration rate\n(per 100,000 per day)"),
                color = FALSE) +
         theme(panel.grid.minor.x = element_blank()) +
         theme(panel.grid.major.x = element_blank()) +
@@ -854,13 +731,13 @@ figure.1 <- function(zlist) {
         theme(axis.title.y=element_text(margin=margin(0,20,0,0))) +
         theme(axis.title.x=element_text(margin=margin(20,0,0,0))) +
         theme(strip.text = element_text(size=18)) +
-        theme(legend.text=element_text(size=16)) +
-        theme(legend.title=element_text(size=16)) +
-        scale_fill_manual(values=mypalette2) +
-        scale_color_manual(values=mypalette2) +
-        # scale_fill_brewer(palette = 'BrBG') +
-        # scale_color_brewer(palette = 'BrBG') +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+        theme(legend.text=element_text(size=12)) +
+        theme(legend.title=element_text(size=12)) +
+        theme(legend.position='right') +
+        scale_fill_manual(values = mypalette2) +
+        scale_color_manual(values = mypalette2) +
+        coord_cartesian(ylim=c(0,1)) +
+        xlab("Vaccintion time lag (days)") + ylab("Relative reduction") 
     
     pdf(file = paste0('../results/figures/Figure_1.pdf'), 
         width = 12, height = 10)    
@@ -875,136 +752,66 @@ figure.1 <- function(zlist) {
 }
 
 
-figure.1a <- function(zlist) {
-    
-    DAT <- do.call('rbind.data.frame', zlist)
-    ar <- unique(DAT$interv_start)
-    
-    DAT <- subset(DAT, interv_efficacy==0.8)
-    
-    # Explicit name for plot:
-    DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
-    DAT$it <- NA
-    DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
-    DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
-    
-    g <- ggplot(DAT, aes(x=interv_start, y=mn, 
-                        fill=factor(interv_cvg_rate),
-                        color=factor(interv_cvg_rate) )) +
-        geom_bar(stat = 'identity', position='dodge', alpha=0.6) +
-        geom_errorbar(aes(ymin=qlo,ymax=qhi),
-                      position = 'dodge')+
-        scale_x_continuous(breaks=ar) +
-        facet_grid(it ~ CR ) +
-        guides(fill = guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)"),
-               color = FALSE) +
-        ggtitle('Figure 1')+
-        theme(panel.grid.minor.x = element_blank()) +
-        theme(panel.grid.major.x = element_blank()) +
-        scale_fill_manual(values=mypalette2) +
-        scale_color_manual(values=mypalette2) +
-        # scale_fill_brewer(palette = 'BrBG') +
-        # scale_color_brewer(palette = 'BrBG') +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
-    
-    pdf(file = paste0('../results/Fig_1a.pdf'), width = 11, height = 10)    
-    plot(g)
-    dev.off()
-}
-
-
-
-figure.1.b <- function(zlist) {
-    
-    DAT <- do.call('rbind.data.frame', zlist)
-    ar <- unique(DAT$interv_start)
-    DAT <- subset(DAT, interv_efficacy==0.8)
-    
-    # Explicit name for plot:
-    DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
-    DAT$it <- NA
-    DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
-    DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
-    
-    g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
-        geom_line(alpha=0.5, size=2) +
-        geom_point(alpha=0.8, size=3) +
-        # geom_point(size=3, shape=1) +
-        scale_x_continuous(breaks=ar) +
-        facet_grid(it ~ CR ) +
-        guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
-        ggtitle('Figure 1b')+
-        theme(panel.grid.minor.x = element_blank()) +
-        scale_color_manual(values=mypalette2) +
-        # scale_color_brewer(palette = 'BrBG') +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
-    
-    pdf(file = paste0('../results/Fig_1b.pdf'), width = 11, height = 10)    
-    plot(g)
-    dev.off()
-}
-
-
-
-figure.1.c.alloutcome <- function(zlist.full) {
+figure.2 <- function(zlist.full) {
     
     DAT <- do.call('rbind.data.frame', zlist.full)
+    DAT <- reformat(DAT)
+    
+    # delete when sure: DAT <- subset(DAT, interv_target=='priority_age5_frailty')
+    
+    # Select a unique vaccination strategy for this plot:
+    uvs <- as.character(unique(DAT$interv_target))
+    sel.strategy.name <- 'priority_age'
+    sel.vs <- uvs[grepl(sel.strategy.name, uvs)]
+    
+    if(length(sel.vs) != 1){
+        warning('None, or more than one, vax strategy matched the strategy name... ABORTING!')
+        warning(sel.strategy.name)
+        warning(sel.vs)
+        stop()
+    }
+    DAT <- subset(DAT, interv_target == sel.vs)
+    
+    DAT <- floor.results.0(DAT)
     ar <- unique(DAT$interv_start)
-    #DAT <- subset(DAT, interv_efficacy==0.9)
     
-    # Explicit name for plot:
-    DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
-    DAT$it <- NA
-    DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
-    DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
+    # Select only hospitalizations and deaths:
+    DAT <- subset(DAT, DAT$outcome %in% c('Hospitalized','Deaths'))
     
-    g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
-        geom_line(alpha=0.5, size=2, aes(linetype=factor(it))) +
-        geom_point(alpha=0.8, size=3) +
+    g <- ggplot(DAT, aes(x=interv_start, y=mn, 
+                         color=factor(interv_cvg_rate))) +
+        geom_line(alpha=0.6, size = 2, aes(linetype=outcome)) +
+        geom_point(alpha=0.8, size = 4) +
         scale_x_continuous(breaks=ar) +
-        facet_grid( outcome ~ CR + interv_efficacy ) +
-        guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
+        facet_grid( VE ~ R0 ) +
+        guides(color = guide_legend(title="Vaccine\nadministration rate\n(per 100,000 per day)"),
+               shape = FALSE,
+               linetype = guide_legend(title = 'Outcome')) +
         theme(panel.grid.minor.x = element_blank()) +
-        scale_color_manual(values=mypalette2) +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+        scale_color_manual(values = mypalette2) +
+        coord_cartesian(ylim=c(0,1)) +
+        xlab("Vaccination time lag (days)") + ylab("Mean relative reduction") +
+        theme(axis.text=element_text(size=18),
+              axis.title=element_text(size=18,face="bold")) +
+        theme(axis.title.y=element_text(margin=margin(0,20,0,0))) +
+        theme(axis.title.x=element_text(margin=margin(20,0,0,0))) +
+        theme(strip.text = element_text(size=18)) +
+        theme(legend.text=element_text(size=12)) +
+        theme(legend.title=element_text(size=12)) +
     
-    pdf(file = paste0('../results/Fig_1c_alloutcomes.pdf'), width = 16, height = 10)    
+    pdf(file = '../results/figures/Figure_2.pdf',
+        width = 16, height = 10)    
     plot(g)
     dev.off()
+    
+    # Save data for this figure to a csv file:
+    dat.sav <- ddply(DAT,c('R0','VE','outcome','interv_start','interv_cvg_rate'),
+                     summarize, percentMean = 100 * mn)
+    write.csv(x = dat.sav, file='../results/figures/Figure_2.csv')
 }
 
 
 
-
-figure.1.c <- function(zlist) {
-    
-    DAT <- do.call('rbind.data.frame', zlist)
-    ar <- unique(DAT$interv_start)
-    DAT <- subset(DAT, interv_efficacy==0.8)
-    
-    # Explicit name for plot:
-    DAT$CR <- paste('[Ro] =',DAT$contact_rate_mean)
-    DAT$it <- NA
-    DAT$it[DAT$interv_target=='never_sympt'] <- 'Random'
-    DAT$it[DAT$interv_target=='priority_age_frailty'] <- 'Priority'
-    
-    g <- ggplot(DAT, aes(x=interv_start, y=mn, color=factor(interv_cvg_rate))) +
-        geom_line(alpha=0.5, size=2, aes(linetype=factor(it))) +
-        geom_point(alpha=0.8, size=3) +
-        # geom_point(size=3, shape=1) +
-        scale_x_continuous(breaks=ar) +
-        facet_grid(~ CR ) +
-        guides(color=guide_legend(title="Vacc. admin. rate \n(per 100,000 per day)")) +
-        # ggtitle('Figure 1c')+
-        theme(panel.grid.minor.x = element_blank()) +
-        scale_color_manual(values=mypalette2) +
-        # scale_color_brewer(palette = 'BrBG') +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
-    
-    pdf(file = paste0('../results/Fig_1c.pdf'), width = 11, height = 10)    
-    plot(g)
-    dev.off()
-}
 
 process.outputs <- function(df,dir,file.scen.prm.list) {
     # Retrieve scenarios definitions:
@@ -1050,7 +857,7 @@ figures.maintext <-function(df,dir,file.scen.prm.list){
     
     # Plot and save :
     figure.1(zlist)
-    
+    figure.2(zlist.full)
     
     # figure.1.b(zlist)
     # figure.1.c(zlist)

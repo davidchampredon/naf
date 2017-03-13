@@ -219,7 +219,22 @@ figure.S2 <- function(zlist.full) {
     
     DAT <- do.call('rbind.data.frame', zlist.full)
     DAT <- reformat(DAT)
-    DAT <- subset(DAT, interv_target=='priority_age5_frailty')
+    
+    # delete when sure: DAT <- subset(DAT, interv_target=='priority_age5_frailty')
+    
+    # Select a unique vaccination strategy for this plot:
+    uvs <- as.character(unique(DAT$interv_target))
+    sel.strategy.name <- 'priority_age'
+    sel.vs <- uvs[grepl(sel.strategy.name, uvs)]
+    
+    if(length(sel.vs) != 1){
+        warning('None, or more than one, vax strategy matched the strategy name... ABORTING!')
+        warning(sel.strategy.name)
+        warning(sel.vs)
+        stop()
+    }
+    DAT <- subset(DAT, interv_target == sel.vs)
+    
     DAT <- floor.results.0(DAT)
     ar <- unique(DAT$interv_start)
     
@@ -287,7 +302,7 @@ figure.S4 <- function(zlist.ag){
     DAT <- floor.results.0(DAT)
     DAT$ageGroup <- factor(DAT$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
     
-    ut    <- unique(DAT$interv_target)
+    ut    <- as.character(unique(DAT$interv_target))
     DAT.1 <- subset(DAT, interv_target==ut[1])
     DAT.2 <- subset(DAT, interv_target==ut[2])
     
@@ -325,7 +340,7 @@ figure.S4 <- function(zlist.ag){
 }
 
 #' Clinical (symptomatic infections) final size by age group
-figure.S5 <- function(df) {
+figure.S00 <- function(df) {
 
     df$CFS <- df$tot.sympt.baseline/df$popsize
     a <- ddply(df, c('ageGroup'), summarize, 
@@ -338,7 +353,7 @@ figure.S5 <- function(df) {
         geom_errorbar(aes(x=ageGroup, ymin=lo, ymax=hi),width=0.3)+
         ggtitle('Clinical attack rate (mean and range)') + ylab('')
     
-    pdf(file =  paste0(dir.SI.fig,'fig-S5.pdf'), width = 12,height = 8)
+    pdf(file =  paste0(dir.SI.fig,'fig-S00.pdf'), width = 12,height = 8)
     plot(g)
     dev.off()
 }
@@ -355,8 +370,8 @@ zlist.ag   <- X[['zlist.ag']]
 zlist.full <- X[['zlist.full']]
 
 try(figure.S1.calibration(res.list.0, world.prm, POP))
-figure.S2(zlist.full) 
-figure.S3(zlist.full) 
-figure.S4(zlist.ag)
-figure.S5(df)
+try(figure.S2(zlist.full) )
+try(figure.S3(zlist.full) )
+try(figure.S4(zlist.ag))
+#figure.S00(df)
 

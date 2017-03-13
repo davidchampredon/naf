@@ -11,11 +11,11 @@
 M <- list()
 
 M[['interv_start']]        <- c(-28,-14,0,14,28)
-M[['interv_cvg_rate']]     <- c(0.0010, 0.0030, 0.0060,0.0120)  #c(0.0010, 0.0030, 0.0100)
+M[['interv_cvg_rate']]     <- c(0.0015, 0.0030, 0.0060,0.0120)  #c(0.0010, 0.0030, 0.0100)
 M[['interv_target']]       <- c('priority_age5_frailty','never_sympt')  #c('never_sympt','young_old')
 M[['interv_cvg_max_prop']] <- 0.40 #c(0.3, 0.8)
 M[['interv_efficacy']]     <- c(0.4, 0.9)
-M[['contact_rate_mean']]   <- c(0.9, 1.8)   # c(1.8, 3.6)
+M[['contact_rate_mean']]   <- c(3, 6)   # c(1.8, 3.6)
 M[['imm_hum_baseline']]    <- 0.00001   
 
 x <- as.data.frame(expand.grid(M))
