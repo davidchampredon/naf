@@ -1,5 +1,6 @@
 ###
-### GENERATE SCRIPT TO LAUNCH MAIN SCENARIOS IN HPC
+### GENERATE SCRIPT TO LAUNCH 
+### SENSITIVITY ANALYSIS IN HPC
 ###
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -7,10 +8,10 @@ wall.time <- args[1]
 # wall.time <- '00:10:00'
 
 # Clean up previous scripts:
-system('rm -rf naf-*.sh')
+system('rm -rf naf-sensana*.sh')
 
 # Generate scenarios:
-source('scenario-builder.R')
+source('scenario-builder-sensana.R')
 fs <- read.csv('scenario-prm-list.csv')
 ns <- nrow(fs)
 
@@ -18,7 +19,7 @@ debug.local <- FALSE
 
 # Generate simulation launch scripts:
 for(i in 1:ns){
-	scriptname <- paste0('naf-',i,'.sh')
+	scriptname <- paste0('naf-sensana',i,'.sh')
 	
 	x <- character()
 	x[1] <- '#!/bin/bash'
@@ -33,21 +34,21 @@ module load gcc bioinformatics/R/3.2.5 bioinformatics/Bioconductor/3.2
 	
 cd /home/champrd/github/naf/simul
 '
-	x[4] <- paste0('Rscript multiscen-MAIN-hpc.R ',i)
+	x[4] <- paste0('Rscript sensana-MAIN-hpc.R ',i)
 	
 	if(debug.local) {
 		x[2] <- ''
 		x[3] <- ''
 	}
-	
 	write(x,file = scriptname)
-	system(paste0('chmod +x naf-',i,'.sh'))
+	system(paste0('chmod +x naf-sensana',i,'.sh'))
 }
 
 # Send the jobs to the queuing system:
-print(paste('Launching',ns,'job with wall.time.max =',wall.time,'...'))
+print(paste('Sensitivity analysis: Launching ',ns,
+            'jobs with wall.time.max =',wall.time,'...'))
 for (i in 1:ns){
-	cmd <- paste0('qsub naf-',i,'.sh')
-	if(debug.local) cmd <- paste0('./naf-',i,'.sh')
+	cmd <- paste0('qsub naf-sensana',i,'.sh')
+	if(debug.local) cmd <- paste0('./naf-sensana',i,'.sh')
 	system(cmd,intern = FALSE)
 }

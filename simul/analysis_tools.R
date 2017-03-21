@@ -90,8 +90,7 @@ calc.R0.SIR <- function(pop.all.mc,
         ggplot(ts2, aes(x=day, y=inc.m, color=factor(mc))) + geom_line()
     }
     # Just the initial times, for fitting purposes:
-    ts.init <- subset(ts, time < t.max.fit)
-    ts.avg.init <- subset(ts.avg, day < t.max.fit)
+    ts.avg.init <- subset(ts.avg, day < t.max.fit & 0 <= day)
     
     estim.R0.impl.one.mc <- function(i, t.max.fit, ts, gi.bck.mean.mc) {
         
@@ -134,15 +133,13 @@ calc.R0.SIR <- function(pop.all.mc,
     r  <- numeric()
     i0 <- numeric()
     
-    if(do.plot){
-        par(mfrow=c(5,5))
-        for(i in seq_along(unique(ts$mc))){
-            print(i)
-            tmp   <- estim.R0.impl.one.mc(i, t.max.fit, ts, gi.bck.mean.mc)
-            R0[i] <- tmp$R0
-            r[i]  <- tmp$r
-            i0[i] <- tmp$i0
-        }
+    par(mfrow=c(5,5))
+    for(i in seq_along(unique(ts$mc))){
+        print(i)
+        tmp   <- estim.R0.impl.one.mc(i, t.max.fit, ts, gi.bck.mean.mc)
+        R0[i] <- tmp$R0
+        r[i]  <- tmp$r
+        i0[i] <- tmp$i0
     }
     
     R0.avg <- mean(R0, na.rm = TRUE)

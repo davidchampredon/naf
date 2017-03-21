@@ -14,7 +14,7 @@ master0 <- as.numeric(Sys.time())
 # Arguments from the command line:
 args    <- commandArgs(trailingOnly = TRUE)
 scenidx <- args[1]
-print(paste('Running scenario #',scenidx,'...'))
+print(paste('Running sensitivity analysis scenario #',scenidx,'...'))
 
 # Run the simulations on the selected scenario:
 source('utils-load-param.R')
@@ -35,12 +35,18 @@ ov <- overwrite.selected.param(filename   = scen.list.file,
 prm        <- ov[['prm']]
 interv.prm <- ov[['interv.prm']]
 
+# Re-fit mean contact rate to pre-specified R0:
+fitted.MCR <- fit.cr.R0(R0.target = 1.4)
+# overwrite the fitted value:
+prm[['contact_rate_mean']] <- fitted.MCR
+
 # Run the simulation for that scenario:
 run.simul(scen.id = scenidx, 
 		  dir.save.rdata = dir.save.rdata,
 		  force.light.output = TRUE)
 
 master1 <- as.numeric(Sys.time()) 
-msgt    <- paste("===> Time elapsed for scenario #",scenidx,' : ',round((master1-master0)/60,1),'minutes.')
+msgt    <- paste("===> Time elapsed for sensi. analysis scenario #",
+                 scenidx,' : ',round((master1-master0)/60,1),'minutes.')
 print(msgt)
 message(msgt)

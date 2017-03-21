@@ -118,15 +118,22 @@ run.snow.wrap <- function(seedMC,
 
 
 ### ==== Define parameter space ====
-cr.mean.vec <- seq(2,6,by=2)
 
+cr.mean.vec <- seq(2.1,6.1,by=2)
+write.csv(x = cr.mean.vec, file = 'fit-cr-mean-vec.csv', quote = F, row.names = F)
+
+# Force intervention start date (not used) to be 0
+# in order to get the simulation started at time t=0:
 for(k in seq_along(interv.prm)) 
     interv.prm[[k]][['interv_start']] <- 0
 
 ### ==== Run Simulation ====
 
 for(i in seq_along(cr.mean.vec)){
-    print(paste('Simulate with CRmean =',cr.mean.vec[i]))
+    print(paste('Simulate with CRmean =', cr.mean.vec[i]))
+    # overwrite value:
+    prm[['contact_rate_mean']] <- cr.mean.vec[i]
+    
     run.simul(scen.id = i, 
               dir.save.rdata = './rdata/',
               baseonly = TRUE) 
