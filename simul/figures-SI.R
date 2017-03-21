@@ -248,7 +248,8 @@ figure.S2 <- function(zlist.full) {
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
         coord_cartesian(ylim=c(0,1)) +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+        theme(legend.position=c(0.94,0.91)) +
+        xlab("Vaccination time lag (days)") + ylab("Mean relative reduction") 
     
     pdf(file = paste0(dir.SI.fig,'fig-S2.pdf'),
         width = 16, height = 10)    
@@ -287,7 +288,9 @@ figure.S3 <- function(zlist.full) {
         theme(panel.grid.minor.x = element_blank()) +
         scale_color_manual(values=mypalette2) +
         coord_cartesian(ylim=c(0,1)) +
-        xlab("Vacc. Lag (days)") + ylab("Mean relative reduction") 
+        xlab("Vaccination time lag (days)") + ylab("Mean relative reduction") +
+        theme(legend.position=c(0.94,0.85)) +
+        theme(legend.key.width=unit(2,"cm"))
     
     pdf(file = paste0(dir.SI.fig,'fig-S3.pdf'), width = 16, height = 10)    
     plot(g)
@@ -300,25 +303,37 @@ figure.S4 <- function(zlist.ag){
     DAT <- do.call('rbind.data.frame', zlist.ag)
     DAT <- reformat(DAT)
     DAT <- floor.results.0(DAT)
-    DAT$ageGroup <- factor(DAT$ageGroup, levels = c("0_5", "5_18", "18_65","65_over"))
+    
+    DAT$AG <- DAT$ageGroup
+    DAT$AG[DAT$AG == '0_5'] <- '0 - 4'
+    DAT$AG[DAT$AG == '5_18'] <- '5 - 18'
+    DAT$AG[DAT$AG == '18_65'] <- '19 - 64'
+    DAT$AG[DAT$AG == '65_over'] <- '65+'
+    
+    DAT$AG <- factor(DAT$AG, levels = c("0 - 4", "5 - 18", "19 - 64", "65+"))
+    DAT$speed <- paste0('Vacc. admin. rate: ', DAT$interv_cvg_rate)
+    lvl <- paste0('Vacc. admin. rate: ', sort(unique(DAT$interv_cvg_rate)))
+    DAT$speed <- factor(DAT$speed,levels = lvl)
     
     ut    <- as.character(unique(DAT$interv_target))
     DAT.1 <- subset(DAT, interv_target==ut[1])
     DAT.2 <- subset(DAT, interv_target==ut[2])
     
-    internal.plot <- function(DAT, title) {
-        g <- ggplot(DAT, aes(x=ageGroup, y=mn, 
+    
+    internal.plot <- function(DAT, title, label) {
+        g <- ggplot(DAT, aes(x=AG, y=mn, 
                              fill=factor(interv_start),
                              color=factor(interv_start))) +
             geom_line(aes(group=factor(interv_start))) +
             geom_point(alpha=0.75, size=3, shape=22) +
-            facet_grid( VE + R0 ~  interv_cvg_rate) +
-            guides(fill=guide_legend(title="Vacc. Lag (days)"), color=FALSE) +
+            facet_grid( VE + R0 ~  speed) +
+            guides(fill=guide_legend(title="Vacc. time lag (days)"), color=FALSE) +
             scale_fill_manual(values=mypalette) + 
             scale_color_manual(values=mypalette) + 
             coord_cartesian(ylim=c(0,1)) +
-            ggtitle(label = paste('Vaccination strategy',title)) + #
-            xlab("Age group") + ylab("Mean relative reduction")
+            ggtitle(label = paste(label,'vaccination strategy',title)) + 
+            xlab("Age group") + ylab("Mean relative reduction") +
+            theme(legend.position=c(0.1,0.9)) 
         return(g)
     }
     
@@ -333,9 +348,9 @@ figure.S4 <- function(zlist.ag){
     }
     W <- 15
     pdf(file =  paste0(dir.SI.fig,'fig-S4.pdf'), width = W,height = 1.2*W)
-    p1 <- internal.plot(DAT.1, title = internal.translate(ut[1]))
-    p2 <- internal.plot(DAT.2, title = internal.translate(ut[2]))
-    grid.arrange(p1,p2, nrow=2)
+    p1 <- internal.plot(DAT.1, title = internal.translate(ut[1]), label='B - ')
+    p2 <- internal.plot(DAT.2, title = internal.translate(ut[2]), label='A - ')
+    grid.arrange(p2,p1, nrow=2)
     dev.off()
 }
 

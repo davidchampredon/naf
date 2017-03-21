@@ -625,9 +625,9 @@ floor.results.0 <- function(DAT){
     return(DAT)
 }
 
-mypalette <- c('-28'='red', '-14'='orange', 
+mypalette <- c('-28'='red3', '-14'='orange', 
                '0'='grey',
-               '14'='royalblue1','28'='royalblue3')
+               '14'='royalblue1','28'='green2')
 
 mypalette2 <- c('1200'='red', '600'='orange', 
                '300'='royalblue1','150'='chartreuse3')
@@ -642,15 +642,12 @@ reformat.old <- function(DAT){
     DAT$tmp[DAT$contact_rate_mean==ucr[2]] <- 1.9
     DAT$R0 <- paste('Ro =',DAT$tmp)
     
-    DAT$outcome <- factor(DAT$outcome, levels = c('Symptomatic Infections',
+    DAT$outcome <- factor(DAT$outcome, levels = c('Clinical Attack Rate',
                                                   'Hospitalized',
                                                   'Deaths'))
     return(DAT)
 }
 
-# label <- 'efficacy'
-# var <- 'interv_efficacy'
-# newvarname <- 'VE'
 conv.lo.hi <- function(DAT, var, label, newvarname,
                        lo.hi.label = c('Low','High'), 
                        decreasing.sort = FALSE) {
@@ -680,6 +677,12 @@ reformat <- function(DAT){
                       newvarname  = 'R0',
                       lo.hi.label = c('Moderate', 'High'),
                       decreasing.sort = TRUE)
+    
+    DAT$outcome[DAT$outcome == 'Symptomatic Infections'] <- 'Clinical attack rate'
+    DAT$outcome[DAT$outcome == 'Hospitalized'] <- 'Hospitalizations'
+    
+    DAT$outcome <- factor(DAT$outcome, levels=c('Hospitalizations', 'Deaths','Clinical attack rate'))
+    
     return(DAT)
 }
 
@@ -689,14 +692,8 @@ figure.1 <- function(zlist) {
     DAT <- do.call('rbind.data.frame', zlist)
     DAT <- reformat(DAT)
     DAT <- floor.results.0(DAT)
-    
    
     ar <- unique(DAT$interv_start)
-    # 
-    # # Define and reorder VE:
-    # DAT$VE <- paste('VE =',DAT$interv_efficacy)
-    # uie <- sort(unique(DAT$interv_efficacy),decreasing = T)
-    # DAT$VE <- factor(x = DAT$VE, levels = paste('VE =',uie))
     
     # Select a unique vaccination strategy for this plot:
     uvs <- as.character(unique(DAT$interv_target))
@@ -733,11 +730,30 @@ figure.1 <- function(zlist) {
         theme(strip.text = element_text(size=18)) +
         theme(legend.text=element_text(size=12)) +
         theme(legend.title=element_text(size=12)) +
-        theme(legend.position='right') +
+        theme(legend.position=c(0.9,0.9)) +
         scale_fill_manual(values = mypalette2) +
         scale_color_manual(values = mypalette2) +
         coord_cartesian(ylim=c(0,1)) +
         xlab("Vaccintion time lag (days)") + ylab("Relative reduction") 
+    
+    # Panel labels:
+    
+    lab.panel <- function(g, labelpanel, R0, VE) {
+        x.label.panel <- -30
+        y.label.panel <- 0.92
+        label_panel <- data.frame(interv_start = x.label.panel, 
+                                  mn = y.label.panel,
+                                  interv_cvg_rate = 150, 
+                                  R0 = R0,
+                                  VE = VE )
+        g <- g + geom_text(data = label_panel, label = labelpanel, 
+                           size = 16, color='black')
+        return(g)
+    }
+    g <- lab.panel(g,labelpanel='A', R0='Moderate transmissibility', VE='High efficacy') 
+    g <- lab.panel(g,labelpanel='B', R0='High transmissibility', VE='High efficacy') 
+    g <- lab.panel(g,labelpanel='C', R0='Moderate transmissibility', VE='Low efficacy') 
+    g <- lab.panel(g,labelpanel='D', R0='High transmissibility', VE='Low efficacy') 
     
     pdf(file = paste0('../results/figures/Figure_1.pdf'), 
         width = 12, height = 10)    
@@ -776,7 +792,7 @@ figure.2 <- function(zlist.full) {
     ar <- unique(DAT$interv_start)
     
     # Select only hospitalizations and deaths:
-    DAT <- subset(DAT, DAT$outcome %in% c('Hospitalized','Deaths'))
+    DAT <- subset(DAT, DAT$outcome %in% c('Hospitalizations','Deaths'))
     
     g <- ggplot(DAT, aes(x=interv_start, y=mn, 
                          color=factor(interv_cvg_rate))) +
@@ -798,6 +814,27 @@ figure.2 <- function(zlist.full) {
         theme(strip.text = element_text(size=18)) +
         theme(legend.text=element_text(size=12)) +
         theme(legend.title=element_text(size=12)) +
+        theme(legend.position=c(0.9,0.82)) +
+        theme(legend.key.width = unit(2,'cm')) 
+    
+    # Panel labels:
+    
+    lab.panel <- function(g, labelpanel, R0, VE) {
+        x.label.panel <- -30
+        y.label.panel <- 0.92
+        label_panel <- data.frame(interv_start = x.label.panel, 
+                                  mn = y.label.panel,
+                                  interv_cvg_rate = 150, 
+                                  R0 = R0,
+                                  VE = VE )
+        g <- g + geom_text(data = label_panel, label = labelpanel, 
+                           size = 16, color='black')
+        return(g)
+    }
+    g <- lab.panel(g,labelpanel='A', R0='Moderate transmissibility', VE='High efficacy') 
+    g <- lab.panel(g,labelpanel='B', R0='High transmissibility', VE='High efficacy') 
+    g <- lab.panel(g,labelpanel='C', R0='Moderate transmissibility', VE='Low efficacy') 
+    g <- lab.panel(g,labelpanel='D', R0='High transmissibility', VE='Low efficacy')
     
     pdf(file = '../results/figures/Figure_2.pdf',
         width = 16, height = 10)    
