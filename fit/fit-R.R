@@ -37,7 +37,7 @@ R.target <- 1.8
 
 # Range explored:
 cr.mean <- c(1,2,5) #seq(0.5, 6.0, by = 0.25)
-cr.cv   <- c(0.75)  #c(0.5, 0.75, 1)
+#cr.cv   <- c(0.75)  #c(0.5, 0.75, 1)
 
 n.cpu.cr.mean <- 1
 

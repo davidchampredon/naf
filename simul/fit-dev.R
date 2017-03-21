@@ -1,7 +1,5 @@
 #
-#
-#    RUN SIMULATION ON ONE OR TWO SCENARIOS
-#
+#    FIT MEAN CONTACT RATE TO R0
 #
 
 t0 <- as.numeric(Sys.time())
@@ -118,11 +116,20 @@ run.snow.wrap <- function(seedMC,
 }
 
 
+
+### ==== Define parameter space ====
+cr.mean.vec <- seq(2,6,by=2)
+
+for(k in seq_along(interv.prm)) 
+    interv.prm[[k]][['interv_start']] <- 0
+
 ### ==== Run Simulation ====
 
-baseonly  <- simul.prm[['baseline_only']]
+for(i in seq_along(cr.mean.vec)){
+    print(paste('Simulate with CRmean =',cr.mean.vec[i]))
+    run.simul(scen.id = i, 
+              dir.save.rdata = './rdata/',
+              baseonly = TRUE) 
+}
 
-run.simul(scen.id = -1, 
-		  dir.save.rdata = './',
-		  baseonly = baseonly) 
 
