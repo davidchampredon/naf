@@ -15,7 +15,7 @@ source('scenario-builder-sensana.R')
 fs <- read.csv('scenario-prm-list-sensana.csv')
 ns <- nrow(fs)
 
-debug.local <- FALSE
+debug.local <- TRUE
 
 # Generate simulation launch scripts:
 for(i in 1:ns){
