@@ -1,10 +1,22 @@
+#' Index that is unique to a scenario and 
+#' to an iteration of the parameter explored.
+sensana.id <- function(scenidx, i){
+    return(scenidx*1000 + i)
+}
 
 
-explore.cr <- function(cr.mean.vec) {
+#' Explore a range of values for the mean contact rate. 
+#' The results will be used to fit to R0
+#' @param cr.mean.vec Vector of mean contact rate values to explore.
+#' @param scenidx ID number of the current scenario.
+#' @return No object output. Save RData files (to be used by the fit).
+explore.cr <- function(cr.mean.vec, scenidx) {
     ### ==== Libraries and sources ====
     R.library.dir    <- '../Rlibrary/lib'
     param.model.dir  <- '../param-model/'
     data.dir         <- '../data/'
+    dirdef <- read.csv('dir-def.csv',header = F,strip.white = T,as.is = T)
+    rdata.dir <- dirdef[dirdef[,1]=='dir.rdata',2]
     
     library(ggplot2)
     library(plyr)
@@ -26,15 +38,11 @@ explore.cr <- function(cr.mean.vec) {
     fname.prm.interv.0 <- 'prm-interv-0.csv'
     fname.prm.interv   <- 'prm-interv.csv'
     fname.schedules    <- 'schedules.csv'
-    
-    save.plot.to.file <- TRUE
-    
     prm        <- list()
     simul.prm  <- list()
     interv.prm <- list()
     world.prm  <- list()
     sched.prm  <- list()
-    
     
     ### ==== Model Parameters ====
     
@@ -51,10 +59,8 @@ explore.cr <- function(cr.mean.vec) {
     
     world.prm <- load.world.prm(filename = paste0(param.model.dir,fname.prm.au), 
                                 path.prm = param.model.dir)
-    
     world.prm[['id_region']]  <- 0
     world.prm[['regionName']] <- "Canada"
-    
     sf           <- as.numeric(simul.prm[['scale_factor']])
     world.prm    <- scale.world(1/sf, world.prm)
     print(paste('World size reduced by',sf))
@@ -72,7 +78,6 @@ explore.cr <- function(cr.mean.vec) {
     
     sched.prm[['timeslice']] <- c(1.0/24, 4.0/24, 4.0/24, 
                                   1.0/24, 2.0/24, 12.0/24)
-    
     sched.prm[['sched_desc']]  <- read.schedules(paste0(param.model.dir,fname.schedules), return.names = FALSE)
     sched.prm[['sched_names']] <- read.schedules(paste0(param.model.dir,fname.schedules), return.names = TRUE)
     
@@ -82,7 +87,6 @@ explore.cr <- function(cr.mean.vec) {
     interv.prm.0 <- load.interv.prm(paste0(param.model.dir,fname.prm.interv.0))
     # Vax intervention:
     interv.prm   <- load.interv.prm(paste0(param.model.dir,fname.prm.interv))
-    
     
     ### === Snowfall wrapper ===
     
@@ -112,13 +116,10 @@ explore.cr <- function(cr.mean.vec) {
         }
         return(res)
     }
-    
-    
-    
     ### ==== Define parameter space ====
     
-    # cr.mean.vec <- seq(2.1,6.1,by=2)
-    write.csv(x = cr.mean.vec, file = 'fit-cr-mean-vec.csv', quote = F, row.names = F)
+    write.csv(x = cr.mean.vec, file = 'fit-cr-mean-vec.csv', 
+              quote = F, row.names = F)
     
     # Force intervention start date (not used) to be 0
     # in order to get the simulation started at time t=0:
@@ -132,21 +133,28 @@ explore.cr <- function(cr.mean.vec) {
         # overwrite value:
         prm[['contact_rate_mean']] <- cr.mean.vec[i]
         
-        run.simul(scen.id = i, 
-                  dir.save.rdata = './rdata/',
+        run.simul(scen.id = sensana.id(scenidx, i), 
+                  dir.save.rdata = rdata.dir,
                   baseonly = TRUE) 
     }
-    
 }
 
-fit.cr.R0 <- function(R0.target){
-    # R0.target <- 1.8
+#' Fit the mean contact rate to a target R0.
+fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
+    
+    # Explore parameter space:
+    explore.cr(cr.mean.vec, scenidx)
     
     # Retrieve contact rate values used:
-    cr <- as.numeric(unlist(read.csv(file = 'fit-cr-mean-vec.csv')))
+    cr <- cr.mean.vec
     
-    # List simulation results 
-    z <- system('ls ./rdata/mc-simul-*.RData', intern = TRUE)
+    # List simulation results for the associated scenario
+    dirdef    <- read.csv('dir-def.csv',header = F,strip.white = T,as.is = T)
+    rdata.dir <- dirdef[dirdef[,1]=='dir.rdata',2]
+    presimulated.rdata <- paste0('ls ',rdata.dir,'mc-simul-',
+                                 sensana.id(scenidx,0),'*.RData')
+    z <- system(presimulated.rdata, 
+                intern = TRUE)
     
     R0.SIR <- numeric(length(z))
     
@@ -163,7 +171,7 @@ fit.cr.R0 <- function(R0.target){
         # Window = [from] epidemic start [to] epidemic start + window.fit
         window.fit <- 15
         
-        pdf(paste0('R0-fit-',i,'.pdf'), width = 16, height = 10)
+        pdf(paste0('R0-fit-',sensana.id(scenidx,i),'.pdf'), width = 16, height = 10)
         
         # Calculate R0 implied from SIR:
         R0.SIR[i] <- calc.R0.SIR(pop.all.mc = pop.all.mc, 
@@ -177,7 +185,7 @@ fit.cr.R0 <- function(R0.target){
         dev.off()
     }
     
-    idx.best <- which.min((R0.SIR-R0.target)^2)
+    idx.best <- which.min((R0.SIR - R0.target)^2)
     
     plot(x=cr, y=R0.SIR, typ='o',cex=0.8,pch=16, lwd=2, las=1)
     grid()
@@ -185,9 +193,8 @@ fit.cr.R0 <- function(R0.target){
     abline(h=R0.SIR[idx.best], lty=2)
     abline(v=cr[idx.best], lty=2)
     
+    # Write fitted value in parameter file:
     prm.name <- '../param-model/prm-epi.csv'
     prm <- read.csv(prm.name, header = F, strip.white = T, as.is = T)
     prm[prm[,1]=='contact_rate_mean', 2] <- cr[idx.best]
-    
-    
 }

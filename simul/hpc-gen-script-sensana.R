@@ -12,7 +12,7 @@ system('rm -rf naf-sensana*.sh')
 
 # Generate scenarios:
 source('scenario-builder-sensana.R')
-fs <- read.csv('scenario-prm-list.csv')
+fs <- read.csv('scenario-prm-list-sensana.csv')
 ns <- nrow(fs)
 
 debug.local <- FALSE

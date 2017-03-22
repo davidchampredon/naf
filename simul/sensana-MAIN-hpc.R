@@ -3,7 +3,7 @@
 ######    SCRIPT TO RUN ONE SCENARIO for HPC environment
 ######
 ######    NOTE:
-######	  - 'scenario-builder.R' must be run _before_ this script.
+######	  - 'scenario-builder-sensana.R' must be run _before_ this script.
 ######    - 'multiscen-analyze.R' and 'multiscen-plot-only.R' 
 ######      can be run _after_ this script.
 ######
@@ -13,13 +13,14 @@ master0 <- as.numeric(Sys.time())
 
 # Arguments from the command line:
 args    <- commandArgs(trailingOnly = TRUE)
-scenidx <- args[1]
+scenidx <- as.numeric(args[1])
 print(paste('Running sensitivity analysis scenario #',scenidx,'...'))
 
 # Run the simulations on the selected scenario:
 source('utils-load-param.R')
 source('utils-run.R')
 source('utils-misc.R')
+source('utils-fit.R')
 
 dir.results    <- dir.def('dir-def.csv')[['results']]
 dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
@@ -36,7 +37,10 @@ prm        <- ov[['prm']]
 interv.prm <- ov[['interv.prm']]
 
 # Re-fit mean contact rate to pre-specified R0:
-fitted.MCR <- fit.cr.R0(R0.target = 1.4)
+cr.mean.vec <- seq(2,6,by=1)
+fitted.MCR <- fit.cr.R0(R0.target = 1.4, 
+                        cr.mean.vec = cr.mean.vec, 
+                        scenidx = scenidx)
 # overwrite the fitted value:
 prm[['contact_rate_mean']] <- fitted.MCR
 
