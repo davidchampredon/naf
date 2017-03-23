@@ -107,41 +107,24 @@ overwrite.selected.param <- function(filename, scen.id,
 	
 	# WARNING:
 	# interv.prm[[1]] means the FIRST intervention is overwritten.
+	if('interv_target' %in% names(y))
+	    interv.prm[[1]][['interv_target']]   <- as.character(y$interv_target)
 	
-	interv.prm[[1]][['interv_target']]   <- as.character(y$interv_target)
-	interv.prm[[1]][['interv_start']]    <- y$interv_start
-	interv.prm[[1]][['interv_cvg_rate']] <- y$interv_cvg_rate
-	interv.prm[[1]][['interv_efficacy']] <- y$interv_efficacy
+	if('interv_start' %in% names(y))
+	    interv.prm[[1]][['interv_start']]    <- y$interv_start
 	
-	prm[['contact_rate_mean']] <- y$contact_rate_mean
-	prm[['imm_hum_baseline']]  <- y$imm_hum_baseline
+	if('interv_cvg_rate' %in% names(y))
+	    interv.prm[[1]][['interv_cvg_rate']] <- y$interv_cvg_rate
+	
+	if('interv_efficacy' %in% names(y))
+	    interv.prm[[1]][['interv_efficacy']] <- y$interv_efficacy
+	
+	if('contact_rate_mean' %in% names(y))
+	    prm[['contact_rate_mean']] <- y$contact_rate_mean
+	
+	if('imm_hum_baseline' %in% names(y))
+	    prm[['imm_hum_baseline']]  <- y$imm_hum_baseline
 	
 	return(list(prm = prm, interv.prm = interv.prm))
 }
-
-
-# overwrite.selected.param <- function(filename, scen.id,
-# 									 prm,
-# 									 interv.prm) {
-# 	
-# 	x <- read.csv(filename)
-# 	i <- which(x$scenario_id == scen.id)
-# 	y <- x[i,]
-# 	
-# 	# WARNING:
-# 	# interv.prm[[1]] means the FIRST intervention is overwritten.
-# 	
-# 	interv.prm[[1]][['interv_target']]   <<- as.character(y$interv_target)
-# 	interv.prm[[1]][['interv_start']]    <<- y$interv_start
-# 	interv.prm[[1]][['interv_cvg_rate']] <<- y$interv_cvg_rate
-# 	interv.prm[[1]][['interv_efficacy']] <<- y$interv_efficacy
-# 	
-# 	prm[['contact_rate_mean']] <<- y$contact_rate_mean
-# 	
-# 	prm[['imm_hum_baseline']] <<- y$imm_hum_baseline
-# 	# prm[['vax_imm_hum_incr']]    <<- y$vax_imm_hum_incr
-# 	# prm[['vax_imm_cell_incr']]   <<- y$vax_imm_cell_incr
-# }
-
-
 
