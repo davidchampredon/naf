@@ -178,11 +178,11 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
                                  res.list.0 = res.list.0,
                                  t.max.fit = window.fit, 
                                  do.plot = TRUE)
+        dev.off()
         
         msgt <- paste0(i,': R0_sir = ', round(R0.SIR[i], 4))
         print(msgt)
         message(msgt)
-        dev.off()
     }
     
     idx.best <- which.min((R0.SIR - R0.target)^2)

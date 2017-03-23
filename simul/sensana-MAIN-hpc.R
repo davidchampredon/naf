@@ -26,7 +26,7 @@ dir.results    <- dir.def('dir-def.csv')[['results']]
 dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
 
 # File defining parameters for various scenarios:
-scen.list.file <- 'scenario-prm-list.csv'
+scen.list.file <- 'scenario-prm-list-sensana.csv'
 # Overwrite parameter values
 # associated with current scenario:
 ov <- overwrite.selected.param(filename   = scen.list.file,
