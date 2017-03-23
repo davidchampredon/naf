@@ -19,8 +19,8 @@ x <- as.data.frame(expand.grid(M))
 # baseline value must be the first one for each vector!
 #
 A <- list()
-A[['imm_hum_baseline']]    <- c(0.001, 0.2)
-A[['contactAssort_lambda']]<- c(0.1, 0.2) #c(0.1, 0.05, 0.2)
+A[['imm_hum_baseline']]    <- c(0.001, 0.21)
+A[['contactAssort_lambda']]<- c(0.1, 0.22) #c(0.1, 0.05, 0.2)
 # A[['frailty_sd']]          <- c(0.1, 0.02, 0.5)
 # A[['imm_cell_max']]        <- c(0.45, 0.2, 0.9)
 # A[['contact_rate_CV']]     <- c(0.75, 0.3, 1.5)
@@ -62,9 +62,10 @@ for(i in 1:nrow(w)){
     tmp[[i]] <- cbind(x, tmp[[i]])
 }
 z <- do.call('rbind', tmp)
-
+names(z)[(ncol(x)+1) : ncol(z)] <- names(baseline)
 
 # ---- Export to CSV file ----
+
 z$scenario_id <- c(1:nrow(z))
 write.csv(x = z, 
 		  file = 'scenario-prm-list-sensana.csv',

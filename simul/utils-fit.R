@@ -186,14 +186,18 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
     
     idx.best <- which.min((R0.SIR - R0.target)^2)
     
-    plot(x=cr, y=R0.SIR, typ='o',cex=0.8,pch=16, lwd=2, las=1)
-    grid()
-    abline(h=R0.target, col='red')
-    abline(h=R0.SIR[idx.best], lty=2)
-    abline(v=cr[idx.best], lty=2)
+    try({
+        plot(x=cr, y=R0.SIR, typ='o',cex=0.8,pch=16, lwd=2, las=1)
+        grid()
+        abline(h=R0.target, col='red')
+        abline(h=R0.SIR[idx.best], lty=2)
+        abline(v=cr[idx.best], lty=2)
+    },silent = FALSE)
     
     # Write fitted value in parameter file:
-    prm.name <- '../param-model/prm-epi.csv'
-    prm <- read.csv(prm.name, header = F, strip.white = T, as.is = T)
-    prm[prm[,1]=='contact_rate_mean', 2] <- cr[idx.best]
+    # prm.name <- '../param-model/prm-epi.csv'
+    # prm <- read.csv(prm.name, header = F, strip.white = T, as.is = T)
+    # prm[prm[,1]=='contact_rate_mean', 2] <- cr[idx.best]
+    
+    return(cr[idx.best])
 }
