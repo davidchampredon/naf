@@ -1,7 +1,7 @@
 #' Index that is unique to a scenario and 
 #' to an iteration of the parameter explored.
 sensana.id <- function(scenidx, i){
-    return(scenidx*1000 + i)
+    return(scenidx*100000 + i)
 }
 
 
@@ -118,9 +118,6 @@ explore.cr <- function(cr.mean.vec, scenidx) {
     }
     ### ==== Define parameter space ====
     
-    write.csv(x = cr.mean.vec, file = 'fit-cr-mean-vec.csv', 
-              quote = F, row.names = F)
-    
     # Force intervention start date (not used) to be 0
     # in order to get the simulation started at time t=0:
     for(k in seq_along(interv.prm)) 
@@ -130,12 +127,14 @@ explore.cr <- function(cr.mean.vec, scenidx) {
     
     for(i in seq_along(cr.mean.vec)){
         print(paste('Simulate with CRmean =', cr.mean.vec[i]))
+        
         # overwrite value:
         prm[['contact_rate_mean']] <- cr.mean.vec[i]
         
-        run.simul(scen.id = sensana.id(scenidx, i), 
-                  dir.save.rdata = rdata.dir,
-                  baseonly = TRUE) 
+        run.simul.fit.R(scen.id = sensana.id(scenidx, i), 
+                        dir.save.rdata = rdata.dir, 
+                        prm, simul.prm, 
+                        interv.prm.0, world.prm, sched.prm, stoch_build_world)
     }
 }
 
@@ -152,7 +151,7 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
     dirdef    <- read.csv('dir-def.csv',header = F,strip.white = T,as.is = T)
     rdata.dir <- dirdef[dirdef[,1]=='dir.rdata',2]
     presimulated.rdata <- paste0('ls ',rdata.dir,'mc-simul-',
-                                 sensana.id(scenidx,0),'*.RData')
+                                 sensana.id(scenidx,0)/1000,'*.RData')
     z <- system(presimulated.rdata, 
                 intern = TRUE)
     

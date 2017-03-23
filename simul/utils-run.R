@@ -121,12 +121,20 @@ run.simul <- function(scen.id,
 
 
 # Run the simulation. Used to fit R
-run.simul.fit.R <- function(n.MC,n.cpu, prm, simul.prm, interv.prm.0,world.prm,sched.prm,stoch_build_world) {
+run.simul.fit.R <- function(scen.id, dir.save.rdata, prm, simul.prm, interv.prm.0, world.prm, sched.prm, stoch_build_world) {
 	
-	t0 <- as.numeric(Sys.time())
-	baseonly  <- TRUE # <-- force baseline only
-	seeds     <- 1:n.MC
-	
+    t0        <- as.numeric(Sys.time())
+    n.MC      <- simul.prm[['mc']]
+    n.cpu     <- simul.prm[['cpu']]
+    seeds     <- 1:n.MC
+    
+    # optimize simulation start time based 
+    # on interventions:
+    L <- list(interv.prm.0, interv.prm)
+    old.start <- simul.prm[['start_time']]
+    simul.prm[['start_time']] <-  -2 
+    print(paste('Start time forced to',simul.prm[['start_time']]))
+    
 	sfInit(parallel = (n.cpu>1), cpu = n.cpu)
 	sfLibrary(naf,lib.loc = R.library.dir) 
 	
@@ -141,7 +149,13 @@ run.simul.fit.R <- function(n.MC,n.cpu, prm, simul.prm, interv.prm.0,world.prm,s
 						   simplify   = FALSE)
 	
 	sfStop()
-	return(res.list.0)
+	filename <- paste0(dir.save.rdata,'mc-simul-',scen.id,'.RData')
+	save(list=c('res.list.0', 'simul.prm',  'world.prm'), 
+	     file= filename, compress = FALSE)
+	
+	print('... RData file saved.')
+	t1 <- as.numeric(Sys.time())
+	print(paste("Scenario",scen.id,": Simulation computing time is",round((t1-t0)/60,1),"min"))
 }
 
 

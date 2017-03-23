@@ -73,7 +73,7 @@ calc.R0.SIR <- function(pop.all.mc,
     # Merging time series without fizzles:
     res.no.fizz <- list()
     for(i in seq_along(idx.mc.no.fizz)) res.no.fizz[[i]] <- res.list.0[[idx.mc.no.fizz[i] ]]
-    ts <- merge.ts.mc(res.no.fizz, n.cpu = n.cpu)
+    ts <- merge.ts.mc(res.no.fizz, n.cpu = 1)
     
     ts$day <- round(ts$time,0)
     
