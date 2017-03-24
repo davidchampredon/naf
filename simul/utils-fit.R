@@ -143,11 +143,10 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
     
     # Explore parameter space:
     explore.cr(cr.mean.vec, scenidx)
-    
     # Retrieve contact rate values used:
     cr <- cr.mean.vec
-    
-    # List simulation results for the associated scenario
+    # List simulation results 
+    # for the associated scenario:
     dirdef    <- read.csv('dir-def.csv',header = F,strip.white = T,as.is = T)
     rdata.dir <- dirdef[dirdef[,1]=='dir.rdata',2]
     presimulated.rdata <- paste0('ls ',rdata.dir,'mc-simul-',
@@ -178,7 +177,6 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
                                  t.max.fit = window.fit, 
                                  do.plot = TRUE)
         dev.off()
-        
         msgt <- paste0(i,': R0_sir = ', round(R0.SIR[i], 4))
         print(msgt)
         message(msgt)
@@ -187,17 +185,26 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
     idx.best <- which.min((R0.SIR - R0.target)^2)
     
     try({
+        pdf(paste0('R0-fit-result-',scenidx,'.pdf'), width = 8, height = 8)
         plot(x=cr, y=R0.SIR, typ='o',cex=0.8,pch=16, lwd=2, las=1)
         grid()
         abline(h=R0.target, col='red')
         abline(h=R0.SIR[idx.best], lty=2)
         abline(v=cr[idx.best], lty=2)
+        dev.off()
     },silent = FALSE)
     
-    # Write fitted value in parameter file:
-    # prm.name <- '../param-model/prm-epi.csv'
-    # prm <- read.csv(prm.name, header = F, strip.white = T, as.is = T)
-    # prm[prm[,1]=='contact_rate_mean', 2] <- cr[idx.best]
+    # Clean-up temporary RData files:
+    delete.rdata <- paste0('rm ',rdata.dir,'mc-simul-',
+                                 sensana.id(scenidx,0)/1000,'*.RData')
+    system(command = delete.rdata, intern = F)
+    
+    # Save the fitted contact rate value in log file:
+    a <- c(scenidx = scenidx, 
+           fitted.cr = cr[idx.best], 
+           R0.target = R0.target, 
+           time = as.character(Sys.time()))
+    write.csv(x = a, file = 'fitted-cr.csv', append = TRUE, row.names = F)
     
     return(cr[idx.best])
 }
