@@ -1,3 +1,0 @@
-Rscript run-simul-mc.R > out-sim.txt 
-Rscript calc-R0.R
-

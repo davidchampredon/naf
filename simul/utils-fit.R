@@ -204,7 +204,11 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
            fitted.cr = cr[idx.best], 
            R0.target = R0.target, 
            time = as.character(Sys.time()))
-    write.csv(x = a, file = 'fitted-cr.csv', append = TRUE, row.names = F)
+    write.table(x = t(a), file = 'fitted-cr.csv', 
+                append = TRUE, sep=',', 
+                row.names = F, col.names = F)
     
     return(cr[idx.best])
 }
+
+
