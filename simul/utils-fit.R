@@ -169,14 +169,14 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
         # Window = [from] epidemic start [to] epidemic start + window.fit
         window.fit <- 15
         
-        pdf(paste0('R0-fit-',sensana.id(scenidx,i),'.pdf'), width = 16, height = 10)
-        
         # Calculate R0 implied from SIR:
+        do.plot <- FALSE
+        if(do.plot) pdf(paste0('R0-fit-',sensana.id(scenidx,i),'.pdf'), width = 16, height = 10)
         R0.SIR[i] <- calc.R0.SIR(pop.all.mc = pop.all.mc, 
                                  res.list.0 = res.list.0,
                                  t.max.fit = window.fit, 
-                                 do.plot = TRUE)
-        dev.off()
+                                 do.plot = do.plot)
+        if(do.plot) dev.off()
         msgt <- paste0(i,': R0_sir = ', round(R0.SIR[i], 4))
         print(msgt)
         message(msgt)
@@ -186,7 +186,7 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx){
     
     try({
         pdf(paste0('R0-fit-result-',scenidx,'.pdf'), width = 8, height = 8)
-        plot(x=cr, y=R0.SIR, typ='o',cex=0.8,pch=16, lwd=2, las=1)
+        plot(x=cr, y=R0.SIR, typ='o', cex=0.8, pch=16, lwd=2, las=1)
         grid()
         abline(h=R0.target, col='red')
         abline(h=R0.SIR[idx.best], lty=2)
