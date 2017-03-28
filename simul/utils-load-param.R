@@ -143,8 +143,6 @@ overwrite.selected.param <- function(filename, scen.id,
 	if('asymptom_infectiousness_ratio' %in% names(y))
 	    prm[['asymptom_infectiousness_ratio']]  <- y$asymptom_infectiousness_ratio
 	
-	
-	
 	return(list(prm = prm, interv.prm = interv.prm))
 }
 

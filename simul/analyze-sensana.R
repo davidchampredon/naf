@@ -45,15 +45,26 @@ for(i in 2:nrow(as)){
 # identify the bumped parameter:
 baseline.prm <- as[1,col.prm]
 as$bumped <- NA
-
+as$bumped.val <- NA
 for(i in 1:nrow(as)){
     idx <- which(as[i,col.prm] != baseline.prm)
-    if(length(idx)==1) as$bumped[i] <- names(baseline.prm)[idx]
+    if(length(idx)==1) {
+        as$bumped[i]     <- names(baseline.prm)[idx]
+        as$bumped.val[i] <- as[i,as$bumped[i]]
+    }
 }
 
+# clean-up:
+as <- subset(as, !is.na(bumped))
+
+pdf('sensana.pdf', width = 8, height = 16)
 g <- ggplot(as) + 
     geom_point(aes(x=(interv_start), y=mn.minus.baseline, color=factor(interv_cvg_rate)),
                size=3, alpha=0.6) +
-    facet_grid(bumped ~ interv_efficacy ) + 
-    geom_hline(yintercept=0, color='darkgrey', linetype=2)
+    facet_grid(bumped ~ interv_efficacy, scales='free' ) + 
+    geom_hline(yintercept=0, color='darkgrey', linetype=2) +
+    geom_text(aes(x=interv_start-3, y=mn.minus.baseline, label=bumped.val),
+              size = 2) +
+    coord_cartesian(xlim=c(-35,20))
 plot(g)
+dev.off()

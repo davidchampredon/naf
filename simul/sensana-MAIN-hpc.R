@@ -37,10 +37,12 @@ prm        <- ov[['prm']]
 interv.prm <- ov[['interv.prm']]
 
 # Re-fit mean contact rate to pre-specified R0:
-cr.mean.vec <- seq(2, 6, by = 0.25)
+cr.mean.vec <- seq(1, 9, by = 0.5)
 fitted.MCR <- fit.cr.R0(R0.target = 1.4, 
                         cr.mean.vec = cr.mean.vec, 
-                        scenidx = scenidx)
+                        scenidx = scenidx,
+                        prm = prm, 
+                        interv.prm.0 = interv.prm)
 # overwrite the fitted value:
 prm[['contact_rate_mean']] <- fitted.MCR
 
