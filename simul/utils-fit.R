@@ -126,7 +126,7 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx, prm, interv.prm.0){
     
     # Explore parameter space:
     explore.cr(cr.mean.vec, scenidx, prm, interv.prm.0)
-    # Retrieve contact rate values used:
+        # Retrieve contact rate values used:
     cr <- cr.mean.vec
     # List simulation results 
     # for the associated scenario:
@@ -137,14 +137,13 @@ fit.cr.R0 <- function(R0.target, cr.mean.vec, scenidx, prm, interv.prm.0){
     z <- system(presimulated.rdata, 
                 intern = TRUE)
     
+    n.cpu <- parallel::detectCores() - 1
     R0.SIR <- numeric(length(z))
-    
+    source('analysis_tools.R')  
     for(i in seq_along(z)){
         load(z[i])
-        source('analysis_tools.R')  
         
         # Merge all simulations:
-        n.cpu <- parallel::detectCores() - 1
         pop.all.mc <- merge.pop.mc(res.list.0, n.cpu = 1, doparallel = FALSE)
         
         # This is the time window (in days)

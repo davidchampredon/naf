@@ -44,13 +44,13 @@ fitted.MCR <- fit.cr.R0(R0.target = 1.4,
                         prm = prm, 
                         interv.prm.0 = interv.prm)
 # overwrite the fitted value:
-prm[['contact_rate_mean']] <- fitted.MCR
-
-# Run the simulation for that scenario:
-run.simul(scen.id = scenidx, 
-		  dir.save.rdata = dir.save.rdata,
-		  force.light.output = TRUE)
-
+if(!is.na(fitted.MCR)){
+    prm[['contact_rate_mean']] <- fitted.MCR
+    # Run the simulation for that scenario:
+    run.simul(scen.id = scenidx, 
+              dir.save.rdata = dir.save.rdata,
+              force.light.output = TRUE)
+}
 master1 <- as.numeric(Sys.time()) 
 msgt    <- paste("===> Time elapsed for sensi. analysis scenario #",
                  scenidx,' : ',round((master1-master0)/60,1),'minutes.')
