@@ -125,6 +125,26 @@ overwrite.selected.param <- function(filename, scen.id,
 	if('imm_hum_baseline' %in% names(y))
 	    prm[['imm_hum_baseline']]  <- y$imm_hum_baseline
 	
+	if('contactAssort_lambda' %in% names(y))
+	    prm[['contactAssort_lambda']]  <- y$contactAssort_lambda
+	
+	if('frailty_sd' %in% names(y))
+	    prm[['frailty_sd']]  <- y$frailty_sd
+	
+	if('imm_cell_max' %in% names(y))
+	    prm[['imm_cell_max']]  <- y$imm_cell_max
+	
+	if('contact_rate_CV' %in% names(y))
+	    prm[['contact_rate_CV']]  <- y$contact_rate_CV
+	
+	if('proba_move' %in% names(y))
+	    prm[['proba_move']]  <- y$proba_move
+	
+	if('asymptom_infectiousness_ratio' %in% names(y))
+	    prm[['asymptom_infectiousness_ratio']]  <- y$asymptom_infectiousness_ratio
+	
+	
+	
 	return(list(prm = prm, interv.prm = interv.prm))
 }
 
