@@ -63,9 +63,12 @@ tmp <- list()
 for(i in 1:nrow(w)){
     tmp[[i]] <- t (matrix(w[i,], nrow = ncol(w), ncol=nrow(x)))
     tmp[[i]] <- cbind(x, tmp[[i]])
+    # identify baseline (no bumped) scenarios:
+    if(i==1) tmp[[i]]$baseline <- TRUE
+    if(i>1)  tmp[[i]]$baseline <- FALSE
 }
 z <- do.call('rbind', tmp)
-names(z)[(ncol(x)+1) : ncol(z)] <- names(baseline)
+names(z)[(ncol(x)+1) : ncol(z)] <- c(names(baseline),'baseline')
 
 # ---- Export to CSV file ----
 
