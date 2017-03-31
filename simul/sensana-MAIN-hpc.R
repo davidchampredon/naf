@@ -22,6 +22,8 @@ source('utils-run.R')
 source('utils-misc.R')
 source('utils-fit.R')
 
+do.fit.R0 <- FALSE
+
 dir.results    <- dir.def('dir-def.csv')[['results']]
 dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
 
@@ -36,13 +38,20 @@ ov <- overwrite.selected.param(filename   = scen.list.file,
 prm        <- ov[['prm']]
 interv.prm <- ov[['interv.prm']]
 
+if(do.fit.R0){
 # Re-fit mean contact rate to pre-specified R0:
-cr.mean.vec <- seq(1, 9, by = 0.5)
-fitted.MCR <- fit.cr.R0(R0.target = 1.4, 
-                        cr.mean.vec = cr.mean.vec, 
-                        scenidx = scenidx,
-                        prm = prm, 
-                        interv.prm.0 = interv.prm)
+    cr.mean.vec <- seq(1, 9, by = 0.5)
+    fitted.MCR <- fit.cr.R0(R0.target = 1.4, 
+                            cr.mean.vec = cr.mean.vec, 
+                            scenidx = scenidx,
+                            prm = prm, 
+                            interv.prm.0 = interv.prm)
+}
+if(!do.fit.R0){
+    # If no refit requested, just use the value from the file.:
+    fitted.MCR <- prm[['contact_rate_mean']]
+}
+
 # overwrite the fitted value:
 if(!is.na(fitted.MCR)){
     prm[['contact_rate_mean']] <- fitted.MCR
