@@ -4,17 +4,13 @@ library(gridExtra)
 source('utils-compare.R')
 source('utils-misc.R')
 
+
+# ---- Load saved data ----
 dir.results    <- dir.def('dir-def.csv')[['results']]
 dir.save.rdata <- dir.def('dir-def.csv')[['rdata']]
-
-
-# ==== Load saved data ====
-
-print('Loading saved RData...')
 load(paste0(dir.save.rdata,'result-scen-all.RData'))
 res.all <- list(main = result.scen.all,
                 main.ageGroup = result.scen.all.ageGroup)
-print('Saved RData loaded.')
 
 # ----- Analyze results ----
 
@@ -23,15 +19,12 @@ col.prm <-  c("contactAssort_lambda", "frailty_sd",
               "imm_cell_max","contact_rate_CV",
               "proba_move", "asymptom_infectiousness_ratio")
 
-
 file.scen.prm.list <- 'scenario-prm-list-sensana.csv'
 dir <- dir.results
 df  <- res.all[['main']]
 
 bb <- process.outputs.TEST(df,dir,file.scen.prm.list)
-
 a <- bb[[2]][['sympt']]
-
 
 # Calculate the difference with baseline parameter values:
 as <- a[order(a$key, -a$baseline),]
@@ -42,7 +35,7 @@ for(i in 2:nrow(as)){
     as$mn.minus.baseline[i] <- as$mn[i] - as$mn[i.base]
 }
 
-# identify the bumped parameter:
+# Identify the bumped parameter:
 baseline.prm <- as[1,col.prm]
 as$bumped <- NA
 as$bumped.val <- NA
@@ -53,18 +46,46 @@ for(i in 1:nrow(as)){
         as$bumped.val[i] <- as[i,as$bumped[i]]
     }
 }
-
 # clean-up:
 as <- subset(as, !is.na(bumped))
 
+# Calculate range of  outcomes:
+tmp <- ddply(as, c('key',names(as)[1:4],'bumped'), summarize, 
+             n = length(key),
+             rng.tmp = diff(range(mn)),
+             mmb = mean(mn.minus.baseline) # the function 'mean' doesn't really matter, bc only used when n=1
+)
+tmp$rng <- NA
+for(i in 1:nrow(tmp)){
+    if(tmp$n[i]==1) tmp$rng[i] <- tmp$mmb[i]
+    if(tmp$n[i]>1)  tmp$rng[i] <- tmp$rng.tmp[i]
+}
+tmp$VE <- paste('VE =',tmp$interv_efficacy)
+
+
+# ---- Plots ----
 pdf('sensana.pdf', width = 8, height = 16)
-g <- ggplot(as) + 
-    geom_point(aes(x=(interv_start), y=mn.minus.baseline, color=factor(interv_cvg_rate)),
-               size=3, alpha=0.6) +
-    facet_grid(bumped ~ interv_efficacy, scales='free' ) + 
-    geom_hline(yintercept=0, color='darkgrey', linetype=2) +
-    geom_text(aes(x=interv_start-3, y=mn.minus.baseline, label=bumped.val),
-              size = 2) +
-    coord_cartesian(xlim=c(-35,20))
+g <- ggplot(tmp) +
+    geom_bar(aes(x=factor(interv_start), y=abs(rng), fill=factor(interv_cvg_rate)),
+             stat = 'identity', position = 'dodge') + 
+    facet_grid(bumped ~ VE) + 
+    guides(fill = guide_legend(title="Vaccine\nadministration rate\n(per 100,000 per day)"),
+           color = FALSE) +
+    xlab('Vacc. Lag (days)') + 
+    ylab('Range of mean relative reduction change') + 
+    ggtitle('Sensitivity Analysis')
 plot(g)
 dev.off()
+
+# not plotted because to much info --> not readable.
+if(FALSE){
+    g <- ggplot(as) + 
+        geom_point(aes(x=(interv_start), y=mn.minus.baseline, color=factor(interv_cvg_rate)),
+                   size=3, alpha=0.6) +
+        facet_grid(bumped ~ interv_efficacy, scales='free' ) + 
+        geom_hline(yintercept=0, color='darkgrey', linetype=2) +
+        geom_text(aes(x=interv_start-3, y=mn.minus.baseline, label=bumped.val),
+                  size = 2) +
+        coord_cartesian(xlim=c(-35,20))
+    plot(g)
+}
