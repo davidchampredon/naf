@@ -60,7 +60,11 @@ for(i in 1:nrow(tmp)){
     if(tmp$n[i]==1) tmp$rng[i] <- tmp$mmb[i]
     if(tmp$n[i]>1)  tmp$rng[i] <- tmp$rng.tmp[i]
 }
-tmp$VE <- paste('VE =',tmp$interv_efficacy)
+
+# Change efficacy label:
+uve <- sort(unique(tmp$interv_efficacy))
+tmp$VE <-'High Efficacy' 
+tmp$VE[ tmp$interv_efficacy==uve[1] ] <- 'Low Efficacy' 
 
 
 # ---- Plots ----
@@ -71,8 +75,8 @@ g <- ggplot(tmp) +
     facet_grid(bumped ~ VE) + 
     guides(fill = guide_legend(title="Vaccine\nadministration rate\n(per 100,000 per day)"),
            color = FALSE) +
-    xlab('Vacc. Lag (days)') + 
-    ylab('Range of mean relative reduction change') + 
+    xlab('Vaccination time lag (days)') + 
+    ylab('Range of mean relative reduction change for CAR') + 
     ggtitle('Sensitivity Analysis')
 plot(g)
 dev.off()
