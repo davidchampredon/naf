@@ -805,7 +805,10 @@ figure.1 <- function(zlist) {
     
     # Save data of plot in csv file:
     dat.save <- ddply(DAT,c('R0','VE','interv_cvg_rate','interv_start'),
-                      summarize, percentMean=mn*100, percentLo = qlo*100)
+                      summarize, 
+                      percentMean = mn*100, 
+                      percentLo = qlo*100,
+                      percentHi = qhi*100)
     write.csv(x = dat.save, file = '../results/figures/Figure_1.csv')
     
 }
