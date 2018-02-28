@@ -95,6 +95,11 @@ try( plot.vax.frailty(pop.nofizz), silent = T)
 if (save.plot.to.file) dev.off()
 
 
+if (save.plot.to.file) pdf(paste0(dir.results,'plot-suppl-revision-1.pdf'), 
+                           width = 8, height = 8)
+try( plot.hosp.death.prop(pop = pop), silent = T)
+if (save.plot.to.file) dev.off()
+
 # Vaccine efficacy:
 print(' -> Ploting vaccine efficacy ...')
 if (save.plot.to.file) pdf(fname.vaxeff, width = 9, height = 9)

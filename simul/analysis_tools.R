@@ -1431,3 +1431,31 @@ plot.vax.frailty <-function(df){
 }
 
 
+
+# Added 2018-02-28
+plot.hosp.death.prop <- function(pop) {
+    # Summarize data
+    pop$is_dead <- 1-pop$is_alive
+    group_width <- 10
+    pop$age_group <- round(pop$age/group_width,0)*group_width
+    tmp <- ddply(pop,c('age_group'),summarize,
+                 nh = sum(was_hosp),
+                 nd = sum(is_dead),
+                 n = length(id_indiv))
+    
+    denominator <- 100000
+    
+    tmp$prop.hosp      <- tmp$nh/tmp$n * denominator
+    tmp$prop.dead      <- tmp$nd/tmp$n * denominator
+    tmp$prop.dead.hosp <- tmp$nd/tmp$nh * denominator
+    
+    g.age.hosp.raw <- ggplot(tmp)+geom_bar(aes(x=age_group, y=prop.hosp),stat = 'identity')
+    g.age.hosp.raw <- g.age.hosp.raw + ggtitle('Hospitalizations by age')
+    g.age.hosp.raw <- g.age.hosp.raw + xlab('age')+ylab(paste('Hospitalizations per',format(denominator,scientific = F)))
+    
+    g.age.dead.raw <- ggplot(tmp)+geom_bar(aes(x=age_group, y=prop.dead),stat = 'identity')
+    g.age.dead.raw <- g.age.dead.raw + ggtitle('Influenza-induced Death ratio by age')
+    g.age.dead.raw <- g.age.dead.raw + xlab('age')+ylab(paste('Influenza-induced Deaths per', format(denominator,scientific = F)))
+    
+    grid.arrange(g.age.hosp.raw,g.age.dead.raw, ncol=1)
+}
