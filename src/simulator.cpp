@@ -1747,6 +1747,7 @@ vector<individual*> Simulator::helper_priority_vax(uint i,
     vector<individual*> indiv_drawn;
     
     float cvg_rate         = _intervention[i].get_cvg_rate();
+    float cvg_age_mult     = _intervention[i].get_cvg_age_mult();
     string type_target     = _intervention[i].get_type_indiv_targeted();
     uint N = (uint)_world[id_sp].get_size();
     
@@ -1797,7 +1798,7 @@ vector<individual*> Simulator::helper_priority_vax(uint i,
                 if ( cond_ageFr )  // <-- fulfill age, frailty & average coverage conditions
                 {
                     // Has the coverage limit been reached for that indiv's age?
-                    bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                    bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age,cvg_age_mult);
                     
                     if(cond_capvax) // limit not reached
                     {
@@ -1822,7 +1823,7 @@ vector<individual*> Simulator::helper_priority_vax(uint i,
             else{  // <-- No prioritization
                 
                 // Has the coverage limit been reached for that indiv's age?
-                bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age,cvg_age_mult);
                 
                 if(cond_capvax) // cap not reached
                 {
@@ -1860,6 +1861,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
     
     float cvg_rate         = _intervention[i].get_cvg_rate();
     string type_target     = _intervention[i].get_type_indiv_targeted();
+    float cvg_age_mult     = _intervention[i].get_cvg_age_mult();
     
     if(type_target == "symptomatic"){
         
@@ -2070,7 +2072,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
                     if ( cond_ageFr )  // <-- fulfill age, frailty & average coverage conditions
                     {
                         // Has the coverage limit been reached for that indiv's age?
-                        bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                        bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age, cvg_age_mult);
                         
                         if(cond_capvax) // limit not reached
                         {
@@ -2095,7 +2097,7 @@ vector<individual*> Simulator::draw_targeted_individuals(uint i,
                 else{  // <-- No prioritization
                     
                     // Has the coverage limit been reached for that indiv's age?
-                    bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age);
+                    bool cond_capvax = calc_cumvax_prop("that",age) < max_cumvax_prop(age,cvg_age_mult);
                     
                     if(cond_capvax) // cap not reached
                     {

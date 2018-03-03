@@ -266,6 +266,7 @@ List naf_run_det(List params,
 			double	interv_cvg_rate		= tmp_interv["interv_cvg_rate"];
 			double	interv_cvg_max_prop = tmp_interv["interv_cvg_max_prop"];
 			double	interv_efficacy     = tmp_interv["interv_efficacy"];
+			double	interv_cvg_age_mult = tmp_interv["interv_cvg_age_mult"];
 			
 			intervention interv(interv_type,
 								interv_target,
@@ -274,7 +275,8 @@ List naf_run_det(List params,
 								interv_end,
 								interv_cvg_rate,
 								interv_cvg_max_prop,
-								interv_efficacy);
+								interv_efficacy,
+								interv_cvg_age_mult);
 			
 			// Add to the vector holding all interventions:
 			interv_vec.push_back(interv);
@@ -626,7 +628,8 @@ List naf_run(List params,
             double	interv_cvg_rate		= tmp_interv["interv_cvg_rate"];
             double	interv_cvg_max_prop = tmp_interv["interv_cvg_max_prop"];
 			double	interv_efficacy     = tmp_interv["interv_efficacy"];
-
+			double	interv_cvg_age_mult = tmp_interv["interv_cvg_age_mult"];
+			
             intervention interv(interv_type,
                                 interv_target,
                                 interv_name,
@@ -634,7 +637,8 @@ List naf_run(List params,
                                 interv_end,
                                 interv_cvg_rate,
                                 interv_cvg_max_prop,
-								interv_efficacy);
+								interv_efficacy,
+								interv_cvg_age_mult);
 
             // Add to the vector holding all interventions:
             interv_vec.push_back(interv);

@@ -32,7 +32,7 @@ private:
     float  _cvg_max_proportion;
     
     float  _efficacy;
-    
+    float  _cvg_age_mult;
     
 public:
     
@@ -42,12 +42,14 @@ public:
                  string name,
                  float time_start, float time_end,
                  float cvg_rate, float cvg_max_prop,
-                 float efficacy);
+                 float efficacy,
+                 float cvg_age_mult);
 
     // Set functions
     
     void set_cvg_rate(float x) {_cvg_rate = x;}
     void set_cvg_max_proportion(float x) {_cvg_max_proportion = x;}
+    void set_cvg_age_mult(float x) {_cvg_age_mult = x; }
     
     // Get functions
     
@@ -58,6 +60,7 @@ public:
     float get_cvg_rate()            const {return _cvg_rate;}
     float get_cvg_max_proportion()  const {return _cvg_max_proportion;}
     float get_efficacy()            const {return _efficacy;}
+    float get_cvg_age_mult()        const {return _cvg_age_mult;}
     
     // Actions
     

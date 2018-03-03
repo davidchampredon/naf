@@ -7,3 +7,4 @@ avr, interv_end, 999
 avr, interv_cvg_rate, 0.80
 avr, interv_cvg_max_prop, 0.999
 avr, interv_efficacy, 0.99
+avr, interv_cvg_age_mult, 1.00

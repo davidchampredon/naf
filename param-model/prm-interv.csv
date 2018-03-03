@@ -7,11 +7,5 @@ plantvax, interv_end, 999
 plantvax, interv_cvg_rate, 0.01
 plantvax, interv_cvg_max_prop, 0.40
 plantvax, interv_efficacy, 0.90
+plantvax, interv_cvg_age_mult, 1.00
 
-avr, interv_type, treatment
-avr, interv_target, symptomatic
-avr, interv_start, 998
-avr, interv_end, 999
-avr, interv_cvg_rate, 0.80
-avr, interv_cvg_max_prop, 0.999
-avr, interv_efficacy, 0.99

@@ -28,7 +28,8 @@ intervention::intervention(string type_treatment,
                            float time_end,
                            float cvg_rate,
                            float cvg_max_prop,
-                           float efficacy){
+                           float efficacy,
+                           float cvg_age_mult){
     _type_intervention = type_treatment;
     _type_indiv_targeted = type_indiv_targeted;
     _name = name;
@@ -37,6 +38,7 @@ intervention::intervention(string type_treatment,
     _cvg_rate = cvg_rate;
     _cvg_max_proportion = cvg_max_prop;
     _efficacy = efficacy;
+    _cvg_age_mult = cvg_age_mult;
 }
 
 

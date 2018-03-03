@@ -110,22 +110,28 @@ void main_run(){
     float cvg_rate     = 900.0 / 100000;
     float cvg_max_prop = 0.50;
     float efficacy     = 0.80 ;
+    float cvg_age_mult = 1.00;
+    
     intervention interv1("vaccination",  // treatment  cure vaccination
-                         "priority_age19_frailty",  // symptomatic   susceptible   young_old   never_sympt priority_age_frailty
+                         "priority_age5_frailty",  // symptomatic   susceptible   young_old   never_sympt priority_age_frailty
                          "vax",
                          time_start, time_end,
-                         cvg_rate, cvg_max_prop, efficacy);
+                         cvg_rate, cvg_max_prop, efficacy,
+                         cvg_age_mult);
     
     float time_start2    = 998;
     float time_end2      = 999;
     float cvg_rate2      = 0.80;
     float cvg_max_prop2  = 0.99;
     float efficacy2      = 0.999;
+    float cvg_age_mult2  = 1.00;
+    
     intervention interv2("treatment",  // treatment  cure vaccination
                          "symptomatic",  // symptomatic   susceptible young_old
                          "antiviral",
                          time_start2, time_end2,
-                         cvg_rate2, cvg_max_prop2, efficacy2);
+                         cvg_rate2, cvg_max_prop2, efficacy2,
+                         cvg_age_mult2);
     
     interv_vec.push_back(interv1);
     interv_vec.push_back(interv2);
