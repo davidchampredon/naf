@@ -451,9 +451,6 @@ sp.to.string <- function(i) {
 
 hosp.death.prop <- function(pop.nofizz, dir.results) {
     
-    ddply(pop.nofizz,'mc',summarise,N=length(id_indiv))
-    
-    
     x <- ddply(pop.nofizz, c('mc'), summarize, 
                N = length(id_indiv),
                H = sum(was_hosp),

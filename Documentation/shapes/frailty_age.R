@@ -40,5 +40,12 @@ plot(dat$age, dat$frailty,
 grid()
 lines(x1,y1, lwd=lwd, col=col)
 lines(x2,y2, lwd=lwd, col=col)
+
+df1 <- cbind(x1,y1)
+df2 <- cbind(x2,y2)
+df <- rbind(df1,df2)
+colnames(df) <- c('age', 'frailty')
+write.csv(df,file = 'frailty-segment-fit-canada.csv', quote = F, row.names = F)
+
 dev.off()
 
