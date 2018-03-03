@@ -1,0 +1,665 @@
+[1] "World size reduced by 999"
+[1] "Start time optimized from  -2  to  -23"
+R Version:  R version 3.4.2 (2017-09-28) 
+
+Library naf loaded.
+ Entering Rwrap... 
+--> Durations loaded.
+--> Probabilities loaded.
+--> Contact params loaded.
+--> Asymptomatic params loaded.
+--> Treatment & vax params loaded.
+--> Frailty & immunities loaded.
+--> Simulation params loaded.
+Loading 1 intervention scenarios ... 1
+Interventions loaded. 
+
+Loading world parameters... 
+... world basic done ...
+... world deterministic SP sizes done ...
+... all world parameters loaded.
+Creating schedules ...
+ Entering Rwrap... 
+... schedules created.
+--> Durations loaded.
+--> Probabilities loaded.
+--> Contact params loaded.
+--> Asymptomatic params loaded.
+--> Treatment & vax params loaded.
+--> Frailty & immunities loaded.
+
+ Creating world deterministically... 
+--> Simulation params loaded.
+Loading 1 intervention scenarios ... 1
+Interventions loaded. 
+
+Loading world parameters... 
+... world basic done ...
+... world deterministic SP sizes done ...
+ Entering Rwrap... 
+--> Durations loaded.
+... all world parameters loaded.
+Creating schedules ...
+--> Probabilities loaded.
+--> Contact params loaded.
+--> Asymptomatic params loaded.
+... schedules created.
+--> Treatment & vax params loaded.
+--> Frailty & immunities loaded.
+--> Simulation params loaded.
+Loading 1 intervention scenarios ... 1
+Interventions loaded. 
+
+Loading world parameters... 
+... world basic done ...
+
+ Creating world deterministically... 
+... world deterministic SP sizes done ...
+... all world parameters loaded.
+Creating schedules ...
+... schedules created.
+
+ Creating world deterministically... 
+29358 individuals provided to build area unit ID_0
+
+29358 individuals provided to build area unit ID_0
+
+29358 individuals provided to build area unit ID_0
+
+Creating social places of type Household deterministically ...Social places of type Household completed.
+Creating social places of type Household deterministically ...Social places of type Household completed.
+Creating social places of type Household deterministically ...Social places of type Household completed.
+
+ Removing individuals w/o households...
+ Removing individuals w/o households...
+ Removing individuals w/o households... done: 
+12425 individuals kept out of a total of 29358 (42%).
+
+Creating social places of type Workplace deterministically ...
+The total sizes of SP Workplace (11905) may not be large enough compared to the number individuals to be linked (12426).
+ done: 
+12425 individuals kept out of a total of 29358 (42%).
+ done: 
+12425 individuals kept out of a total of 29358 (42%).
+
+Creating social places of type Workplace deterministically ...
+The total sizes of SP Workplace (11905) may not be large enough compared to the number individuals to be linked (12426).
+
+Creating social places of type Workplace deterministically ...
+The total sizes of SP Workplace (11905) may not be large enough compared to the number individuals to be linked (12426).
+
+* * WARNING * * 
+ 95 out of the 690 Workplace social places requested were not created/completed because of lack of individuals.
+Social places of type Workplace completed.
+
+
+* * WARNING * * 
+ 109 out of the 690 Workplace social places requested were not created/completed because of lack of individuals.
+Social places of type Workplace completed.
+
+
+* * WARNING * * 
+ 107 out of the 690 Workplace social places requested were not created/completed because of lack of individuals.
+Social places of type Workplace completed.
+
+Creating social places of type Public transport deterministically ...
+* * WARNING * * 
+ 373 out of the 501 Public transport social places requested were not created/completed because of lack of individuals.
+Social places of type Public transport completed.
+
+Creating social places of type School deterministically ...
+The total sizes of SP School (6450) may not be large enough compared to the number individuals to be linked (12426).
+
+* * WARNING * * 
+ 3 out of the 9 School social places requested were not created/completed because of lack of individuals.
+Social places of type School completed.
+
+Creating social places of type Public transport deterministically ...
+* * WARNING * * 
+ 373 out of the 501 Public transport social places requested were not created/completed because of lack of individuals.
+Social places of type Public transport completed.
+
+Creating social places of type School deterministically ...
+The total sizes of SP School (6450) may not be large enough compared to the number individuals to be linked (12426).
+Creating social places of type Hospital deterministically ...
+* * WARNING * * 
+ 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
+Social places of type Hospital completed.
+
+
+* * WARNING * * 
+ 3 out of the 9 School social places requested were not created/completed because of lack of individuals.
+Social places of type School completed.
+Creating social places of type Public transport deterministically ...
+
+* * WARNING * * 
+ 373 out of the 501 Public transport social places requested were not created/completed because of lack of individuals.
+Social places of type Public transport completed.
+
+Creating social places of type School deterministically ...
+The total sizes of SP School (6450) may not be large enough compared to the number individuals to be linked (12426).
+
+* * WARNING * * 
+ 3 out of the 9 School social places requested were not created/completed because of lack of individuals.
+Social places of type School completed.
+
+Creating social places of type Hospital deterministically ...
+* * WARNING * * 
+ 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
+Social places of type Hospital completed.
+
+Creating social places of type Other public space deterministically ...
+* * WARNING * * 
+ 134 out of the 201 Other public space social places requested were not created/completed because of lack of individuals.
+Social places of type Other public space completed.
+Creating social places of type Hospital deterministically ...
+* * WARNING * * 
+ 1 out of the 1 Hospital social places requested were not created/completed because of lack of individuals.
+Social places of type Hospital completed.
+
+Creating social places of type Other public space deterministically ...
+* * WARNING * * 
+ 134 out of the 201 Other public space social places requested were not created/completed because of lack of individuals.
+Social places of type Other public space completed.
+Creating social places of type Other public space deterministically ...
+* * WARNING * * 
+ 134 out of the 201 Other public space social places requested were not created/completed because of lack of individuals.
+Social places of type Other public space completed.
+
+ === Schedules consistency === 
+
+ Number of individuals without
+ a link to relevant SP type
+ in its schedule (should be 0):  
+
+Household             : 0
+Workplace             : 0
+School                : 0
+Other public space    : 0
+Hospital              : 0
+Public transport      : 0
+
+... world created. 
+
+ === Schedules consistency === 
+
+ Number of individuals without
+ a link to relevant SP type
+ in its schedule (should be 0):  
+
+Household             : 0
+Workplace             : 0
+School                : 0
+Other public space    : 0
+Hospital              : 0
+Public transport      : 0
+
+... world created. 
+
+
+ =======  SIMULATOR INFO ======= 
+
+Simulation horizon (days)     : 300
+Contact rate, mean            : 3.00001
+Contact rate, stddev          : 0.001
+Contact rate, CV              : 0.75
+
+
+ =======  SIMULATOR INFO ======= 
+
+Simulation horizon (days)     : 300
+Contact rate, mean            : 3.00001
+Contact rate, stddev          : 0.001
+Contact rate, CV              : 0.75
+
+Number of social places by type:
+Household                     : 4893
+Workplace                     : 596
+School                        : 7
+Other public space            : 68
+Hospital                      : 1
+Public transport              : 129
+TOTAL                         : 5694
+
+Number of individual linked to social place type:
+Household                     : 12425
+Workplace                     : 10047
+School                        : 2379
+Other public space            : 12426
+Hospital                      : 12426
+Public transport              : 12426
+
+
+Number of social places by type:
+Household                     : 4893
+Workplace                     : 584
+School                        : 7
+Other public space            : 68
+Hospital                      : 1
+Public transport              : 129
+TOTAL                         : 5682
+
+Number of individual linked to social place type:
+Household                     : 12425
+Workplace                     : 9971
+School                        : 2455
+Other public space            : 12426
+Hospital                      : 12426
+Public transport              : 12426
+
+
+ === Schedules consistency === 
+
+ Number of individuals without
+ a link to relevant SP type
+ in its schedule (should be 0):  
+
+Household             : 0
+Workplace             : 0
+School                : 0
+Other public space    : 0
+Hospital              : 0
+Public transport      : 0
+
+... world created. 
+Total number of individuals   : 12425
+Total number of children      : 2378
+
+
+
+ =======  SIMULATOR INFO ======= 
+
+Simulation horizon (days)     : 300
+Contact rate, mean            : 3.00001
+Contact rate, stddev          : 0.001
+Contact rate, CV              : 0.75
+
+Number of social places by type:
+Household                     : 4893
+Workplace                     : 582
+School                        : 7
+Other public space            : 68
+Hospital                      : 1
+Public transport              : 129
+TOTAL                         : 5680
+
+Number of individual linked to social place type:
+Household                     : 12425
+Workplace                     : 9957
+School                        : 2469
+Other public space            : 12426
+Hospital                      : 12426
+Public transport              : 12426
+
+Individuals with schedule worker        : 6381
+Total number of individuals   : 12425
+Total number of children      : 2454
+
+Total number of individuals   : 12425
+Total number of children      : 2468
+
+Individuals with schedule worker        : 6366
+Individuals with schedule worker        : 6337
+Individuals with schedule worker_pubT   : 908
+Individuals with schedule worker_pubT   : 800
+Individuals with schedule worker_pubT   : 848
+Individuals with schedule student       : 2378
+Individuals with schedule student       : 2468
+Individuals with schedule unemployed    : 2758
+Individuals with schedule student       : 2454
+
+Number of interventions : 1
+ Intervention[0]
+Intervention info:
+ Name                         : plantvax
+ Type                         : vaccination
+ Targeted individuals         : priority_age5_frailty
+ Start intervention           : -14
+ End intervention             : 999
+ Coverage rate                : 0.006
+ Coverage max proportion      : 0.999
+ Efficacy                     : 0.8
+
+
+ = (end of simulator info) = 
+
+Individuals with schedule unemployed    : 2820
+Individuals with schedule unemployed    : 2757
+
+Number of interventions : 1
+ Intervention[0]
+Intervention info:
+ Name                         : plantvax
+ Type                         : vaccination
+ Targeted individuals         : priority_age5_frailty
+ Start intervention           : -14
+ End intervention             : 999
+ Coverage rate                : 0.006
+ Coverage max proportion      : 0.999
+ Efficacy                     : 0.8
+
+
+ = (end of simulator info) = 
+
+
+Number of interventions : 1
+ Intervention[0]
+Intervention info:
+ Name                         : plantvax
+ Type                         : vaccination
+ Targeted individuals         : priority_age5_frailty
+ Start intervention           : -14
+ End intervention             : 999
+ Coverage rate                : 0.006
+ Coverage max proportion      : 0.999
+ Efficacy                     : 0.8
+
+
+ = (end of simulator info) = 
+
+
+
+ =======  SIMULATOR INFO ======= 
+
+Simulation horizon (days)     : 300
+Contact rate, mean            : 3.00001
+Contact rate, stddev          : 0.001
+Contact rate, CV              : 0.75
+
+Number of social places by type:
+Household                     : 4893
+Workplace                     : 596
+School                        : 7
+Other public space            : 68
+Hospital                      : 1
+Public transport              : 129
+TOTAL                         : 5694
+
+Number of individual linked to social place type:
+Household                     : 12425
+Workplace                     : 10047
+School                        : 2379
+Other public space            : 12426
+Hospital                      : 12426
+Public transport              : 12426
+
+Total number of individuals   : 12425
+Total number of children      : 2378
+
+
+
+ =======  SIMULATOR INFO ======= 
+
+Simulation horizon (days)     : 300
+Contact rate, mean            : 3.00001
+Contact rate, stddev          : 0.001
+Contact rate, CV              : 0.75
+
+Individuals with schedule worker        : 6381
+Number of social places by type:
+Household                     : 4893
+Workplace                     : 584
+School                        : 7
+Other public space            : 68
+Hospital                      : 1
+Public transport              : 129
+TOTAL                         : 5682
+
+Number of individual linked to social place type:
+Household                     : 12425
+Workplace                     : 9971
+School                        : 2455
+Other public space            : 12426
+Hospital                      : 12426
+Public transport              : 12426
+
+
+
+ =======  SIMULATOR INFO ======= 
+
+Simulation horizon (days)     : 300
+Contact rate, mean            : 3.00001
+Contact rate, stddev          : 0.001
+Contact rate, CV              : 0.75
+
+Number of social places by type:
+Household                     : 4893
+Workplace                     : 582
+School                        : 7
+Other public space            : 68
+Hospital                      : 1
+Public transport              : 129
+TOTAL                         : 5680
+
+Number of individual linked to social place type:
+Household                     : 12425
+Workplace                     : 9957
+School                        : 2469
+Other public space            : 12426
+Hospital                      : 12426
+Public transport              : 12426
+
+Total number of individuals   : 12425
+Total number of children      : 2454
+
+Total number of individuals   : 12425
+Total number of children      : 2468
+
+Individuals with schedule worker_pubT   : 908
+Individuals with schedule worker        : 6337
+Individuals with schedule worker        : 6366
+Individuals with schedule student       : 2378
+Individuals with schedule worker_pubT   : 800
+Individuals with schedule worker_pubT   : 848
+Individuals with schedule unemployed    : 2758
+Individuals with schedule student       : 2468
+Individuals with schedule student       : 2454
+
+Number of interventions : 1
+ Intervention[0]
+Intervention info:
+ Name                         : plantvax
+ Type                         : vaccination
+ Targeted individuals         : priority_age5_frailty
+ Start intervention           : -14
+ End intervention             : 999
+ Coverage rate                : 0.006
+ Coverage max proportion      : 0.999
+ Efficacy                     : 0.8
+
+
+ = (end of simulator info) = 
+
+_frailty_average: 0.313754
+simulation time: -23  (prevalence = 0)
+Individuals with schedule unemployed    : 2757
+Individuals with schedule unemployed    : 2820
+
+Number of interventions : 1
+ Intervention[0]
+Intervention info:
+ Name                         : plantvax
+ Type                         : vaccination
+ Targeted individuals         : priority_age5_frailty
+ Start intervention           : -14
+ End intervention             : 999
+ Coverage rate                : 0.006
+ Coverage max proportion      : 0.999
+ Efficacy                     : 0.8
+
+
+ = (end of simulator info) = 
+
+
+Number of interventions : 1
+ Intervention[0]
+Intervention info:
+ Name                         : plantvax
+ Type                         : vaccination
+ Targeted individuals         : priority_age5_frailty
+ Start intervention           : -14
+ End intervention             : 999
+ Coverage rate                : 0.006
+ Coverage max proportion      : 0.999
+ Efficacy                     : 0.8
+
+
+ = (end of simulator info) = 
+
+_frailty_average: 0.313485
+_frailty_average: 0.314008
+simulation time: -23  (prevalence = 0)
+simulation time: -23  (prevalence = 0)
+simulation time: -21.6  (prevalence = 0)
+simulation time: -21.6  (prevalence = 0)
+simulation time: -21.6  (prevalence = 0)
+simulation time: -19.8  (prevalence = 0)
+simulation time: -19.8  (prevalence = 0)
+simulation time: -19.8  (prevalence = 0)
+simulation time: -18  (prevalence = 0)
+simulation time: -18  (prevalence = 0)
+simulation time: -18  (prevalence = 0)
+simulation time: -16.6  (prevalence = 0)
+simulation time: -16.6  (prevalence = 0)
+simulation time: -16.6  (prevalence = 0)
+simulation time: -14.8  (prevalence = 0)
+simulation time: -14.8  (prevalence = 0)
+simulation time: -14.8  (prevalence = 0)
+simulation time: -13  (prevalence = 0)
+simulation time: -13  (prevalence = 0)
+simulation time: -13  (prevalence = 0)
+simulation time: -11.6  (prevalence = 0)
+simulation time: -11.6  (prevalence = 0)
+simulation time: -11.6  (prevalence = 0)
+simulation time: -9.79  (prevalence = 0)
+simulation time: -9.79  (prevalence = 0)
+simulation time: -9.79  (prevalence = 0)
+simulation time: -8  (prevalence = 0)
+simulation time: -8  (prevalence = 0)
+simulation time: -8  (prevalence = 0)
+simulation time: -6.58  (prevalence = 0)
+simulation time: -6.58  (prevalence = 0)
+simulation time: -6.58  (prevalence = 0)
+simulation time: -4.79  (prevalence = 0)
+simulation time: -4.79  (prevalence = 0)
+simulation time: -4.79  (prevalence = 0)
+simulation time: -3  (prevalence = 0)
+simulation time: -3  (prevalence = 0)
+simulation time: -3  (prevalence = 0)
+simulation time: -1.58  (prevalence = 0)
+simulation time: -1.58  (prevalence = 0)
+simulation time: -1.58  (prevalence = 0)
+ Seeding infection in SP_4885
+ Seeding infection in SP_1400
+ Seeding infection in SP_4114
+ Seeding infection in SP_1300
+ Seeding infection in SP_3711
+ Seeding infection in SP_4237
+ Seeding infection in SP_806
+ Seeding infection in SP_3737
+ Seeding infection in SP_450
+ Seeding infection in SP_4069
+ Seeding infection in SP_2369
+ Seeding infection in SP_3352
+ Seeding infection in SP_4454
+ Seeding infection in SP_723
+ Seeding infection in SP_3747
+ Seeding infection in SP_823
+ Seeding infection in SP_208
+ Seeding infection in SP_1200
+simulation time: 0.208  (prevalence = 9)
+ Seeding infection in SP_4322
+ Seeding infection in SP_4178
+ Seeding infection in SP_1762
+ Seeding infection in SP_1144
+ Seeding infection in SP_2339
+ Seeding infection in SP_1430
+ Seeding infection in SP_2036
+ Seeding infection in SP_1131
+ Seeding infection in SP_2941
+simulation time: 0.208  (prevalence = 9)
+simulation time: 0.208  (prevalence = 9)
+simulation time: 2  (prevalence = 10)
+simulation time: 2  (prevalence = 10)
+simulation time: 2  (prevalence = 13)
+simulation time: 3.42  (prevalence = 25)
+simulation time: 3.42  (prevalence = 19)
+simulation time: 3.42  (prevalence = 30)
+simulation time: 5.21  (prevalence = 38)
+simulation time: 5.21  (prevalence = 40)
+simulation time: 5.21  (prevalence = 38)
+simulation time: 7  (prevalence = 66)
+simulation time: 7  (prevalence = 102)
+simulation time: 7  (prevalence = 62)
+simulation time: 8.42  (prevalence = 108)
+simulation time: 8.42  (prevalence = 202)
+simulation time: 8.42  (prevalence = 94)
+simulation time: 10.2  (prevalence = 197)
+simulation time: 10.2  (prevalence = 545)
+simulation time: 10.2  (prevalence = 193)
+simulation time: 12  (prevalence = 488)
+simulation time: 12  (prevalence = 1376)
+simulation time: 12  (prevalence = 418)
+simulation time: 13.4  (prevalence = 1007)
+simulation time: 13.4  (prevalence = 3120)
+simulation time: 13.4  (prevalence = 976)
+simulation time: 15.2  (prevalence = 2180)
+simulation time: 15.2  (prevalence = 5836)
+simulation time: 15.2  (prevalence = 2352)
+simulation time: 17  (prevalence = 4395)
+simulation time: 17  (prevalence = 4848)
+simulation time: 17  (prevalence = 8098)
+simulation time: 18.4  (prevalence = 7009)
+simulation time: 18.4  (prevalence = 7651)
+simulation time: 18.4  (prevalence = 7427)
+simulation time: 20.2  (prevalence = 7741)
+simulation time: 20.2  (prevalence = 7797)
+simulation time: 20.2  (prevalence = 3504)
+simulation time: 22  (prevalence = 5121)
+simulation time: 22  (prevalence = 829)
+simulation time: 22  (prevalence = 4719)
+simulation time: 23.4  (prevalence = 2354)
+simulation time: 23.4  (prevalence = 153)
+simulation time: 23.4  (prevalence = 1945)
+simulation time: 25.2  (prevalence = 20)
+simulation time: 25.2  (prevalence = 294)
+simulation time: 25.2  (prevalence = 195)
+simulation time: 27  (prevalence = 7)
+simulation time: 27  (prevalence = 50)
+simulation time: 27  (prevalence = 28)
+simulation time: 28.4  (prevalence = 6)
+simulation time: 28.4  (prevalence = 13)
+simulation time: 28.4  (prevalence = 11)
+simulation time: 30.2  (prevalence = 2)
+simulation time: 30.2  (prevalence = 4)
+simulation time: 30.2  (prevalence = 9)
+simulation time: 32  (prevalence = 1)
+simulation time: 32  (prevalence = 2)
+
+exporting world 0/5682
+exporting world 1000/5682
+exporting world 2000/5682
+exporting world 3000/5682
+simulation time: 32  (prevalence = 5)
+exporting world 4000/5682
+exporting world 5000/5682
+simulation time: 33.4  (prevalence = 2)
+simulation time: 33.4  (prevalence = 1)
+
+exporting world 0/5680
+exporting world 1000/5680
+exporting world 2000/5680
+exporting world 3000/5680
+exporting world 4000/5680
+simulation time: 35.2  (prevalence = 1)
+exporting world 5000/5680
+
+exporting world 0/5694
+exporting world 1000/5694
+exporting world 2000/5694
+exporting world 3000/5694
+exporting world 4000/5694
+exporting world 5000/5694
+[1] "Saving RData file..."
+[1] "... RData file saved."
+[1] "Scenario -1 : Simulation computing time is 0.6 min"

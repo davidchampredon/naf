@@ -1,0 +1,32 @@
+# calculate sensitivity to vaccine coverage "interv_cvg_age_mult"
+# in response to reviewer comment.
+# Make sure baseline_only flag = 1
+# 2018-03-02
+
+# --- save backup of original (will be restored)
+
+cp ../param-model/prm-simul.csv  ../param-model/prm-simul.csv.bckup
+cp ../param-model/prm-interv-0.csv  ../param-model/prm-interv-0.csv.bckup
+
+# --- set simulation parameters
+
+cp ../param-model/prm-simul-sensi-vaxcvgmult.csv  ../param-model/prm-simul.csv
+
+
+# --- Evaluations 
+
+for i in {1..3}
+do
+echo "=== Starting sensi vax cvg mult $i ==="
+cp ../param-model/prm-interv-sensi-vaxcvgmult-$i.csv  ../param-model/prm-interv-0.csv
+sleep 1s
+./go-simulate
+cp out-sim.txt out-sim-sensi-cvg-$1.txt
+sleep 1s
+cp ../results/hosp-death-ratio.csv ../results/hosp-death-ratio-sensi-vaxcvgmult-$i.csv
+done
+
+
+# --- Restore original 
+cp ../param-model/prm-simul.csv.bckup  ../param-model/prm-simul.csv
+cp ../param-model/prm-interv-0.csv.bckup  ../param-model/prm-interv-0.csv
