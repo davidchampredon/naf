@@ -462,6 +462,9 @@ hosp.death.prop <- function(pop.nofizz, dir.results) {
     x$hosp.per.100000 <- x$hosp.prop * 1e5
     x$death.per.100000 <- x$death.prop * 1e5
     
+    write.csv(x, file = paste0(dir.results,'hosp-death-mc.csv'),
+              row.names = F, quote = F)  
+    
     h <- subset(pop.nofizz, was_hosp==1)
     fatality.per.hosp <- mean(1-h$is_alive)
     

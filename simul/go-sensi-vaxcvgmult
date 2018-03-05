@@ -23,7 +23,7 @@ sleep 1s
 ./go-simulate
 cp out-sim.txt out-sim-sensi-cvg-$1.txt
 sleep 1s
-cp ../results/hosp-death-ratio.csv ../results/hosp-death-ratio-sensi-vaxcvgmult-$i.csv
+cp ../results/hosp-death-mc.csv ../results/hosp-death-ratio-sensi-vaxcvgmult-$i.csv
 done
 
 
